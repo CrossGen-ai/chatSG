@@ -37,4 +37,7 @@ __pycache__/
 .Python
 env/
 venv/
-ENV/ 
+ENV/
+
+# New additions
+.env.*.local 

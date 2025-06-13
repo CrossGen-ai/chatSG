@@ -1,0 +1,271 @@
+@import "tailwindcss";
+
+/* Theme CSS Custom Properties */
+:root {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --accent-primary: #3b82f6;
+  --accent-secondary: #8b5cf6;
+  --orb-1: rgba(59, 130, 246, 0.2);
+  --orb-2: rgba(139, 92, 246, 0.2);
+  --orb-3: rgba(16, 185, 129, 0.1);
+}
+
+.theme-dark {
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --accent-primary: #3b82f6;
+  --accent-secondary: #8b5cf6;
+  --orb-1: rgba(59, 130, 246, 0.3);
+  --orb-2: rgba(139, 92, 246, 0.3);
+  --orb-3: rgba(16, 185, 129, 0.2);
+}
+
+.theme-blue {
+  --bg-primary: #eff6ff;
+  --bg-secondary: #dbeafe;
+  --text-primary: #1e3a8a;
+  --text-secondary: #3730a3;
+  --accent-primary: #2563eb;
+  --accent-secondary: #4f46e5;
+  --orb-1: rgba(37, 99, 235, 0.3);
+  --orb-2: rgba(79, 70, 229, 0.3);
+  --orb-3: rgba(59, 130, 246, 0.2);
+}
+
+.theme-blue.dark {
+  --bg-primary: #1e3a8a;
+  --bg-secondary: #1e40af;
+  --text-primary: #dbeafe;
+  --text-secondary: #93c5fd;
+  --accent-primary: #60a5fa;
+  --accent-secondary: #a78bfa;
+  --orb-1: rgba(96, 165, 250, 0.4);
+  --orb-2: rgba(167, 139, 250, 0.4);
+  --orb-3: rgba(59, 130, 246, 0.3);
+}
+
+.theme-emerald {
+  --bg-primary: #ecfdf5;
+  --bg-secondary: #d1fae5;
+  --text-primary: #064e3b;
+  --text-secondary: #065f46;
+  --accent-primary: #059669;
+  --accent-secondary: #0d9488;
+  --orb-1: rgba(5, 150, 105, 0.3);
+  --orb-2: rgba(13, 148, 136, 0.3);
+  --orb-3: rgba(16, 185, 129, 0.2);
+}
+
+.theme-emerald.dark {
+  --bg-primary: #064e3b;
+  --bg-secondary: #065f46;
+  --text-primary: #d1fae5;
+  --text-secondary: #6ee7b7;
+  --accent-primary: #34d399;
+  --accent-secondary: #2dd4bf;
+  --orb-1: rgba(52, 211, 153, 0.4);
+  --orb-2: rgba(45, 212, 191, 0.4);
+  --orb-3: rgba(16, 185, 129, 0.3);
+}
+
+.theme-rose {
+  --bg-primary: #fff1f2;
+  --bg-secondary: #fce7e8;
+  --text-primary: #881337;
+  --text-secondary: #9f1239;
+  --accent-primary: #e11d48;
+  --accent-secondary: #ec4899;
+  --orb-1: rgba(225, 29, 72, 0.3);
+  --orb-2: rgba(236, 72, 153, 0.3);
+  --orb-3: rgba(244, 63, 94, 0.2);
+}
+
+.theme-rose.dark {
+  --bg-primary: #881337;
+  --bg-secondary: #9f1239;
+  --text-primary: #fce7e8;
+  --text-secondary: #fda4af;
+  --accent-primary: #fb7185;
+  --accent-secondary: #f472b6;
+  --orb-1: rgba(251, 113, 133, 0.4);
+  --orb-2: rgba(244, 114, 182, 0.4);
+  --orb-3: rgba(244, 63, 94, 0.3);
+}
+
+/* Apply theme variables */
+.theme-bg {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+}
+
+.theme-text-primary {
+  color: var(--text-primary);
+}
+
+.theme-text-secondary {
+  color: var(--text-secondary);
+}
+
+.theme-accent {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+}
+
+.theme-orb-1 {
+  background: radial-gradient(circle, var(--orb-1) 0%, transparent 70%);
+}
+
+.theme-orb-2 {
+  background: radial-gradient(circle, var(--orb-2) 0%, transparent 70%);
+}
+
+.theme-orb-3 {
+  background: radial-gradient(circle, var(--orb-3) 0%, transparent 70%);
+}
+
+/* Custom scrollbar styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+  background-color: rgb(209 213 219);
+  border-radius: 9999px;
+}
+
+.scrollbar-thumb-gray-600::-webkit-scrollbar-thumb {
+  background-color: rgb(75 85 99);
+  border-radius: 9999px;
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(209 213 219);
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99);
+}
+
+/* Custom animations */
+@keyframes slide-in-from-bottom-2 {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-from-top-2 {
+  from {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.slide-in-from-bottom-2 {
+  animation-name: slide-in-from-bottom-2;
+}
+
+.slide-in-from-top-2 {
+  animation-name: slide-in-from-top-2;
+}
+
+.duration-200 {
+  animation-duration: 200ms;
+}
+
+.duration-300 {
+  animation-duration: 300ms;
+}
+
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+.delay-1000 {
+  animation-delay: 1000ms;
+}
+
+/* Global styles */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Backdrop blur fallback for older browsers */
+@supports not (backdrop-filter: blur(12px)) {
+  .backdrop-blur-xl {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .dark .backdrop-blur-xl {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .backdrop-blur-md {
+    background-color: rgba(255, 255, 255, 0.6);
+  }
+  
+  .dark .backdrop-blur-md {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Focus styles */
+*:focus {
+  outline: none;
+}
+
+/* Selection styles */
+::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+.dark ::selection {
+  background-color: rgba(147, 197, 253, 0.3);
+}
