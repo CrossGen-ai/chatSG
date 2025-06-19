@@ -1,0 +1,14 @@
+{
+  "name": "agent-zero",
+  "version": "1.0.0",
+  "description": "Simple LangGraph agent with session memory",
+  "main": "agent.js",
+  "dependencies": {
+    "@langchain/langgraph": "^0.2.19",
+    "@langchain/openai": "^0.3.14",
+    "@langchain/core": "^0.3.21"
+  },
+  "keywords": ["langchain", "langgraph", "agent", "ai"],
+  "author": "StartGuides",
+  "license": "MIT"
+} 

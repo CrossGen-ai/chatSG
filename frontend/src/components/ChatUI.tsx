@@ -1,12 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import { sendChatMessage } from '../api/chat';
+import { useChatManager } from '../hooks/useChatManager';
 
 interface Message {
   id: number;
   content: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+}
+
+interface ChatUIProps {
+  sessionId?: string;
 }
 
 const initialMessages: Message[] = [
@@ -47,18 +52,103 @@ const TypingIndicator = () => (
   </div>
 );
 
-export const ChatUI: React.FC = () => {
+export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
+  const { activeChatId, updateChatMetadata, chats, setChatLoading, markChatNewMessage } = useChatManager();
+  const currentSessionId = sessionId || activeChatId;
+  const currentChat = chats.find(chat => chat.id === currentSessionId);
+  
+  // Create a ref to track the current active session for async operations
+  // 🚨 CRITICAL: DO NOT REMOVE - Required for race condition fix
+  // Without this useEffect, the ref becomes stale and race condition returns
+  // See: frontend/RACE_CONDITION_FIX_DOCUMENTATION.md
+  const currentActiveSessionRef = useRef(currentSessionId);
+  
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState<Map<string, AbortController>>(new Map());
+
+  // Remove global loading state, use per-chat loading from context
+  const loading = currentChat?.isLoading || false;
+
+  // Save messages to localStorage
+  const saveMessages = (sessionId: string, messages: Message[]) => {
+    try {
+      localStorage.setItem(`chat-messages-${sessionId}`, JSON.stringify(messages));
+    } catch (error) {
+      console.warn('Failed to save messages to localStorage:', error);
+    }
+  };
+
+  // Load messages from localStorage
+  const loadMessages = (sessionId: string): Message[] => {
+    try {
+      const saved = localStorage.getItem(`chat-messages-${sessionId}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Convert timestamp strings back to Date objects
+        return parsed.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+      }
+    } catch (error) {
+      console.warn('Failed to load messages from localStorage:', error);
+    }
+    return initialMessages;
+  };
+
+  // Load messages when sessionId changes
+  useEffect(() => {
+    console.log(`[ChatUI] useEffect: Loading messages for session change: ${currentSessionId}`);
+    if (currentSessionId) {
+      const loadedMessages = loadMessages(currentSessionId);
+      setMessages(loadedMessages);
+      console.log(`[ChatUI] useEffect: Loaded ${loadedMessages.length} messages for session: ${currentSessionId}`);
+    }
+  }, [currentSessionId]);
+
+  // Save messages when they change
+  useEffect(() => {
+    console.log(`[ChatUI] useEffect: Messages changed. currentSessionId: ${currentSessionId}, messages.length: ${messages.length}`);
+    if (currentSessionId && messages.length > 0) {
+      console.log(`[ChatUI] useEffect: SAVING ${messages.length} messages to session: ${currentSessionId}`);
+      console.log(`[ChatUI] useEffect: Last message content:`, messages[messages.length - 1]?.content);
+      saveMessages(currentSessionId, messages);
+    }
+  }, [currentSessionId, messages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Update the ref whenever currentSessionId changes
+  // 🚨 CRITICAL: DO NOT REMOVE - Required for race condition fix
+  // Without this useEffect, the ref becomes stale and race condition returns
+  // See: frontend/RACE_CONDITION_FIX_DOCUMENTATION.md
+  useEffect(() => {
+    currentActiveSessionRef.current = currentSessionId;
+    console.log(`[ChatUI] 🔄 Updated currentActiveSessionRef to: ${currentSessionId}`);
+  }, [currentSessionId]);
+
+  // REMOVED: Request cancellation useEffect for background processing
+
   const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+    if (!input.trim() || loading || !currentSessionId) return;
+    
+    // CRITICAL FIX: Capture originating session as a STATIC VALUE
+    // This prevents the value from changing when user switches chats
+    const originatingSessionId = String(currentSessionId);
+    console.log(`[ChatUI] 🚀 SENDING MESSAGE - originatingSessionId: ${originatingSessionId}, currentSessionId: ${currentSessionId}`);
+    
+    const requestId = crypto.randomUUID();
+    const abortController = new AbortController();
+    
+    // Track request
+    setPendingRequests(prev => new Map(prev).set(requestId, abortController));
+    
+    // Set loading state for this specific chat
+    setChatLoading(originatingSessionId, true);
     
     const userMessage: Message = {
       id: Date.now(),
@@ -67,29 +157,126 @@ export const ChatUI: React.FC = () => {
       timestamp: new Date()
     };
     
-    setMessages((msgs) => [...msgs, userMessage]);
+    // CRITICAL FIX: Save user message immediately to correct localStorage
+    // 🚨 CRITICAL: DO NOT REMOVE - Prevents cross-chat message contamination
+    // This prevents cross-chat contamination when users switch chats quickly
+    // See: frontend/RACE_CONDITION_FIX_DOCUMENTATION.md
+    const currentMessages = loadMessages(originatingSessionId);
+    const updatedMessages = [...currentMessages, userMessage];
+    saveMessages(originatingSessionId, updatedMessages);
+    console.log(`[ChatUI] User message immediately saved to localStorage for session: ${originatingSessionId}`);
+    
+    // Update current UI with the same messages
+    setMessages(updatedMessages);
+    const currentInput = input;
     setInput('');
-    setLoading(true);
     
     try {
-      const botReply = await sendChatMessage(input);
-      const botMessage: Message = {
-        id: Date.now() + 1,
-        content: botReply,
-        sender: 'bot',
-        timestamp: new Date()
-      };
-      setMessages((msgs) => [...msgs, botMessage]);
-    } catch (error) {
-      const errorMessage: Message = {
-        id: Date.now() + 1,
-        content: 'Sorry, I encountered an error. Please try again.',
-        sender: 'bot',
-        timestamp: new Date()
-      };
-      setMessages((msgs) => [...msgs, errorMessage]);
+      const botReply = await sendChatMessage(currentInput, originatingSessionId, {
+        signal: abortController.signal
+      });
+      
+      // CRITICAL FIX: Use the ref to get the ACTUAL current session at response time
+      // 🚨 CRITICAL: DO NOT CHANGE - Must use currentActiveSessionRef.current, not currentSessionId
+      // Using currentSessionId here will cause race condition to return
+      // See: frontend/RACE_CONDITION_FIX_DOCUMENTATION.md
+      const currentSessionAtResponseTime = String(currentActiveSessionRef.current);
+      console.log(`[ChatUI] 📥 RESPONSE RECEIVED - originatingSessionId: ${originatingSessionId}, currentSessionId at response time: ${currentSessionAtResponseTime}`);
+      console.log(`[ChatUI] 🔍 Session validation: ${originatingSessionId} === ${currentSessionAtResponseTime} ? ${originatingSessionId === currentSessionAtResponseTime}`);
+      console.log(`[ChatUI] 🔍 DETAILED COMPARISON:`);
+      console.log(`[ChatUI] 🔍   - originatingSessionId: "${originatingSessionId}" (length: ${originatingSessionId.length}, type: ${typeof originatingSessionId})`);
+      console.log(`[ChatUI] 🔍   - currentSessionAtResponseTime: "${currentSessionAtResponseTime}" (length: ${currentSessionAtResponseTime.length}, type: ${typeof currentSessionAtResponseTime})`);
+      console.log(`[ChatUI] 🔍   - currentActiveSessionRef.current: "${currentActiveSessionRef.current}"`);
+      console.log(`[ChatUI] 🔍   - sessionId prop: "${sessionId}"`);
+      
+      // Session validation before UI update
+      if (originatingSessionId === currentSessionAtResponseTime) {
+        console.log(`[ChatUI] ✅ ACTIVE CHAT PATH - Adding response to current UI`);
+        // Response for currently active chat
+        const botMessage: Message = {
+          id: Date.now() + 1,
+          content: botReply,
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        setMessages((msgs) => {
+          const newMessages = [...msgs, botMessage];
+          console.log(`[ChatUI] ✅ ACTIVE: Updated UI with ${newMessages.length} messages for session: ${originatingSessionId}`);
+          updateChatMetadata(originatingSessionId, {
+            lastMessageAt: new Date(),
+            messageCount: newMessages.length
+          });
+          return newMessages;
+        });
+        console.log(`[ChatUI] Message delivered to active session: ${originatingSessionId}`);
+      } else {
+        console.log(`[ChatUI] 🔄 BACKGROUND CHAT PATH - Saving response to localStorage only`);
+        // Response for background chat - mark as having new messages
+        const backgroundMessages = loadMessages(originatingSessionId);
+        const botMessage: Message = {
+          id: Date.now() + 1,
+          content: botReply,
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        const updatedBackgroundMessages = [...backgroundMessages, botMessage];
+        saveMessages(originatingSessionId, updatedBackgroundMessages);
+        console.log(`[ChatUI] 🔄 BACKGROUND: Saved ${updatedBackgroundMessages.length} messages to localStorage for session: ${originatingSessionId}`);
+        console.log(`[ChatUI] 🔄 BACKGROUND: Bot response content:`, botReply);
+        
+        markChatNewMessage(originatingSessionId, true);
+        updateChatMetadata(originatingSessionId, {
+          lastMessageAt: new Date(),
+          messageCount: updatedBackgroundMessages.length
+        });
+        console.log(`[ChatUI] Background response received for session: ${originatingSessionId}`);
+      }
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log(`[ChatUI] Request cancelled for session: ${originatingSessionId}`);
+        return;
+      }
+      
+      // CRITICAL FIX: Use current session at response time for error handling too
+      const currentSessionAtResponseTime = String(currentActiveSessionRef.current);
+      
+      // Handle errors for both active and background chats
+      if (originatingSessionId === currentSessionAtResponseTime) {
+        const errorMessage: Message = {
+          id: Date.now() + 1,
+          content: 'Sorry, I encountered an error. Please try again.',
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        setMessages((msgs) => [...msgs, errorMessage]);
+      } else {
+        // Handle error for background chat
+        const backgroundMessages = loadMessages(originatingSessionId);
+        const errorMessage: Message = {
+          id: Date.now() + 1,
+          content: 'Sorry, I encountered an error. Please try again.',
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        const updatedBackgroundMessages = [...backgroundMessages, errorMessage];
+        saveMessages(originatingSessionId, updatedBackgroundMessages);
+        
+        updateChatMetadata(originatingSessionId, {
+          lastMessageAt: new Date(),
+          messageCount: updatedBackgroundMessages.length
+        });
+      }
+      console.warn(`[ChatUI] Error in session ${originatingSessionId}:`, error);
     } finally {
-      setLoading(false);
+      // Clear loading state for this specific chat
+      setChatLoading(originatingSessionId, false);
+      
+      // Cleanup request tracking
+      setPendingRequests(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(requestId);
+        return newMap;
+      });
     }
   };
 
@@ -107,7 +294,9 @@ export const ChatUI: React.FC = () => {
             <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
           </div>
           <div>
-            <h3 className="font-semibold theme-text-primary">AI Assistant</h3>
+            <h3 className="font-semibold theme-text-primary">
+              {currentChat?.title || 'AI Assistant'}
+            </h3>
             <p className="text-sm theme-text-secondary">Online • Ready to help</p>
           </div>
         </div>

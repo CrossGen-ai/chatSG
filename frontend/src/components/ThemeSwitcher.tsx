@@ -36,6 +36,8 @@ const themes = [
 export const ThemeSwitcher: React.FC = () => {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [isOpen, setIsOpen] = useState(false);
+  const [buttonRect, setButtonRect] = useState<DOMRect | null>(null);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     // Clear all existing theme classes
@@ -64,10 +66,18 @@ export const ThemeSwitcher: React.FC = () => {
     setIsOpen(false);
   };
 
+  const handleToggle = () => {
+    if (!isOpen && buttonRef.current) {
+      setButtonRect(buttonRef.current.getBoundingClientRect());
+    }
+    setIsOpen(!isOpen);
+  };
+
   return (
     <div className="relative">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        ref={buttonRef}
+        onClick={handleToggle}
         className="flex items-center space-x-2 px-4 py-2 rounded-xl backdrop-blur-md bg-white/20 dark:bg-black/20 border border-white/30 dark:border-white/10 hover:bg-white/30 dark:hover:bg-black/30 transition-all duration-200 shadow-lg hover:shadow-xl"
       >
         <span className="text-lg">{currentTheme.icon}</span>
@@ -84,13 +94,19 @@ export const ThemeSwitcher: React.FC = () => {
         </svg>
       </button>
 
-      {isOpen && (
+      {isOpen && buttonRect && (
         <>
           <div 
-            className="fixed inset-0 z-10" 
+            className="fixed inset-0 z-[9998]" 
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 top-full mt-2 w-48 rounded-xl backdrop-blur-md bg-white/90 dark:bg-black/90 border border-white/30 dark:border-white/10 shadow-2xl z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200">
+          <div 
+            className="fixed w-48 rounded-xl backdrop-blur-md bg-white/90 dark:bg-black/90 border border-white/30 dark:border-white/10 shadow-2xl z-[9999] overflow-hidden animate-in slide-in-from-top-2 duration-200"
+            style={{
+              top: buttonRect.bottom + 8,
+              right: window.innerWidth - buttonRect.right,
+            }}
+          >
             {themes.map((t) => (
               <button
                 key={t.value}

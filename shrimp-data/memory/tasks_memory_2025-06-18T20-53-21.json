@@ -1,0 +1,216 @@
+{
+  "tasks": [
+    {
+      "id": "cc186f10-6524-41e3-9ea4-8b997e795097",
+      "name": "Create AgentZero LLM Configuration File",
+      "description": "Create the first agent-specific llm-config.json file in the AgentZero directory. This file will contain all prompts currently hardcoded in the LLM helper, including system prompts, custom instructions, and user templates. The configuration will follow a structured JSON schema with support for environment overrides and template variables.",
+      "notes": "This establishes the configuration file pattern that other agents will follow. The schema should be extensible and support the existing customInstructions pattern used by AgentZero.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-18T19:51:23.996Z",
+      "updatedAt": "2025-06-18T19:56:50.642Z",
+      "relatedFiles": [
+        {
+          "path": "backend/agent/AgentZero/llm-config.json",
+          "type": "CREATE",
+          "description": "New agent-specific LLM configuration file"
+        },
+        {
+          "path": "backend/utils/llm-helper.js",
+          "type": "REFERENCE",
+          "description": "Source of existing AgentZero prompt to migrate"
+        },
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "REFERENCE",
+          "description": "Current usage pattern of getSystemPrompt method"
+        }
+      ],
+      "implementationGuide": "1. Create backend/agent/AgentZero/llm-config.json\\n2. Define JSON schema with agentInfo, prompts (system, customInstructions, userTemplates), and environmentOverrides sections\\n3. Migrate existing AgentZero prompt from llm-helper.js getBaseSystemPrompt method\\n4. Add property-based prompt variants (default, analytical, creative)\\n5. Include template variables for dynamic content injection\\n6. Add blank defaults for optional prompts\\n7. Validate JSON syntax and structure",
+      "verificationCriteria": "JSON file is valid, contains all required sections (agentInfo, prompts with system/customInstructions/userTemplates, environmentOverrides), includes migrated AgentZero prompt, supports property-based selection, and includes template variables and blank defaults.",
+      "analysisResult": "Refactor the LLM prompt system from hardcoded values in llm-helper.js to agent-specific JSON configuration files. This enables modular prompt management, property-based prompt selection, and scalable support for multiple agents while maintaining backward compatibility and following existing project architectural patterns.",
+      "summary": "Successfully created comprehensive AgentZero LLM configuration file with all required sections. The file contains migrated AgentZero prompt from llm-helper.js, multiple system prompt variants (default, analytical, creative, technical, conversational), customInstructions templates with variable substitution support, userTemplates for different interaction styles, environment overrides for development/production, and comprehensive metadata. JSON is valid and follows the established schema pattern for future agents. All verification criteria met: contains agentInfo, prompts with system/customInstructions/userTemplates sections, environmentOverrides, template variables, blank defaults, and proper JSON structure.",
+      "completedAt": "2025-06-18T19:56:50.642Z"
+    },
+    {
+      "id": "2b210db5-1b65-4fb1-a1e4-cac913b49dc5",
+      "name": "Extend LLM Helper with Configuration Loading",
+      "description": "Add configuration file loading capabilities to the LLM helper utility. Implement methods to load, parse, and cache agent-specific JSON configuration files. Add error handling for missing files and malformed JSON, with fallback to existing hardcoded prompts for backward compatibility.",
+      "notes": "Must maintain singleton pattern and existing error handling conventions. Use fs.readFileSync for synchronous loading during initialization to match existing patterns in the project.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "cc186f10-6524-41e3-9ea4-8b997e795097"
+        }
+      ],
+      "createdAt": "2025-06-18T19:51:23.996Z",
+      "updatedAt": "2025-06-18T20:10:38.869Z",
+      "relatedFiles": [
+        {
+          "path": "backend/utils/llm-helper.js",
+          "type": "TO_MODIFY",
+          "description": "Add configuration loading methods to existing LLMHelper class",
+          "lineStart": 8,
+          "lineEnd": 276
+        },
+        {
+          "path": "backend/agent/AgentZero/llm-config.json",
+          "type": "DEPENDENCY",
+          "description": "Configuration file to be loaded by the helper"
+        }
+      ],
+      "implementationGuide": "1. Add loadAgentConfig(agentType) method to LLMHelper class\\n2. Implement file path resolution: backend/agent/{agentType}/llm-config.json\\n3. Add JSON parsing with comprehensive error handling\\n4. Implement configuration caching using Map for performance\\n5. Add validateAgentConfig method for schema validation\\n6. Include fallback logic to existing hardcoded prompts\\n7. Add detailed logging with [LLMHelper] prefix following project conventions\\n8. Handle file system errors gracefully",
+      "verificationCriteria": "LLM helper can successfully load agent config files, parse JSON correctly, cache configurations for performance, handle missing files gracefully with fallback to hardcoded prompts, validate config schema, and maintain existing singleton behavior.",
+      "analysisResult": "Refactor the LLM prompt system from hardcoded values in llm-helper.js to agent-specific JSON configuration files. This enables modular prompt management, property-based prompt selection, and scalable support for multiple agents while maintaining backward compatibility and following existing project architectural patterns.",
+      "summary": "Successfully extended LLM Helper with comprehensive configuration loading capabilities. Implemented loadAgentConfig() method with file path resolution, JSON parsing, error handling, and caching using Map. Added validateAgentConfig() for schema validation and modified getBaseSystemPrompt() to use config-based prompts with fallback to hardcoded prompts for backward compatibility. All functionality tested and working correctly with AgentZero config file. Maintains singleton pattern and follows project logging conventions with [LLMHelper] prefix.",
+      "completedAt": "2025-06-18T20:10:38.869Z"
+    },
+    {
+      "id": "cede3ad9-aaa8-42ff-837e-4eb1d4a855a2",
+      "name": "Implement Property-Based Prompt Selection",
+      "description": "Add support for property-based prompt selection using dot notation (e.g., 'agentZero.analytical', 'agentZero.system.creative'). Extend the getSystemPrompt method to handle both legacy agent type strings and new property-based selection while maintaining backward compatibility.",
+      "notes": "The implementation should seamlessly support both 'agentZero' (legacy) and 'agentZero.analytical' (new) formats. Template variable substitution should be robust and handle missing variables gracefully.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "2b210db5-1b65-4fb1-a1e4-cac913b49dc5"
+        }
+      ],
+      "createdAt": "2025-06-18T19:51:23.996Z",
+      "updatedAt": "2025-06-18T20:13:10.771Z",
+      "relatedFiles": [
+        {
+          "path": "backend/utils/llm-helper.js",
+          "type": "TO_MODIFY",
+          "description": "Extend getSystemPrompt method and add property-based selection logic",
+          "lineStart": 202,
+          "lineEnd": 232
+        },
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "REFERENCE",
+          "description": "Current usage pattern to maintain compatibility"
+        }
+      ],
+      "implementationGuide": "1. Add getAgentPrompt(agentType, promptPath, context) method to LLMHelper\\n2. Implement dot notation parsing for property-based selection\\n3. Add template variable substitution for {sessionId}, {timestamp}, {userInput}\\n4. Extend getSystemPrompt to support both legacy and new formats\\n5. Implement prompt composition logic (base + environment + custom)\\n6. Add comprehensive error handling for invalid prompt paths\\n7. Maintain backward compatibility with existing getSystemPrompt calls\\n8. Add validation for prompt path resolution",
+      "verificationCriteria": "System supports dot notation prompt selection, template variable substitution works correctly, backward compatibility maintained for existing getSystemPrompt calls, error handling for invalid paths, and prompt composition follows existing logic.",
+      "analysisResult": "Refactor the LLM prompt system from hardcoded values in llm-helper.js to agent-specific JSON configuration files. This enables modular prompt management, property-based prompt selection, and scalable support for multiple agents while maintaining backward compatibility and following existing project architectural patterns.",
+      "summary": "Successfully implemented comprehensive property-based prompt selection system with dot notation support. Added getAgentPrompt() method for direct prompt access, parseAgentPath() for intelligent path parsing, and substituteTemplateVariables() for robust template processing. Extended getSystemPrompt() to seamlessly support both legacy format ('agentZero') and new property-based selection ('agentZero.analytical'). Implemented graceful error handling with fallback to default prompts. All functionality tested and working correctly. Maintains perfect backward compatibility with existing AgentZero implementation.",
+      "completedAt": "2025-06-18T20:13:10.770Z"
+    },
+    {
+      "id": "75c6adf4-9720-430c-81d2-d29f08f65029",
+      "name": "Update AgentZero to Use New Prompt System",
+      "description": "Modify AgentZero implementation to demonstrate the new prompt system capabilities. Update the agent to use property-based prompt selection and showcase different prompt variants. Ensure the agent continues to work with existing session management and maintains all current functionality.",
+      "notes": "This task demonstrates the new system's capabilities while ensuring no regression in existing functionality. The agent should gracefully handle both old and new prompt systems.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "cede3ad9-aaa8-42ff-837e-4eb1d4a855a2"
+        }
+      ],
+      "createdAt": "2025-06-18T19:51:23.996Z",
+      "updatedAt": "2025-06-18T20:18:18.713Z",
+      "relatedFiles": [
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "TO_MODIFY",
+          "description": "Update agentNode method to use new prompt system",
+          "lineStart": 91,
+          "lineEnd": 141
+        },
+        {
+          "path": "backend/agent/AgentZero/llm-config.json",
+          "type": "DEPENDENCY",
+          "description": "Configuration file used by the agent"
+        }
+      ],
+      "implementationGuide": "1. Update AgentZero agentNode method to use property-based prompt selection\\n2. Demonstrate usage of different prompt variants (default, analytical)\\n3. Update customInstructions to use template variables from config\\n4. Add prompt selection logic based on context or user input\\n5. Maintain existing session management functionality\\n6. Update error handling to work with new prompt system\\n7. Add logging to show which prompt variant is being used\\n8. Ensure fallback behavior works if config file is missing",
+      "verificationCriteria": "AgentZero successfully uses new prompt system, demonstrates property-based selection, maintains session management functionality, handles missing config gracefully, and provides appropriate logging for prompt selection.",
+      "analysisResult": "Refactor the LLM prompt system from hardcoded values in llm-helper.js to agent-specific JSON configuration files. This enables modular prompt management, property-based prompt selection, and scalable support for multiple agents while maintaining backward compatibility and following existing project architectural patterns.",
+      "summary": "Successfully updated AgentZero to demonstrate the new prompt system capabilities. Implemented intelligent prompt selection based on user input keywords (analytical, creative, technical, conversational, default). Enhanced agentNode method with property-based prompt selection, rich template variable substitution, and comprehensive logging. Added selectPromptVariant() and extractMode() helper methods for dynamic prompt selection. Updated fallback method for consistency. Maintained all existing session management functionality while showcasing the new system's flexibility. All functionality tested and verified working correctly with different prompt variants.",
+      "completedAt": "2025-06-18T20:18:18.712Z"
+    },
+    {
+      "id": "083cb252-fda8-48ea-ae79-9b50a941878b",
+      "name": "Create Agent Configuration Template and Documentation",
+      "description": "Create a reusable template for future agents and comprehensive documentation for the new prompt system. This includes a template llm-config.json file, usage examples, and integration guide for new agents. Update existing documentation to reflect the new capabilities.",
+      "notes": "Documentation should be comprehensive enough for developers to easily create new agents and understand the prompt system capabilities. Include practical examples and best practices.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "75c6adf4-9720-430c-81d2-d29f08f65029"
+        }
+      ],
+      "createdAt": "2025-06-18T19:51:23.996Z",
+      "updatedAt": "2025-06-18T20:26:11.368Z",
+      "relatedFiles": [
+        {
+          "path": "backend/agent/agent-config-template.json",
+          "type": "CREATE",
+          "description": "Template configuration file for new agents"
+        },
+        {
+          "path": "backend/LLM-HELPER-GUIDE.md",
+          "type": "TO_MODIFY",
+          "description": "Update existing documentation with new prompt system",
+          "lineStart": 1,
+          "lineEnd": 203
+        },
+        {
+          "path": "backend/agent/AgentZero/llm-config.json",
+          "type": "REFERENCE",
+          "description": "Reference implementation for template creation"
+        }
+      ],
+      "implementationGuide": "1. Create agent-config-template.json in backend/agent/ directory\\n2. Document the complete JSON schema with all available options\\n3. Add usage examples for property-based prompt selection\\n4. Create integration guide for new agents\\n5. Update LLM-HELPER-GUIDE.md with new prompt system documentation\\n6. Add troubleshooting section for common configuration issues\\n7. Include migration guide from hardcoded to config-based prompts\\n8. Add examples of template variable usage and environment overrides",
+      "verificationCriteria": "Template file is complete and reusable, documentation covers all new features, integration guide is clear and actionable, troubleshooting section addresses common issues, and examples demonstrate all prompt system capabilities.",
+      "analysisResult": "Refactor the LLM prompt system from hardcoded values in llm-helper.js to agent-specific JSON configuration files. This enables modular prompt management, property-based prompt selection, and scalable support for multiple agents while maintaining backward compatibility and following existing project architectural patterns.",
+      "summary": "Successfully created comprehensive documentation and templates for the new prompt system. Created agent-config-template.json with complete schema including agentInfo, prompts (system/customInstructions/userTemplates/errorMessages), templateVariables with descriptions and examples, behavior configuration, and metadata. Updated LLM-HELPER-GUIDE.md with extensive documentation covering agent configuration files, property-based prompt selection, template variable substitution, configuration schema, new agent creation steps, configuration loading/caching, intelligent prompt selection, troubleshooting section with common errors and solutions, and migration guide from legacy prompts. Created AGENT-INTEGRATION-GUIDE.md with step-by-step integration guide, practical examples, testing strategies, and best practices. Created PROMPT-SYSTEM-EXAMPLES.md with comprehensive usage examples, advanced implementation patterns, testing examples, and debugging techniques. All documentation is actionable, includes practical examples, covers troubleshooting scenarios, and provides clear migration paths for developers.",
+      "completedAt": "2025-06-18T20:26:11.366Z"
+    },
+    {
+      "id": "2b346370-8d7f-4710-a98d-3499c2567628",
+      "name": "Add Comprehensive Testing for New Prompt System",
+      "description": "Create comprehensive tests for the new agent-specific prompt configuration system. Add tests for configuration loading, property-based selection, template variable substitution, error handling, and backward compatibility. Integrate tests into the existing test suite.",
+      "notes": "Tests should cover all edge cases and error scenarios. Include positive and negative test cases for comprehensive coverage. Follow existing test patterns and logging conventions.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "083cb252-fda8-48ea-ae79-9b50a941878b"
+        }
+      ],
+      "createdAt": "2025-06-18T19:51:23.996Z",
+      "updatedAt": "2025-06-18T20:38:55.695Z",
+      "relatedFiles": [
+        {
+          "path": "backend/tests/test-agent-prompts.js",
+          "type": "CREATE",
+          "description": "New test file for prompt system"
+        },
+        {
+          "path": "backend/tests/run-tests.js",
+          "type": "TO_MODIFY",
+          "description": "Add new test to test suite",
+          "lineStart": 7,
+          "lineEnd": 25
+        },
+        {
+          "path": "backend/utils/llm-helper.js",
+          "type": "REFERENCE",
+          "description": "Methods to be tested"
+        },
+        {
+          "path": "backend/agent/AgentZero/llm-config.json",
+          "type": "REFERENCE",
+          "description": "Configuration file for testing"
+        }
+      ],
+      "implementationGuide": "1. Create test-agent-prompts.js in backend/tests/ directory\\n2. Test configuration file loading and caching\\n3. Test property-based prompt selection with dot notation\\n4. Test template variable substitution with various scenarios\\n5. Test error handling for missing files and invalid JSON\\n6. Test backward compatibility with existing getSystemPrompt calls\\n7. Test environment override functionality\\n8. Add test for AgentZero integration with new system\\n9. Update run-tests.js to include new test file\\n10. Add test configuration files for testing scenarios",
+      "verificationCriteria": "All prompt system features are thoroughly tested, error scenarios are covered, backward compatibility is verified, tests integrate with existing test suite, and test coverage includes configuration loading, prompt selection, and template substitution.",
+      "analysisResult": "Refactor the LLM prompt system from hardcoded values in llm-helper.js to agent-specific JSON configuration files. This enables modular prompt management, property-based prompt selection, and scalable support for multiple agents while maintaining backward compatibility and following existing project architectural patterns.",
+      "summary": "Successfully created comprehensive testing suite for the new agent-specific prompt configuration system. Implemented 21 test cases covering all major functionality including configuration loading and caching, property-based prompt selection with dot notation, template variable substitution, error handling for malformed JSON and missing files, backward compatibility with legacy prompts, context-aware prompt generation, performance testing, and AgentZero integration. Tests verify graceful error handling, validate configuration schema, and ensure system robustness. All tests pass with 100% success rate and integrate seamlessly with existing test suite via run-tests.js. The testing framework provides comprehensive coverage of edge cases and validates the complete prompt system refactoring functionality.",
+      "completedAt": "2025-06-18T20:38:55.693Z"
+    }
+  ]
+}

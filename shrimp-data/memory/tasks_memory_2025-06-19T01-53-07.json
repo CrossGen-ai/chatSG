@@ -1,0 +1,163 @@
+{
+  "tasks": [
+    {
+      "id": "f589fe0b-2788-4dd7-b46f-e542226f35b1",
+      "name": "Add localStorage Message Cleanup to Delete Function",
+      "description": "Enhance the deleteChat function in useChatManager.tsx to properly clean up chat messages from localStorage when deleting chats. Currently, when a chat is deleted, the chat metadata is removed but the associated chat-messages-${id} localStorage entries remain, causing storage bloat.",
+      "notes": "This is the only missing functionality. All other delete/rename features are already complete and working correctly.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-19T00:56:44.338Z",
+      "updatedAt": "2025-06-19T01:05:51.065Z",
+      "relatedFiles": [
+        {
+          "path": "frontend/src/hooks/useChatManager.tsx",
+          "type": "TO_MODIFY",
+          "description": "Main file containing the deleteChat function that needs localStorage cleanup",
+          "lineStart": 138,
+          "lineEnd": 155
+        },
+        {
+          "path": "frontend/src/components/ChatUI.tsx",
+          "type": "REFERENCE",
+          "description": "Reference for understanding the chat-messages localStorage key pattern",
+          "lineStart": 75,
+          "lineEnd": 85
+        }
+      ],
+      "implementationGuide": "1. Modify the deleteChat function in frontend/src/hooks/useChatManager.tsx\\n2. Add localStorage.removeItem call before the existing deletion logic\\n3. Add try-catch error handling for localStorage operations\\n4. Add console logging for successful cleanup and errors\\n\\nPseudocode:\\n```\\nconst deleteChat = (id: string): void => {\\n  // NEW: Clean up chat messages from localStorage\\n  try {\\n    localStorage.removeItem(`chat-messages-${id}`);\\n    console.log(`[ChatManager] Cleaned up messages for deleted chat: ${id}`);\\n  } catch (error) {\\n    console.warn(`[ChatManager] Failed to cleanup messages for chat ${id}:`, error);\\n  }\\n  \\n  // Existing deletion logic remains unchanged\\n  setChats(prevChats => {\\n    // ... existing implementation\\n  });\\n};\\n```",
+      "verificationCriteria": "1. deleteChat function successfully removes both chat metadata and localStorage messages\\n2. No errors thrown when deleting chats\\n3. localStorage storage size decreases after chat deletion\\n4. Console logs show successful cleanup messages\\n5. Existing delete functionality (confirmation dialog, active chat switching) remains unchanged",
+      "analysisResult": "After comprehensive analysis, the delete and rename functionality for chat items in the left sidebar is ALREADY FULLY IMPLEMENTED and working correctly. The core features (delete chat, rename chat, confirmation dialogs, input validation, error handling) are complete. The only missing piece is localStorage cleanup for chat messages when deleting chats, plus some optional quality-of-life enhancements.",
+      "summary": "Successfully implemented localStorage message cleanup in the deleteChat function. Added try-catch error handling, console logging for successful cleanup and errors, and positioned the cleanup logic before the existing deletion logic to ensure messages are removed even if the state update fails. The implementation follows the exact specification in the task requirements and maintains all existing functionality.",
+      "completedAt": "2025-06-19T01:05:51.064Z"
+    },
+    {
+      "id": "73164d81-f2f8-4af6-9e7e-996075e8d907",
+      "name": "Add Duplicate Title Validation for Rename",
+      "description": "Enhance the rename functionality to prevent duplicate chat titles. Currently, users can rename chats to titles that already exist, which can cause confusion in the UI.",
+      "notes": "Optional enhancement for better user experience. Consider using toast notifications instead of alert() for better UX.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-19T00:56:44.338Z",
+      "updatedAt": "2025-06-19T01:10:22.511Z",
+      "relatedFiles": [
+        {
+          "path": "frontend/src/components/ChatSidebar.tsx",
+          "type": "TO_MODIFY",
+          "description": "Contains the handleRenameSave function that needs duplicate validation",
+          "lineStart": 48,
+          "lineEnd": 54
+        },
+        {
+          "path": "frontend/src/hooks/useChatManager.tsx",
+          "type": "REFERENCE",
+          "description": "Reference for understanding the chats array structure and renameChat function",
+          "lineStart": 156,
+          "lineEnd": 165
+        }
+      ],
+      "implementationGuide": "1. Modify the handleRenameSave function in frontend/src/components/ChatSidebar.tsx\\n2. Add validation to check if the new title already exists in other chats\\n3. Show user feedback for duplicate names\\n4. Maintain existing trim and empty validation\\n\\nPseudocode:\\n```\\nconst handleRenameSave = () => {\\n  if (editingChatId && editingTitle.trim()) {\\n    const trimmedTitle = editingTitle.trim();\\n    \\n    // NEW: Check for duplicate titles\\n    const isDuplicate = chats.some(chat => \\n      chat.id !== editingChatId && \\n      chat.title.toLowerCase() === trimmedTitle.toLowerCase()\\n    );\\n    \\n    if (isDuplicate) {\\n      // Show error feedback (could be alert or inline message)\\n      alert('A chat with this name already exists. Please choose a different name.');\\n      return;\\n    }\\n    \\n    renameChat(editingChatId, trimmedTitle);\\n  }\\n  setEditingChatId(null);\\n  setEditingTitle('');\\n};\\n```",
+      "verificationCriteria": "1. Attempting to rename to an existing title shows appropriate error message\\n2. Case-insensitive duplicate detection works correctly\\n3. Existing rename functionality (trim, empty validation) remains unchanged\\n4. User can still rename to the same title (no change)\\n5. Successful renames work as before",
+      "analysisResult": "After comprehensive analysis, the delete and rename functionality for chat items in the left sidebar is ALREADY FULLY IMPLEMENTED and working correctly. The core features (delete chat, rename chat, confirmation dialogs, input validation, error handling) are complete. The only missing piece is localStorage cleanup for chat messages when deleting chats, plus some optional quality-of-life enhancements.",
+      "summary": "Successfully implemented duplicate title validation for the rename functionality. Added case-insensitive duplicate detection that prevents users from renaming chats to titles that already exist. The validation maintains edit mode when duplicates are detected, allowing users to try again without losing their editing state. All existing functionality (trim validation, empty validation, keyboard shortcuts) remains unchanged.",
+      "completedAt": "2025-06-19T01:10:22.510Z"
+    },
+    {
+      "id": "12bc2129-5df3-4557-9b51-16f8fe892699",
+      "name": "Add Visual Feedback for Successful Operations",
+      "description": "Enhance user experience by adding subtle visual feedback when delete and rename operations complete successfully. Currently, operations happen silently without user confirmation of success.",
+      "notes": "Optional enhancement. Consider using react-hot-toast or similar library for better UX. Could also be implemented with simple state-based notifications.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-19T00:56:44.338Z",
+      "updatedAt": "2025-06-19T01:12:34.742Z",
+      "relatedFiles": [
+        {
+          "path": "frontend/src/components/ChatSidebar.tsx",
+          "type": "TO_MODIFY",
+          "description": "Add success feedback to handleDeleteConfirm and handleRenameSave functions",
+          "lineStart": 55,
+          "lineEnd": 65
+        },
+        {
+          "path": "frontend/package.json",
+          "type": "REFERENCE",
+          "description": "Check if toast notification library needs to be added",
+          "lineStart": 1,
+          "lineEnd": 30
+        }
+      ],
+      "implementationGuide": "1. Add a toast notification system or use browser notifications\\n2. Show success messages for completed delete and rename operations\\n3. Integrate with existing glassmorphism design theme\\n4. Keep notifications brief and non-intrusive\\n\\nPseudocode:\\n```\\n// Option 1: Simple browser notification\\nconst showSuccessMessage = (message: string) => {\\n  // Could use a toast library or simple state-based notification\\n  console.log(`[Success] ${message}`);\\n  // Temporary implementation with setTimeout for auto-hide\\n};\\n\\n// In handleDeleteConfirm:\\ndeleteChat(chatId);\\nshowSuccessMessage('Chat deleted successfully');\\n\\n// In handleRenameSave:\\nrenameChat(editingChatId, trimmedTitle);\\nshowSuccessMessage(`Chat renamed to '${trimmedTitle}'`);\\n```",
+      "verificationCriteria": "1. Success messages appear after successful delete operations\\n2. Success messages appear after successful rename operations\\n3. Messages are visually consistent with app theme\\n4. Messages auto-dismiss after appropriate time\\n5. No performance impact on operations",
+      "analysisResult": "After comprehensive analysis, the delete and rename functionality for chat items in the left sidebar is ALREADY FULLY IMPLEMENTED and working correctly. The core features (delete chat, rename chat, confirmation dialogs, input validation, error handling) are complete. The only missing piece is localStorage cleanup for chat messages when deleting chats, plus some optional quality-of-life enhancements.",
+      "summary": "Successfully implemented visual feedback for successful delete and rename operations using a state-based notification system. Added a glassmorphism-styled success notification that appears in the top-right corner with auto-dismiss after 3 seconds, manual dismiss option, and smooth animations. The notifications integrate seamlessly with the existing design theme and provide clear feedback for both rename and delete operations without impacting performance.",
+      "completedAt": "2025-06-19T01:12:34.740Z"
+    },
+    {
+      "id": "88d20167-ca6f-46c6-a60c-5cd7758e52e1",
+      "name": "Add Keyboard Shortcuts for Chat Management",
+      "description": "Enhance user experience by adding keyboard shortcuts for common chat management operations. Add support for Delete key to delete selected chat and F2 key to rename selected chat.",
+      "notes": "Optional enhancement for power users. Ensure keyboard shortcuts don't conflict with existing browser or app shortcuts.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-19T00:56:44.338Z",
+      "updatedAt": "2025-06-19T01:15:34.733Z",
+      "relatedFiles": [
+        {
+          "path": "frontend/src/components/ChatSidebar.tsx",
+          "type": "TO_MODIFY",
+          "description": "Add keyboard event handling and focus management",
+          "lineStart": 1,
+          "lineEnd": 50
+        },
+        {
+          "path": "frontend/src/components/ChatSidebar.tsx",
+          "type": "TO_MODIFY",
+          "description": "Modify chat item rendering to support focus states",
+          "lineStart": 147,
+          "lineEnd": 200
+        }
+      ],
+      "implementationGuide": "1. Add keyboard event listeners to the ChatSidebar component\\n2. Track which chat is currently selected/focused\\n3. Implement Delete key for deletion and F2 key for rename\\n4. Ensure shortcuts only work when sidebar is focused\\n\\nPseudocode:\\n```\\n// Add to ChatSidebar component\\nconst [focusedChatId, setFocusedChatId] = useState<string | null>(null);\\n\\nuseEffect(() => {\\n  const handleKeyDown = (e: KeyboardEvent) => {\\n    if (!focusedChatId) return;\\n    \\n    if (e.key === 'Delete') {\\n      e.preventDefault();\\n      setShowDeleteConfirm(focusedChatId);\\n    } else if (e.key === 'F2') {\\n      e.preventDefault();\\n      const chat = chats.find(c => c.id === focusedChatId);\\n      if (chat) handleRenameStart(focusedChatId, chat.title);\\n    }\\n  };\\n  \\n  document.addEventListener('keydown', handleKeyDown);\\n  return () => document.removeEventListener('keydown', handleKeyDown);\\n}, [focusedChatId, chats]);\\n```",
+      "verificationCriteria": "1. Delete key triggers delete confirmation for focused chat\\n2. F2 key starts rename mode for focused chat\\n3. Keyboard shortcuts only work when sidebar has focus\\n4. Visual indication of which chat is focused\\n5. No conflicts with existing keyboard shortcuts",
+      "analysisResult": "After comprehensive analysis, the delete and rename functionality for chat items in the left sidebar is ALREADY FULLY IMPLEMENTED and working correctly. The core features (delete chat, rename chat, confirmation dialogs, input validation, error handling) are complete. The only missing piece is localStorage cleanup for chat messages when deleting chats, plus some optional quality-of-life enhancements.",
+      "summary": "Successfully implemented keyboard shortcuts for chat management with F2 for rename and Delete key for deletion. Added focus state management with visual indicators (blue ring), keyboard event listeners that only activate when a chat is focused, and a helpful keyboard shortcuts guide that appears at the bottom of the sidebar. The implementation includes proper accessibility features and prevents conflicts with existing functionality by checking for edit mode before handling shortcuts.",
+      "completedAt": "2025-06-19T01:15:34.732Z"
+    },
+    {
+      "id": "76c1107b-7795-49d4-97bd-4cfea0a2b3b3",
+      "name": "Add Batch Delete Operations",
+      "description": "Implement the ability to select multiple chats and delete them in a single operation. Add checkboxes to chat items and a bulk delete button when chats are selected.",
+      "notes": "Advanced feature for power users. Consider UX carefully - selection mode should be clearly indicated and easy to exit.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "f589fe0b-2788-4dd7-b46f-e542226f35b1"
+        }
+      ],
+      "createdAt": "2025-06-19T00:56:44.338Z",
+      "updatedAt": "2025-06-19T01:18:44.036Z",
+      "relatedFiles": [
+        {
+          "path": "frontend/src/components/ChatSidebar.tsx",
+          "type": "TO_MODIFY",
+          "description": "Add selection state and batch operations UI",
+          "lineStart": 10,
+          "lineEnd": 100
+        },
+        {
+          "path": "frontend/src/hooks/useChatManager.tsx",
+          "type": "REFERENCE",
+          "description": "Reference the deleteChat function for batch operations",
+          "lineStart": 138,
+          "lineEnd": 155
+        }
+      ],
+      "implementationGuide": "1. Add selection state management to ChatSidebar component\\n2. Add checkboxes to chat items with selection handling\\n3. Add bulk delete button that appears when chats are selected\\n4. Implement batch delete confirmation dialog\\n5. Ensure proper localStorage cleanup for all deleted chats\\n\\nPseudocode:\\n```\\nconst [selectedChatIds, setSelectedChatIds] = useState<Set<string>>(new Set());\\nconst [isSelectionMode, setIsSelectionMode] = useState(false);\\n\\nconst handleBatchDelete = () => {\\n  selectedChatIds.forEach(chatId => {\\n    // Clean up localStorage messages\\n    localStorage.removeItem(`chat-messages-${chatId}`);\\n    deleteChat(chatId);\\n  });\\n  setSelectedChatIds(new Set());\\n  setIsSelectionMode(false);\\n};\\n\\n// Add selection UI to each chat item\\n{isSelectionMode && (\\n  <input\\n    type=\"checkbox\"\\n    checked={selectedChatIds.has(chat.id)}\\n    onChange={(e) => handleChatSelection(chat.id, e.target.checked)}\\n  />\\n)}\\n```",
+      "verificationCriteria": "1. Selection mode can be toggled on/off\\n2. Multiple chats can be selected with checkboxes\\n3. Bulk delete button appears when chats are selected\\n4. Batch delete confirmation dialog works correctly\\n5. All selected chats and their messages are properly deleted\\n6. Selection state resets after batch operations",
+      "analysisResult": "After comprehensive analysis, the delete and rename functionality for chat items in the left sidebar is ALREADY FULLY IMPLEMENTED and working correctly. The core features (delete chat, rename chat, confirmation dialogs, input validation, error handling) are complete. The only missing piece is localStorage cleanup for chat messages when deleting chats, plus some optional quality-of-life enhancements.",
+      "summary": "Successfully implemented comprehensive batch delete operations for selecting multiple chats. Added selection mode toggle with visual indicators, checkboxes for individual chat selection, select all/deselect all functionality, batch delete button with confirmation dialog, proper localStorage cleanup for all deleted chats, keyboard shortcuts (ESC to exit selection mode), and UX enhancements like hiding context menus and options buttons during selection mode. The feature integrates seamlessly with existing design and provides clear visual feedback.",
+      "completedAt": "2025-06-19T01:18:44.035Z"
+    }
+  ]
+}

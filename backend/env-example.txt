@@ -1,0 +1,59 @@
+# ChatSG Backend Configuration
+
+# ===========================================
+# BACKEND ROUTING CONFIGURATION
+# ===========================================
+# Choose your backend mode: Generic, n8n, or Lang
+BACKEND=Generic
+ENVIRONMENT=dev
+
+# ===========================================
+# LLM PROVIDER CONFIGURATION
+# ===========================================
+# The LLM helper will automatically detect which provider to use
+# based on which credentials are provided
+
+# --- Option 1: Regular OpenAI ---
+# Uncomment these lines to use regular OpenAI
+# OPENAI_API_KEY=your_openai_api_key_here
+# OPENAI_MODEL=gpt-4o-mini
+# OPENAI_BASE_URL=https://api.openai.com/v1
+
+# --- Option 2: Azure OpenAI ---
+# Uncomment these lines to use Azure OpenAI
+# AZURE_OPENAI_API_KEY=your_azure_api_key_here
+# AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
+# AZURE_OPENAI_DEPLOYMENT=gpt-4o-001
+# AZURE_OPENAI_API_VERSION=2024-02-15-preview
+
+# ===========================================
+# LLM BEHAVIOR CONFIGURATION
+# ===========================================
+# Optional: Override default LLM settings
+# LLM_TEMPERATURE=0.7
+# LLM_MAX_TOKENS=3000
+
+# ===========================================
+# N8N WEBHOOK CONFIGURATION
+# ===========================================
+# Required when BACKEND=n8n
+# WEBHOOK_URL=http://localhost:5678/webhook/chat
+
+# ===========================================
+# DEVELOPMENT NOTES
+# ===========================================
+# 
+# Backend Modes:
+# - Generic: Simulated responses for development (no LLM required)
+# - n8n: Forward requests to webhook (requires WEBHOOK_URL)
+# - Lang: Use LangGraph AgentZero (requires LLM credentials)
+#
+# LLM Provider Priority:
+# 1. If AZURE_OPENAI_API_KEY + AZURE_OPENAI_ENDPOINT exist → Azure OpenAI
+# 2. If OPENAI_API_KEY exists → Regular OpenAI
+# 3. Default to OpenAI (will fail without credentials)
+#
+# Environment-based defaults:
+# - production: Lower temperature (0.3), fewer tokens (2000)
+# - development: Higher temperature (0.7), more tokens (4000)
+# - default: Balanced settings (0.5 temp, 3000 tokens) 

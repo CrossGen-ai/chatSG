@@ -1,0 +1,56 @@
+{
+  "tasks": [
+    {
+      "id": "280f84bb-e5f5-467f-ac67-c98daeacb186",
+      "name": "Fix User Message Immediate Persistence in ChatUI",
+      "description": "Fix the critical bug where user messages are not immediately saved to localStorage when sent, causing them to be saved to the wrong chat when users switch before the useEffect triggers. Implement immediate user message persistence to the correct chat's localStorage before any session switching can occur.",
+      "notes": "This is the core fix for the race condition. The user message must be saved to localStorage immediately using the originatingSessionId before any chat switching can occur. Remove dependency on the useEffect for user message persistence.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-19T00:00:22.017Z",
+      "updatedAt": "2025-06-19T00:01:03.384Z",
+      "relatedFiles": [
+        {
+          "path": "frontend/src/components/ChatUI.tsx",
+          "type": "TO_MODIFY",
+          "description": "sendMessage function - add immediate user message persistence",
+          "lineStart": 116,
+          "lineEnd": 140
+        }
+      ],
+      "implementationGuide": "Modify the sendMessage function in ChatUI.tsx to immediately save the user message to localStorage using the originatingSessionId before updating the UI state. This prevents cross-chat contamination when users switch chats quickly.\\n\\nPseudocode:\\n```typescript\\nconst sendMessage = async () => {\\n  const originatingSessionId = currentSessionId;\\n  \\n  const userMessage = createUserMessage();\\n  \\n  // CRITICAL FIX: Save user message immediately to correct localStorage\\n  const currentMessages = loadMessages(originatingSessionId);\\n  const updatedMessages = [...currentMessages, userMessage];\\n  saveMessages(originatingSessionId, updatedMessages);\\n  \\n  // Update current UI\\n  setMessages(updatedMessages);\\n  \\n  // Continue with API call...\\n}\\n```",
+      "verificationCriteria": "User messages are immediately saved to correct chat localStorage when sent, user messages persist correctly when switching chats before response, no cross-chat message contamination occurs",
+      "analysisResult": "Fix critical bug in parallel chat processing where responses appear in the currently active chat instead of the originating chat. The root cause is that user messages are not immediately saved to localStorage when sent, causing cross-chat contamination when users switch chats before the useEffect triggers. Need to implement immediate message persistence and fix the session validation logic to ensure responses always appear in their originating chat.",
+      "summary": "Successfully implemented immediate user message persistence in ChatUI sendMessage function. Added critical fix that loads current messages from localStorage, adds the user message, and saves immediately to the correct chat's localStorage using originatingSessionId before updating UI state. This prevents cross-chat contamination when users switch chats quickly before the useEffect triggers. Added comprehensive logging to track the immediate save operation. The fix ensures user messages are always saved to the correct chat regardless of subsequent session switching. TypeScript compilation verified successful with no errors.",
+      "completedAt": "2025-06-19T00:01:03.383Z"
+    },
+    {
+      "id": "3b1e0a79-b984-4b6e-9074-ffdb0c60aa0f",
+      "name": "Remove Problematic useEffect for Message Persistence",
+      "description": "Remove or modify the useEffect that saves messages when currentSessionId or messages change, as it causes cross-chat contamination when users switch chats after sending a message but before the response arrives. Replace with targeted persistence logic.",
+      "notes": "This useEffect is the root cause of cross-chat contamination. When users switch chats after sending a message, this effect saves the message to the new chat's localStorage instead of the original chat.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "280f84bb-e5f5-467f-ac67-c98daeacb186"
+        }
+      ],
+      "createdAt": "2025-06-19T00:00:22.017Z",
+      "updatedAt": "2025-06-19T00:43:13.132Z",
+      "relatedFiles": [
+        {
+          "path": "frontend/src/components/ChatUI.tsx",
+          "type": "TO_MODIFY",
+          "description": "Remove problematic useEffect for message persistence",
+          "lineStart": 95,
+          "lineEnd": 100
+        }
+      ],
+      "implementationGuide": "Remove or modify the problematic useEffect in ChatUI.tsx that automatically saves messages when the state changes. This useEffect is causing user messages to be saved to the wrong chat when users switch sessions.\\n\\nCurrent problematic code:\\n```typescript\\nuseEffect(() => {\\n  if (currentSessionId && messages.length > 0) {\\n    saveMessages(currentSessionId, messages);\\n  }\\n}, [currentSessionId, messages]);\\n```\\n\\nReplace with targeted persistence only for bot responses in active chats, not for automatic session-based saving.",
+      "verificationCriteria": "Problematic useEffect is removed or modified, messages are no longer automatically saved to wrong chat when switching sessions, targeted persistence works correctly",
+      "analysisResult": "Fix critical bug in parallel chat processing where responses appear in the currently active chat instead of the originating chat. The root cause is that user messages are not immediately saved to localStorage when sent, causing cross-chat contamination when users switch chats before the useEffect triggers. Need to implement immediate message persistence and fix the session validation logic to ensure responses always appear in their originating chat.",
+      "summary": "Task completed through alternative implementation. Instead of removing the useEffect, implemented ref-based session tracking that prevents the useEffect from causing cross-chat contamination. The useEffect now safely saves messages to the correct session because the ref ensures proper session validation. This approach maintains automatic persistence while fixing the race condition.",
+      "completedAt": "2025-06-19T00:43:13.132Z"
+    }
+  ]
+}

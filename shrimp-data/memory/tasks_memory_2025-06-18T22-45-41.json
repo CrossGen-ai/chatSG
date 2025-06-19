@@ -1,0 +1,168 @@
+{
+  "tasks": [
+    {
+      "id": "569653da-19c8-4285-ae95-fb3ca774aa76",
+      "name": "Add Classification Metadata Helper Methods",
+      "description": "Create helper methods to extract classification metadata from AgentRouter results and variant paths. This includes extractModeFromVariant() to parse mode from fullVariantPath (e.g., 'AgentZero.analytical' → 'analytical') and getClassificationMetadata() to consolidate classification information for template context.",
+      "notes": "These helper methods provide the foundation for eliminating extractMode() while maintaining and enhancing template context capabilities. They should be placed after the existing helper methods in AgentZero class.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-18T21:58:10.716Z",
+      "updatedAt": "2025-06-18T22:06:40.800Z",
+      "relatedFiles": [
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "TO_MODIFY",
+          "description": "Add new helper methods after existing utility methods",
+          "lineStart": 340,
+          "lineEnd": 365
+        }
+      ],
+      "implementationGuide": "Add two new methods to AgentZero class:\\n\\n1. extractModeFromVariant(fullVariantPath):\\n   - Split fullVariantPath on '.' and return second part as mode\\n   - Handle both 'AgentZero.analytical' and 'AgentZero' formats\\n   - Return 'default' for single-part paths\\n   - Add error handling for invalid inputs\\n\\n2. getClassificationMetadata(promptVariant, userInput):\\n   - Use extractModeFromVariant() to get mode\\n   - Check lastClassificationResult for intelligent vs keyword metadata\\n   - Return object with {mode, confidence, reasoning, method}\\n   - Provide fallback values for keyword-based classification\\n\\nEnsure methods follow existing naming conventions and error handling patterns.",
+      "verificationCriteria": "Helper methods correctly extract mode from variant paths, handle edge cases (single-part paths, invalid inputs), and provide appropriate metadata structure for both intelligent and keyword-based classifications.",
+      "analysisResult": "Clean up redundant classification system in AgentZero by eliminating the extractMode() method and streamlining the classification flow. The solution maintains AgentRouter as the single source of truth for all classification decisions while enhancing template context with intelligent classification metadata (confidence, reasoning, method). This eliminates duplication, improves performance, and provides richer debugging information while preserving complete backward compatibility.",
+      "summary": "Task 1 successfully completed with two new helper methods added to AgentZero class: extractModeFromVariant() which parses mode from variant paths like 'AgentZero.analytical' → 'analytical', and getClassificationMetadata() which provides comprehensive classification metadata for template context. Both methods handle edge cases properly, follow existing naming conventions, include comprehensive error handling, and all existing tests pass confirming no breaking changes were introduced.",
+      "completedAt": "2025-06-18T22:06:40.799Z"
+    },
+    {
+      "id": "f30b706d-d74b-496a-bea3-032ba18efe57",
+      "name": "Store Classification Results for Metadata Access",
+      "description": "Modify selectPromptVariant() method to store the AgentRouter classification result in a class property (lastClassificationResult) so that getClassificationMetadata() can access confidence, reasoning, and other intelligent classification data.",
+      "notes": "This change enables getClassificationMetadata() to access rich AgentRouter results without changing the public API. The stored result should include success status, fallbackUsed flag, confidence, and reasoning.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "569653da-19c8-4285-ae95-fb3ca774aa76"
+        }
+      ],
+      "createdAt": "2025-06-18T21:58:10.716Z",
+      "updatedAt": "2025-06-18T22:11:08.487Z",
+      "relatedFiles": [
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "TO_MODIFY",
+          "description": "Modify constructor and selectPromptVariant method",
+          "lineStart": 7,
+          "lineEnd": 40
+        },
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "TO_MODIFY",
+          "description": "Update selectPromptVariant method to store results",
+          "lineStart": 235,
+          "lineEnd": 270
+        }
+      ],
+      "implementationGuide": "Update selectPromptVariant() method:\\n\\n1. Add class property initialization in constructor:\\n   - this.lastClassificationResult = null\\n\\n2. In selectPromptVariant() method:\\n   - Store AgentRouter classificationResult in this.lastClassificationResult before returning\\n   - Ensure fallback cases also set appropriate lastClassificationResult\\n   - Handle error cases by setting lastClassificationResult to indicate fallback\\n\\n3. Maintain existing method signature and return behavior\\n4. Add appropriate logging for stored classification results\\n\\nEnsure no breaking changes to existing functionality while enabling metadata access.",
+      "verificationCriteria": "selectPromptVariant() stores classification results correctly, maintains existing return behavior, handles both intelligent and fallback scenarios, and enables metadata access for template context enhancement.",
+      "analysisResult": "Clean up redundant classification system in AgentZero by eliminating the extractMode() method and streamlining the classification flow. The solution maintains AgentRouter as the single source of truth for all classification decisions while enhancing template context with intelligent classification metadata (confidence, reasoning, method). This eliminates duplication, improves performance, and provides richer debugging information while preserving complete backward compatibility.",
+      "summary": "Task 2 successfully completed with classification result storage implemented in AgentZero. Added lastClassificationResult property to constructor and modified selectPromptVariant() method to store AgentRouter classification results in all scenarios (intelligent success, intelligent failure, AgentRouter unavailable, and error cases). This enables getClassificationMetadata() to access rich classification data including confidence, reasoning, and method. All existing tests pass confirming no breaking changes and the implementation maintains existing API while enabling metadata access.",
+      "completedAt": "2025-06-18T22:11:08.486Z"
+    },
+    {
+      "id": "dff189f6-a564-408a-a468-75fe7d048568",
+      "name": "Update agentNode Context Building",
+      "description": "Replace extractMode() calls in agentNode() method with the new getClassificationMetadata() approach. Enhance template context with AgentRouter metadata (confidence, reasoning, classification method) while maintaining backward compatibility for existing template variables.",
+      "notes": "This change eliminates the redundant extractMode() calls while enhancing template context with intelligent classification metadata. The mode variable maintains the same format for template compatibility.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "f30b706d-d74b-496a-bea3-032ba18efe57"
+        }
+      ],
+      "createdAt": "2025-06-18T21:58:10.716Z",
+      "updatedAt": "2025-06-18T22:14:22.397Z",
+      "relatedFiles": [
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "TO_MODIFY",
+          "description": "Update agentNode method context building logic",
+          "lineStart": 110,
+          "lineEnd": 140
+        },
+        {
+          "path": "backend/agent/AgentZero/llm-config.json",
+          "type": "REFERENCE",
+          "description": "Template variable definitions for context compatibility",
+          "lineStart": 50,
+          "lineEnd": 70
+        }
+      ],
+      "implementationGuide": "Modify agentNode() method context building:\\n\\n1. Remove both extractMode(userInput) calls (lines 124, 127)\\n2. Replace with single getClassificationMetadata() call after promptVariant selection\\n3. Update context object to include:\\n   - mode: classificationData.mode (replaces extractMode result)\\n   - confidence: classificationData.confidence (new)\\n   - reasoning: classificationData.reasoning (new)\\n   - classificationMethod: classificationData.method (new)\\n\\n4. Update customInstructions call to use classificationData.mode\\n5. Maintain all existing context properties for backward compatibility\\n6. Add logging for enhanced context information\\n\\nEnsure template context structure remains compatible with existing llm-config.json templates.",
+      "verificationCriteria": "agentNode() context building uses getClassificationMetadata() instead of extractMode(), maintains backward compatibility for existing template variables, and successfully enhances context with AgentRouter metadata.",
+      "analysisResult": "Clean up redundant classification system in AgentZero by eliminating the extractMode() method and streamlining the classification flow. The solution maintains AgentRouter as the single source of truth for all classification decisions while enhancing template context with intelligent classification metadata (confidence, reasoning, method). This eliminates duplication, improves performance, and provides richer debugging information while preserving complete backward compatibility.",
+      "summary": "Task 3 successfully completed with agentNode() context building updated to use getClassificationMetadata() instead of extractMode(). Enhanced template context now includes confidence, reasoning, and classificationMethod from AgentRouter while maintaining backward compatibility with existing mode variable. All tests pass confirming the implementation works correctly with both intelligent and fallback classification scenarios. The redundant extractMode() calls have been eliminated from the agentNode method.",
+      "completedAt": "2025-06-18T22:14:22.397Z"
+    },
+    {
+      "id": "94c1d473-f741-4d4e-ad90-49879ffaa3f9",
+      "name": "Remove extractMode Method",
+      "description": "Remove the extractMode() method completely from AgentZero class since it's now replaced by the streamlined classification metadata approach. Ensure no remaining references to this method exist in the codebase.",
+      "notes": "This is the final cleanup step that removes the redundant method. Should be done after all other changes are implemented and tested to ensure no dependencies remain.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "dff189f6-a564-408a-a468-75fe7d048568"
+        }
+      ],
+      "createdAt": "2025-06-18T21:58:10.716Z",
+      "updatedAt": "2025-06-18T22:20:58.139Z",
+      "relatedFiles": [
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "TO_MODIFY",
+          "description": "Remove extractMode method completely",
+          "lineStart": 315,
+          "lineEnd": 339
+        }
+      ],
+      "implementationGuide": "1. Delete the entire extractMode() method from AgentZero class (lines 315-339)\\n2. Search codebase for any remaining references to extractMode()\\n3. Verify no other files import or call this method\\n4. Update any documentation that references extractMode()\\n5. Ensure all functionality is properly replaced by getClassificationMetadata()\\n\\nPerform thorough verification that no code depends on the removed method.",
+      "verificationCriteria": "extractMode() method is completely removed, no remaining references exist in codebase, all functionality is properly handled by the new classification metadata approach, and AgentZero continues to function correctly.",
+      "analysisResult": "Clean up redundant classification system in AgentZero by eliminating the extractMode() method and streamlining the classification flow. The solution maintains AgentRouter as the single source of truth for all classification decisions while enhancing template context with intelligent classification metadata (confidence, reasoning, method). This eliminates duplication, improves performance, and provides richer debugging information while preserving complete backward compatibility.",
+      "summary": "Task 4 successfully completed with extractMode() method completely removed from AgentZero class. Verified no remaining references exist in codebase (only extractModeFromVariant remains which is correct), all functionality is properly handled by the new classification metadata approach using getClassificationMetadata(), and AgentZero continues to function correctly. All 8 test suites pass confirming the removal was clean and no breaking changes were introduced.",
+      "completedAt": "2025-06-18T22:20:58.139Z"
+    },
+    {
+      "id": "f0d47991-872f-449c-b08d-4e2404a9d312",
+      "name": "Update Tests for Streamlined Classification Flow",
+      "description": "Update existing tests to reflect the removal of extractMode() and the new streamlined classification flow. Add tests for the new helper methods and enhanced template context while ensuring all existing functionality continues to work.",
+      "notes": "Tests should verify the streamlined flow works correctly while maintaining all existing functionality. Focus on testing the new helper methods and enhanced context structure.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "94c1d473-f741-4d4e-ad90-49879ffaa3f9"
+        }
+      ],
+      "createdAt": "2025-06-18T21:58:10.716Z",
+      "updatedAt": "2025-06-18T22:27:47.071Z",
+      "relatedFiles": [
+        {
+          "path": "backend/tests/test-agent-zero.js",
+          "type": "TO_MODIFY",
+          "description": "Update AgentZero tests for new classification flow",
+          "lineStart": 1,
+          "lineEnd": 100
+        },
+        {
+          "path": "backend/tests/test-agent-router-integration.js",
+          "type": "TO_MODIFY",
+          "description": "Update integration tests for enhanced context",
+          "lineStart": 1,
+          "lineEnd": 50
+        },
+        {
+          "path": "backend/tests/run-tests.js",
+          "type": "REFERENCE",
+          "description": "Test runner configuration",
+          "lineStart": 1,
+          "lineEnd": 30
+        }
+      ],
+      "implementationGuide": "Update test files:\\n\\n1. test-agent-zero.js:\\n   - Remove any tests that directly call extractMode()\\n   - Add tests for extractModeFromVariant() helper method\\n   - Add tests for getClassificationMetadata() method\\n   - Update context validation tests to check new metadata fields\\n\\n2. test-agent-router-integration.js:\\n   - Update integration tests to verify enhanced context\\n   - Test that classification metadata is properly passed through\\n   - Verify backward compatibility of template variables\\n\\n3. Add test cases for:\\n   - Mode extraction from various variant path formats\\n   - Classification metadata for both intelligent and keyword scenarios\\n   - Template context enhancement verification\\n   - Error handling in new helper methods\\n\\nEnsure all tests pass and maintain existing coverage levels.",
+      "verificationCriteria": "All tests pass successfully, new helper methods are thoroughly tested, enhanced template context is validated, backward compatibility is verified, and test coverage remains comprehensive for the streamlined classification flow.",
+      "analysisResult": "Clean up redundant classification system in AgentZero by eliminating the extractMode() method and streamlining the classification flow. The solution maintains AgentRouter as the single source of truth for all classification decisions while enhancing template context with intelligent classification metadata (confidence, reasoning, method). This eliminates duplication, improves performance, and provides richer debugging information while preserving complete backward compatibility.",
+      "summary": "Task 5 successfully completed with comprehensive test updates for the streamlined classification flow. Updated test-agent-zero.js with 10 new tests covering extractModeFromVariant(), getClassificationMetadata(), enhanced context structure validation, and backward compatibility. Updated test-agent-router-integration.js with 3 additional tests for enhanced context metadata verification, template context backward compatibility, and classification result storage verification. All 8 test suites now pass (100% success rate) confirming the streamlined classification flow works correctly while maintaining existing functionality and backward compatibility.",
+      "completedAt": "2025-06-18T22:27:47.070Z"
+    }
+  ]
+}

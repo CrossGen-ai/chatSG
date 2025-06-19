@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChatUI } from './components/ChatUI';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
+import { ChatSidebar } from './components/ChatSidebar';
+import { ChatManagerProvider } from './hooks/useChatManager';
 
 function App() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <ChatManagerProvider>
+      <div className="min-h-screen relative overflow-hidden">
       {/* Animated gradient background using CSS custom properties */}
       <div className="absolute inset-0 theme-bg"></div>
       
@@ -18,11 +23,21 @@ function App() {
       {/* Main content */}
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header */}
-        <header className="backdrop-blur-xl bg-white/10 dark:bg-black/10 border-b border-white/20 dark:border-white/10">
+        <header className="relative z-50 backdrop-blur-xl bg-white/10 dark:bg-black/10 border-b border-white/20 dark:border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
             <div className="flex items-center justify-between">
-              {/* Left side - StartGuides Logo and ChatSG */}
+              {/* Left side - Hamburger menu + StartGuides Logo and ChatSG */}
               <div className="flex items-center space-x-4">
+                {/* Hamburger menu button for mobile */}
+                <button
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="lg:hidden p-2 rounded-lg backdrop-blur-md bg-white/20 dark:bg-black/20 border border-white/30 dark:border-white/10 hover:bg-white/30 dark:hover:bg-black/30 transition-all duration-200"
+                  aria-label="Toggle sidebar"
+                >
+                  <svg className="w-5 h-5 theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
                 {/* StartGuides Company Logo */}
                 <div className="flex items-center">
                   <div className="relative">
@@ -76,10 +91,19 @@ function App() {
           </div>
         </header>
 
-        {/* Chat container */}
-        <main className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-          <div className="w-full max-w-4xl h-[calc(100vh-200px)]">
-            <ChatUI />
+        {/* Main content with sidebar */}
+        <main className="flex-1 flex">
+          {/* Sidebar */}
+          <ChatSidebar 
+            isOpen={isSidebarOpen} 
+            onClose={() => setIsSidebarOpen(false)} 
+          />
+          
+          {/* Chat container */}
+          <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+            <div className="w-full max-w-4xl h-[calc(100vh-200px)]">
+              <ChatUI />
+            </div>
           </div>
         </main>
 
@@ -95,6 +119,7 @@ function App() {
         </footer>
       </div>
     </div>
+    </ChatManagerProvider>
   );
 }
 

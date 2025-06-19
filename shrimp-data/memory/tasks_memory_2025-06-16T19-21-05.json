@@ -1,0 +1,123 @@
+{
+  "tasks": [
+    {
+      "id": "496ea2f1-e1c0-48dd-9921-5dc7d2300f8a",
+      "name": "Initialize React + Tailwind + chadcn Project Structure",
+      "description": "Set up a new React frontend using Vite (or Create React App), integrate Tailwind CSS and chadcn UI, and configure the project for modular, themeable UI development. Remove or archive the old static HTML/JS UI.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-13T16:34:22.046Z",
+      "updatedAt": "2025-06-13T16:41:25.611Z",
+      "relatedFiles": [
+        {
+          "path": "index.html",
+          "type": "TO_MODIFY",
+          "description": "Old static UI to be replaced"
+        },
+        {
+          "path": "package.json",
+          "type": "TO_MODIFY",
+          "description": "Update scripts and dependencies"
+        },
+        {
+          "path": "shrimp-rules.md",
+          "type": "TO_MODIFY",
+          "description": "Update project standards for new stack"
+        }
+      ],
+      "implementationGuide": "- Scaffold a new React project (Vite or CRA)\n- Install Tailwind CSS and chadcn UI\n- Set up Tailwind config for theme support\n- Remove or archive index.html and related static assets\n- Ensure the build output can be served by the Node.js backend\n- Document the new structure in shrimp-rules.md\n- Verify initial build and dev workflow",
+      "verificationCriteria": "React app runs with Tailwind and chadcn, old UI is removed, build output is ready for backend serving, and standards are updated.",
+      "analysisResult": "The project will be migrated to a Node.js backend with a modern React frontend using Tailwind CSS and chadcn UI. The chat interface will be beautiful, modern, animated, and support 4-5 user-selectable themes. User messages will be sent to a configurable webhook, and the bot's reply will be displayed from the webhook's 'output' field. All code and standards will be updated to reflect this new stack and workflow.",
+      "summary": "The React frontend is now set up with Vite, Tailwind CSS, and ready for chadcn UI integration. The old static index.html has been removed, package.json scripts updated, Tailwind config files created, and shrimp-rules.md updated to reflect the new structure. The Vite dev server starts successfully.",
+      "completedAt": "2025-06-13T16:41:25.610Z"
+    },
+    {
+      "id": "70985877-e899-42b7-80ea-f1a64b85f456",
+      "name": "Implement Modern Chat UI with Animations and Theme Switching",
+      "description": "Develop a beautiful, modern chat interface using chadcn and Tailwind. Add subtle animations for message transitions. Implement 4-5 user-selectable themes (light, dark, etc.) with theme persistence.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-13T16:34:22.046Z",
+      "updatedAt": "2025-06-13T16:52:09.404Z",
+      "relatedFiles": [
+        {
+          "path": "src/components/ChatUI.tsx",
+          "type": "CREATE",
+          "description": "Main chat UI component"
+        },
+        {
+          "path": "src/components/ThemeSwitcher.tsx",
+          "type": "CREATE",
+          "description": "Theme selection UI"
+        },
+        {
+          "path": "shrimp-rules.md",
+          "type": "TO_MODIFY",
+          "description": "Document UI and theming standards"
+        }
+      ],
+      "implementationGuide": "- Use chadcn UI components for chat bubbles, input, etc.\n- Add Tailwind-based animations for message entry/exit\n- Implement theme switcher (dropdown or toggle)\n- Store user theme preference (localStorage or cookie)\n- Ensure accessibility and responsive design\n- Document theme options in shrimp-rules.md",
+      "verificationCriteria": "Chat UI is visually modern, animated, supports 4-5 themes, and theme persists across reloads.",
+      "analysisResult": "The project will be migrated to a Node.js backend with a modern React frontend using Tailwind CSS and chadcn UI. The chat interface will be beautiful, modern, animated, and support 4-5 user-selectable themes. User messages will be sent to a configurable webhook, and the bot's reply will be displayed from the webhook's 'output' field. All code and standards will be updated to reflect this new stack and workflow.",
+      "summary": "A modern chat UI was implemented using chadcn UI and Tailwind CSS, with animated message transitions and a theme switcher supporting 5 themes (Light, Dark, Blue, Emerald, Rose). Theme selection is persisted, and standards are documented in shrimp-rules.md.",
+      "completedAt": "2025-06-13T16:52:09.403Z"
+    },
+    {
+      "id": "f2d5e232-9033-4713-a21f-57420d7c777f",
+      "name": "Integrate Webhook-based Chat Logic",
+      "description": "Refactor chat logic so user messages are sent to a webhook (URL from env variable). Display the 'output' field from the webhook's JSON response as the bot's reply.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-13T16:34:22.046Z",
+      "updatedAt": "2025-06-13T16:53:16.379Z",
+      "relatedFiles": [
+        {
+          "path": "server.js",
+          "type": "TO_MODIFY",
+          "description": "Add API proxy for webhook"
+        },
+        {
+          "path": ".env",
+          "type": "TO_MODIFY",
+          "description": "Add WEBHOOK_URL variable"
+        },
+        {
+          "path": "src/api/chat.ts",
+          "type": "CREATE",
+          "description": "Frontend chat API logic"
+        },
+        {
+          "path": "shrimp-rules.md",
+          "type": "TO_MODIFY",
+          "description": "Document webhook integration"
+        }
+      ],
+      "implementationGuide": "- Add .env variable for webhook URL\n- Implement API proxy in Node.js backend to forward chat messages\n- Update frontend to POST user messages to backend API\n- Backend forwards to webhook and returns 'output'\n- Handle errors and loading states\n- Document API flow in shrimp-rules.md",
+      "verificationCriteria": "User messages are sent to the webhook, 'output' is displayed as bot reply, and errors are handled gracefully.",
+      "analysisResult": "The project will be migrated to a Node.js backend with a modern React frontend using Tailwind CSS and chadcn UI. The chat interface will be beautiful, modern, animated, and support 4-5 user-selectable themes. User messages will be sent to a configurable webhook, and the bot's reply will be displayed from the webhook's 'output' field. All code and standards will be updated to reflect this new stack and workflow.",
+      "summary": "Integrated webhook-based chat logic: frontend sends messages to /api/chat, backend proxies to the webhook URL from env, and displays the webhook's 'output' as the bot reply. Errors are handled gracefully and standards are documented.",
+      "completedAt": "2025-06-13T16:53:16.377Z"
+    },
+    {
+      "id": "2b4845be-9060-4bb2-9032-cb613eb8c808",
+      "name": "Update Project Standards for New Stack and Workflow",
+      "description": "Revise shrimp-rules.md to reflect the new React/Tailwind/chadcn stack, UI conventions, theme support, and webhook-based chat workflow.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-13T16:34:22.046Z",
+      "updatedAt": "2025-06-13T17:07:12.885Z",
+      "relatedFiles": [
+        {
+          "path": "shrimp-rules.md",
+          "type": "TO_MODIFY",
+          "description": "Update all standards for new stack"
+        }
+      ],
+      "implementationGuide": "- Document new directory structure\n- Specify code style, naming, and component conventions\n- Add standards for theme and animation\n- Describe webhook chat flow and error handling\n- Remove outdated static UI rules\n- Ensure all new rules are project-specific and actionable",
+      "verificationCriteria": "shrimp-rules.md is up to date, actionable, and covers all new stack and workflow requirements.",
+      "analysisResult": "The project will be migrated to a Node.js backend with a modern React frontend using Tailwind CSS and chadcn UI. The chat interface will be beautiful, modern, animated, and support 4-5 user-selectable themes. User messages will be sent to a configurable webhook, and the bot's reply will be displayed from the webhook's 'output' field. All code and standards will be updated to reflect this new stack and workflow.",
+      "summary": "shrimp-rules.md has been fully revised to reflect the new React/Tailwind/chadcn stack, directory structure, code style, UI conventions, theme/animation standards, webhook chat flow, and prohibited actions. All rules are actionable and project-specific.",
+      "completedAt": "2025-06-13T17:07:12.884Z"
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "tasks": [
+    {
+      "id": "f2bedf41-acc1-414c-b0ca-9558a468f544",
+      "name": "Add Orchestrator Imports to server.js",
+      "description": "Import the necessary orchestrator modules at the top of server.js file. Add imports for createOrchestrationSetup and createBackendIntegration from the compiled TypeScript modules, following the existing import pattern used for AgentZero.",
+      "notes": "Keep imports organized and follow existing code style. The dist/src path is used because we're importing compiled TypeScript modules.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-19T15:30:44.209Z",
+      "updatedAt": "2025-06-19T15:32:22.306Z",
+      "relatedFiles": [
+        {
+          "path": "backend/server.js",
+          "type": "TO_MODIFY",
+          "description": "Main server file where imports will be added",
+          "lineStart": 20,
+          "lineEnd": 25
+        }
+      ],
+      "implementationGuide": "Add imports after the existing AgentZero import around line 21:\\n\\n// Import orchestrator modules\\nconst { createOrchestrationSetup, createBackendIntegration } = require('./dist/src/orchestrator');\\n\\nEnsure the path is correct and follows the existing require() pattern used in the file.",
+      "verificationCriteria": "Imports should be added without syntax errors, and the required modules should be available from the orchestrator system.",
+      "analysisResult": "Create a new BACKEND=Orch routing mode in server.js to integrate the enhanced AgentOrchestrator system for testing. This will add orchestration capabilities alongside existing Lang, n8n, and Generic backends while maintaining full backward compatibility. The implementation uses the high-level BackendIntegrationManager API for simple integration without complex middleware setup.",
+      "summary": "Successfully added orchestrator imports to server.js. The imports for createOrchestrationSetup and createBackendIntegration were added after the AgentZero import following the existing code style. Syntax validation passed and the modules are available from the compiled TypeScript orchestrator system. Server startup test confirmed imports work correctly without errors.",
+      "completedAt": "2025-06-19T15:32:22.305Z"
+    },
+    {
+      "id": "588cf1f3-b55b-4d46-99b1-38d4aee2e889",
+      "name": "Initialize Orchestrator System",
+      "description": "Add conditional initialization of the orchestrator system when BACKEND=Orch, similar to how AgentZero is initialized. Create orchestration setup and backend integration manager, and register existing AgentZero as a wrapped agent to demonstrate multi-agent capabilities.",
+      "notes": "Follow the same error handling pattern as AgentZero initialization. The async initialization may need to be handled carefully.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "f2bedf41-acc1-414c-b0ca-9558a468f544"
+        }
+      ],
+      "createdAt": "2025-06-19T15:30:44.209Z",
+      "updatedAt": "2025-06-19T15:40:16.863Z",
+      "relatedFiles": [
+        {
+          "path": "backend/server.js",
+          "type": "TO_MODIFY",
+          "description": "Server file where orchestrator initialization will be added",
+          "lineStart": 35,
+          "lineEnd": 50
+        }
+      ],
+      "implementationGuide": "Add initialization block after the AgentZero initialization around line 40:\\n\\n// Initialize Orchestrator if using Orch backend\\nlet orchestrationSetup = null;\\nlet backendIntegration = null;\\nif (BACKEND === 'Orch') {\\n    try {\\n        orchestrationSetup = createOrchestrationSetup('development');\\n        backendIntegration = createBackendIntegration(orchestrationSetup.orchestrator, orchestrationSetup.middleware);\\n        \\n        // Register existing AgentZero if available\\n        if (agentZero) {\\n            await backendIntegration.initialize({ agentZero });\\n        }\\n        console.log('[Orchestrator] Initialized successfully');\\n    } catch (error) {\\n        console.error('[Orchestrator] Failed to initialize:', error);\\n    }\\n}",
+      "verificationCriteria": "Orchestrator should initialize successfully when BACKEND=Orch environment variable is set, with proper error handling and logging.",
+      "analysisResult": "Create a new BACKEND=Orch routing mode in server.js to integrate the enhanced AgentOrchestrator system for testing. This will add orchestration capabilities alongside existing Lang, n8n, and Generic backends while maintaining full backward compatibility. The implementation uses the high-level BackendIntegrationManager API for simple integration without complex middleware setup.",
+      "summary": "Successfully implemented orchestrator system initialization for BACKEND=Orch mode. Added conditional initialization that creates orchestrationSetup and backendIntegration when BACKEND=Orch, following the same error handling pattern as AgentZero. Handled async initialization properly with IIFE wrappers. Enhanced debug logging to show orchestrator status and added 'Orch' case to getBackendMode function. Testing confirms orchestrator initializes correctly with proper logging and error handling.",
+      "completedAt": "2025-06-19T15:40:16.862Z"
+    },
+    {
+      "id": "a78c0e75-0008-4572-aea5-fb53b5032bbe",
+      "name": "Update Backend Mode Detection",
+      "description": "Add 'Orch' case to the getBackendMode() function to properly identify and describe the orchestrator backend mode in logging and status outputs.",
+      "notes": "Keep the description consistent with the naming pattern used for other backend modes.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "f2bedf41-acc1-414c-b0ca-9558a468f544"
+        }
+      ],
+      "createdAt": "2025-06-19T15:30:44.209Z",
+      "updatedAt": "2025-06-19T16:45:02.585Z",
+      "relatedFiles": [
+        {
+          "path": "backend/server.js",
+          "type": "TO_MODIFY",
+          "description": "Server file containing getBackendMode function",
+          "lineStart": 45,
+          "lineEnd": 65
+        }
+      ],
+      "implementationGuide": "Add new case to the switch statement in getBackendMode() function around line 50:\\n\\ncase 'Orch':\\n    return 'Enhanced Orchestrator (Multi-Agent)';\\n\\nPlace this case after the existing 'Generic' case and before the default case.",
+      "verificationCriteria": "getBackendMode() should return appropriate description when BACKEND=Orch, and logging should show the correct backend mode.",
+      "analysisResult": "Create a new BACKEND=Orch routing mode in server.js to integrate the enhanced AgentOrchestrator system for testing. This will add orchestration capabilities alongside existing Lang, n8n, and Generic backends while maintaining full backward compatibility. The implementation uses the high-level BackendIntegrationManager API for simple integration without complex middleware setup.",
+      "summary": "Successfully added 'Orch' case to the getBackendMode() function. The function now properly identifies and describes the orchestrator backend mode as 'Enhanced Orchestrator (Multi-Agent)' in logging and status outputs. Testing confirms the function returns the correct description when BACKEND=Orch is set, maintaining consistency with the naming pattern used for other backend modes.",
+      "completedAt": "2025-06-19T16:45:02.584Z"
+    },
+    {
+      "id": "d2b68458-e8e3-4230-a769-ec65697a228d",
+      "name": "Implement Orchestrator Chat Handler",
+      "description": "Add 'Orch' case to the main switch statement in the /api/chat POST handler. Use the BackendIntegrationManager's createEnhancedChatHandler to process messages through the orchestration system, maintaining the same response format as other backends.",
+      "notes": "Follow the exact same error handling and response formatting pattern as other cases. Ensure response structure matches existing backends for consistency.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "f2bedf41-acc1-414c-b0ca-9558a468f544"
+        },
+        {
+          "taskId": "588cf1f3-b55b-4d46-99b1-38d4aee2e889"
+        }
+      ],
+      "createdAt": "2025-06-19T15:30:44.209Z",
+      "updatedAt": "2025-06-19T15:44:17.718Z",
+      "relatedFiles": [
+        {
+          "path": "backend/server.js",
+          "type": "TO_MODIFY",
+          "description": "Main chat handler switch statement",
+          "lineStart": 175,
+          "lineEnd": 250
+        }
+      ],
+      "implementationGuide": "Add new case to the switch statement around line 180:\\n\\ncase 'Orch':\\n    // Enhanced Orchestrator mode\\n    if (!backendIntegration) {\\n        throw new Error('Orchestrator not initialized');\\n    }\\n    console.log(`[ORCHESTRATOR] Processing with enhanced orchestration: \\\"${data.message}\\\"`);\\n    \\n    const enhancedHandler = backendIntegration.createEnhancedChatHandler('orchestrator');\\n    const orchResult = await enhancedHandler(data.message, sessionId);\\n    \\n    res.writeHead(200, { 'Content-Type': 'application/json' });\\n    res.end(JSON.stringify({\\n        message: orchResult.message,\\n        _backend: 'Orch',\\n        _agent: orchResult._agent || 'Orchestrator',\\n        _session: orchResult.sessionId || sessionId,\\n        _timestamp: orchResult.timestamp || new Date().toISOString(),\\n        _orchestration: orchResult._orchestration || {},\\n        success: orchResult.success !== false\\n    }));\\n    break;",
+      "verificationCriteria": "Orchestrator case should handle chat messages correctly, return properly formatted responses, and integrate seamlessly with existing chat flow.",
+      "analysisResult": "Create a new BACKEND=Orch routing mode in server.js to integrate the enhanced AgentOrchestrator system for testing. This will add orchestration capabilities alongside existing Lang, n8n, and Generic backends while maintaining full backward compatibility. The implementation uses the high-level BackendIntegrationManager API for simple integration without complex middleware setup.",
+      "summary": "Successfully implemented the orchestrator chat handler by adding the 'Orch' case to the main switch statement in the /api/chat POST handler. The implementation uses BackendIntegrationManager's createEnhancedChatHandler to process messages through the orchestration system, follows the same error handling and response formatting pattern as other backends, and maintains consistency with existing API structure. Testing confirms the orchestrator initializes correctly and the chat handler is ready to process requests.",
+      "completedAt": "2025-06-19T15:44:17.716Z"
+    },
+    {
+      "id": "163f8a8d-18d9-4054-98db-dd57727b80e5",
+      "name": "Add Orchestrator Session Management",
+      "description": "Extend the session management endpoints (/api/chats and /api/chats/{sessionId}/history) to support the orchestrator backend, following the same pattern used for other backend modes.",
+      "notes": "Session management for orchestrator can be basic initially, focusing on maintaining API consistency. Full session integration can be enhanced later.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "588cf1f3-b55b-4d46-99b1-38d4aee2e889"
+        },
+        {
+          "taskId": "d2b68458-e8e3-4230-a769-ec65697a228d"
+        }
+      ],
+      "createdAt": "2025-06-19T15:30:44.209Z",
+      "updatedAt": "2025-06-19T15:57:23.870Z",
+      "relatedFiles": [
+        {
+          "path": "backend/server.js",
+          "type": "TO_MODIFY",
+          "description": "Session management endpoints",
+          "lineStart": 280,
+          "lineEnd": 380
+        }
+      ],
+      "implementationGuide": "Add 'Orch' case to both session management endpoints:\\n\\nFor /api/chats endpoint around line 290:\\ncase 'Orch':\\n    if (!backendIntegration) {\\n        res.writeHead(500, { 'Content-Type': 'application/json' });\\n        res.end(JSON.stringify({ error: 'Orchestrator not available' }));\\n        return;\\n    }\\n    \\n    const orchStats = orchestrationSetup.orchestrator.getStats();\\n    const sessions = []; // Orchestrator session management to be implemented\\n    \\n    res.writeHead(200, { 'Content-Type': 'application/json' });\\n    res.end(JSON.stringify({\\n        sessions,\\n        _backend: 'Orch',\\n        _orchestrator: 'Enhanced Multi-Agent',\\n        _stats: orchStats\\n    }));\\n    break;\\n\\nFor /api/chats/{sessionId}/history endpoint around line 330:\\ncase 'Orch':\\n    res.writeHead(200, { 'Content-Type': 'application/json' });\\n    res.end(JSON.stringify({\\n        sessionId: sessionId,\\n        messages: [],\\n        messageCount: 0,\\n        _backend: 'Orch',\\n        _note: 'Session history integration with orchestrator pending'\\n    }));\\n    break;",
+      "verificationCriteria": "Session management endpoints should handle Orch backend without errors and return consistent response format with other backends.",
+      "analysisResult": "Create a new BACKEND=Orch routing mode in server.js to integrate the enhanced AgentOrchestrator system for testing. This will add orchestration capabilities alongside existing Lang, n8n, and Generic backends while maintaining full backward compatibility. The implementation uses the high-level BackendIntegrationManager API for simple integration without complex middleware setup.",
+      "summary": "Successfully added orchestrator session management support to both /api/chats and /api/chats/{sessionId}/history endpoints. Added 'Orch' cases to both switch statements following the same pattern as other backends. The /api/chats endpoint includes orchestrator stats and proper error handling, while the /api/chats/{sessionId}/history endpoint provides basic session history structure with pending integration note. Testing confirms the orchestrator initializes correctly and session endpoints are properly integrated without errors.",
+      "completedAt": "2025-06-19T15:57:23.870Z"
+    },
+    {
+      "id": "41240199-3875-404a-864b-3a4c9a7847c3",
+      "name": "Update Server Logging Configuration",
+      "description": "Extend the server startup logging to include orchestrator configuration details when BACKEND=Orch, following the same detailed logging pattern used for other backend modes.",
+      "notes": "Logging should provide useful debugging information about orchestrator state and configuration, similar to other backend modes.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "588cf1f3-b55b-4d46-99b1-38d4aee2e889"
+        },
+        {
+          "taskId": "a78c0e75-0008-4572-aea5-fb53b5032bbe"
+        }
+      ],
+      "createdAt": "2025-06-19T15:30:44.209Z",
+      "updatedAt": "2025-06-19T16:47:03.214Z",
+      "relatedFiles": [
+        {
+          "path": "backend/server.js",
+          "type": "TO_MODIFY",
+          "description": "Server startup logging section",
+          "lineStart": 410,
+          "lineEnd": 450
+        }
+      ],
+      "implementationGuide": "Add orchestrator case to the backend-specific configuration logging around line 420:\\n\\ncase 'Orch':\\n    console.log(`- Orchestrator: ${orchestrationSetup ? 'Ready' : 'Failed to initialize'}`);\\n    if (orchestrationSetup) {\\n        const stats = orchestrationSetup.orchestrator.getStats();\\n        console.log(`- Registered Agents: ${stats.registeredAgents}`);\\n        console.log(`- Available Strategies: ${stats.availableStrategies}`);\\n        console.log(`- Environment: ${orchestrationSetup.environment}`);\\n    }\\n    if (backendIntegration) {\\n        const status = backendIntegration.getStatus();\\n        console.log(`- Backend Integration: ${status.initialized ? 'Active' : 'Inactive'}`);\\n        console.log(`- Registered Backends: ${status.registeredBackends}`);\\n    }\\n    break;",
+      "verificationCriteria": "Server startup should display comprehensive orchestrator configuration information when BACKEND=Orch, helping with debugging and monitoring.",
+      "analysisResult": "Create a new BACKEND=Orch routing mode in server.js to integrate the enhanced AgentOrchestrator system for testing. This will add orchestration capabilities alongside existing Lang, n8n, and Generic backends while maintaining full backward compatibility. The implementation uses the high-level BackendIntegrationManager API for simple integration without complex middleware setup.",
+      "summary": "Successfully extended server startup logging to include comprehensive orchestrator configuration details when BACKEND=Orch. Added 'Orch' case to the backend-specific configuration logging switch statement with detailed orchestrator status, registered agents count, available strategies, environment info, backend integration status, and registered backends count. The logging follows the same detailed pattern used for other backend modes and provides useful debugging information for orchestrator state monitoring. Testing confirms syntax is correct and the logging configuration is properly integrated into the server startup sequence.",
+      "completedAt": "2025-06-19T16:47:03.214Z"
+    }
+  ]
+}

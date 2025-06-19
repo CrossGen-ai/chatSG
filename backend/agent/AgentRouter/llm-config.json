@@ -1,0 +1,153 @@
+{
+  "agentInfo": {
+    "name": "AgentRouter",
+    "version": "1.0.0",
+    "description": "Intelligent prompt classification agent that uses LLM reasoning to analyze user input and select optimal prompt variants for target agents",
+    "author": "ChatSG Team",
+    "created": "2025-01-18",
+    "lastModified": "2025-01-18",
+    "tags": ["classification", "routing", "prompt-selection", "llm-analysis"],
+    "category": "utility"
+  },
+  "prompts": {
+    "system": {
+      "default": "You are AgentRouter, an intelligent prompt classification system. Analyze user input and select the most appropriate prompt variant for the target agent. Consider the user's intent, complexity, domain, and context to make optimal classification decisions. Respond with the selected variant and brief reasoning.",
+      "detailed": "You are AgentRouter in detailed analysis mode. Perform comprehensive analysis of user input including intent classification, domain identification, complexity assessment, and contextual factors. Provide thorough reasoning for your prompt variant selection with confidence levels and alternative considerations.",
+      "quick": "You are AgentRouter in quick classification mode. Rapidly analyze user input and select the most appropriate prompt variant based on key indicators. Provide concise reasoning focused on the primary classification factors.",
+      "blank": ""
+    },
+    "customInstructions": {
+      "targetContext": "Target agent: {targetAgent} | Available variants: {availableVariants}",
+      "userContext": "User input: {userInput} | Session: {sessionId}",
+      "analysisContext": "Analysis type: {analysisType} | User preferences: {userPreferences}",
+      "fullContext": "Target: {targetAgent} | Variants: {availableVariants} | Input: {userInput} | Session: {sessionId}",
+      "blank": ""
+    },
+    "userTemplates": {
+      "standard": "Classify this user input for {targetAgent}: {userInput}",
+      "contextual": "Analyze this request considering session context {sessionId} for {targetAgent}: {userInput}",
+      "detailed": "Perform detailed classification analysis for {targetAgent} with available variants {availableVariants}: {userInput}",
+      "preference": "Classify based on user preferences {userPreferences} for {targetAgent}: {userInput}",
+      "blank": ""
+    },
+    "errorMessages": {
+      "classificationError": "Unable to classify prompt variant. Falling back to default selection.",
+      "targetAgentError": "Target agent {targetAgent} not found or invalid. Using fallback classification.",
+      "invalidInput": "Invalid input provided for classification. Please provide valid user input.",
+      "configurationError": "Classification configuration error. Using default prompt selection.",
+      "blank": ""
+    }
+  },
+  "templateVariables": {
+    "targetAgent": {
+      "description": "The target agent for which prompt classification is being performed",
+      "example": "AgentZero, DataAnalyst, CodeAssistant",
+      "required": true,
+      "default": ""
+    },
+    "availableVariants": {
+      "description": "List of available prompt variants for the target agent",
+      "example": "default, analytical, creative, technical, conversational",
+      "required": true,
+      "default": "default"
+    },
+    "userInput": {
+      "description": "The user's input message to be classified",
+      "example": "Analyze this sales data and find patterns",
+      "required": true,
+      "default": ""
+    },
+    "sessionId": {
+      "description": "Current session identifier for context",
+      "example": "user_abc123_20250118",
+      "required": false,
+      "default": "session_{timestamp}"
+    },
+    "userPreferences": {
+      "description": "User-specific preferences that may influence classification",
+      "example": "detailed explanations, technical focus, creative approach",
+      "required": false,
+      "default": ""
+    },
+    "analysisType": {
+      "description": "Type of classification analysis to perform",
+      "example": "quick, detailed, contextual",
+      "required": false,
+      "default": "quick"
+    },
+    "sessionContext": {
+      "description": "Previous conversation context that may influence classification",
+      "example": "Previous topic: data analysis, User expertise: intermediate",
+      "required": false,
+      "default": ""
+    },
+    "timestamp": {
+      "description": "Current timestamp for context",
+      "example": "2025-01-18T10:30:00.000Z",
+      "required": false,
+      "default": "auto-generated"
+    }
+  },
+  "behavior": {
+    "promptSelection": {
+      "enabled": true,
+      "strategy": "llm-based-classification",
+      "fallbackToDefault": true,
+      "classificationFactors": {
+        "intent": ["question", "request", "command", "discussion", "analysis"],
+        "domain": ["technical", "analytical", "creative", "conversational", "educational"],
+        "complexity": ["simple", "moderate", "complex", "expert-level"],
+        "urgency": ["low", "medium", "high", "urgent"]
+      }
+    },
+    "templateProcessing": {
+      "enabled": true,
+      "strictMode": false,
+      "missingVariableHandling": "empty-string",
+      "customVariablePrefix": "{",
+      "customVariableSuffix": "}"
+    },
+    "errorHandling": {
+      "gracefulDegradation": true,
+      "fallbackPrompts": true,
+      "logErrors": true,
+      "userFriendlyMessages": true,
+      "retryOnFailure": false,
+      "maxRetries": 0
+    },
+    "classification": {
+      "confidenceThreshold": 0.7,
+      "requireReasoning": true,
+      "validateResponse": true,
+      "cacheResults": false
+    }
+  },
+  "metadata": {
+    "schema_version": "1.0.0",
+    "compatible_llm_helper_versions": [">=1.0.0"],
+    "last_tested": "2025-01-18",
+    "documentation_url": "https://github.com/your-org/chatsg/blob/main/backend/agent/AgentRouter/README.md",
+    "support_contact": "support@your-org.com",
+    "license": "MIT",
+    "notes": [
+      "AgentRouter is designed for intelligent prompt classification using LLM reasoning",
+      "Focuses on analyzing user intent, domain, complexity, and context for optimal prompt selection",
+      "Provides fallback mechanisms to ensure system reliability",
+      "Template variables support comprehensive context for classification decisions",
+      "Classification behavior can be configured for different accuracy vs speed trade-offs",
+      "Error handling ensures graceful degradation to keyword-based fallbacks",
+      "Designed to work with any target agent that follows the prompt variant naming convention"
+    ],
+    "examples": [
+      "classifyPrompt('Analyze this data', 'AgentZero', context) -> 'analytical'",
+      "classifyPrompt('Write a creative story', 'AgentZero', context) -> 'creative'",
+      "classifyPrompt('Debug this code', 'AgentZero', context) -> 'technical'",
+      "classifyPrompt('How are you today?', 'AgentZero', context) -> 'conversational'"
+    ],
+    "classificationAccuracy": {
+      "expectedImprovement": "30-50% over keyword-based matching",
+      "confidenceScoring": "Provides reasoning and confidence levels",
+      "contextAwareness": "Considers session history and user preferences"
+    }
+  }
+} 
