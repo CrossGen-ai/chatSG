@@ -1,1 +1,0 @@
-pscp -i C:\Users\SeanPatterson\Downloads\vm-poc-dev-001.ppk ./server.js itops_admin@10.2.0.54:/home/itops_admin/chatSG

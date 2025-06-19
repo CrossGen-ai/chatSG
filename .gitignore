@@ -9,6 +9,8 @@ node_modules/
 # Production
 /build
 /dist
+*/dist/
+**/dist/
 
 # Misc
 .DS_Store
@@ -38,6 +40,9 @@ __pycache__/
 env/
 venv/
 ENV/
+
+# TypeScript compiled files
+*.js.map
 
 # New additions
 .env.*.local 
