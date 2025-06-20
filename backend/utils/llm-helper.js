@@ -921,7 +921,7 @@ class LLMHelper {
      */
     async executeTool(toolName, params = {}, context = {}) {
         try {
-            const toolSystem = require('../dist/src/tools');
+            const toolSystem = require('../src/tools');
             
             // Add LLM context to tool execution
             const toolContext = {
@@ -962,7 +962,7 @@ class LLMHelper {
      */
     validateToolParams(toolName, params = {}) {
         try {
-            const toolSystem = require('../dist/src/tools');
+            const toolSystem = require('../src/tools');
             return toolSystem.validateToolParams(toolName, params);
         } catch (error) {
             console.warn(`[LLMHelper] Tool validation error: ${error.message}`);
@@ -981,7 +981,7 @@ class LLMHelper {
      */
     getToolSchema(toolName) {
         try {
-            const toolSystem = require('../dist/src/tools');
+            const toolSystem = require('../src/tools');
             return toolSystem.getToolSchema(toolName);
         } catch (error) {
             console.warn(`[LLMHelper] Failed to get tool schema: ${error.message}`);
@@ -995,7 +995,7 @@ class LLMHelper {
      */
     async initializeToolSystem() {
         try {
-            const toolSystem = require('../dist/src/tools');
+            const toolSystem = require('../src/tools');
             const result = await toolSystem.initializeToolSystem();
             
             console.log(`[LLMHelper] Tool system initialized: ${result.toolCount} tools in ${result.categories.length} categories`);
@@ -1018,7 +1018,7 @@ class LLMHelper {
      */
     getToolSystemStats() {
         try {
-            const toolSystem = require('../dist/src/tools');
+            const toolSystem = require('../src/tools');
             return toolSystem.getToolSystemStats();
         } catch (error) {
             console.warn(`[LLMHelper] Failed to get tool system stats: ${error.message}`);
