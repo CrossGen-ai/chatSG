@@ -229,7 +229,7 @@ class LLMHelper {
 
         // Add tools from global tool system if available
         try {
-            const toolSystem = require('../dist/src/tools');
+            const toolSystem = require('../src/tools');
             const globalTools = toolSystem.listAvailableTools();
             
             for (const globalTool of globalTools) {
@@ -474,7 +474,7 @@ class LLMHelper {
                 
                 // Try global tool system
                 try {
-                    const toolSystem = require('../dist/src/tools');
+                    const toolSystem = require('../src/tools');
                     const globalTool = toolSystem.getTool(tool);
                     if (globalTool) {
                         resolved.push(globalTool);
@@ -559,7 +559,7 @@ class LLMHelper {
     validateConfigWithSchema(config, type = 'llm', context = '') {
         try {
             // Try to import and use Zod validation if available
-            const { getConfigurationManager } = require('../dist/src/config/manager');
+            const { getConfigurationManager } = require('../src/config/manager');
             const configManager = getConfigurationManager();
             
             const result = configManager.validateConfigurationWithDetails(config, type, context);
