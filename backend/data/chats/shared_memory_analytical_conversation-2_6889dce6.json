@@ -1,0 +1,37 @@
+{
+  "data": {
+    "key": "memory:analytical:conversation-2",
+    "data": {
+      "key": "conversation-2",
+      "data": {
+        "type": "user_question",
+        "content": "How does neural networks work?",
+        "response": "Neural networks are computing systems inspired by biological neural networks."
+      },
+      "metadata": {
+        "userId": "test-user-123",
+        "timestamp": "2025-06-25T03:13:46.079Z",
+        "agentId": "analytical",
+        "sessionId": "session-1"
+      }
+    },
+    "scope": "global",
+    "permissions": {
+      "read": [
+        "*"
+      ],
+      "write": [],
+      "delete": []
+    },
+    "metadata": {
+      "createdBy": "analytical",
+      "createdAt": "2025-06-25T03:13:46.079Z",
+      "updatedBy": "analytical",
+      "updatedAt": "2025-06-25T03:13:46.079Z",
+      "version": 1,
+      "ttl": 86400000
+    }
+  },
+  "createdAt": "2025-06-25T03:13:46.079Z",
+  "ttl": 86400000
+}

@@ -4,7 +4,7 @@
  * Helper functions for working with the state management system.
  */
 
-import { StateContext, SharedState } from './interfaces';
+import { StateContext, SharedState, SessionState, AgentInteraction, ToolUsage, UserPreferences } from './interfaces';
 
 /**
  * Create a state context for operations
@@ -253,4 +253,314 @@ export function createOperationResult<T>(
             performance
         }
     };
+}
+
+/**
+ * Add agent interaction to session history
+ */
+export function addAgentInteraction(
+    sessionState: SessionState,
+    agentName: string,
+    confidence: number,
+    reason?: string,
+    handoffFrom?: string
+): SessionState {
+    const interaction: AgentInteraction = {
+        agentName,
+        timestamp: new Date(),
+        confidence,
+        reason,
+        handoffFrom
+    };
+
+    const updatedState = { ...sessionState };
+    
+    if (!updatedState.agentHistory) {
+        updatedState.agentHistory = [];
+    }
+    
+    updatedState.agentHistory.push(interaction);
+    
+    // Keep only last 50 interactions to prevent memory bloat
+    if (updatedState.agentHistory.length > 50) {
+        updatedState.agentHistory = updatedState.agentHistory.slice(-50);
+    }
+    
+    // Update metadata
+    updatedState.metadata.agent = agentName;
+    updatedState.metadata.updatedAt = new Date();
+    
+    return updatedState;
+}
+
+/**
+ * Add tool usage to session history
+ */
+export function addToolUsage(
+    sessionState: SessionState,
+    toolName: string,
+    parameters: any,
+    result: any,
+    success: boolean,
+    executionTime?: number,
+    agentName?: string
+): SessionState {
+    const toolUsage: ToolUsage = {
+        toolName,
+        timestamp: new Date(),
+        parameters: sanitizeStateData(parameters, 500), // Limit parameter size
+        result: sanitizeStateData(result, 500), // Limit result size
+        success,
+        executionTime,
+        agentName
+    };
+
+    const updatedState = { ...sessionState };
+    
+    if (!updatedState.toolsUsed) {
+        updatedState.toolsUsed = [];
+    }
+    
+    updatedState.toolsUsed.push(toolUsage);
+    
+    // Keep only last 100 tool usages to prevent memory bloat
+    if (updatedState.toolsUsed.length > 100) {
+        updatedState.toolsUsed = updatedState.toolsUsed.slice(-100);
+    }
+    
+    // Update metadata
+    updatedState.metadata.updatedAt = new Date();
+    
+    return updatedState;
+}
+
+/**
+ * Update user preferences in session state
+ */
+export function updateUserPreferences(
+    sessionState: SessionState,
+    preferences: Partial<UserPreferences>
+): SessionState {
+    const updatedState = { ...sessionState };
+    
+    if (!updatedState.userPreferences) {
+        updatedState.userPreferences = {
+            crossSessionMemory: false,
+            agentLock: false
+        };
+    }
+    
+    updatedState.userPreferences = {
+        ...updatedState.userPreferences,
+        ...preferences
+    };
+    
+    // Update agent lock timestamp if agentLock is being enabled
+    if (preferences.agentLock === true && updatedState.userPreferences.agentLock) {
+        updatedState.userPreferences.agentLockTimestamp = new Date();
+    }
+    
+    // Update metadata
+    updatedState.metadata.updatedAt = new Date();
+    
+    return updatedState;
+}
+
+/**
+ * Update session analytics
+ */
+export function updateSessionAnalytics(
+    sessionState: SessionState,
+    updates: {
+        messageCount?: number;
+        responseTime?: number;
+        tokensUsed?: number;
+        error?: { error: string; agent?: string };
+    }
+): SessionState {
+    const updatedState = { ...sessionState };
+    
+    if (!updatedState.analytics) {
+        updatedState.analytics = {
+            messageCount: 0,
+            averageResponseTime: 0,
+            errorCount: 0
+        };
+    }
+    
+    const analytics = updatedState.analytics;
+    
+    // Update message count
+    if (updates.messageCount !== undefined) {
+        analytics.messageCount += updates.messageCount;
+    }
+    
+    // Update average response time
+    if (updates.responseTime !== undefined) {
+        const totalMessages = analytics.messageCount || 1;
+        analytics.averageResponseTime = 
+            ((analytics.averageResponseTime * (totalMessages - 1)) + updates.responseTime) / totalMessages;
+    }
+    
+    // Update token usage
+    if (updates.tokensUsed !== undefined) {
+        analytics.totalTokensUsed = (analytics.totalTokensUsed || 0) + updates.tokensUsed;
+    }
+    
+    // Update error tracking
+    if (updates.error) {
+        analytics.errorCount++;
+        analytics.lastError = {
+            timestamp: new Date(),
+            error: updates.error.error,
+            agent: updates.error.agent
+        };
+    }
+    
+    // Update metadata
+    updatedState.metadata.updatedAt = new Date();
+    
+    return updatedState;
+}
+
+/**
+ * Get the last agent used in session
+ */
+export function getLastAgentUsed(sessionState: SessionState): string | undefined {
+    if (sessionState.agentHistory && sessionState.agentHistory.length > 0) {
+        return sessionState.agentHistory[sessionState.agentHistory.length - 1].agentName;
+    }
+    return sessionState.metadata.agent;
+}
+
+/**
+ * Check if agent lock is active and valid
+ */
+export function isAgentLockActive(sessionState: SessionState, lockTimeoutMs: number = 30 * 60 * 1000): boolean {
+    if (!sessionState.userPreferences?.agentLock) {
+        return false;
+    }
+    
+    if (!sessionState.userPreferences.agentLockTimestamp) {
+        return true; // Lock is active but no timestamp, assume permanent
+    }
+    
+    const lockAge = Date.now() - sessionState.userPreferences.agentLockTimestamp.getTime();
+    return lockAge < lockTimeoutMs;
+}
+
+/**
+ * Get tool usage statistics for session
+ */
+export function getToolUsageStats(sessionState: SessionState): {
+    totalUsage: number;
+    successRate: number;
+    mostUsedTool?: string;
+    averageExecutionTime?: number;
+} {
+    if (!sessionState.toolsUsed || sessionState.toolsUsed.length === 0) {
+        return {
+            totalUsage: 0,
+            successRate: 0
+        };
+    }
+    
+    const tools = sessionState.toolsUsed;
+    const totalUsage = tools.length;
+    const successCount = tools.filter(t => t.success).length;
+    const successRate = successCount / totalUsage;
+    
+    // Find most used tool
+    const toolCounts = tools.reduce((acc, tool) => {
+        acc[tool.toolName] = (acc[tool.toolName] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+    
+    const mostUsedTool = Object.keys(toolCounts).reduce((a, b) => 
+        toolCounts[a] > toolCounts[b] ? a : b
+    );
+    
+    // Calculate average execution time
+    const executionTimes = tools
+        .filter(t => t.executionTime !== undefined)
+        .map(t => t.executionTime!);
+    
+    const averageExecutionTime = executionTimes.length > 0 
+        ? executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length 
+        : undefined;
+    
+    return {
+        totalUsage,
+        successRate,
+        mostUsedTool,
+        averageExecutionTime
+    };
+}
+
+/**
+ * Compress session history to manage memory usage
+ */
+export function compressSessionHistory(sessionState: SessionState): SessionState {
+    const updatedState = { ...sessionState };
+    
+    // Compress agent history - keep first, last, and key transitions
+    if (updatedState.agentHistory && updatedState.agentHistory.length > 20) {
+        const history = updatedState.agentHistory;
+        const compressed = [
+            history[0], // First interaction
+            ...history.slice(-10), // Last 10 interactions
+        ];
+        
+        // Add key agent transitions (when agent changes)
+        for (let i = 1; i < history.length - 10; i++) {
+            if (history[i].agentName !== history[i-1].agentName) {
+                compressed.splice(-10, 0, history[i]);
+            }
+        }
+        
+        updatedState.agentHistory = compressed;
+    }
+    
+    // Compress tool usage - keep recent and failed attempts
+    if (updatedState.toolsUsed && updatedState.toolsUsed.length > 50) {
+        const tools = updatedState.toolsUsed;
+        const recent = tools.slice(-30); // Last 30 tool usages
+        const failures = tools.slice(0, -30).filter(t => !t.success); // All failures from earlier
+        
+        updatedState.toolsUsed = [...failures, ...recent];
+    }
+    
+    return updatedState;
+}
+
+/**
+ * Initialize session state with default tracking fields
+ */
+export function initializeSessionTracking(sessionState: SessionState): SessionState {
+    const updatedState = { ...sessionState };
+    
+    if (!updatedState.agentHistory) {
+        updatedState.agentHistory = [];
+    }
+    
+    if (!updatedState.toolsUsed) {
+        updatedState.toolsUsed = [];
+    }
+    
+    if (!updatedState.userPreferences) {
+        updatedState.userPreferences = {
+            crossSessionMemory: false,
+            agentLock: false
+        };
+    }
+    
+    if (!updatedState.analytics) {
+        updatedState.analytics = {
+            messageCount: 0,
+            averageResponseTime: 0,
+            errorCount: 0
+        };
+    }
+    
+    return updatedState;
 } 

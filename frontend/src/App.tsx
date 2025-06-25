@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import { ChatUI } from './components/ChatUI';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { ChatSidebar } from './components/ChatSidebar';
-import { ChatManagerProvider } from './hooks/useChatManager';
+import { ChatManagerProvider, useChatManager } from './hooks/useChatManager';
+import { ChatSettingsProvider } from './hooks/useChatSettings';
 
-function App() {
+// Inner component that has access to ChatManager context
+function AppContent() {
+  const { activeChatId } = useChatManager();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <ChatManagerProvider>
+    <ChatSettingsProvider sessionId={activeChatId}>
       <div className="min-h-screen relative overflow-hidden">
       {/* Animated gradient background using CSS custom properties */}
       <div className="absolute inset-0 theme-bg"></div>
@@ -119,6 +122,14 @@ function App() {
         </footer>
       </div>
     </div>
+    </ChatSettingsProvider>
+  );
+}
+
+function App() {
+  return (
+    <ChatManagerProvider>
+      <AppContent />
     </ChatManagerProvider>
   );
 }

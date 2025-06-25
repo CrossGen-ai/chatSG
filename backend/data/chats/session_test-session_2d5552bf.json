@@ -1,0 +1,40 @@
+{
+  "data": {
+    "sessionId": "test-session",
+    "data": {},
+    "metadata": {
+      "createdAt": "2025-06-25T03:33:11.946Z",
+      "updatedAt": "2025-06-25T03:40:19.882Z",
+      "accessCount": 7,
+      "lastAccess": "2025-06-25T03:40:19.882Z",
+      "agent": "system",
+      "userId": "default"
+    },
+    "agentHistory": [
+      {
+        "agentName": "AnalyticalAgent",
+        "timestamp": "2025-06-25T03:40:11.345Z",
+        "confidence": 0.1,
+        "reason": "Capability-based selection: Base capability score"
+      },
+      {
+        "agentName": "AnalyticalAgent",
+        "timestamp": "2025-06-25T03:40:19.880Z",
+        "confidence": 0.2,
+        "reason": "Capability-based selection: Base capability score (continuity bonus applied)"
+      }
+    ],
+    "toolsUsed": [],
+    "userPreferences": {
+      "crossSessionMemory": false,
+      "agentLock": false,
+      "lastAgentUsed": "AnalyticalAgent"
+    },
+    "analytics": {
+      "messageCount": 0,
+      "averageResponseTime": 0,
+      "errorCount": 0
+    }
+  },
+  "createdAt": "2025-06-25T03:40:19.882Z"
+}

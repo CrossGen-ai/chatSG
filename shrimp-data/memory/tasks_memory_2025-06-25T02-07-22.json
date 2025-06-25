@@ -1,0 +1,183 @@
+{
+  "tasks": [
+    {
+      "id": "101bc0c5-0657-4d9e-aace-52cf234a1f73",
+      "name": "Remove AgentZero Direct Backend Mode from Server",
+      "description": "Remove the BACKEND='Lang' routing mode from server.js that directly initializes and routes to AgentZero. This includes removing AgentZero initialization, direct chat routing, session management endpoints, and startup logging. Update the default backend to use orchestration instead of n8n.",
+      "notes": "This task focuses on server-level routing changes. The orchestration system will handle all chat requests going forward, providing better agent selection and routing capabilities.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-24T16:34:03.911Z",
+      "updatedAt": "2025-06-24T16:36:50.114Z",
+      "relatedFiles": [
+        {
+          "path": "backend/server.js",
+          "type": "TO_MODIFY",
+          "description": "Main server file containing backend routing logic",
+          "lineStart": 32,
+          "lineEnd": 597
+        }
+      ],
+      "implementationGuide": "1. Remove AgentZero import and initialization (lines 19, 33-40)\\n2. Remove 'Lang' case from chat routing switch statement (lines 244-273)\\n3. Remove 'Lang' case from /api/chats endpoint (lines 390-417)\\n4. Remove 'Lang' case from /api/chats/{id}/history endpoint (lines 459-497)\\n5. Remove 'Lang' case from getBackendMode() function (lines 125-127)\\n6. Change default BACKEND from 'n8n' to 'Orch' (line 32)\\n7. Remove AgentZero startup logging (lines 567-581)",
+      "verificationCriteria": "Server starts successfully with BACKEND='Orch' as default. No AgentZero direct routing remains. All API endpoints still respond correctly through orchestration.",
+      "analysisResult": "Remove AgentZero workflows from ChatSG backend system to streamline architecture. The system currently has multiple backend routing paths including 'Lang' (AgentZero direct) and legacy AgentZero integration within orchestration. The goal is to eliminate AgentZero-specific paths and route all requests directly through the agent orchestration system for better consistency and maintainability. The orchestration system already contains GenericBackendWrapper infrastructure to handle n8n and Generic backends, making this transition seamless while improving performance and scalability.",
+      "summary": "Successfully removed all AgentZero direct backend mode functionality from server.js. Eliminated AgentZero imports, initialization code, and all Lang routing cases from chat endpoints, session management, and startup logging. Changed default BACKEND from 'n8n' to 'Orch' to make orchestration the primary backend mode. Server syntax validation confirms clean implementation with no AgentZero references remaining. The orchestration system is now positioned as the default entry point for all chat requests, providing better agent selection and routing capabilities.",
+      "completedAt": "2025-06-24T16:36:50.112Z"
+    },
+    {
+      "id": "6cd0f5a0-a566-439c-8b2c-c2917adfb648",
+      "name": "Remove AgentZero Integration from Orchestration",
+      "description": "Clean up AgentZero-specific integration code from the orchestration system, including the LegacyAgentZeroWrapper class and AgentZero registration logic in BackendIntegrationManager. Update the initialization to work without AgentZero while maintaining n8n and Generic backend support.",
+      "notes": "This maintains the GenericBackendWrapper functionality for n8n and Generic backends while removing AgentZero-specific code. The orchestration system will use its built-in agent selection instead.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "101bc0c5-0657-4d9e-aace-52cf234a1f73"
+        }
+      ],
+      "createdAt": "2025-06-24T16:34:03.911Z",
+      "updatedAt": "2025-06-24T17:06:41.986Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/orchestrator/BackendIntegration.ts",
+          "type": "TO_MODIFY",
+          "description": "Backend integration layer with AgentZero wrapper",
+          "lineStart": 15,
+          "lineEnd": 402
+        },
+        {
+          "path": "backend/server.js",
+          "type": "TO_MODIFY",
+          "description": "Server orchestration initialization code",
+          "lineStart": 88,
+          "lineEnd": 105
+        }
+      ],
+      "implementationGuide": "1. Remove LegacyAgentZeroWrapper class from BackendIntegration.ts (lines 15-113)\\n2. Remove agentZero parameter from BackendIntegrationManager.initialize() method signature (line 202)\\n3. Remove AgentZero registration logic (lines 210-217)\\n4. Remove 'lang' handler from createBackendHandlers function (line 400)\\n5. Update server.js orchestration initialization to not pass agentZero parameter (lines 88-95)\\n6. Update interface documentation to reflect n8n and Generic as the supported backends",
+      "verificationCriteria": "Orchestration initializes successfully without AgentZero. n8n and Generic backends still work through GenericBackendWrapper. No AgentZero references remain in orchestration code.",
+      "analysisResult": "Remove AgentZero workflows from ChatSG backend system to streamline architecture. The system currently has multiple backend routing paths including 'Lang' (AgentZero direct) and legacy AgentZero integration within orchestration. The goal is to eliminate AgentZero-specific paths and route all requests directly through the agent orchestration system for better consistency and maintainability. The orchestration system already contains GenericBackendWrapper infrastructure to handle n8n and Generic backends, making this transition seamless while improving performance and scalability.",
+      "summary": "Successfully removed all AgentZero integration code from the orchestration system. Eliminated LegacyAgentZeroWrapper class, updated BackendIntegrationManager.initialize() to remove agentZero parameter, removed AgentZero registration logic, removed 'lang' handler from createBackendHandlers, and updated AgentOrchestrator fallback logic to remove AgentZero preference. The orchestration system now cleanly supports only n8n and Generic backends through the GenericBackendWrapper, with server.js syntax validation confirming successful implementation.",
+      "completedAt": "2025-06-24T17:06:41.985Z"
+    },
+    {
+      "id": "1515d949-5ce3-4736-a170-8de730734c00",
+      "name": "Remove AgentZero Wrapper Files",
+      "description": "Delete the AgentZero-specific wrapper files and clean up any remaining AgentZero references in the agent system. Update the legacy wrapper to remove AgentZero creation methods while preserving other compatibility functions.",
+      "notes": "This removes the AgentZero-specific wrapper infrastructure while preserving the general legacy compatibility system for other agents like AgentRouter.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "6cd0f5a0-a566-439c-8b2c-c2917adfb648"
+        }
+      ],
+      "createdAt": "2025-06-24T16:34:03.911Z",
+      "updatedAt": "2025-06-24T17:11:04.947Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/agents/wrappers/AgentZeroWrapper.ts",
+          "type": "TO_MODIFY",
+          "description": "AgentZero wrapper file to be deleted",
+          "lineStart": 1,
+          "lineEnd": 236
+        },
+        {
+          "path": "backend/src/agents/wrappers/LegacyAgentWrapper.ts",
+          "type": "TO_MODIFY",
+          "description": "Legacy wrapper with AgentZero methods to remove",
+          "lineStart": 27,
+          "lineEnd": 305
+        }
+      ],
+      "implementationGuide": "1. Delete backend/src/agents/wrappers/AgentZeroWrapper.ts file\\n2. Remove AgentZero creation methods from LegacyAgentWrapper.ts (lines 27-130)\\n3. Remove AgentZero references from createLegacyExports method (lines 234-243)\\n4. Update LegacyAgentWrapper to focus on AgentRouter compatibility only\\n5. Remove AgentZero from agent factory registration if present\\n6. Update wrapper index files to remove AgentZero exports",
+      "verificationCriteria": "AgentZeroWrapper.ts is deleted. LegacyAgentWrapper.ts no longer contains AgentZero creation methods. No broken imports or references remain.",
+      "analysisResult": "Remove AgentZero workflows from ChatSG backend system to streamline architecture. The system currently has multiple backend routing paths including 'Lang' (AgentZero direct) and legacy AgentZero integration within orchestration. The goal is to eliminate AgentZero-specific paths and route all requests directly through the agent orchestration system for better consistency and maintainability. The orchestration system already contains GenericBackendWrapper infrastructure to handle n8n and Generic backends, making this transition seamless while improving performance and scalability.",
+      "summary": "Successfully removed all AgentZero wrapper files and references from the agent system. Deleted AgentZeroWrapper.ts file completely, updated LegacyAgentWrapper.ts to remove AgentZero creation methods and replace them with error messages directing users to orchestration, removed AgentZero from AgentFactory and AgentRegistry registration systems, and updated all export statements and documentation to reflect AgentZero removal. The system now cleanly focuses on AgentRouter compatibility while completely eliminating AgentZero workflow support, with server syntax validation confirming successful implementation.",
+      "completedAt": "2025-06-24T17:11:04.945Z"
+    },
+    {
+      "id": "d1d04539-1b6a-4851-b4f8-76698eac2c4e",
+      "name": "Clean Up AgentZero Legacy Files",
+      "description": "Remove or update the legacy AgentZero files in the backend/agent/ directory. Since these files now contain only compatibility shims, clean them up and remove unnecessary dependencies.",
+      "notes": "These files were part of the legacy compatibility system. With AgentZero workflows removed, they are no longer needed. The orchestration system provides all necessary agent functionality.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "1515d949-5ce3-4736-a170-8de730734c00"
+        }
+      ],
+      "createdAt": "2025-06-24T16:34:03.911Z",
+      "updatedAt": "2025-06-24T17:20:51.497Z",
+      "relatedFiles": [
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "TO_MODIFY",
+          "description": "AgentZero compatibility shim to be deleted",
+          "lineStart": 1,
+          "lineEnd": 17
+        },
+        {
+          "path": "backend/agent/AgentZero/package.json",
+          "type": "TO_MODIFY",
+          "description": "AgentZero package dependencies to be removed",
+          "lineStart": 1,
+          "lineEnd": 14
+        },
+        {
+          "path": "backend/agent/AgentZero/agent-original.js",
+          "type": "TO_MODIFY",
+          "description": "Original AgentZero backup file to be deleted"
+        },
+        {
+          "path": "backend/agent/AgentZero/agent-legacy.js",
+          "type": "TO_MODIFY",
+          "description": "Legacy AgentZero backup file to be deleted"
+        }
+      ],
+      "implementationGuide": "1. Delete backend/agent/AgentZero/agent.js (compatibility shim no longer needed)\\n2. Delete backend/agent/AgentZero/agent-original.js (backup file)\\n3. Delete backend/agent/AgentZero/agent-legacy.js (legacy backup)\\n4. Remove backend/agent/AgentZero/package.json (AgentZero dependencies)\\n5. Update any remaining imports that reference these files\\n6. Clean up the agent directory structure",
+      "verificationCriteria": "All AgentZero files are removed from backend/agent/ directory. No broken imports remain. Directory structure is clean.",
+      "analysisResult": "Remove AgentZero workflows from ChatSG backend system to streamline architecture. The system currently has multiple backend routing paths including 'Lang' (AgentZero direct) and legacy AgentZero integration within orchestration. The goal is to eliminate AgentZero-specific paths and route all requests directly through the agent orchestration system for better consistency and maintainability. The orchestration system already contains GenericBackendWrapper infrastructure to handle n8n and Generic backends, making this transition seamless while improving performance and scalability.",
+      "summary": "Successfully cleaned up all AgentZero legacy files and updated references. Removed backend/agent/AgentZero/ directory completely including agent.js, agent-original.js, agent-legacy.js, package.json, and llm-config.json. Updated test files to reflect AgentZero removal, removing AgentZero-specific tests and updating integration tests. Updated LegacyAgentWrapper.ts to handle AgentZero removal with appropriate error messages. Directory structure is clean with no broken imports remaining. Server syntax validation confirmed successful implementation.",
+      "completedAt": "2025-06-24T17:20:51.497Z"
+    },
+    {
+      "id": "b56a4c5e-3252-4c53-97f4-03048908c948",
+      "name": "Update Configuration and Documentation",
+      "description": "Update environment configuration files and documentation to reflect the new orchestration-first architecture. Remove AgentZero references and update examples to show orchestration as the primary backend mode.",
+      "notes": "This ensures that new developers understand the orchestration-first architecture and don't attempt to use the removed AgentZero workflows.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "d1d04539-1b6a-4851-b4f8-76698eac2c4e"
+        }
+      ],
+      "createdAt": "2025-06-24T16:34:03.911Z",
+      "updatedAt": "2025-06-24T17:26:10.801Z",
+      "relatedFiles": [
+        {
+          "path": "backend/env-example.txt",
+          "type": "TO_MODIFY",
+          "description": "Environment configuration example",
+          "lineStart": 1,
+          "lineEnd": 59
+        },
+        {
+          "path": "shrimp-rules.md",
+          "type": "TO_MODIFY",
+          "description": "Project standards and guidelines",
+          "lineStart": 80,
+          "lineEnd": 140
+        },
+        {
+          "path": "docs/AGENT_DEVELOPMENT_GUIDE.md",
+          "type": "REFERENCE",
+          "description": "Agent development documentation to review for AgentZero references"
+        }
+      ],
+      "implementationGuide": "1. Update backend/env-example.txt to set BACKEND=Orch as default instead of Generic\\n2. Remove BACKEND=Lang option and related documentation\\n3. Update backend mode descriptions to reflect orchestration as primary\\n4. Update shrimp-rules.md to document orchestration as the main backend\\n5. Remove AgentZero sections from documentation\\n6. Add note about n8n and Generic working through orchestration\\n7. Update any README files that reference AgentZero workflows",
+      "verificationCriteria": "Environment examples default to orchestration. Documentation accurately reflects the new architecture. No outdated AgentZero references remain in guides.",
+      "analysisResult": "Remove AgentZero workflows from ChatSG backend system to streamline architecture. The system currently has multiple backend routing paths including 'Lang' (AgentZero direct) and legacy AgentZero integration within orchestration. The goal is to eliminate AgentZero-specific paths and route all requests directly through the agent orchestration system for better consistency and maintainability. The orchestration system already contains GenericBackendWrapper infrastructure to handle n8n and Generic backends, making this transition seamless while improving performance and scalability.",
+      "summary": "Successfully updated configuration and documentation to reflect orchestration-first architecture. Updated env-example.txt to default to BACKEND=Orch with clear descriptions of orchestration benefits. Updated shrimp-rules.md to document orchestration as primary backend with intelligent agent selection. Removed AgentZero/Lang mode references from all configuration examples. Updated backend mode descriptions to emphasize orchestration handling n8n and Generic backends. Added important notice to MIGRATION_GUIDE.md about AgentZero removal. Updated TESTS_README.md to reflect current backend modes and remove AgentZero test references. All documentation now accurately reflects the new orchestration-first architecture.",
+      "completedAt": "2025-06-24T17:26:10.801Z"
+    }
+  ]
+}

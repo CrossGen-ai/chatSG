@@ -1,0 +1,37 @@
+{
+  "data": {
+    "key": "memory:analytical:conversation-1",
+    "data": {
+      "key": "conversation-1",
+      "data": {
+        "type": "user_question",
+        "content": "What is machine learning?",
+        "response": "Machine learning is a subset of AI that enables computers to learn from data."
+      },
+      "metadata": {
+        "userId": "test-user-123",
+        "timestamp": "2025-06-25T03:13:46.076Z",
+        "agentId": "analytical",
+        "sessionId": "session-1"
+      }
+    },
+    "scope": "global",
+    "permissions": {
+      "read": [
+        "*"
+      ],
+      "write": [],
+      "delete": []
+    },
+    "metadata": {
+      "createdBy": "analytical",
+      "createdAt": "2025-06-25T03:13:46.077Z",
+      "updatedBy": "analytical",
+      "updatedAt": "2025-06-25T03:13:46.077Z",
+      "version": 1,
+      "ttl": 86400000
+    }
+  },
+  "createdAt": "2025-06-25T03:13:46.077Z",
+  "ttl": 86400000
+}

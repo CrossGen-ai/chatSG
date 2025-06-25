@@ -1,0 +1,51 @@
+{
+  "data": {
+    "key": "task:task-1750822861729-d3ojzsb73",
+    "data": {
+      "task": {
+        "id": "task-1750822861729-d3ojzsb73",
+        "type": "chat",
+        "input": "what is 2+2",
+        "parameters": {
+          "sessionId": "f6ae7354-58d6-4c17-acab-53e0262b00c7"
+        },
+        "priority": 1
+      },
+      "context": {
+        "sessionId": "f6ae7354-58d6-4c17-acab-53e0262b00c7",
+        "userInput": "what is 2+2",
+        "currentAgent": "AnalyticalAgent",
+        "availableAgents": [
+          "AnalyticalAgent",
+          "CreativeAgent",
+          "TechnicalAgent"
+        ]
+      },
+      "timestamp": "2025-06-25T03:41:01.729Z"
+    },
+    "scope": "session",
+    "permissions": {
+      "read": [
+        "AnalyticalAgent",
+        "CreativeAgent",
+        "TechnicalAgent"
+      ],
+      "write": [
+        "AnalyticalAgent"
+      ],
+      "delete": [
+        "AnalyticalAgent"
+      ]
+    },
+    "metadata": {
+      "createdBy": "AnalyticalAgent",
+      "createdAt": "2025-06-25T03:41:01.729Z",
+      "updatedBy": "AnalyticalAgent",
+      "updatedAt": "2025-06-25T03:41:01.729Z",
+      "version": 1,
+      "ttl": 86400000
+    }
+  },
+  "createdAt": "2025-06-25T03:41:01.729Z",
+  "ttl": 86400000
+}

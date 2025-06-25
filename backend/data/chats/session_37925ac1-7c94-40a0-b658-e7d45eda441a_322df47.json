@@ -1,0 +1,60 @@
+{
+  "data": {
+    "sessionId": "37925ac1-7c94-40a0-b658-e7d45eda441a",
+    "data": {},
+    "metadata": {
+      "createdAt": "2025-06-25T03:42:17.915Z",
+      "updatedAt": "2025-06-25T03:53:25.897Z",
+      "accessCount": 90,
+      "lastAccess": "2025-06-25T03:53:25.897Z",
+      "agent": "system",
+      "userId": "default"
+    },
+    "agentHistory": [
+      {
+        "agentName": "CreativeAgent",
+        "timestamp": "2025-06-25T03:42:20.953Z",
+        "confidence": 0.85,
+        "reason": "Specialized agent routing: CreativeAgent (score: 1, keywords: tell)"
+      },
+      {
+        "agentName": "AnalyticalAgent",
+        "timestamp": "2025-06-25T03:42:31.412Z",
+        "confidence": 0.1,
+        "reason": "Capability-based selection: Base capability score"
+      },
+      {
+        "agentName": "AnalyticalAgent",
+        "timestamp": "2025-06-25T03:42:49.258Z",
+        "confidence": 0.95,
+        "reason": "Agent lock enabled - using AnalyticalAgent"
+      },
+      {
+        "agentName": "CreativeAgent",
+        "timestamp": "2025-06-25T03:53:09.352Z",
+        "confidence": 0.85,
+        "reason": "Specialized agent routing: CreativeAgent (score: 1, keywords: tell)"
+      },
+      {
+        "agentName": "CreativeAgent",
+        "timestamp": "2025-06-25T03:53:25.897Z",
+        "confidence": 0.95,
+        "reason": "Agent lock enabled - using CreativeAgent"
+      }
+    ],
+    "toolsUsed": [],
+    "userPreferences": {
+      "crossSessionMemory": false,
+      "agentLock": true,
+      "lastAgentUsed": "CreativeAgent",
+      "lastUpdated": "2025-06-25T03:53:24.774Z",
+      "agentLockTimestamp": "2025-06-25T03:53:24.771Z"
+    },
+    "analytics": {
+      "messageCount": 0,
+      "averageResponseTime": 0,
+      "errorCount": 0
+    }
+  },
+  "createdAt": "2025-06-25T03:53:25.897Z"
+}

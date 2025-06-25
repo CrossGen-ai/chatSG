@@ -1,0 +1,37 @@
+{
+  "data": {
+    "key": "memory:creative:story-idea",
+    "data": {
+      "key": "story-idea",
+      "data": {
+        "type": "creative_content",
+        "content": "Write a story about AI",
+        "response": "Once upon a time, in a world where AI and humans lived in harmony..."
+      },
+      "metadata": {
+        "userId": "test-user-123",
+        "timestamp": "2025-06-25T03:13:46.081Z",
+        "agentId": "creative",
+        "sessionId": "session-2"
+      }
+    },
+    "scope": "global",
+    "permissions": {
+      "read": [
+        "*"
+      ],
+      "write": [],
+      "delete": []
+    },
+    "metadata": {
+      "createdBy": "creative",
+      "createdAt": "2025-06-25T03:13:46.081Z",
+      "updatedBy": "creative",
+      "updatedAt": "2025-06-25T03:13:46.081Z",
+      "version": 1,
+      "ttl": 86400000
+    }
+  },
+  "createdAt": "2025-06-25T03:13:46.081Z",
+  "ttl": 86400000
+}

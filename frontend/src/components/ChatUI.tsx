@@ -1,35 +1,58 @@
 import React, { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
-import { sendChatMessage } from '../api/chat';
-import { useChatManager } from '../hooks/useChatManager';
-
-interface Message {
-  id: number;
-  content: string;
-  sender: 'user' | 'bot';
-  timestamp: Date;
-}
+import { sendChatMessage, ChatResponse } from '../api/chat';
+import { useChatManager, HybridMessage } from '../hooks/useChatManager';
+import { ChatSettingsProvider } from '../hooks/useChatSettings';
+import { ChatSettingsToggles } from './ChatSettingsToggles';
+import { AgentAvatarService, AgentAvatarConfig } from '../services/AgentAvatarService';
+import { useChatSettings } from '../hooks/useChatSettings';
 
 interface ChatUIProps {
   sessionId?: string;
 }
 
-const initialMessages: Message[] = [
+const initialMessages: HybridMessage[] = [
   { 
     id: 1, 
     content: 'Hello! I\'m your AI assistant. How can I help you today? Feel free to ask me anything!', 
     sender: 'bot',
-    timestamp: new Date()
+    timestamp: new Date(),
+    synced: false
   },
 ];
 
-const BotAvatar = () => (
-  <div className="w-8 h-8 rounded-full theme-accent flex items-center justify-center shadow-lg flex-shrink-0">
-    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-    </svg>
-  </div>
-);
+interface BotAvatarProps {
+  agentType?: string;
+  className?: string;
+  showTooltip?: boolean;
+}
+
+const BotAvatar: React.FC<BotAvatarProps> = ({ agentType, className, showTooltip = true }) => {
+  const avatarConfig = AgentAvatarService.getAvatarConfig(agentType);
+  const iconPath = AgentAvatarService.getIconPath(avatarConfig.icon);
+  
+  // Determine if we should use theme accent or specific gradient
+  const isThemeAccent = avatarConfig.gradient === 'theme-accent';
+  const backgroundClass = isThemeAccent 
+    ? 'theme-accent' 
+    : `bg-gradient-to-r ${avatarConfig.gradient}`;
+
+  return (
+    <div 
+      className={clsx(
+        'w-8 h-8 rounded-full flex items-center justify-center shadow-lg flex-shrink-0 transition-all duration-300',
+        backgroundClass,
+        className
+      )}
+      title={showTooltip ? `${avatarConfig.name}: ${avatarConfig.description}` : undefined}
+    >
+      {/* Use emoji for better visual appeal, fallback to SVG icon */}
+      <span className="text-lg" role="img" aria-label={avatarConfig.name}>
+        {avatarConfig.emoji}
+      </span>
+    </div>
+  );
+};
 
 const UserAvatar = () => (
   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg flex-shrink-0">
@@ -39,10 +62,14 @@ const UserAvatar = () => (
   </div>
 );
 
-const TypingIndicator = () => (
+interface TypingIndicatorProps {
+  agentType?: string;
+}
+
+const TypingIndicator: React.FC<TypingIndicatorProps> = ({ agentType }) => (
   <div className="flex items-center space-x-2 p-4">
-    <BotAvatar />
-    <div className="backdrop-blur-md bg-white/60 dark:bg-black/40 rounded-2xl rounded-bl-md px-4 py-3 shadow-lg border border-white/20">
+    <BotAvatar agentType={agentType} />
+    <div className="backdrop-blur-md bg-white/60 dark:bg-black/40 rounded-2xl rounded-bl-md px-4 py-3 shadow-lg border border-white/20 dark:border-white/10">
       <div className="flex space-x-1">
         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
@@ -52,8 +79,87 @@ const TypingIndicator = () => (
   </div>
 );
 
+const RemoteLoadingIndicator = () => (
+  <div className="flex items-center justify-center p-2">
+    <div className="backdrop-blur-md bg-blue-500/20 dark:bg-blue-400/20 rounded-2xl px-4 py-2 shadow-lg border border-blue-400/30">
+      <div className="flex items-center space-x-2">
+        <svg className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+          Loading messages from remote...
+        </span>
+      </div>
+    </div>
+  </div>
+);
+
+interface CrossSessionMemoryIndicatorProps {
+  isEnabled: boolean;
+  className?: string;
+}
+
+const CrossSessionMemoryIndicator: React.FC<CrossSessionMemoryIndicatorProps> = ({ 
+  isEnabled, 
+  className 
+}) => {
+  if (!isEnabled) return null;
+
+  return (
+    <div 
+      className={clsx(
+        'flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-300',
+        'backdrop-blur-md border shadow-sm',
+        'bg-purple-500/10 border-purple-400/30 text-purple-700 dark:text-purple-300',
+        className
+      )}
+      title="Cross-session memory is enabled - I can remember context from previous conversations"
+    >
+      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>Cross-session memory</span>
+    </div>
+  );
+};
+
+interface AgentIndicatorProps {
+  agentType?: string;
+  className?: string;
+}
+
+const AgentIndicator: React.FC<AgentIndicatorProps> = ({ agentType, className }) => {
+  const avatarConfig = AgentAvatarService.getAvatarConfig(agentType);
+  const themeColors = AgentAvatarService.getThemeColors(agentType);
+  
+  if (!agentType || agentType === 'default') {
+    return null;
+  }
+
+  return (
+    <div 
+      className={clsx(
+        'flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300',
+        'backdrop-blur-md border shadow-sm',
+        className
+      )}
+      style={{
+        backgroundColor: themeColors.background,
+        borderColor: themeColors.primary + '30',
+        color: themeColors.text
+      }}
+    >
+      <span className="text-xs" role="img" aria-label={avatarConfig.name}>
+        {avatarConfig.emoji}
+      </span>
+      <span className="text-xs font-medium">{avatarConfig.name}</span>
+    </div>
+  );
+};
+
 export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
-  const { activeChatId, updateChatMetadata, chats, setChatLoading, markChatNewMessage } = useChatManager();
+  const { activeChatId, updateChatMetadata, chats, setChatLoading, markChatNewMessage, getChatMessages, saveChatMessage, getMessagesProgressively, trackAgentUsage } = useChatManager();
+  const { settings } = useChatSettings();
   const currentSessionId = sessionId || activeChatId;
   const currentChat = chats.find(chat => chat.id === currentSessionId);
   
@@ -63,60 +169,75 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   // See: frontend/RACE_CONDITION_FIX_DOCUMENTATION.md
   const currentActiveSessionRef = useRef(currentSessionId);
   
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [messages, setMessages] = useState<HybridMessage[]>(initialMessages);
   const [input, setInput] = useState('');
+  const [isLoadingRemoteMessages, setIsLoadingRemoteMessages] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [pendingRequests, setPendingRequests] = useState<Map<string, AbortController>>(new Map());
 
   // Remove global loading state, use per-chat loading from context
   const loading = currentChat?.isLoading || false;
 
-  // Save messages to localStorage
-  const saveMessages = (sessionId: string, messages: Message[]) => {
+  // Enhanced progressive message loading
+  const loadMessagesProgressively = async (sessionId: string): Promise<HybridMessage[]> => {
+    if (!sessionId) return initialMessages;
+    
     try {
-      localStorage.setItem(`chat-messages-${sessionId}`, JSON.stringify(messages));
-    } catch (error) {
-      console.warn('Failed to save messages to localStorage:', error);
-    }
-  };
-
-  // Load messages from localStorage
-  const loadMessages = (sessionId: string): Message[] => {
-    try {
-      const saved = localStorage.getItem(`chat-messages-${sessionId}`);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        // Convert timestamp strings back to Date objects
-        return parsed.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }));
+      console.log(`[ChatUI] Starting progressive loading for session: ${sessionId}`);
+      const result = await getMessagesProgressively(sessionId);
+      
+      setIsLoadingRemoteMessages(result.isLoading);
+      
+      if (result.isLoading) {
+        console.log(`[ChatUI] Remote messages loading in background for session: ${sessionId}`);
+      } else {
+        console.log(`[ChatUI] No remote loading needed for session: ${sessionId}`);
       }
+      
+      const finalMessages = result.messages.length > 0 ? result.messages : initialMessages;
+      console.log(`[ChatUI] Progressive loading completed: ${finalMessages.length} messages for session: ${sessionId}`);
+      return finalMessages;
     } catch (error) {
-      console.warn('Failed to load messages from localStorage:', error);
+      console.warn('Failed to load messages progressively:', error);
+      setIsLoadingRemoteMessages(false);
+      return initialMessages;
     }
-    return initialMessages;
   };
 
-  // Load messages when sessionId changes
+  // Load messages when sessionId changes - now with progressive loading
   useEffect(() => {
     console.log(`[ChatUI] useEffect: Loading messages for session change: ${currentSessionId}`);
     if (currentSessionId) {
-      const loadedMessages = loadMessages(currentSessionId);
-      setMessages(loadedMessages);
-      console.log(`[ChatUI] useEffect: Loaded ${loadedMessages.length} messages for session: ${currentSessionId}`);
+      loadMessagesProgressively(currentSessionId).then(loadedMessages => {
+        setMessages(loadedMessages);
+        console.log(`[ChatUI] useEffect: Loaded ${loadedMessages.length} messages for session: ${currentSessionId}`);
+      });
     }
   }, [currentSessionId]);
 
-  // Save messages when they change
+  // Monitor chat loading state and update local loading indicator
   useEffect(() => {
-    console.log(`[ChatUI] useEffect: Messages changed. currentSessionId: ${currentSessionId}, messages.length: ${messages.length}`);
-    if (currentSessionId && messages.length > 0) {
-      console.log(`[ChatUI] useEffect: SAVING ${messages.length} messages to session: ${currentSessionId}`);
-      console.log(`[ChatUI] useEffect: Last message content:`, messages[messages.length - 1]?.content);
-      saveMessages(currentSessionId, messages);
+    if (currentChat) {
+      setIsLoadingRemoteMessages(currentChat.isLoadingMessages);
+      console.log(`[ChatUI] Updated loading state for session ${currentSessionId}: ${currentChat.isLoadingMessages}`);
     }
-  }, [currentSessionId, messages]);
+  }, [currentChat?.isLoadingMessages, currentSessionId]);
+
+  // Listen for message updates from progressive loading
+  useEffect(() => {
+    if (currentSessionId && !isLoadingRemoteMessages) {
+      // Check for updated messages periodically when not loading
+      const interval = setInterval(() => {
+        const currentMessages = getChatMessages(currentSessionId);
+        if (currentMessages.length !== messages.length) {
+          console.log(`[ChatUI] Detected message updates from background sync for session: ${currentSessionId}`);
+          setMessages(currentMessages.length > 0 ? currentMessages : initialMessages);
+        }
+      }, 2000); // Check every 2 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [currentSessionId, isLoadingRemoteMessages, messages.length]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -150,29 +271,28 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     // Set loading state for this specific chat
     setChatLoading(originatingSessionId, true);
     
-    const userMessage: Message = {
+    const userMessage: HybridMessage = {
       id: Date.now(),
       content: input,
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
+      synced: false
     };
     
-    // CRITICAL FIX: Save user message immediately to correct localStorage
+    // CRITICAL FIX: Save user message immediately to hybrid storage
     // 🚨 CRITICAL: DO NOT REMOVE - Prevents cross-chat message contamination
     // This prevents cross-chat contamination when users switch chats quickly
     // See: frontend/RACE_CONDITION_FIX_DOCUMENTATION.md
-    const currentMessages = loadMessages(originatingSessionId);
-    const updatedMessages = [...currentMessages, userMessage];
-    saveMessages(originatingSessionId, updatedMessages);
-    console.log(`[ChatUI] User message immediately saved to localStorage for session: ${originatingSessionId}`);
+    saveChatMessage(originatingSessionId, userMessage);
+    console.log(`[ChatUI] User message immediately saved to hybrid storage for session: ${originatingSessionId}`);
     
-    // Update current UI with the same messages
-    setMessages(updatedMessages);
+    // Update current UI with the user message
+    setMessages(prev => [...prev, userMessage]);
     const currentInput = input;
     setInput('');
     
     try {
-      const botReply = await sendChatMessage(currentInput, originatingSessionId, {
+      const chatResponse = await sendChatMessage(currentInput, originatingSessionId, {
         signal: abortController.signal
       });
       
@@ -188,47 +308,54 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       console.log(`[ChatUI] 🔍   - currentSessionAtResponseTime: "${currentSessionAtResponseTime}" (length: ${currentSessionAtResponseTime.length}, type: ${typeof currentSessionAtResponseTime})`);
       console.log(`[ChatUI] 🔍   - currentActiveSessionRef.current: "${currentActiveSessionRef.current}"`);
       console.log(`[ChatUI] 🔍   - sessionId prop: "${sessionId}"`);
+      console.log(`[ChatUI] 🤖 Agent information:`, { agent: chatResponse.agent, backend: chatResponse.backend });
+      
+      // Track agent usage if agent information is available
+      if (chatResponse.agent) {
+        trackAgentUsage(originatingSessionId, chatResponse.agent);
+      }
       
       // Session validation before UI update
       if (originatingSessionId === currentSessionAtResponseTime) {
         console.log(`[ChatUI] ✅ ACTIVE CHAT PATH - Adding response to current UI`);
         // Response for currently active chat
-        const botMessage: Message = {
+        const botMessage: HybridMessage = {
           id: Date.now() + 1,
-          content: botReply,
+          content: chatResponse.message,
           sender: 'bot',
-          timestamp: new Date()
+          timestamp: new Date(),
+          agent: chatResponse.agent, // Include agent information
+          synced: false
         };
+        
+        // Save to hybrid storage
+        saveChatMessage(originatingSessionId, botMessage);
+        
+        // Update UI
         setMessages((msgs) => {
           const newMessages = [...msgs, botMessage];
           console.log(`[ChatUI] ✅ ACTIVE: Updated UI with ${newMessages.length} messages for session: ${originatingSessionId}`);
-          updateChatMetadata(originatingSessionId, {
-            lastMessageAt: new Date(),
-            messageCount: newMessages.length
-          });
           return newMessages;
         });
         console.log(`[ChatUI] Message delivered to active session: ${originatingSessionId}`);
       } else {
-        console.log(`[ChatUI] 🔄 BACKGROUND CHAT PATH - Saving response to localStorage only`);
+        console.log(`[ChatUI] 🔄 BACKGROUND CHAT PATH - Saving response to hybrid storage only`);
         // Response for background chat - mark as having new messages
-        const backgroundMessages = loadMessages(originatingSessionId);
-        const botMessage: Message = {
+        const botMessage: HybridMessage = {
           id: Date.now() + 1,
-          content: botReply,
+          content: chatResponse.message,
           sender: 'bot',
-          timestamp: new Date()
+          timestamp: new Date(),
+          agent: chatResponse.agent, // Include agent information
+          synced: false
         };
-        const updatedBackgroundMessages = [...backgroundMessages, botMessage];
-        saveMessages(originatingSessionId, updatedBackgroundMessages);
-        console.log(`[ChatUI] 🔄 BACKGROUND: Saved ${updatedBackgroundMessages.length} messages to localStorage for session: ${originatingSessionId}`);
-        console.log(`[ChatUI] 🔄 BACKGROUND: Bot response content:`, botReply);
+        
+        // Save to hybrid storage
+        saveChatMessage(originatingSessionId, botMessage);
+        console.log(`[ChatUI] 🔄 BACKGROUND: Saved bot message to hybrid storage for session: ${originatingSessionId}`);
+        console.log(`[ChatUI] 🔄 BACKGROUND: Bot response content:`, chatResponse.message);
         
         markChatNewMessage(originatingSessionId, true);
-        updateChatMetadata(originatingSessionId, {
-          lastMessageAt: new Date(),
-          messageCount: updatedBackgroundMessages.length
-        });
         console.log(`[ChatUI] Background response received for session: ${originatingSessionId}`);
       }
     } catch (error: any) {
@@ -242,29 +369,29 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       
       // Handle errors for both active and background chats
       if (originatingSessionId === currentSessionAtResponseTime) {
-        const errorMessage: Message = {
+        const errorMessage: HybridMessage = {
           id: Date.now() + 1,
           content: 'Sorry, I encountered an error. Please try again.',
           sender: 'bot',
-          timestamp: new Date()
+          timestamp: new Date(),
+          synced: false
         };
+        
+        // Save to hybrid storage and update UI
+        saveChatMessage(originatingSessionId, errorMessage);
         setMessages((msgs) => [...msgs, errorMessage]);
       } else {
         // Handle error for background chat
-        const backgroundMessages = loadMessages(originatingSessionId);
-        const errorMessage: Message = {
+        const errorMessage: HybridMessage = {
           id: Date.now() + 1,
           content: 'Sorry, I encountered an error. Please try again.',
           sender: 'bot',
-          timestamp: new Date()
+          timestamp: new Date(),
+          synced: false
         };
-        const updatedBackgroundMessages = [...backgroundMessages, errorMessage];
-        saveMessages(originatingSessionId, updatedBackgroundMessages);
         
-        updateChatMetadata(originatingSessionId, {
-          lastMessageAt: new Date(),
-          messageCount: updatedBackgroundMessages.length
-        });
+        // Save to hybrid storage
+        saveChatMessage(originatingSessionId, errorMessage);
       }
       console.warn(`[ChatUI] Error in session ${originatingSessionId}:`, error);
     } finally {
@@ -285,25 +412,45 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   };
 
   return (
-    <div className="h-full flex flex-col backdrop-blur-xl bg-white/10 dark:bg-black/10 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl overflow-hidden">
-      {/* Chat header */}
-      <div className="px-6 py-4 border-b border-white/20 dark:border-white/10 backdrop-blur-md bg-white/20 dark:bg-black/20">
-        <div className="flex items-center space-x-3">
-          <div className="relative">
-            <BotAvatar />
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
-          </div>
-          <div>
-            <h3 className="font-semibold theme-text-primary">
-              {currentChat?.title || 'AI Assistant'}
-            </h3>
-            <p className="text-sm theme-text-secondary">Online • Ready to help</p>
+    <ChatSettingsProvider sessionId={currentSessionId || 'default'}>
+      <div className="h-full flex flex-col backdrop-blur-xl bg-white/10 dark:bg-black/10 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl overflow-hidden">
+        {/* Chat header */}
+        <div className="px-6 py-4 border-b border-white/20 dark:border-white/10 backdrop-blur-md bg-white/20 dark:bg-black/20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <BotAvatar agentType={currentChat?.agentType} />
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold theme-text-primary">
+                  {currentChat?.title || 'AI Assistant'}
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <p className="text-sm theme-text-secondary">Online • Ready to help</p>
+                  {currentChat?.agentType && (
+                    <AgentIndicator agentType={currentChat.agentType} className="text-xs" />
+                  )}
+                  <CrossSessionMemoryIndicator 
+                    isEnabled={settings.crossSessionMemory} 
+                    className="text-xs" 
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Chat settings toggles */}
+            <div className="flex items-center space-x-3">
+              <ChatSettingsToggles />
+            </div>
           </div>
         </div>
-      </div>
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+        {/* Remote loading indicator */}
+        {isLoadingRemoteMessages && <RemoteLoadingIndicator />}
+        
         {messages.map((msg, index) => (
           <div
             key={msg.id}
@@ -313,7 +460,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             )}
             style={{ animationDelay: `${index * 50}ms` }}
           >
-            {msg.sender === 'user' ? <UserAvatar /> : <BotAvatar />}
+            {msg.sender === 'user' ? <UserAvatar /> : <BotAvatar agentType={msg.agent || currentChat?.agentType} />}
             <div className={clsx(
               'max-w-xs lg:max-w-md xl:max-w-lg',
               msg.sender === 'user' ? 'order-1' : 'order-2'
@@ -333,12 +480,16 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
                 msg.sender === 'user' ? 'text-right' : 'text-left'
               )}>
                 {formatTime(msg.timestamp)}
+                {/* Show sync status for debugging */}
+                {!msg.synced && (
+                  <span className="ml-2 text-orange-500">•</span>
+                )}
               </div>
             </div>
           </div>
         ))}
         
-        {loading && <TypingIndicator />}
+        {loading && <TypingIndicator agentType={currentChat?.agentType} />}
         <div ref={messagesEndRef} />
       </div>
 
@@ -391,5 +542,6 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         </div>
       </div>
     </div>
+    </ChatSettingsProvider>
   );
 }; 

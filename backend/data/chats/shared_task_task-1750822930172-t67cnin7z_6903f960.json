@@ -1,0 +1,51 @@
+{
+  "data": {
+    "key": "task:task-1750822930172-t67cnin7z",
+    "data": {
+      "task": {
+        "id": "task-1750822930172-t67cnin7z",
+        "type": "chat",
+        "input": "Tell me a joke",
+        "parameters": {
+          "sessionId": "c902aad2-66b7-47ac-912d-88b75be40e17"
+        },
+        "priority": 1
+      },
+      "context": {
+        "sessionId": "c902aad2-66b7-47ac-912d-88b75be40e17",
+        "userInput": "Tell me a joke",
+        "currentAgent": "CreativeAgent",
+        "availableAgents": [
+          "AnalyticalAgent",
+          "CreativeAgent",
+          "TechnicalAgent"
+        ]
+      },
+      "timestamp": "2025-06-25T03:42:10.172Z"
+    },
+    "scope": "session",
+    "permissions": {
+      "read": [
+        "AnalyticalAgent",
+        "CreativeAgent",
+        "TechnicalAgent"
+      ],
+      "write": [
+        "CreativeAgent"
+      ],
+      "delete": [
+        "CreativeAgent"
+      ]
+    },
+    "metadata": {
+      "createdBy": "CreativeAgent",
+      "createdAt": "2025-06-25T03:42:10.172Z",
+      "updatedBy": "CreativeAgent",
+      "updatedAt": "2025-06-25T03:42:10.172Z",
+      "version": 1,
+      "ttl": 86400000
+    }
+  },
+  "createdAt": "2025-06-25T03:42:10.172Z",
+  "ttl": 86400000
+}

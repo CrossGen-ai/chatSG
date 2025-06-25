@@ -1,0 +1,27 @@
+{
+  "data": {
+    "key": "test-shared-data",
+    "data": {
+      "message": "This is shared data",
+      "createdAt": "2025-06-25T02:11:09.954Z"
+    },
+    "scope": "global",
+    "permissions": {
+      "read": [
+        "*"
+      ],
+      "write": [],
+      "delete": []
+    },
+    "metadata": {
+      "createdBy": "test-agent",
+      "createdAt": "2025-06-25T02:11:09.954Z",
+      "updatedBy": "test-agent",
+      "updatedAt": "2025-06-25T02:11:09.954Z",
+      "version": 1,
+      "ttl": 86400000
+    }
+  },
+  "createdAt": "2025-06-25T02:11:09.954Z",
+  "ttl": 86400000
+}

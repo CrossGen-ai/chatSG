@@ -78,14 +78,21 @@ export class ConversationMemory implements AgentMemory {
             }
         }
 
-        // Store in shared state if session-based
+        // Store in shared state if session-based, include session and user info for cross-session access
         if (this.sessionId) {
             const memoryKey = `memory:${this.agentId}:${key}`;
+            const stateData = {
+                ...entry,
+                sessionId: this.sessionId,
+                agentId: this.agentId,
+                userId: metadata?.userId // Include user ID for cross-session filtering
+            };
+            
             await this.stateManager.setSharedState(
                 memoryKey,
-                entry,
+                stateData,
                 {}, // 24 hours TTL handled by StateManager
-                { agentName: this.agentId, sessionId: this.sessionId, timestamp: new Date() }
+                { agentName: this.agentId, sessionId: this.sessionId, userId: metadata?.userId, timestamp: new Date() }
             );
         }
 
@@ -120,8 +127,10 @@ export class ConversationMemory implements AgentMemory {
     async search(query: string, options?: any): Promise<any[]> {
         const results: any[] = [];
         const maxResults = options?.maxResults || 10;
+        const includeCrossSession = options?.crossSessionMemory || false;
+        const userId = options?.userId;
         
-        // Simple text-based search through entries
+        // Search through local entries first
         for (const [key, entry] of this.entries.entries()) {
             const entryText = JSON.stringify(entry.data).toLowerCase();
             const queryLower = query.toLowerCase();
@@ -130,9 +139,49 @@ export class ConversationMemory implements AgentMemory {
                 results.push({
                     key,
                     data: entry.data,
-                    metadata: entry.metadata,
+                    metadata: {
+                        ...entry.metadata,
+                        crossSession: false
+                    },
                     relevance: this.calculateRelevance(entryText, queryLower)
                 });
+            }
+        }
+
+        // Include cross-session memory if enabled and user ID provided
+        if (includeCrossSession && userId && this.sessionId) {
+            try {
+                const crossSessionContext = await this.stateManager.getCrossSessionMemoryContext(
+                    this.sessionId,
+                    userId,
+                    {
+                        maxContextSize: 3000, // Smaller limit for search
+                        memoryTypes: ['conversation'],
+                        relevantKeywords: [query]
+                    }
+                );
+
+                if (crossSessionContext.success && crossSessionContext.data) {
+                    for (const entry of crossSessionContext.data) {
+                        const entryText = JSON.stringify(entry.data).toLowerCase();
+                        const queryLower = query.toLowerCase();
+                        
+                        if (entryText.includes(queryLower)) {
+                            results.push({
+                                key: entry.metadata.originalKey || `cross-session-${entry.sessionId}`,
+                                data: entry.data,
+                                metadata: {
+                                    ...entry.metadata,
+                                    crossSession: true,
+                                    sourceSessionId: entry.sessionId
+                                },
+                                relevance: this.calculateRelevance(entryText, queryLower) * 0.8 // Slightly lower relevance for cross-session
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn(`[ConversationMemory] Failed to search cross-session memory:`, error);
             }
         }
 
@@ -171,6 +220,44 @@ export class ConversationMemory implements AgentMemory {
             memoryUsage: this.estimateMemoryUsage(),
             hasEmbeddings: !!this.embeddingService
         };
+    }
+
+    /**
+     * Get cross-session memory context for conversation injection
+     */
+    async getCrossSessionContext(userId: string, options?: {
+        maxContextSize?: number;
+        relevantKeywords?: string[];
+    }): Promise<any[]> {
+        if (!this.sessionId || !userId) {
+            return [];
+        }
+
+        try {
+            const result = await this.stateManager.getCrossSessionMemoryContext(
+                this.sessionId,
+                userId,
+                {
+                    maxContextSize: options?.maxContextSize || 2000,
+                    memoryTypes: ['conversation'],
+                    relevantKeywords: options?.relevantKeywords
+                }
+            );
+
+            if (result.success && result.data) {
+                console.log(`[ConversationMemory] Retrieved ${result.data.length} cross-session memory entries for agent: ${this.agentId}`);
+                return result.data.map(entry => ({
+                    content: entry.data,
+                    source: `Previous conversation (Session: ${entry.sessionId})`,
+                    timestamp: entry.timestamp,
+                    relevance: entry.metadata?.relevanceScore || 1
+                }));
+            }
+        } catch (error) {
+            console.warn(`[ConversationMemory] Failed to get cross-session context:`, error);
+        }
+
+        return [];
     }
 
     async cleanup(): Promise<void> {

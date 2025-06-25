@@ -150,12 +150,25 @@ export class OrchestrationMiddleware {
                 return this.executeOriginalHandler(context, originalHandler);
             }
 
-            // Create orchestration context
+            // Load user preferences from session state
+            const userPreferences = await this.loadUserPreferences(context.sessionId);
+
+            // Create orchestration context with user preferences
             const orchestrationContext: OrchestrationContext = {
                 sessionId: context.sessionId,
                 userInput: context.userInput,
-                availableAgents: availableAgents.map(a => a.name)
+                availableAgents: availableAgents.map(a => a.name),
+                userPreferences: userPreferences
             };
+
+            if (this.config.enableLogging) {
+                console.log(`[OrchestrationMiddleware] Orchestration context:`, {
+                    sessionId: context.sessionId,
+                    agentLock: userPreferences?.agentLock,
+                    lastAgentUsed: userPreferences?.lastAgentUsed,
+                    availableAgents: orchestrationContext.availableAgents.length
+                });
+            }
 
             // Select best agent
             const selection = await this.orchestrator.selectAgent(context.userInput, orchestrationContext);
@@ -192,7 +205,8 @@ export class OrchestrationMiddleware {
                         _orchestration: {
                             confidence: selection.confidence,
                             reason: selection.reason,
-                            executionTime: taskResult.executionTime
+                            executionTime: taskResult.executionTime,
+                            agentLockUsed: userPreferences?.agentLock || false
                         },
                         success: true
                     },
@@ -543,6 +557,36 @@ export class OrchestrationMiddleware {
 
         if (this.config.enableLogging) {
             console.log('[OrchestrationMiddleware] Cleanup completed');
+        }
+    }
+
+    /**
+     * Load user preferences from session state
+     */
+    private async loadUserPreferences(sessionId: string): Promise<Record<string, any> | undefined> {
+        try {
+            const context = createStateContext(sessionId, 'OrchestrationMiddleware');
+            const sessionResult = await this.stateManager.getSessionState(sessionId, context);
+            
+            if (sessionResult.success && sessionResult.data?.userPreferences) {
+                const preferences = sessionResult.data.userPreferences;
+                
+                if (this.config.enableLogging) {
+                    console.log(`[OrchestrationMiddleware] Loaded user preferences for session ${sessionId}:`, preferences);
+                }
+                
+                return preferences;
+            }
+            
+            // Return default preferences if none exist
+            return {
+                crossSessionMemory: false,
+                agentLock: false
+            };
+            
+        } catch (error) {
+            console.warn(`[OrchestrationMiddleware] Failed to load user preferences for session ${sessionId}:`, error);
+            return undefined;
         }
     }
 }

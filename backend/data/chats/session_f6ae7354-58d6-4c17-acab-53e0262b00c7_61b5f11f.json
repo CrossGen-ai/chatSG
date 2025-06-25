@@ -1,0 +1,46 @@
+{
+  "data": {
+    "sessionId": "f6ae7354-58d6-4c17-acab-53e0262b00c7",
+    "data": {},
+    "metadata": {
+      "createdAt": "2025-06-25T03:40:51.650Z",
+      "updatedAt": "2025-06-25T03:41:30.376Z",
+      "accessCount": 12,
+      "lastAccess": "2025-06-25T03:41:30.376Z",
+      "agent": "system",
+      "userId": "default"
+    },
+    "agentHistory": [
+      {
+        "agentName": "AnalyticalAgent",
+        "timestamp": "2025-06-25T03:41:01.721Z",
+        "confidence": 0.1,
+        "reason": "Capability-based selection: Base capability score"
+      },
+      {
+        "agentName": "CreativeAgent",
+        "timestamp": "2025-06-25T03:41:16.200Z",
+        "confidence": 0.85,
+        "reason": "Specialized agent routing: CreativeAgent (score: 1, keywords: tell)"
+      },
+      {
+        "agentName": "AnalyticalAgent",
+        "timestamp": "2025-06-25T03:41:30.373Z",
+        "confidence": 0.1,
+        "reason": "Capability-based selection: Base capability score"
+      }
+    ],
+    "toolsUsed": [],
+    "userPreferences": {
+      "crossSessionMemory": false,
+      "agentLock": false,
+      "lastAgentUsed": "AnalyticalAgent"
+    },
+    "analytics": {
+      "messageCount": 0,
+      "averageResponseTime": 0,
+      "errorCount": 0
+    }
+  },
+  "createdAt": "2025-06-25T03:41:30.376Z"
+}

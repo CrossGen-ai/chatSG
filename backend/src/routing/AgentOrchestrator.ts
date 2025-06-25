@@ -137,6 +137,56 @@ export class AgentOrchestrator implements IAgentOrchestrator {
         this.orchestrationStats.totalRequests++;
 
         try {
+            console.log(`[AgentOrchestrator] Selecting agent for session: ${context.sessionId}`);
+            console.log(`[AgentOrchestrator] User preferences:`, context.userPreferences);
+            
+            // Check for agent lock preference
+            const agentLockEnabled = context.userPreferences?.agentLock === true;
+            const preferredAgent = context.userPreferences?.preferredAgent;
+            const lastAgentUsed = context.userPreferences?.lastAgentUsed;
+            const agentLockTimestamp = context.userPreferences?.agentLockTimestamp;
+            
+            // Log agent lock status
+            if (agentLockEnabled) {
+                console.log(`[AgentOrchestrator] Agent lock enabled. Preferred: ${preferredAgent}, Last used: ${lastAgentUsed}`);
+            }
+
+            // If agent lock is enabled and we have a previous agent, prefer it
+            if (agentLockEnabled && (preferredAgent || lastAgentUsed)) {
+                const lockedAgent = preferredAgent || lastAgentUsed;
+                
+                // Verify the locked agent is still available
+                if (lockedAgent && this.agents.has(lockedAgent)) {
+                    console.log(`[AgentOrchestrator] Using locked agent: ${lockedAgent}`);
+                    
+                    // Track performance
+                    const selectionTime = Date.now() - startTime;
+                    this.updateAverageSelectionTime(selectionTime);
+                    
+                    // Update usage statistics
+                    const currentCount = this.orchestrationStats.agentUsageCount.get(lockedAgent) || 0;
+                    this.orchestrationStats.agentUsageCount.set(lockedAgent, currentCount + 1);
+
+                    // Update session state with agent history
+                    await this.updateAgentHistory(context.sessionId, {
+                        agentName: lockedAgent,
+                        timestamp: new Date(),
+                        confidence: 0.95, // High confidence for locked agent
+                        reason: `Agent lock enabled - using ${lockedAgent}`,
+                        handoffFrom: context.currentAgent
+                    });
+
+                    return {
+                        selectedAgent: lockedAgent,
+                        confidence: 0.95,
+                        reason: `Agent lock enabled - using preferred agent: ${lockedAgent}`,
+                        fallbackAgents: Array.from(this.agents.keys()).filter(name => name !== lockedAgent)
+                    };
+                } else {
+                    console.warn(`[AgentOrchestrator] Locked agent '${lockedAgent}' not available, falling back to normal selection`);
+                }
+            }
+
             // Use the capability-based strategy by default
             const strategy = this.strategies.get('capability-based') || this.strategies.get('simple');
             if (!strategy) {
@@ -145,6 +195,16 @@ export class AgentOrchestrator implements IAgentOrchestrator {
 
             const selection = await strategy.selectAgent(context, this.agents);
             
+            // Apply agent continuity boost if we have a previous agent
+            if (lastAgentUsed && this.agents.has(lastAgentUsed) && !agentLockEnabled) {
+                // Give a small confidence boost to the last used agent for continuity
+                if (selection.selectedAgent === lastAgentUsed) {
+                    selection.confidence = Math.min(1.0, selection.confidence + 0.1);
+                    selection.reason += ` (continuity bonus applied)`;
+                    console.log(`[AgentOrchestrator] Applied continuity bonus to ${lastAgentUsed}`);
+                }
+            }
+            
             // Track performance
             const selectionTime = Date.now() - startTime;
             this.updateAverageSelectionTime(selectionTime);
@@ -152,6 +212,20 @@ export class AgentOrchestrator implements IAgentOrchestrator {
             // Update usage statistics
             const currentCount = this.orchestrationStats.agentUsageCount.get(selection.selectedAgent) || 0;
             this.orchestrationStats.agentUsageCount.set(selection.selectedAgent, currentCount + 1);
+
+            // Update session state with agent history
+            await this.updateAgentHistory(context.sessionId, {
+                agentName: selection.selectedAgent,
+                timestamp: new Date(),
+                confidence: selection.confidence,
+                reason: selection.reason,
+                handoffFrom: context.currentAgent
+            });
+
+            // Update user preferences with the selected agent
+            await this.updateUserPreferences(context.sessionId, {
+                lastAgentUsed: selection.selectedAgent
+            });
 
             console.log(`[AgentOrchestrator] Selected agent: ${selection.selectedAgent} (confidence: ${selection.confidence})`);
             
@@ -162,6 +236,20 @@ export class AgentOrchestrator implements IAgentOrchestrator {
             
             // Return fallback selection
             const fallbackAgent = this.getFallbackAgent();
+            
+            // Still update agent history for fallback
+            try {
+                await this.updateAgentHistory(context.sessionId, {
+                    agentName: fallbackAgent,
+                    timestamp: new Date(),
+                    confidence: 0.1,
+                    reason: `Fallback selection due to error: ${(error as Error).message}`,
+                    handoffFrom: context.currentAgent
+                });
+            } catch (historyError) {
+                console.warn('[AgentOrchestrator] Failed to update agent history for fallback:', historyError);
+            }
+            
             return {
                 selectedAgent: fallbackAgent,
                 confidence: 0.1,
@@ -836,6 +924,89 @@ export class AgentOrchestrator implements IAgentOrchestrator {
         this.strategies.clear();
         
         console.log('[AgentOrchestrator] Cleanup completed');
+    }
+
+    /**
+     * Update agent history in session state
+     */
+    private async updateAgentHistory(sessionId: string, interaction: {
+        agentName: string;
+        timestamp: Date;
+        confidence: number;
+        reason: string;
+        handoffFrom?: string;
+    }): Promise<void> {
+        try {
+            const context = createStateContext(sessionId, 'AgentOrchestrator');
+            const sessionResult = await this.stateManager.getSessionState(sessionId, context);
+            
+            if (sessionResult.success && sessionResult.data) {
+                const sessionState = sessionResult.data;
+                
+                // Initialize agent history if it doesn't exist
+                if (!sessionState.agentHistory) {
+                    sessionState.agentHistory = [];
+                }
+                
+                // Add new interaction
+                sessionState.agentHistory.push({
+                    agentName: interaction.agentName,
+                    timestamp: interaction.timestamp,
+                    confidence: interaction.confidence,
+                    reason: interaction.reason,
+                    handoffFrom: interaction.handoffFrom
+                });
+                
+                // Keep only the last 50 interactions to prevent memory bloat
+                if (sessionState.agentHistory.length > 50) {
+                    sessionState.agentHistory = sessionState.agentHistory.slice(-50);
+                }
+                
+                // Update session state
+                await this.stateManager.updateSessionState(sessionId, sessionState, context);
+                
+                console.log(`[AgentOrchestrator] Updated agent history for session ${sessionId}: ${interaction.agentName}`);
+            }
+        } catch (error) {
+            console.warn(`[AgentOrchestrator] Failed to update agent history for session ${sessionId}:`, error);
+        }
+    }
+
+    /**
+     * Update user preferences in session state
+     */
+    private async updateUserPreferences(sessionId: string, preferences: {
+        lastAgentUsed?: string;
+        preferredAgent?: string;
+        agentLock?: boolean;
+        agentLockTimestamp?: Date;
+    }): Promise<void> {
+        try {
+            const context = createStateContext(sessionId, 'AgentOrchestrator');
+            const sessionResult = await this.stateManager.getSessionState(sessionId, context);
+            
+            if (sessionResult.success && sessionResult.data) {
+                const sessionState = sessionResult.data;
+                
+                // Initialize user preferences if they don't exist
+                if (!sessionState.userPreferences) {
+                    sessionState.userPreferences = {
+                        crossSessionMemory: false,
+                        agentLock: false
+                    };
+                }
+                
+                // Update preferences
+                Object.assign(sessionState.userPreferences, preferences);
+                
+                // Update session state
+                await this.stateManager.updateSessionState(sessionId, sessionState, context);
+                
+                console.log(`[AgentOrchestrator] Updated user preferences for session ${sessionId}:`, preferences);
+            }
+        } catch (error) {
+            console.warn(`[AgentOrchestrator] Failed to update user preferences for session ${sessionId}:`, error);
+        }
     }
 }
 

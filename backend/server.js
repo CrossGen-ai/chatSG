@@ -17,11 +17,37 @@ const https = require('https');
 const { exec } = require('child_process');
 const axios = require('axios');
 
-// Import orchestrator modules
-const { createOrchestrationSetup, createBackendIntegration } = require('./dist/src/routing');
+// Import orchestrator modules with error handling
+let createOrchestrationSetup, createBackendIntegration, OrchestratorAgentFactory, StateManager, createStateContext;
 
-// Import orchestrator agent factory
-const { OrchestratorAgentFactory } = require('./dist/src/agents/individual/IndividualAgentFactory');
+try {
+    const routing = require('./dist/src/routing');
+    createOrchestrationSetup = routing.createOrchestrationSetup;
+    createBackendIntegration = routing.createBackendIntegration;
+} catch (error) {
+    console.warn('[Server] Could not load routing modules:', error.message);
+}
+
+try {
+    const agentFactory = require('./dist/src/agents/individual/IndividualAgentFactory');
+    OrchestratorAgentFactory = agentFactory.OrchestratorAgentFactory;
+} catch (error) {
+    console.warn('[Server] Could not load agent factory:', error.message);
+}
+
+try {
+    const stateManager = require('./dist/src/state/StateManager');
+    StateManager = stateManager.StateManager;
+} catch (error) {
+    console.warn('[Server] Could not load StateManager:', error.message);
+}
+
+try {
+    const utils = require('./dist/src/state/utils');
+    createStateContext = utils.createStateContext;
+} catch (error) {
+    console.warn('[Server] Could not load utils:', error.message);
+}
 
 const PORT = process.env.PORT || 3000;
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3000';
@@ -32,43 +58,47 @@ const BACKEND = process.env.BACKEND || 'Orch'; // New backend routing: 'Orch', '
 // Initialize Orchestrator if using Orch backend
 let orchestrationSetup = null;
 let backendIntegration = null;
-if (BACKEND === 'Orch') {
+if (BACKEND === 'Orch' && createOrchestrationSetup && createBackendIntegration) {
     try {
         orchestrationSetup = createOrchestrationSetup('development');
         backendIntegration = createBackendIntegration(orchestrationSetup.orchestrator, orchestrationSetup.middleware);
         
         // Create and register specialized LLM-powered agents
         let agents = [];
-        try {
-            const agentCreationResult = OrchestratorAgentFactory.createAgentsWithFallback();
-            agents = agentCreationResult.agents;
-            
-            if (agentCreationResult.warnings.length > 0) {
-                console.warn('[Orchestrator] Agent creation warnings:', agentCreationResult.warnings);
+        if (OrchestratorAgentFactory) {
+            try {
+                const agentCreationResult = OrchestratorAgentFactory.createAgentsWithFallback();
+                agents = agentCreationResult.agents;
+                
+                if (agentCreationResult.warnings.length > 0) {
+                    console.warn('[Orchestrator] Agent creation warnings:', agentCreationResult.warnings);
+                }
+                
+                if (agentCreationResult.errors.length > 0) {
+                    console.error('[Orchestrator] Agent creation errors:', agentCreationResult.errors);
+                }
+                
+                if (agentCreationResult.success && agents.length > 0) {
+                    // Register each agent with the orchestrator
+                    agents.forEach(agent => {
+                        try {
+                            orchestrationSetup.orchestrator.registerAgent(agent);
+                            const agentInfo = agent.getInfo();
+                            console.log(`[Orchestrator] Registered ${agentInfo.name} (${agentInfo.type}) - ${agentInfo.description}`);
+                        } catch (regError) {
+                            console.error(`[Orchestrator] Failed to register agent ${agent.constructor.name}:`, regError);
+                        }
+                    });
+                    console.log(`[Orchestrator] Successfully registered ${agents.length} specialized LLM agents`);
+                } else {
+                    console.warn('[Orchestrator] No specialized agents were created - orchestrator will run with limited functionality');
+                }
+            } catch (agentError) {
+                console.error('[Orchestrator] Failed to create specialized agents:', agentError);
+                console.log('[Orchestrator] Continuing with basic orchestrator functionality');
             }
-            
-            if (agentCreationResult.errors.length > 0) {
-                console.error('[Orchestrator] Agent creation errors:', agentCreationResult.errors);
-            }
-            
-            if (agentCreationResult.success && agents.length > 0) {
-                // Register each agent with the orchestrator
-                agents.forEach(agent => {
-                    try {
-                        orchestrationSetup.orchestrator.registerAgent(agent);
-                        const agentInfo = agent.getInfo();
-                        console.log(`[Orchestrator] Registered ${agentInfo.name} (${agentInfo.type}) - ${agentInfo.description}`);
-                    } catch (regError) {
-                        console.error(`[Orchestrator] Failed to register agent ${agent.constructor.name}:`, regError);
-                    }
-                });
-                console.log(`[Orchestrator] Successfully registered ${agents.length} specialized LLM agents`);
-            } else {
-                console.warn('[Orchestrator] No specialized agents were created - orchestrator will run with limited functionality');
-            }
-        } catch (agentError) {
-            console.error('[Orchestrator] Failed to create specialized agents:', agentError);
-            console.log('[Orchestrator] Continuing with basic orchestrator functionality');
+        } else {
+            console.warn('[Orchestrator] Agent factory not available - running without specialized agents');
         }
         
         // Initialize with specialized agents only
@@ -390,14 +420,73 @@ const server = http.createServer(async (req, res) => {
             
             switch (BACKEND) {
                 case 'Orch':
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({
-                        sessionId: sessionId,
-                        messages: [],
-                        messageCount: 0,
-                        _backend: 'Orch',
-                        _note: 'Session history integration with orchestrator pending'
-                    }));
+                    if (!backendIntegration) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Orchestrator not available' }));
+                        return;
+                    }
+                    
+                    try {
+                        const stateManager = StateManager.getInstance();
+                        const context = createStateContext(sessionId, 'system', 'default');
+                        const sessionResult = await stateManager.getSessionState(sessionId, context);
+                        
+                        if (sessionResult.success && sessionResult.data) {
+                            const session = sessionResult.data;
+                            const messages = [];
+                            
+                            // Extract message history from the session
+                            if (session.messageHistory) {
+                                // Convert message history to a readable format
+                                const chatHistory = session.messageHistory;
+                                if (chatHistory.messages) {
+                                    chatHistory.messages.forEach((msg, index) => {
+                                        messages.push({
+                                            id: index,
+                                            content: msg.content,
+                                            type: msg._getType(),
+                                            timestamp: new Date().toISOString(), // Approximate timestamp
+                                            agent: session.agentHistory?.find(a => 
+                                                Math.abs(new Date(a.timestamp).getTime() - Date.now()) < 60000
+                                            )?.agentName || session.metadata.agent
+                                        });
+                                    });
+                                }
+                            }
+                            
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({
+                                sessionId: sessionId,
+                                messages: messages,
+                                messageCount: messages.length,
+                                agentHistory: session.agentHistory || [],
+                                toolsUsed: session.toolsUsed || [],
+                                analytics: session.analytics || {},
+                                _backend: 'Orch'
+                            }));
+                        } else {
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({
+                                sessionId: sessionId,
+                                messages: [],
+                                messageCount: 0,
+                                agentHistory: [],
+                                toolsUsed: [],
+                                analytics: {},
+                                _backend: 'Orch'
+                            }));
+                        }
+                    } catch (error) {
+                        console.error('StateManager error:', error);
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({
+                            sessionId: sessionId,
+                            messages: [],
+                            messageCount: 0,
+                            _backend: 'Orch',
+                            _note: 'Session history integration with orchestrator pending'
+                        }));
+                    }
                     break;
                     
                 case 'n8n':
@@ -423,6 +512,493 @@ const server = http.createServer(async (req, res) => {
                 _backend: BACKEND
             }));
         }
+    } else if (req.url.match(/^\/api\/chats\/([^/]+)\/settings$/) && req.method === 'GET') {
+        // Get chat settings
+        try {
+            const sessionId = req.url.match(/^\/api\/chats\/([^/]+)\/settings$/)[1];
+            
+            switch (BACKEND) {
+                case 'Orch':
+                    if (!backendIntegration) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Orchestrator not available' }));
+                        return;
+                    }
+                    
+                    try {
+                        const stateManager = StateManager.getInstance();
+                        const context = createStateContext(sessionId, 'system', 'default');
+                        const sessionResult = await stateManager.getSessionState(sessionId, context);
+                        
+                        if (sessionResult.success && sessionResult.data) {
+                            const session = sessionResult.data;
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({
+                                sessionId: sessionId,
+                                settings: session.userPreferences || {
+                                    crossSessionMemory: false,
+                                    agentLock: false
+                                },
+                                metadata: session.metadata,
+                                _backend: 'Orch'
+                            }));
+                        } else {
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({
+                                sessionId: sessionId,
+                                settings: {
+                                    crossSessionMemory: false,
+                                    agentLock: false
+                                },
+                                metadata: {},
+                                _backend: 'Orch'
+                            }));
+                        }
+                    } catch (error) {
+                        console.error('StateManager error:', error);
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ 
+                            error: 'Failed to retrieve chat settings',
+                            details: error.message,
+                            _backend: BACKEND
+                        }));
+                    }
+                    break;
+                    
+                default:
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ 
+                        sessionId: sessionId,
+                        settings: {
+                            crossSessionMemory: false,
+                            agentLock: false
+                        },
+                        _backend: BACKEND,
+                        _note: 'Settings management only available with Orch backend'
+                    }));
+                    break;
+            }
+        } catch (error) {
+            console.error('Chat settings API error:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                error: 'Failed to retrieve chat settings',
+                details: error.message,
+                _backend: BACKEND
+            }));
+        }
+    } else if (req.url.match(/^\/api\/chats\/([^/]+)\/settings$/) && req.method === 'POST') {
+        // Update chat settings
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', async () => {
+            try {
+                const sessionId = req.url.match(/^\/api\/chats\/([^/]+)\/settings$/)[1];
+                const data = JSON.parse(body);
+                
+                switch (BACKEND) {
+                    case 'Orch':
+                        if (!backendIntegration) {
+                            res.writeHead(500, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ error: 'Orchestrator not available' }));
+                            return;
+                        }
+                        
+                        try {
+                            const stateManager = StateManager.getInstance();
+                            const context = createStateContext(sessionId, 'system', 'default');
+                            
+                            // Get current session state
+                            const sessionResult = await stateManager.getSessionState(sessionId, context);
+                            if (!sessionResult.success) {
+                                res.writeHead(404, { 'Content-Type': 'application/json' });
+                                res.end(JSON.stringify({ 
+                                    error: 'Session not found',
+                                    sessionId: sessionId
+                                }));
+                                return;
+                            }
+                            
+                            // Update user preferences
+                            const updatedPreferences = {
+                                ...sessionResult.data.userPreferences,
+                                ...data.settings,
+                                lastUpdated: new Date()
+                            };
+                            
+                            if (data.settings.agentLock === true) {
+                                updatedPreferences.agentLockTimestamp = new Date();
+                            }
+                            
+                            // Update session state
+                            const updateResult = await stateManager.updateSessionState(
+                                sessionId,
+                                { userPreferences: updatedPreferences },
+                                context
+                            );
+                            
+                            if (updateResult.success) {
+                                res.writeHead(200, { 'Content-Type': 'application/json' });
+                                res.end(JSON.stringify({
+                                    sessionId: sessionId,
+                                    settings: updatedPreferences,
+                                    success: true,
+                                    _backend: 'Orch'
+                                }));
+                            } else {
+                                res.writeHead(500, { 'Content-Type': 'application/json' });
+                                res.end(JSON.stringify({
+                                    error: 'Failed to update settings',
+                                    details: updateResult.error
+                                }));
+                            }
+                        } catch (error) {
+                            console.error('StateManager error:', error);
+                            res.writeHead(500, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ 
+                                error: 'Failed to update chat settings',
+                                details: error.message,
+                                _backend: BACKEND
+                            }));
+                        }
+                        break;
+                        
+                    default:
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ 
+                            sessionId: sessionId,
+                            settings: data.settings,
+                            success: true,
+                            _backend: BACKEND,
+                            _note: 'Settings changes not persisted - only available with Orch backend'
+                        }));
+                        break;
+                }
+            } catch (error) {
+                console.error('Chat settings update error:', error);
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ 
+                    error: 'Invalid request data',
+                    details: error.message
+                }));
+            }
+        });
+    } else if (req.url.match(/^\/api\/chats\/([^/]+)\/agents$/) && req.method === 'GET') {
+        // Get agent history for chat
+        try {
+            const sessionId = req.url.match(/^\/api\/chats\/([^/]+)\/agents$/)[1];
+            
+            switch (BACKEND) {
+                case 'Orch':
+                    if (!backendIntegration) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Orchestrator not available' }));
+                        return;
+                    }
+                    
+                    try {
+                        const stateManager = StateManager.getInstance();
+                        const context = createStateContext(sessionId, 'system', 'default');
+                        const sessionResult = await stateManager.getSessionState(sessionId, context);
+                        
+                        if (sessionResult.success && sessionResult.data) {
+                            const session = sessionResult.data;
+                            const agentHistory = session.agentHistory || [];
+                            const toolsUsed = session.toolsUsed || [];
+                            
+                            // Get agent statistics
+                            const agentStats = {};
+                            agentHistory.forEach(interaction => {
+                                if (!agentStats[interaction.agentName]) {
+                                    agentStats[interaction.agentName] = {
+                                        name: interaction.agentName,
+                                        totalInteractions: 0,
+                                        averageConfidence: 0,
+                                        lastUsed: interaction.timestamp,
+                                        handoffs: { from: 0, to: 0 }
+                                    };
+                                }
+                                agentStats[interaction.agentName].totalInteractions++;
+                                agentStats[interaction.agentName].averageConfidence = 
+                                    (agentStats[interaction.agentName].averageConfidence + interaction.confidence) / 
+                                    agentStats[interaction.agentName].totalInteractions;
+                                
+                                if (new Date(interaction.timestamp) > new Date(agentStats[interaction.agentName].lastUsed)) {
+                                    agentStats[interaction.agentName].lastUsed = interaction.timestamp;
+                                }
+                                
+                                if (interaction.handoffFrom) {
+                                    agentStats[interaction.agentName].handoffs.from++;
+                                }
+                            });
+                            
+                            // Count handoffs to each agent
+                            agentHistory.forEach(interaction => {
+                                if (interaction.handoffFrom && agentStats[interaction.handoffFrom]) {
+                                    agentStats[interaction.handoffFrom].handoffs.to++;
+                                }
+                            });
+                            
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({
+                                sessionId: sessionId,
+                                agentHistory: agentHistory,
+                                agentStats: Object.values(agentStats),
+                                toolsUsed: toolsUsed,
+                                currentAgent: session.metadata.agent,
+                                _backend: 'Orch'
+                            }));
+                        } else {
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({
+                                sessionId: sessionId,
+                                agentHistory: [],
+                                agentStats: [],
+                                toolsUsed: [],
+                                currentAgent: null,
+                                _backend: 'Orch'
+                            }));
+                        }
+                    } catch (error) {
+                        console.error('StateManager error:', error);
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ 
+                            error: 'Failed to retrieve agent history',
+                            details: error.message,
+                            _backend: BACKEND
+                        }));
+                    }
+                    break;
+                    
+                default:
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ 
+                        sessionId: sessionId,
+                        agentHistory: [],
+                        agentStats: [],
+                        toolsUsed: [],
+                        currentAgent: null,
+                        _backend: BACKEND,
+                        _note: 'Agent history only available with Orch backend'
+                    }));
+                    break;
+            }
+        } catch (error) {
+            console.error('Agent history API error:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                error: 'Failed to retrieve agent history',
+                details: error.message,
+                _backend: BACKEND
+            }));
+        }
+    } else if (req.url === '/api/memory/cross-session' && req.method === 'POST') {
+        // Manage cross-session memory access
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(body);
+                const { action, sessionId, targetSessionId, userId } = data;
+                
+                switch (BACKEND) {
+                    case 'Orch':
+                        if (!backendIntegration) {
+                            res.writeHead(500, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ error: 'Orchestrator not available' }));
+                            return;
+                        }
+                        
+                        try {
+                            const stateManager = StateManager.getInstance();
+                            const context = createStateContext(sessionId, 'system', userId || 'default');
+                            
+                            switch (action) {
+                                case 'get':
+                                    // Get cross-session memory for user
+                                    const userMemoryKey = `user:${userId || 'default'}:cross-session-memory`;
+                                    const memoryResult = await stateManager.getSharedState(userMemoryKey, context);
+                                    
+                                    if (memoryResult.success && memoryResult.data) {
+                                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                                        res.end(JSON.stringify({
+                                            success: true,
+                                            action: 'get',
+                                            memory: memoryResult.data.data,
+                                            sessions: memoryResult.data.data.sessions || [],
+                                            _backend: 'Orch'
+                                        }));
+                                    } else {
+                                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                                        res.end(JSON.stringify({
+                                            success: true,
+                                            action: 'get',
+                                            memory: { sessions: [] },
+                                            sessions: [],
+                                            _backend: 'Orch'
+                                        }));
+                                    }
+                                    break;
+                                    
+                                case 'share':
+                                    // Share current session memory across sessions
+                                    const sourceSession = await stateManager.getSessionState(sessionId, context);
+                                    if (!sourceSession.success) {
+                                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                                        res.end(JSON.stringify({ 
+                                            error: 'Source session not found',
+                                            sessionId: sessionId
+                                        }));
+                                        return;
+                                    }
+                                    
+                                    // Get or create cross-session memory
+                                    const memoryKey = `user:${userId || 'default'}:cross-session-memory`;
+                                    const existingMemory = await stateManager.getSharedState(memoryKey, context);
+                                    
+                                    const crossSessionData = {
+                                        sessions: existingMemory.success ? 
+                                            (existingMemory.data.data.sessions || []) : [],
+                                        lastUpdated: new Date()
+                                    };
+                                    
+                                    // Add current session summary
+                                    const sessionSummary = {
+                                        sessionId: sessionId,
+                                        agentHistory: sourceSession.data.agentHistory || [],
+                                        keyToolsUsed: (sourceSession.data.toolsUsed || [])
+                                            .filter(tool => tool.success)
+                                            .slice(-10), // Last 10 successful tools
+                                        preferences: sourceSession.data.userPreferences || {},
+                                        analytics: sourceSession.data.analytics || {},
+                                        sharedAt: new Date()
+                                    };
+                                    
+                                    // Update or add session
+                                    const existingIndex = crossSessionData.sessions
+                                        .findIndex(s => s.sessionId === sessionId);
+                                    if (existingIndex >= 0) {
+                                        crossSessionData.sessions[existingIndex] = sessionSummary;
+                                    } else {
+                                        crossSessionData.sessions.push(sessionSummary);
+                                    }
+                                    
+                                    // Limit to last 20 sessions
+                                    if (crossSessionData.sessions.length > 20) {
+                                        crossSessionData.sessions = crossSessionData.sessions.slice(-20);
+                                    }
+                                    
+                                    // Store updated memory
+                                    const storeResult = await stateManager.setSharedState(
+                                        memoryKey,
+                                        crossSessionData,
+                                        {
+                                            scope: 'user',
+                                            permissions: {
+                                                read: [userId || 'default'],
+                                                write: [userId || 'default'],
+                                                delete: [userId || 'default']
+                                            }
+                                        },
+                                        context
+                                    );
+                                    
+                                    if (storeResult.success) {
+                                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                                        res.end(JSON.stringify({
+                                            success: true,
+                                            action: 'share',
+                                            sessionId: sessionId,
+                                            sharedSessions: crossSessionData.sessions.length,
+                                            _backend: 'Orch'
+                                        }));
+                                    } else {
+                                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                                        res.end(JSON.stringify({
+                                            error: 'Failed to store cross-session memory',
+                                            details: storeResult.error
+                                        }));
+                                    }
+                                    break;
+                                    
+                                case 'load':
+                                    // Load memory from target session
+                                    if (!targetSessionId) {
+                                        res.writeHead(400, { 'Content-Type': 'application/json' });
+                                        res.end(JSON.stringify({ 
+                                            error: 'targetSessionId required for load action'
+                                        }));
+                                        return;
+                                    }
+                                    
+                                    const targetContext = createStateContext(targetSessionId, 'system', userId || 'default');
+                                    const targetSession = await stateManager.getSessionState(targetSessionId, targetContext);
+                                    
+                                    if (targetSession.success) {
+                                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                                        res.end(JSON.stringify({
+                                            success: true,
+                                            action: 'load',
+                                            sourceSessionId: targetSessionId,
+                                            targetSessionId: sessionId,
+                                            memory: {
+                                                agentHistory: targetSession.data.agentHistory || [],
+                                                preferences: targetSession.data.userPreferences || {},
+                                                analytics: targetSession.data.analytics || {}
+                                            },
+                                            _backend: 'Orch'
+                                        }));
+                                    } else {
+                                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                                        res.end(JSON.stringify({ 
+                                            error: 'Target session not found',
+                                            targetSessionId: targetSessionId
+                                        }));
+                                    }
+                                    break;
+                                    
+                                default:
+                                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                                    res.end(JSON.stringify({ 
+                                        error: 'Invalid action. Supported: get, share, load',
+                                        action: action
+                                    }));
+                                    break;
+                            }
+                        } catch (error) {
+                            console.error('Cross-session memory error:', error);
+                            res.writeHead(500, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ 
+                                error: 'Failed to manage cross-session memory',
+                                details: error.message,
+                                _backend: BACKEND
+                            }));
+                        }
+                        break;
+                        
+                    default:
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ 
+                            success: true,
+                            action: action,
+                            _backend: BACKEND,
+                            _note: 'Cross-session memory not persisted - only available with Orch backend'
+                        }));
+                        break;
+                }
+            } catch (error) {
+                console.error('Cross-session memory API error:', error);
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ 
+                    error: 'Invalid request data',
+                    details: error.message
+                }));
+            }
+        });
     } else {
         res.writeHead(404);
         res.end('Not found');

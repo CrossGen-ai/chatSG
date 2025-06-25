@@ -49,6 +49,41 @@ export interface StatePersistence {
 }
 
 /**
+ * Agent interaction tracking
+ */
+export interface AgentInteraction {
+    agentName: string;
+    timestamp: Date;
+    confidence: number;
+    reason?: string;
+    handoffFrom?: string;
+}
+
+/**
+ * Tool usage tracking
+ */
+export interface ToolUsage {
+    toolName: string;
+    timestamp: Date;
+    parameters: any;
+    result: any;
+    success: boolean;
+    executionTime?: number;
+    agentName?: string;
+}
+
+/**
+ * User preferences for chat behavior
+ */
+export interface UserPreferences {
+    crossSessionMemory: boolean;
+    agentLock: boolean;
+    preferredAgent?: string;
+    lastAgentUsed?: string;
+    agentLockTimestamp?: Date;
+}
+
+/**
  * Session state interface
  */
 export interface SessionState {
@@ -63,6 +98,24 @@ export interface SessionState {
         userId?: string;
     };
     messageHistory?: InMemoryChatMessageHistory;
+    
+    // Enhanced tracking fields
+    agentHistory?: AgentInteraction[];
+    toolsUsed?: ToolUsage[];
+    userPreferences?: UserPreferences;
+    
+    // Performance and analytics
+    analytics?: {
+        messageCount: number;
+        averageResponseTime: number;
+        totalTokensUsed?: number;
+        errorCount: number;
+        lastError?: {
+            timestamp: Date;
+            error: string;
+            agent?: string;
+        };
+    };
 }
 
 /**
