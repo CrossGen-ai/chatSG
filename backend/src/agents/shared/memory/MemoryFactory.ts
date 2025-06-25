@@ -151,7 +151,9 @@ export class ConversationMemory implements AgentMemory {
         // Include cross-session memory if enabled and user ID provided
         if (includeCrossSession && userId && this.sessionId) {
             try {
-                const crossSessionContext = await this.stateManager.getCrossSessionMemoryContext(
+                // TODO: Implement getCrossSessionMemoryContext in StateManager
+                // For now, provide a fallback implementation
+                const crossSessionContext = await this.getCrossSessionMemoryContextFallback(
                     this.sessionId,
                     userId,
                     {
@@ -234,7 +236,8 @@ export class ConversationMemory implements AgentMemory {
         }
 
         try {
-            const result = await this.stateManager.getCrossSessionMemoryContext(
+            // TODO: Implement getCrossSessionMemoryContext in StateManager
+            const result = await this.getCrossSessionMemoryContextFallback(
                 this.sessionId,
                 userId,
                 {
@@ -275,6 +278,19 @@ export class ConversationMemory implements AgentMemory {
             totalSize += JSON.stringify(entry).length;
         }
         return totalSize;
+    }
+
+    /**
+     * Fallback implementation for cross-session memory context
+     * TODO: Move this to StateManager when properly implemented
+     */
+    private async getCrossSessionMemoryContextFallback(
+        sessionId: string,
+        userId: string,
+        options: any
+    ): Promise<{ success: boolean; data?: any[] }> {
+        console.warn('[ConversationMemory] Cross-session memory not yet implemented, returning empty result');
+        return { success: false, data: [] };
     }
 }
 

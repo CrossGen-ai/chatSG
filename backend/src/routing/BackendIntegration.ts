@@ -213,7 +213,15 @@ export class BackendIntegrationManager {
      * Health check for all integrated backends
      */
     async healthCheck(): Promise<any> {
-        const backendHealth = [];
+        const backendHealth: Array<{
+            name: string;
+            status: string;
+            version?: string;
+            type?: string;
+            errors?: string[];
+            warnings?: string[];
+            error?: string;
+        }> = [];
 
         for (const [name, agent] of this.registeredBackends.entries()) {
             try {

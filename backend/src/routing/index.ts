@@ -41,38 +41,41 @@ export type {
 import { OrchestratorFactory, createDefaultOrchestrator } from './AgentOrchestrator';
 import { createOrchestrationMiddleware } from './OrchestrationMiddleware';
 
+// Declare the require function for legacy modules
+declare const require: any;
+
 /**
  * Quick setup function for development
  */
 export function createDevelopmentOrchestrator() {
-    const { OrchestratorFactory: Factory } = require('./AgentOrchestrator');
-    return Factory.createDevelopmentOrchestrator();
+    // const { OrchestratorFactory: Factory } = require('./AgentOrchestrator');
+    return OrchestratorFactory.createDevelopmentOrchestrator();
 }
 
 /**
  * Quick setup function for production
  */
 export function createProductionOrchestrator() {
-    const { OrchestratorFactory: Factory } = require('./AgentOrchestrator');
-    return Factory.createProductionOrchestrator();
+    // const { OrchestratorFactory: Factory } = require('./AgentOrchestrator');
+    return OrchestratorFactory.createProductionOrchestrator();
 }
 
 /**
  * Create a complete orchestration setup with middleware
  */
 export function createOrchestrationSetup(environment: 'development' | 'production' | 'lightweight' = 'development') {
-    const { OrchestratorFactory: Factory } = require('./AgentOrchestrator');
+    // const { OrchestratorFactory: Factory } = require('./AgentOrchestrator');
     let orchestrator;
     
     switch (environment) {
         case 'production':
-            orchestrator = Factory.createProductionOrchestrator();
+            orchestrator = OrchestratorFactory.createProductionOrchestrator();
             break;
         case 'lightweight':
-            orchestrator = Factory.createLightweightOrchestrator();
+            orchestrator = OrchestratorFactory.createLightweightOrchestrator();
             break;
         default:
-            orchestrator = Factory.createDevelopmentOrchestrator();
+            orchestrator = OrchestratorFactory.createDevelopmentOrchestrator();
             break;
     }
 
@@ -98,16 +101,4 @@ export function createOrchestrationSetup(environment: 'development' | 'productio
  * Provides agent orchestration, backend integration, and middleware.
  */
 
-export { LazyOrchestrator, createLazyOrchestrator, createDevelopmentLazyOrchestrator, createProductionLazyOrchestrator } from './LazyOrchestrator';
-export { BackendIntegrationManager } from './BackendIntegration';
-export { OrchestrationMiddleware } from './OrchestrationMiddleware';
-
-// Export types
-export type {
-    OrchestrationContext,
-    AgentSelection,
-    Task,
-    TaskResult,
-    HandoffContext,
-    HandoffResult
-} from '../types'; 
+export { LazyOrchestrator, createLazyOrchestrator, createDevelopmentLazyOrchestrator, createProductionLazyOrchestrator } from './LazyOrchestrator'; 

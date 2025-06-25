@@ -9,7 +9,10 @@ import { AbstractBaseAgent } from '../../core/BaseAgent';
 import { AgentResponse, AgentCapabilities, ValidationResult } from '../../../types';
 
 // Import LLM helper for actual LLM processing
-const { getLLMHelper } = require('../../../../utils/llm-helper');
+// const { getLLMHelper } = require('../../../../utils/llm-helper');
+
+// Declare the require function for legacy modules
+declare const require: any;
 
 /**
  * Creative Agent implementation
@@ -27,9 +30,16 @@ export class CreativeAgent extends AbstractBaseAgent {
             'creative'
         );
         
-        // Initialize LLM helper
-        this.llmHelper = getLLMHelper();
-        this.llm = this.llmHelper.createChatLLM();
+        // Initialize LLM helper with proper error handling
+        try {
+            const { getLLMHelper } = require('../../../../../utils/llm-helper');
+            this.llmHelper = getLLMHelper();
+            this.llm = this.llmHelper.createChatLLM();
+        } catch (error) {
+            console.warn(`[${this.name}] LLM helper not available:`, error);
+            this.llmHelper = null;
+            this.llm = null;
+        }
     }
 
     /**
@@ -39,10 +49,12 @@ export class CreativeAgent extends AbstractBaseAgent {
         try {
             console.log(`[${this.name}] Initializing creative agent...`);
             
-            // Validate LLM configuration
-            const validation = this.llmHelper.validateConfiguration();
-            if (!validation.valid) {
-                throw new Error(`LLM configuration invalid: ${validation.errors.join(', ')}`);
+            // Validate LLM configuration if LLM helper is available
+            if (this.llmHelper) {
+                const validation = this.llmHelper.validateConfiguration();
+                if (!validation.valid) {
+                    throw new Error(`LLM configuration invalid: ${validation.errors.join(', ')}`);
+                }
             }
 
             this.initialized = true;
@@ -60,6 +72,23 @@ export class CreativeAgent extends AbstractBaseAgent {
         try {
             if (!this.initialized) {
                 await this.initialize();
+            }
+
+            // Check if LLM is available
+            if (!this.llmHelper || !this.llm) {
+                console.warn(`[${this.name}] LLM not available, providing fallback response`);
+                return {
+                    success: true,
+                    message: "I'm a creative agent, but my advanced LLM capabilities are currently unavailable. I can still help with basic creative guidance. Please describe what creative task you'd like assistance with.",
+                    sessionId,
+                    timestamp: new Date().toISOString(),
+                    metadata: {
+                        agentName: this.name,
+                        agentType: this.type,
+                        llmUsed: false,
+                        fallbackMode: true
+                    }
+                };
             }
 
             console.log(`[${this.name}] Processing creative request: "${input.substring(0, 100)}..."`);

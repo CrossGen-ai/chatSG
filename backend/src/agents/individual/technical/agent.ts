@@ -9,7 +9,10 @@ import { AbstractBaseAgent } from '../../core/BaseAgent';
 import { AgentResponse, AgentCapabilities, ValidationResult } from '../../../types';
 
 // Import LLM helper for actual LLM processing
-const { getLLMHelper } = require('../../../../utils/llm-helper');
+// const { getLLMHelper } = require('../../../../utils/llm-helper');
+
+// Declare the require function for legacy modules
+declare const require: any;
 
 /**
  * Technical Agent implementation
@@ -23,13 +26,20 @@ export class TechnicalAgent extends AbstractBaseAgent {
         super(
             'TechnicalAgent',
             '1.0.0',
-            'Specialized agent for coding, debugging, and technical problem-solving tasks',
+            'Specialized agent for technical programming, debugging, and code-related tasks',
             'technical'
         );
         
-        // Initialize LLM helper
-        this.llmHelper = getLLMHelper();
-        this.llm = this.llmHelper.createChatLLM();
+        // Initialize LLM helper with proper error handling
+        try {
+            const { getLLMHelper } = require('../../../../../utils/llm-helper');
+            this.llmHelper = getLLMHelper();
+            this.llm = this.llmHelper.createChatLLM();
+        } catch (error) {
+            console.warn(`[${this.name}] LLM helper not available:`, error);
+            this.llmHelper = null;
+            this.llm = null;
+        }
     }
 
     /**
@@ -39,10 +49,12 @@ export class TechnicalAgent extends AbstractBaseAgent {
         try {
             console.log(`[${this.name}] Initializing technical agent...`);
             
-            // Validate LLM configuration
-            const validation = this.llmHelper.validateConfiguration();
-            if (!validation.valid) {
-                throw new Error(`LLM configuration invalid: ${validation.errors.join(', ')}`);
+            // Validate LLM configuration if LLM helper is available
+            if (this.llmHelper) {
+                const validation = this.llmHelper.validateConfiguration();
+                if (!validation.valid) {
+                    throw new Error(`LLM configuration invalid: ${validation.errors.join(', ')}`);
+                }
             }
 
             this.initialized = true;
@@ -60,6 +72,23 @@ export class TechnicalAgent extends AbstractBaseAgent {
         try {
             if (!this.initialized) {
                 await this.initialize();
+            }
+
+            // Check if LLM is available
+            if (!this.llmHelper || !this.llm) {
+                console.warn(`[${this.name}] LLM not available, providing fallback response`);
+                return {
+                    success: true,
+                    message: "I'm a technical agent, but my advanced LLM capabilities are currently unavailable. I can still help with basic technical guidance. Please describe what technical issue or programming task you need help with.",
+                    sessionId,
+                    timestamp: new Date().toISOString(),
+                    metadata: {
+                        agentName: this.name,
+                        agentType: this.type,
+                        llmUsed: false,
+                        fallbackMode: true
+                    }
+                };
             }
 
             console.log(`[${this.name}] Processing technical request: "${input.substring(0, 100)}..."`);

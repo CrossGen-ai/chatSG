@@ -17,6 +17,9 @@ export { FileManagerTool } from './examples/FileManagerTool';
 // Registry utilities
 export { getToolRegistry, initializeToolRegistry } from './ToolRegistry';
 
+// Declare the require function for legacy modules
+declare const require: any;
+
 /**
  * Initialize the complete tool system
  */
@@ -144,4 +147,6 @@ export function validateToolParams(toolName: string, params: Record<string, any>
             warnings: []
         };
     }
-} 
+}
+
+// Tool management functions are available through the registry exports above 

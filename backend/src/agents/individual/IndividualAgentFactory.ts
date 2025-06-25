@@ -182,9 +182,11 @@ export class IndividualAgentFactory {
 
         for (const agent of result.agents) {
             try {
-                await agent.initialize();
-                initialized.push(agent);
-                console.log(`[IndividualAgentFactory] Initialized ${agent.getInfo().name} successfully`);
+                if (agent && typeof agent.initialize === 'function') {
+                    await agent.initialize();
+                    initialized.push(agent);
+                    console.log(`[IndividualAgentFactory] Initialized ${agent.getInfo().name} successfully`);
+                }
             } catch (error) {
                 const errorMsg = `Failed to initialize ${agent.getInfo().name}: ${(error as Error).message}`;
                 failed.push({ agent: agent.getInfo().name, error: errorMsg });
