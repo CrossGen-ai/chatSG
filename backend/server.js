@@ -17,31 +17,17 @@ const https = require('https');
 const { exec } = require('child_process');
 const axios = require('axios');
 
-// Import AgentZero
-const AgentZero = require('./agent/AgentZero/agent');
-
 // Import orchestrator modules
-const { createOrchestrationSetup, createBackendIntegration } = require('./dist/src/orchestrator');
+const { createOrchestrationSetup, createBackendIntegration } = require('./dist/src/routing');
 
 // Import orchestrator agent factory
-const { OrchestratorAgentFactory } = require('./dist/src/agents/orchestrator/AgentFactory');
+const { OrchestratorAgentFactory } = require('./dist/src/agents/individual/IndividualAgentFactory');
 
 const PORT = process.env.PORT || 3000;
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3000';
 const WEBHOOK_URL = process.env.WEBHOOK_URL || 'http://localhost:5678/webhook/chat';
 const ENVIRONMENT = process.env.ENVIRONMENT || 'production'; // Legacy support
-const BACKEND = process.env.BACKEND || 'n8n'; // New backend routing: 'Lang', 'n8n', 'Generic'
-
-// Initialize AgentZero if using Lang backend
-let agentZero = null;
-if (BACKEND === 'Lang') {
-    try {
-        agentZero = new AgentZero();
-        console.log('[AgentZero] Initialized successfully');
-    } catch (error) {
-        console.error('[AgentZero] Failed to initialize:', error);
-    }
-}
+const BACKEND = process.env.BACKEND || 'Orch'; // New backend routing: 'Orch', 'n8n', 'Generic'
 
 // Initialize Orchestrator if using Orch backend
 let orchestrationSetup = null;
@@ -85,27 +71,15 @@ if (BACKEND === 'Orch') {
             console.log('[Orchestrator] Continuing with basic orchestrator functionality');
         }
         
-        // Register existing AgentZero if available (async initialization)
-        if (agentZero) {
-            (async () => {
-                try {
-                    await backendIntegration.initialize({ agentZero, agents });
-                    console.log('[Orchestrator] AgentZero registered successfully');
-                } catch (error) {
-                    console.error('[Orchestrator] Failed to register AgentZero:', error);
-                }
-            })();
-        } else {
-            // Initialize with specialized agents only
-            (async () => {
-                try {
-                    await backendIntegration.initialize({ agents });
-                    console.log(`[Orchestrator] Initialized with ${agents.length} specialized agents`);
-                } catch (error) {
-                    console.error('[Orchestrator] Failed to initialize:', error);
-                }
-            })();
-        }
+        // Initialize with specialized agents only
+        (async () => {
+            try {
+                await backendIntegration.initialize({ agents });
+                console.log(`[Orchestrator] Initialized with ${agents.length} specialized agents`);
+            } catch (error) {
+                console.error('[Orchestrator] Failed to initialize:', error);
+            }
+        })();
         console.log('[Orchestrator] Setup created successfully');
     } catch (error) {
         console.error('[Orchestrator] Failed to initialize:', error);
@@ -117,15 +91,12 @@ console.log('=== BACKEND CONFIGURATION ===');
 console.log('BACKEND mode:', BACKEND);
 console.log('Legacy ENVIRONMENT:', ENVIRONMENT);
 console.log('Active backend:', getBackendMode());
-console.log('AgentZero initialized:', agentZero !== null);
 console.log('Orchestrator initialized:', orchestrationSetup !== null);
 console.log('=============================');
 
 // Function to determine backend mode
 function getBackendMode() {
     switch (BACKEND) {
-        case 'Lang':
-            return 'LangGraph Agent (AgentZero)';
         case 'Orch':
             return 'Enhanced Orchestrator (Multi-Agent)';
         case 'n8n':
@@ -253,23 +224,33 @@ const server = http.createServer(async (req, res) => {
                 
                 // Route based on BACKEND configuration
                 switch (BACKEND) {
-                    case 'Lang':
-                        // LangGraph Agent mode
-                        if (!agentZero) {
-                            throw new Error('AgentZero not initialized');
+                    case 'Orch':
+                        // Enhanced Orchestrator mode
+                        if (!backendIntegration) {
+                            throw new Error('Orchestrator not initialized');
                         }
-                        console.log(`[LANGGRAPH] Processing with AgentZero: "${data.message}"`);
-                        const agentResult = await agentZero.processMessage(data.message, sessionId);
+                        console.log(`[ORCHESTRATOR] Processing with enhanced orchestration: "${data.message}"`);
+                        
+                        // Use middleware directly instead of createEnhancedChatHandler
+                        const orchResult = await orchestrationSetup.middleware.handleChatRequest(
+                            data.message,
+                            sessionId,
+                            'orchestrator',
+                            req,
+                            res,
+                            async (msg, sid) => {
+                                // Fallback handler - simple orchestrator response
+                                return {
+                                    message: `Orchestrator processed: ${msg}`,
+                                    success: true,
+                                    sessionId: sid,
+                                    timestamp: new Date().toISOString()
+                                };
+                            }
+                        );
                         
                         res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ 
-                            message: agentResult.message,
-                            _backend: 'Lang',
-                            _agent: 'AgentZero',
-                            _session: agentResult.sessionId,
-                            _timestamp: agentResult.timestamp,
-                            success: agentResult.success
-                        }));
+                        res.end(JSON.stringify(orchResult.response));
                         break;
                         
                     case 'n8n':
@@ -302,35 +283,6 @@ const server = http.createServer(async (req, res) => {
                             _simulation: true,
                             _original_message: data.message
                         }));
-                        break;
-                        
-                    case 'Orch':
-                        // Enhanced Orchestrator mode
-                        if (!backendIntegration) {
-                            throw new Error('Orchestrator not initialized');
-                        }
-                        console.log(`[ORCHESTRATOR] Processing with enhanced orchestration: "${data.message}"`);
-                        
-                        // Use middleware directly instead of createEnhancedChatHandler
-                        const orchResult = await orchestrationSetup.middleware.handleChatRequest(
-                            data.message,
-                            sessionId,
-                            'orchestrator',
-                            req,
-                            res,
-                            async (msg, sid) => {
-                                // Fallback handler - simple orchestrator response
-                                return {
-                                    message: `Orchestrator processed: ${msg}`,
-                                    success: true,
-                                    sessionId: sid,
-                                    timestamp: new Date().toISOString()
-                                };
-                            }
-                        );
-                        
-                        res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(orchResult.response));
                         break;
                         
                     default:
@@ -391,31 +343,6 @@ const server = http.createServer(async (req, res) => {
         // List all chat sessions
         try {
             switch (BACKEND) {
-                case 'Lang':
-                    if (!agentZero) {
-                        res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: 'AgentZero not available' }));
-                        return;
-                    }
-                    
-                    const sessions = Array.from(agentZero.sessions.keys()).map(sessionId => {
-                        const info = agentZero.getSessionInfo(sessionId);
-                        return {
-                            id: sessionId,
-                            messageCount: info.messageCount,
-                            exists: info.exists,
-                            lastActivity: new Date().toISOString() // Approximate timestamp
-                        };
-                    });
-                    
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ 
-                        sessions,
-                        _backend: 'Lang',
-                        _agent: 'AgentZero'
-                    }));
-                    break;
-                    
                 case 'Orch':
                     if (!backendIntegration) {
                         res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -438,12 +365,12 @@ const server = http.createServer(async (req, res) => {
                 case 'n8n':
                 case 'Generic':
                 default:
-                    // For non-Lang backends, return empty sessions (they don't maintain server-side session state)
+                    // For non-Orch backends, return empty sessions (they don't maintain server-side session state)
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ 
                         sessions: [],
                         _backend: BACKEND,
-                        _note: 'Session management only available with Lang backend'
+                        _note: 'Session management only available with Orch backend'
                     }));
                     break;
             }
@@ -462,40 +389,6 @@ const server = http.createServer(async (req, res) => {
             const sessionId = req.url.match(/^\/api\/chats\/([^/]+)\/history$/)[1];
             
             switch (BACKEND) {
-                case 'Lang':
-                    if (!agentZero) {
-                        res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: 'AgentZero not available' }));
-                        return;
-                    }
-                    
-                    if (!agentZero.sessions.has(sessionId)) {
-                        res.writeHead(404, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ 
-                            error: 'Session not found',
-                            sessionId: sessionId
-                        }));
-                        return;
-                    }
-                    
-                    const memory = agentZero.getSessionMemory(sessionId);
-                    const messages = await memory.getMessages();
-                    
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ 
-                        sessionId: sessionId,
-                        messages: messages.map(msg => ({
-                            content: msg.content,
-                            type: msg.constructor.name,
-                            sender: msg.constructor.name === 'HumanMessage' ? 'user' : 'bot',
-                            timestamp: new Date().toISOString() // Approximate timestamp
-                        })),
-                        messageCount: messages.length,
-                        _backend: 'Lang',
-                        _agent: 'AgentZero'
-                    }));
-                    break;
-                    
                 case 'Orch':
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({
@@ -510,14 +403,14 @@ const server = http.createServer(async (req, res) => {
                 case 'n8n':
                 case 'Generic':
                 default:
-                    // For non-Lang backends, return empty history
+                    // For non-Orch backends, return empty history
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ 
                         sessionId: sessionId,
                         messages: [],
                         messageCount: 0,
                         _backend: BACKEND,
-                        _note: 'Message history only available with Lang backend'
+                        _note: 'Message history only available with Orch backend'
                     }));
                     break;
             }
@@ -547,24 +440,6 @@ getIPAddresses().then(ips => {
         
         // Backend-specific configuration
         switch (BACKEND) {
-            case 'Lang':
-                console.log(`- LangGraph Agent: ${agentZero ? 'Ready' : 'Failed to initialize'}`);
-                
-                // Display correct LLM configuration based on provider
-                if (process.env.AZURE_OPENAI_API_KEY && process.env.AZURE_OPENAI_ENDPOINT) {
-                    console.log(`- LLM Provider: Azure OpenAI`);
-                    console.log(`- LLM Deployment: ${AZURE_OPENAI_DEPLOYMENT}`);
-                    console.log(`- LLM Endpoint: ${AZURE_OPENAI_ENDPOINT || 'Not configured'}`);
-                } else if (process.env.OPENAI_API_KEY) {
-                    console.log(`- LLM Provider: OpenAI`);
-                    console.log(`- LLM Model: ${process.env.OPENAI_MODEL || 'gpt-4o'}`);
-                    console.log(`- LLM Endpoint: ${process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1'}`);
-                } else {
-                    console.log(`- LLM Provider: Not configured`);
-                    console.log(`- LLM Model: Default (gpt-4o-mini)`);
-                    console.log(`- LLM Endpoint: Not configured`);
-                }
-                break;
             case 'Orch':
                 console.log(`- Orchestrator: ${orchestrationSetup ? 'Ready' : 'Failed to initialize'}`);
                 if (orchestrationSetup) {

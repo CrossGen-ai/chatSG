@@ -1,0 +1,51 @@
+{
+  "extends": "../../../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["../../../core/*"],
+      "@shared/*": ["../../../shared/*"],
+      "@analytical/*": ["./*"]
+    },
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  },
+  "include": [
+    "./**/*.ts",
+    "../../../core/**/*.ts",
+    "../../../shared/**/*.ts"
+  ],
+  "exclude": [
+    "../../../agencies/**/*",
+    "../../../orchestrator/**/*",
+    "../../../wrappers/**/*",
+    "../../../state/**/*",
+    "../../../config/**/*",
+    "../../../tools/examples/**/*",
+    "../../../types/**/*",
+    "../../*/",
+    "!../../shared/",
+    "./dist",
+    "./node_modules",
+    "./**/*.test.ts",
+    "./**/*.spec.ts"
+  ],
+  "references": [
+    {
+      "path": "../../../core"
+    },
+    {
+      "path": "../../../shared"
+    }
+  ]
+} 

@@ -14,7 +14,17 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "build:clean": "rimraf dist",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "generate:agent": "node scripts/generate-agent.js",
+    "generate:individual": "node scripts/generate-agent.js individual",
+    "generate:agency": "node scripts/generate-agent.js agency",
+    "gen": "node scripts/generate-agent.js",
+    "dev:setup": "node scripts/dev-agent.js setup",
+    "dev:list": "node scripts/dev-agent.js list",
+    "dev:analytical": "cd src/agents/individual/analytical && npm run dev:isolated",
+    "dev:customer-support": "cd src/agents/agencies/customer-support && npm run dev:isolated",
+    "test:analytical": "cd src/agents/individual/analytical && npm run test:isolated",
+    "test:customer-support": "cd src/agents/agencies/customer-support && npm run test:isolated"
   },
   "keywords": [
     "chatsg",

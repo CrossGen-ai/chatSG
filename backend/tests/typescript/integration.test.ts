@@ -9,11 +9,11 @@
  * - Performance and reliability testing
  */
 
-import { AgentOrchestrator } from '../../src/orchestrator/AgentOrchestrator';
-import { AgentRegistry } from '../../src/agents/AgentRegistry';
+import { AgentOrchestrator } from '../../src/routing/AgentOrchestrator';
+import { AgentRegistry } from '../../src/agents/core/AgentRegistry';
 import { ToolRegistry } from '../../src/tools/ToolRegistry';
 import { StateManager } from '../../src/state/StateManager';
-import { BaseAgent } from '../../src/agents/BaseAgent';
+import { BaseAgent } from '../../src/agents/core/BaseAgent';
 import { Tool, ToolParams, ToolResult, ToolContext } from '../../src/tools/Tool';
 import { AgentCapabilities } from '../../src/types';
 

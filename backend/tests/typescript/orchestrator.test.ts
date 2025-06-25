@@ -9,10 +9,10 @@
  * - Error handling and recovery
  */
 
-import { AgentOrchestrator } from '../../src/orchestrator/AgentOrchestrator';
-import { OrchestrationMiddleware } from '../../src/orchestrator/OrchestrationMiddleware';
-import { BackendIntegration } from '../../src/orchestrator/BackendIntegration';
-import { BaseAgent } from '../../src/agents/BaseAgent';
+import { AgentOrchestrator } from '../../src/routing/AgentOrchestrator';
+import { OrchestrationMiddleware } from '../../src/routing/OrchestrationMiddleware';
+import { BackendIntegration } from '../../src/routing/BackendIntegration';
+import { BaseAgent } from '../../src/agents/core/BaseAgent';
 import { AgentCapabilities } from '../../src/types';
 
 // Test utilities following existing patterns

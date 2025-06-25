@@ -1,0 +1,317 @@
+{
+  "tasks": [
+    {
+      "id": "7d0514eb-ec72-4c5a-a1a1-18d32280ee38",
+      "name": "Create Core Modular Structure Foundation",
+      "description": "Establish the new modular directory structure alongside existing code without breaking changes. Create the core folder hierarchy (core/, individual/, agencies/, shared/) and move existing BaseAgent, AgentFactory, AgentRegistry to core/ using TypeScript refactoring. Set up index files for clean imports and maintain backward compatibility.",
+      "notes": "Use WebStorm refactoring tools for safe file movement. Maintain all existing exports to prevent breaking changes.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-24T02:48:26.939Z",
+      "updatedAt": "2025-06-24T03:03:25.283Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/agents/BaseAgent.ts",
+          "type": "TO_MODIFY",
+          "description": "Move to core/ directory"
+        },
+        {
+          "path": "backend/src/agents/AgentFactory.ts",
+          "type": "TO_MODIFY",
+          "description": "Move to core/ directory"
+        },
+        {
+          "path": "backend/src/agents/AgentRegistry.ts",
+          "type": "TO_MODIFY",
+          "description": "Move to core/ directory"
+        },
+        {
+          "path": "backend/src/agents/core/index.ts",
+          "type": "CREATE",
+          "description": "Export core agent infrastructure"
+        },
+        {
+          "path": "backend/tsconfig.json",
+          "type": "REFERENCE",
+          "description": "Verify include paths"
+        }
+      ],
+      "implementationGuide": "1. Create new directory structure:\\n- backend/src/agents/core/ (move existing BaseAgent.ts, AgentFactory.ts, AgentRegistry.ts)\\n- backend/src/agents/individual/ (prepare for agent modules)\\n- backend/src/agents/agencies/ (prepare for LangGraph workflows)\\n- backend/src/agents/shared/ (prepare for shared utilities)\\n\\n2. Use TypeScript Move Symbol refactoring (F6 in WebStorm) to relocate files safely\\n3. Update import paths in existing files\\n4. Create index.ts files for clean exports\\n5. Verify all existing tests pass",
+      "verificationCriteria": "All existing tests pass, import paths resolve correctly, no breaking changes to existing functionality",
+      "analysisResult": "Refactor ChatSG backend from current flat agent structure to modular folder-based architecture. Each agent becomes self-contained with tools, memory, config, and UI components. Support both individual agent operation and LangGraph-based agency coordination. Enable isolated development where coding agents can work on specific agent folders without breaking other components. Maintain TypeScript patterns and backward compatibility throughout transition.",
+      "summary": "Task 1 successfully completed. Created modular directory structure with core/, individual/, agencies/, and shared/ folders. Moved all core agent files (BaseAgent.ts, AgentFactory.ts, AgentRegistry.ts) to core/ directory. Updated import paths throughout codebase to maintain backward compatibility. Created index.ts files in all new directories for clean exports. All core functionality preserved while establishing foundation for modular agent development.",
+      "completedAt": "2025-06-24T03:03:25.280Z"
+    },
+    {
+      "id": "f6a15205-3b21-4582-a6d2-6bec4ed7f4c6",
+      "name": "Implement Shared Tool and Memory Architecture",
+      "description": "Create shared utilities for tools and memory management that can be used across all agents. Integrate with existing ToolRegistry and StateManager. Implement MemoryFactory for agent-specific memory creation and SharedToolRegistry for common tools like web search and file operations.",
+      "notes": "Reuse existing ToolRegistry and StateManager patterns. Follow established caching and validation mechanisms.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "7d0514eb-ec72-4c5a-a1a1-18d32280ee38"
+        }
+      ],
+      "createdAt": "2025-06-24T02:48:26.940Z",
+      "updatedAt": "2025-06-24T03:24:08.496Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/tools/ToolRegistry.ts",
+          "type": "REFERENCE",
+          "description": "Existing tool registry patterns"
+        },
+        {
+          "path": "backend/src/state/StateManager.ts",
+          "type": "REFERENCE",
+          "description": "Existing state management"
+        },
+        {
+          "path": "backend/src/agents/shared/tools/ToolFactory.ts",
+          "type": "CREATE",
+          "description": "Tool creation factory"
+        },
+        {
+          "path": "backend/src/agents/shared/memory/MemoryFactory.ts",
+          "type": "CREATE",
+          "description": "Memory creation factory"
+        },
+        {
+          "path": "frontend/src/components/ChatUI.tsx",
+          "type": "REFERENCE",
+          "description": "Existing UI patterns"
+        }
+      ],
+      "implementationGuide": "1. Create shared/tools/ directory with base implementations:\\n- WebSearchTool.ts (expensive to initialize, shared across agents)\\n- FileManagerTool.ts (system resource access)\\n- DatabaseTool.ts (connection pooling)\\n\\n2. Create shared/memory/ directory:\\n- MemoryFactory.ts (creates agent-specific memory instances)\\n- EmbeddingService.ts (shared embedding service)\\n\\n3. Integrate with existing ToolRegistry:\\n- Extend ToolRegistry to support agent-specific tool discovery\\n- Add tool categorization (shared vs agent-specific)\\n\\n4. Create shared UI components:\\n- AgentCard.tsx (common agent display)\\n- ChatInterface.tsx (shared chat components)",
+      "verificationCriteria": "Shared tools register correctly with ToolRegistry, memory factory creates isolated agent memories, UI components follow existing design patterns",
+      "analysisResult": "Refactor ChatSG backend from current flat agent structure to modular folder-based architecture. Each agent becomes self-contained with tools, memory, config, and UI components. Support both individual agent operation and LangGraph-based agency coordination. Enable isolated development where coding agents can work on specific agent folders without breaking other components. Maintain TypeScript patterns and backward compatibility throughout transition.",
+      "summary": "Task 2 successfully completed. Implemented comprehensive shared tool and memory architecture including: WebSearchTool with caching and deduplication, EnhancedFileManagerTool with security and resource management, DatabaseTool with connection pooling, EmbeddingService with model loading and caching, MemoryFactory for agent-specific memory creation, and UI interfaces for consistency. All components integrate with existing ToolRegistry and StateManager patterns. Shared tools avoid duplicate initialization costs while memory services provide isolated agent memories.",
+      "completedAt": "2025-06-24T03:24:08.495Z"
+    },
+    {
+      "id": "b4ddb252-ab9d-4c66-8db6-5f76670a7ac9",
+      "name": "Create Template Individual Agent Structure",
+      "description": "Implement the first individual agent (analytical) as a template for all future agents. Create self-contained folder with agent implementation, configuration, memory setup, specialized tools, and UI components. This agent will serve as the blueprint for easy agent creation.",
+      "notes": "This serves as the template for all future individual agents. Focus on self-containment and clear separation of concerns.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "f6a15205-3b21-4582-a6d2-6bec4ed7f4c6"
+        }
+      ],
+      "createdAt": "2025-06-24T02:48:26.940Z",
+      "updatedAt": "2025-06-24T03:38:10.662Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/agents/individual/analytical/agent.ts",
+          "type": "CREATE",
+          "description": "Main agent implementation"
+        },
+        {
+          "path": "backend/src/agents/individual/analytical/config.json",
+          "type": "CREATE",
+          "description": "Agent configuration"
+        },
+        {
+          "path": "backend/src/agents/individual/analytical/tools.ts",
+          "type": "CREATE",
+          "description": "Domain-specific tools"
+        },
+        {
+          "path": "backend/src/agents/core/AgentFactory.ts",
+          "type": "TO_MODIFY",
+          "description": "Add analytical agent creation"
+        },
+        {
+          "path": "frontend/src/components/agents/AnalyticalAgentUI.tsx",
+          "type": "CREATE",
+          "description": "Agent-specific UI"
+        }
+      ],
+      "implementationGuide": "1. Create individual/analytical/ folder structure:\\n- agent.ts (implements BaseAgent interface)\\n- config.json (agent-specific configuration)\\n- memory.ts (specialized memory with optimized embeddings for data)\\n- tools.ts (domain-specific tools like StatisticsCalculator)\\n- prompts.ts (system prompts for analytical tasks)\\n- ui/ folder with AnalyticalAgentUI.tsx\\n\\n2. Implement AnalyticalAgent class:\\n- Extend AbstractBaseAgent from core\\n- Use shared tools from ToolRegistry for generic operations\\n- Use agent-specific tools for domain expertise\\n- Integrate with shared memory factory\\n\\n3. Create agent-specific tools:\\n- StatisticsCalculator.ts (mathematical analysis)\\n- DataVisualizationTool.ts (chart generation)\\n\\n4. Update AgentFactory to support new agent type",
+      "verificationCriteria": "Analytical agent creates successfully via AgentFactory, processes messages correctly, uses both shared and specific tools, UI renders with existing theme system",
+      "analysisResult": "Refactor ChatSG backend from current flat agent structure to modular folder-based architecture. Each agent becomes self-contained with tools, memory, config, and UI components. Support both individual agent operation and LangGraph-based agency coordination. Enable isolated development where coding agents can work on specific agent folders without breaking other components. Maintain TypeScript patterns and backward compatibility throughout transition.",
+      "summary": "Successfully created the analytical agent as a template for individual agents. The implementation includes: 1) Complete analytical agent class extending AbstractBaseAgent with data analysis capabilities, 2) Self-contained folder structure under individual/analytical/, 3) Configuration system with agent-specific settings, 4) Specialized tools for statistics and data visualization, 5) Memory management for analytical data, 6) Integration with AgentFactory for creation, 7) Comprehensive analytical capabilities including statistical analysis, data visualization guidance, research assistance, and mathematical computations. The agent processes different analysis types and provides contextual responses.",
+      "completedAt": "2025-06-24T03:38:10.660Z"
+    },
+    {
+      "id": "ff2c6bcc-9cf3-4dd4-ab9b-b9d46266940f",
+      "name": "Implement Agency Pattern with LangGraph",
+      "description": "Create the first agency (customer-support) that orchestrates multiple individual agents using LangGraph workflows. Integrate with existing AgentOrchestrator for handoff mechanisms and state sharing. Design agencies to reuse individual agents as building blocks.",
+      "notes": "Leverage existing AgentOrchestrator handoff mechanisms. Agencies compose individual agents, don't reimplement functionality.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "b4ddb252-ab9d-4c66-8db6-5f76670a7ac9"
+        }
+      ],
+      "createdAt": "2025-06-24T02:48:26.940Z",
+      "updatedAt": "2025-06-24T03:46:20.007Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/orchestrator/AgentOrchestrator.ts",
+          "type": "REFERENCE",
+          "description": "Existing orchestration patterns"
+        },
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "REFERENCE",
+          "description": "LangGraph implementation patterns"
+        },
+        {
+          "path": "backend/src/agents/agencies/customer-support/agency.ts",
+          "type": "CREATE",
+          "description": "Main agency coordination"
+        },
+        {
+          "path": "backend/src/agents/agencies/customer-support/workflow.ts",
+          "type": "CREATE",
+          "description": "LangGraph workflow definition"
+        },
+        {
+          "path": "frontend/src/components/agencies/WorkflowVisualization.tsx",
+          "type": "CREATE",
+          "description": "Agency workflow UI"
+        }
+      ],
+      "implementationGuide": "1. Create agencies/customer-support/ structure:\\n- agency.ts (main agency coordination)\\n- workflow.ts (LangGraph StateGraph definition)\\n- agents/ subfolder for agency-specific agents\\n- ui/ for workflow visualization\\n\\n2. Implement CustomerSupportAgency:\\n- Import and reuse individual agents (analytical, creative, technical)\\n- Create LangGraph workflow with StateGraph\\n- Integrate with existing AgentOrchestrator for fallback strategies\\n- Use existing state sharing mechanisms\\n\\n3. Create workflow nodes:\\n- sentiment-analysis (delegates to analytical agent)\\n- summary-generation (delegates to creative agent)\\n- decision-making (uses specialized agency agent)\\n\\n4. Add agency support to AgentFactory and Registry",
+      "verificationCriteria": "Agency successfully orchestrates multiple agents, LangGraph workflow executes correctly, existing orchestrator integration works, workflow UI displays agent coordination",
+      "analysisResult": "Refactor ChatSG backend from current flat agent structure to modular folder-based architecture. Each agent becomes self-contained with tools, memory, config, and UI components. Support both individual agent operation and LangGraph-based agency coordination. Enable isolated development where coding agents can work on specific agent folders without breaking other components. Maintain TypeScript patterns and backward compatibility throughout transition.",
+      "summary": "Successfully implemented CustomerSupportAgency with LangGraph workflow orchestration. Created complete multi-stage workflow (intake → sentiment analysis → issue classification → resolution → summary) that orchestrates individual agents. Integrated with existing AgentOrchestrator and AgentFactory. Workflow includes state management, progress tracking, sentiment analysis via analytical agent, and comprehensive metadata collection. Agency pattern enables reusable individual agents within complex multi-agent workflows while maintaining backward compatibility.",
+      "completedAt": "2025-06-24T03:46:20.006Z"
+    },
+    {
+      "id": "4a1f9f7c-9ea8-43b2-a98b-d5020de25ef2",
+      "name": "Create Agent Generation CLI Tool",
+      "description": "Build a command-line tool that generates new individual agents or agencies using the established templates. This tool will copy template structures, update configurations, and register new agents automatically, enabling rapid agent creation.",
+      "notes": "This tool enables the main goal of easily creating new agents. Focus on automation and error prevention.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "ff2c6bcc-9cf3-4dd4-ab9b-b9d46266940f"
+        }
+      ],
+      "createdAt": "2025-06-24T02:48:26.940Z",
+      "updatedAt": "2025-06-24T04:05:17.443Z",
+      "relatedFiles": [
+        {
+          "path": "scripts/generate-agent.js",
+          "type": "CREATE",
+          "description": "CLI tool for agent generation"
+        },
+        {
+          "path": "backend/src/agents/individual/analytical/",
+          "type": "REFERENCE",
+          "description": "Template structure to copy"
+        },
+        {
+          "path": "backend/src/agents/core/AgentFactory.ts",
+          "type": "TO_MODIFY",
+          "description": "Auto-update for new agents"
+        },
+        {
+          "path": "package.json",
+          "type": "TO_MODIFY",
+          "description": "Add npm script for agent generation"
+        }
+      ],
+      "implementationGuide": "1. Create scripts/generate-agent.js CLI tool:\\n- Parse command line arguments (agent type, name, description)\\n- Copy template structure from analytical agent\\n- Replace template placeholders with new agent details\\n- Update AgentFactory to include new agent\\n- Generate basic configuration and prompt files\\n\\n2. Support both individual agents and agencies:\\n- --type individual|agency\\n- --name <agent-name>\\n- --description <description>\\n- --tools <comma-separated-tool-list>\\n\\n3. Auto-registration:\\n- Update AgentFactory.ts\\n- Add to AgentRegistry\\n- Create basic test file\\n- Update index.ts exports\\n\\n4. Validation:\\n- Check for naming conflicts\\n- Validate configuration format\\n- Test agent creation process",
+      "verificationCriteria": "CLI tool generates working agents, new agents integrate with existing systems, generated code follows established patterns, automated tests pass",
+      "analysisResult": "Refactor ChatSG backend from current flat agent structure to modular folder-based architecture. Each agent becomes self-contained with tools, memory, config, and UI components. Support both individual agent operation and LangGraph-based agency coordination. Enable isolated development where coding agents can work on specific agent folders without breaking other components. Maintain TypeScript patterns and backward compatibility throughout transition.",
+      "summary": "Successfully created comprehensive Agent Generation CLI Tool with full automation capabilities. The tool enables rapid creation of individual agents and agencies using established templates, automatic system integration including AgentFactory updates and index maintenance, intelligent template processing with smart naming conventions, comprehensive test file generation, input validation and error handling, NPM script integration, and extensive documentation. The CLI tool has been validated through comprehensive testing and enables developers to generate new agents in seconds while maintaining system consistency and following established patterns.",
+      "completedAt": "2025-06-24T04:05:17.440Z"
+    },
+    {
+      "id": "0a71bec8-8abe-4546-a5a9-2e0a27b5ca07",
+      "name": "Implement Context Isolation for Development",
+      "description": "Set up development environment isolation so coding agents can work on specific agent folders without affecting other agents. Create agent-specific development configurations, testing environments, and VS Code workspace settings.",
+      "notes": "This addresses the core requirement of enabling coding agents to work on specific folders without breaking other components.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "4a1f9f7c-9ea8-43b2-a98b-d5020de25ef2"
+        }
+      ],
+      "createdAt": "2025-06-24T02:48:26.940Z",
+      "updatedAt": "2025-06-24T13:40:22.119Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/agents/individual/analytical/.vscode/settings.json",
+          "type": "CREATE",
+          "description": "VS Code workspace for agent"
+        },
+        {
+          "path": "backend/src/agents/individual/analytical/package.json",
+          "type": "CREATE",
+          "description": "Agent-specific dependencies"
+        },
+        {
+          "path": "backend/src/agents/individual/analytical/tsconfig.json",
+          "type": "CREATE",
+          "description": "Agent-specific TypeScript config"
+        },
+        {
+          "path": "docs/AGENT_DEVELOPMENT_GUIDE.md",
+          "type": "CREATE",
+          "description": "Development guidelines"
+        },
+        {
+          "path": "scripts/dev-agent.js",
+          "type": "CREATE",
+          "description": "Development environment setup"
+        }
+      ],
+      "implementationGuide": "1. Create per-agent development configs:\\n- .vscode/settings.json in each agent folder\\n- Independent TypeScript project references\\n- Agent-specific test configurations\\n- Isolated dependency management\\n\\n2. Set up agent-specific npm scripts:\\n- npm run dev:agent:<agent-name>\\n- npm run test:agent:<agent-name>\\n- npm run build:agent:<agent-name>\\n\\n3. Create development sandbox:\\n- Mock implementations for shared services\\n- Agent-specific environment variables\\n- Isolated logging and debugging\\n\\n4. Documentation for agent development:\\n- Agent development guide\\n- Coding agent integration instructions\\n- Best practices for isolated development",
+      "verificationCriteria": "Coding agents can work in isolated agent folders, changes in one agent don't affect others, development tools work correctly in isolation, documentation is clear and actionable",
+      "analysisResult": "Refactor ChatSG backend from current flat agent structure to modular folder-based architecture. Each agent becomes self-contained with tools, memory, config, and UI components. Support both individual agent operation and LangGraph-based agency coordination. Enable isolated development where coding agents can work on specific agent folders without breaking other components. Maintain TypeScript patterns and backward compatibility throughout transition.",
+      "summary": "Successfully implemented comprehensive context isolation framework for development. Created agent-specific VS Code workspaces with visual identity and file filtering, TypeScript project isolation with path mappings and exclusions, Jest testing configuration with mocked shared services, environment variable separation for isolated development, development environment setup scripts with CLI tooling, NPM script integration for easy workflows, mock service implementations for all shared dependencies, comprehensive documentation and troubleshooting guides, and validated all features work correctly. Coding agents can now work on specific agent folders without affecting other components, with proper tooling, visual cues, and complete isolation.",
+      "completedAt": "2025-06-24T13:40:22.118Z"
+    },
+    {
+      "id": "2413c545-43b7-4f10-9939-95312be6b736",
+      "name": "Migration and Backward Compatibility",
+      "description": "Migrate existing AgentZero and AgentRouter to new structure while maintaining full backward compatibility. Update all existing code to use new structure without breaking existing functionality. Provide migration path for future agents.",
+      "notes": "Maintain 100% backward compatibility during transition. Existing code should continue to work without modification.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "0a71bec8-8abe-4546-a5a9-2e0a27b5ca07"
+        }
+      ],
+      "createdAt": "2025-06-24T02:48:26.940Z",
+      "updatedAt": "2025-06-24T13:53:43.129Z",
+      "relatedFiles": [
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "REFERENCE",
+          "description": "Existing AgentZero implementation"
+        },
+        {
+          "path": "backend/src/agents/wrappers/LegacyAgentWrapper.ts",
+          "type": "CREATE",
+          "description": "Wrapper for legacy agents"
+        },
+        {
+          "path": "backend/server.js",
+          "type": "TO_MODIFY",
+          "description": "Update to use new structure"
+        },
+        {
+          "path": "docs/MIGRATION_GUIDE.md",
+          "type": "CREATE",
+          "description": "Migration instructions"
+        },
+        {
+          "path": "backend/tests/",
+          "type": "TO_MODIFY",
+          "description": "Update test imports"
+        }
+      ],
+      "implementationGuide": "1. Create migration wrappers:\\n- Wrap existing AgentZero in new BaseAgent interface\\n- Maintain existing API endpoints and behavior\\n- Preserve all session management and memory\\n\\n2. Update existing imports gradually:\\n- Update test files to use new import paths\\n- Modify server.js to use new agent structure\\n- Ensure all existing functionality remains\\n\\n3. Create migration guide:\\n- Document changes for existing code\\n- Provide examples of old vs new patterns\\n- Create migration checklist\\n\\n4. Add deprecation warnings:\\n- Log warnings for old import paths\\n- Provide guidance for updating to new structure\\n- Set timeline for complete migration",
+      "verificationCriteria": "All existing functionality preserved, legacy agents work through wrappers, gradual migration path documented, no breaking changes to public APIs",
+      "analysisResult": "Refactor ChatSG backend from current flat agent structure to modular folder-based architecture. Each agent becomes self-contained with tools, memory, config, and UI components. Support both individual agent operation and LangGraph-based agency coordination. Enable isolated development where coding agents can work on specific agent folders without breaking other components. Maintain TypeScript patterns and backward compatibility throughout transition.",
+      "summary": "Migration and backward compatibility successfully implemented. Created comprehensive legacy compatibility layer that maintains 100% API compatibility while providing smooth migration path. All existing AgentZero and AgentRouter imports continue to work without modification. Implemented deprecation warnings, comprehensive migration documentation, and gradual migration strategy. Original agent files backed up and replaced with compatibility shims. Zero breaking changes achieved while enabling future migration to modular TypeScript architecture.",
+      "completedAt": "2025-06-24T13:53:43.128Z"
+    }
+  ]
+}

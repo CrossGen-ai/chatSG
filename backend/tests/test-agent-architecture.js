@@ -46,10 +46,11 @@ async function testAgentArchitecture() {
         const availableAgents = registry.getAvailableAgents();
         console.log(`   📝 Available agents: ${availableAgents.join(', ')}`);
         
+        // AgentZero has been removed from the system
         if (availableAgents.includes('AgentZero')) {
-            console.log('   ✅ AgentZero discovered and registered');
+            console.log('   ❌ AgentZero should not be present (removed workflow)');
         } else {
-            console.log('   ⚠️  AgentZero not found in registry');
+            console.log('   ✅ AgentZero correctly removed from registry');
         }
         
         if (availableAgents.includes('AgentRouter')) {
@@ -73,20 +74,9 @@ async function testAgentArchitecture() {
         
         try {
             const agentZero = await factory.createAgent('AgentZero');
-            console.log('   ✅ AgentZero created via factory');
-            
-            // Test the BaseAgent interface
-            const info = agentZero.getInfo();
-            console.log(`   📝 Agent info: ${info.name} v${info.version} (${info.type})`);
-            
-            const capabilities = agentZero.getCapabilities();
-            console.log(`   📝 Capabilities: ${capabilities.features.length} features`);
-            
-            const validation = agentZero.validateConfig();
-            console.log(`   📝 Config validation: ${validation.valid ? 'Valid' : 'Invalid'}`);
-            
+            console.log('   ❌ AgentZero should not be creatable (removed workflow)');
         } catch (error) {
-            console.log(`   ❌ Error creating AgentZero: ${error.message}`);
+            console.log(`   ✅ AgentZero correctly throws error: ${error.message}`);
         }
         
         try {
@@ -115,18 +105,24 @@ async function testAgentArchitecture() {
         
         console.log('\n🔍 Test 8: Backward Compatibility');
         
-        // Test that existing JavaScript code still works
-        const AgentZero = require('./agent/AgentZero/agent');
-        const agentZeroLegacy = new AgentZero();
+        // Test that AgentZero is no longer available
+        try {
+            const AgentZero = require('./agent/AgentZero/agent');
+            console.log('   ❌ AgentZero should not be available (removed workflow)');
+        } catch (error) {
+            console.log('   ✅ AgentZero correctly unavailable (removed workflow)');
+        }
         
-        console.log('   ✅ Legacy AgentZero still works');
-        console.log(`   📝 Legacy agent initialized: ${typeof agentZeroLegacy.processMessage === 'function'}`);
-        
-        const AgentRouter = require('./agent/AgentRouter/agent');
-        const agentRouterLegacy = new AgentRouter();
-        
-        console.log('   ✅ Legacy AgentRouter still works');
-        console.log(`   📝 Legacy router initialized: ${typeof agentRouterLegacy.classifyPrompt === 'function'}`);
+        // Test that AgentRouter still works
+        try {
+            const AgentRouter = require('./agent/AgentRouter/agent');
+            const agentRouterLegacy = new AgentRouter();
+            
+            console.log('   ✅ Legacy AgentRouter still works');
+            console.log(`   📝 Legacy router initialized: ${typeof agentRouterLegacy.classifyPrompt === 'function'}`);
+        } catch (error) {
+            console.log(`   ❌ Error with AgentRouter: ${error.message}`);
+        }
         
         console.log('\n🎉 All agent architecture tests completed successfully!');
         return true;

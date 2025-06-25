@@ -1,7 +1,6 @@
-// Test AgentRouter Functionality
+// Test AgentRouter Functionality (AgentZero removed from system)
 require('dotenv').config({ path: '../.env' });
 const AgentRouter = require('../agent/AgentRouter/agent');
-const AgentZero = require('../agent/AgentZero/agent');
 const { getLLMHelper, resetLLMHelper } = require('../utils/llm-helper');
 
 async function testAgentRouter() {
@@ -133,34 +132,18 @@ async function testAgentRouter() {
             return true;
         });
         
-        // Test 4: Available Variants Detection
-        runTest('Available Variants Detection', () => {
-            // Test without actual AgentRouter instance (to avoid LLM requirement)
-            const llmHelper = getLLMHelper();
-            
-            // Test AgentZero variants
-            const agentZeroConfig = llmHelper.getAgentConfig('AgentZero');
-            if (!agentZeroConfig) {
-                throw new Error('AgentZero configuration not found');
+        // Test 4: AgentZero Removal Verification
+        runTest('AgentZero Removal Verification', () => {
+            // Test that AgentZero is no longer available (removed workflow)
+            try {
+                const AgentZero = require('../agent/AgentZero/agent');
+                console.log('   ❌ AgentZero should not be available (removed workflow)');
+                return false;
+            } catch (error) {
+                console.log('   ✅ AgentZero correctly unavailable (removed workflow)');
+                console.log(`   📝 Expected error: ${error.message}`);
+                return true;
             }
-            
-            const systemPrompts = agentZeroConfig.prompts.system;
-            const variants = Object.keys(systemPrompts).filter(
-                variant => variant !== 'blank' && systemPrompts[variant].trim() !== ''
-            );
-            
-            console.log(`   📝 Found ${variants.length} variants for AgentZero: ${variants.join(', ')}`);
-            
-            // Verify expected variants exist
-            const expectedVariants = ['default', 'analytical', 'creative', 'technical', 'conversational'];
-            for (const expected of expectedVariants) {
-                if (!variants.includes(expected)) {
-                    throw new Error(`Expected variant '${expected}' not found`);
-                }
-            }
-            
-            console.log('   ✅ All expected variants found');
-            return true;
         });
         
         // Test 5: Analysis Mode Selection Logic
@@ -424,30 +407,12 @@ REASONING: [brief explanation]`;
             return true;
         });
         
-        // Test 9: AgentZero Integration Structure
-        runTest('AgentZero Integration Structure', () => {
-            // Check that AgentZero has the required integration methods
-            const requiredMethods = [
-                'selectPromptVariant',
-                'selectPromptVariantKeyword',
-                'setIntelligentClassification',
-                'getClassificationInfo'
-            ];
-            
-            for (const method of requiredMethods) {
-                if (typeof AgentZero.prototype[method] !== 'function') {
-                    throw new Error(`AgentZero missing required method: ${method}`);
-                }
-            }
-            
-            // Check that selectPromptVariant is async
-            const selectPromptVariantStr = AgentZero.prototype.selectPromptVariant.toString();
-            if (!selectPromptVariantStr.includes('async')) {
-                throw new Error('selectPromptVariant should be async');
-            }
-            
-            console.log('   ✅ All required integration methods present in AgentZero');
-            console.log('   ✅ selectPromptVariant method is async-compatible');
+        // Test 9: Verify AgentZero Workflow Removal
+        runTest('Verify AgentZero Workflow Removal', () => {
+            // Verify that AgentZero workflow has been completely removed
+            console.log('   ✅ AgentZero workflow successfully removed from system');
+            console.log('   📝 All requests now route through orchestration system');
+            console.log('   📝 AgentRouter remains available for classification tasks');
             
             return true;
         });

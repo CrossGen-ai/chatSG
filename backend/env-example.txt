@@ -3,8 +3,8 @@
 # ===========================================
 # BACKEND ROUTING CONFIGURATION
 # ===========================================
-# Choose your backend mode: Generic, n8n, or Lang
-BACKEND=Generic
+# Choose your backend mode: Orch (recommended), n8n, or Generic
+BACKEND=Orch
 ENVIRONMENT=dev
 
 # ===========================================
@@ -44,9 +44,12 @@ ENVIRONMENT=dev
 # ===========================================
 # 
 # Backend Modes:
+# - Orch: Intelligent orchestration system (RECOMMENDED - default)
+#   * Provides intelligent agent selection and routing
+#   * Handles n8n and Generic backends through orchestration
+#   * Best performance and scalability
+# - n8n: Direct webhook forwarding (requires WEBHOOK_URL)
 # - Generic: Simulated responses for development (no LLM required)
-# - n8n: Forward requests to webhook (requires WEBHOOK_URL)
-# - Lang: Use LangGraph AgentZero (requires LLM credentials)
 #
 # LLM Provider Priority:
 # 1. If AZURE_OPENAI_API_KEY + AZURE_OPENAI_ENDPOINT exist → Azure OpenAI

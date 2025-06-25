@@ -11,7 +11,7 @@ const path = require('path');
 const { 
     createOrchestrationSetup,
     createBackendIntegration 
-} = require('./dist/src/orchestrator');
+} = require('./dist/src/routing');
 
 const { StateManager } = require('./dist/src/state/StateManager');
 

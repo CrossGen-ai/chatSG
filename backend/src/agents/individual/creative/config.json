@@ -1,0 +1,44 @@
+{
+  "name": "CreativeAgent",
+  "version": "1.0.0",
+  "type": "creative",
+  "description": "Specialized agent for creative writing, brainstorming, storytelling, and innovative thinking",
+  "capabilities": {
+    "supportedModes": ["creative", "writing", "brainstorming", "storytelling", "ideation"],
+    "features": [
+      "creative_writing",
+      "brainstorming",
+      "storytelling", 
+      "ideation",
+      "character_development",
+      "plot_development",
+      "creative_problem_solving",
+      "narrative_structure",
+      "dialogue_writing",
+      "poetry_composition"
+    ],
+    "inputTypes": ["text", "creative_prompt", "story_concept"],
+    "outputTypes": ["text", "creative_content", "story", "ideas", "writing_suggestions"],
+    "supportsTools": true,
+    "supportsSessions": true,
+    "supportsStreaming": false
+  },
+  "settings": {
+    "maxSessionMemory": 2000,
+    "creativityLevel": "high",
+    "responseStyle": "engaging",
+    "includeEmojis": true,
+    "structuredOutput": true
+  },
+  "tools": [
+    "CreativeWritingTool",
+    "BrainstormingTool",
+    "StorytellingTool",
+    "IdeationTool"
+  ],
+  "memory": {
+    "conversationHistory": true,
+    "creativeProjects": true,
+    "userPreferences": true
+  }
+} 

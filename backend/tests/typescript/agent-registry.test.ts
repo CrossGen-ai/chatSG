@@ -9,8 +9,8 @@
  * - Cache management
  */
 
-import { AgentRegistry } from '../../src/agents/AgentRegistry';
-import { BaseAgent, AgentMetadata } from '../../src/agents/BaseAgent';
+import { AgentRegistry } from '../../src/agents/core/AgentRegistry';
+import { BaseAgent, AgentMetadata } from '../../src/agents/core/BaseAgent';
 import { AgentResponse, ValidationResult, AgentCapabilities } from '../../src/types';
 
 // Test utilities following existing patterns

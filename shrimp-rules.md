@@ -16,9 +16,9 @@ ChatSG is a modern AI-powered chat application built with a React frontend and N
 ### Backend
 - **Runtime**: Node.js with Express
 - **AI Backends**: 
-  - LangGraph AgentZero (session-based memory)
-  - n8n webhook integration
-  - Generic simulation mode
+  - Orchestration system (primary - intelligent agent selection and routing)
+  - n8n webhook integration (via orchestration)
+  - Generic simulation mode (via orchestration)
 - **Environment**: dotenv configuration
 - **Dependencies**: axios, @langchain packages
 
@@ -43,10 +43,14 @@ chatSG/
 │   └── dist/                # Production build
 ├── backend/                 # Node.js server
 │   ├── server.js           # Main server with routing
-│   ├── agent/              # AI agents
-│   │   └── AgentZero/      # LangGraph agent
-│   │       ├── agent.js    # AgentZero implementation
+│   ├── agent/              # Legacy agents
+│   │   └── AgentRouter/    # Classification agent
+│   │       ├── agent.js    # AgentRouter implementation
 │   │       └── package.json # Agent dependencies
+│   ├── src/                # Modern TypeScript agents
+│   │   ├── agents/         # Modular agent system
+│   │   ├── orchestrator/   # Orchestration system
+│   │   └── state/          # State management
 │   ├── tests/              # Test suite
 │   │   ├── run-tests.js    # Test runner
 │   │   ├── test-*.js       # Individual tests
@@ -61,28 +65,29 @@ chatSG/
 ## Backend Architecture
 
 ### Routing System
-The backend uses environment-based routing to support multiple AI backends:
+The backend uses environment-based routing with orchestration as the primary system:
 
 #### Backend Modes
-1. **Generic Mode** (`BACKEND=Generic`)
+1. **Orchestration Mode** (`BACKEND=Orch`) - **RECOMMENDED DEFAULT**
+   - Intelligent agent selection and routing
+   - Handles n8n and Generic backends through orchestration
+   - Best performance and scalability
+   - Provides unified interface for all backend types
+
+2. **n8n Mode** (`BACKEND=n8n`)
+   - Direct webhook integration
+   - Forwards requests to configured webhook URL
+   - Requires `WEBHOOK_URL` environment variable
+
+3. **Generic Mode** (`BACKEND=Generic`)
    - Simulated AI responses for development
    - No external dependencies
    - Instant responses with contextual simulation
 
-2. **n8n Mode** (`BACKEND=n8n`)
-   - Production webhook integration
-   - Forwards requests to configured webhook URL
-   - Requires `WEBHOOK_URL` environment variable
-
-3. **Lang Mode** (`BACKEND=Lang`)
-   - LangGraph AgentZero with session memory
-   - Persistent conversation context
-   - Requires Azure OpenAI credentials
-
 ### Environment Configuration
 ```bash
-# Backend routing
-BACKEND=Generic|n8n|Lang
+# Backend routing (Orch is recommended)
+BACKEND=Orch|n8n|Generic
 
 # Legacy support
 ENVIRONMENT=dev|production
@@ -90,7 +95,7 @@ ENVIRONMENT=dev|production
 # n8n webhook (for BACKEND=n8n)
 WEBHOOK_URL=http://localhost:5678/webhook/chat
 
-# Azure OpenAI (for BACKEND=Lang)
+# LLM credentials (for orchestration system)
 AZURE_OPENAI_API_KEY=your_key_here
 AZURE_OPENAI_ENDPOINT=your_endpoint_here
 AZURE_OPENAI_DEPLOYMENT=gpt-4o-001
@@ -122,27 +127,19 @@ AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
 AZURE_OPENAI_DEPLOYMENT=gpt-4o-001
 ```
 
-## AgentZero (LangGraph Agent)
+## Orchestration System
 
 ### Features
-- **Session Memory**: Persistent conversation context per session
-- **LangGraph Architecture**: State-based conversation flow
-- **Multi-Provider LLM**: Uses LLM helper for flexible provider support
-- **Error Handling**: Graceful fallbacks and error messages
+- **Intelligent Agent Selection**: Automatically routes requests to appropriate agents
+- **Multi-Backend Support**: Handles n8n webhooks and generic simulation through unified interface
+- **Session Management**: Persistent conversation context and state management
+- **Error Handling**: Graceful fallbacks and comprehensive error reporting
 
 ### Implementation
-- **Location**: `backend/agent/AgentZero/agent.js`
-- **Dependencies**: @langchain/langgraph, @langchain/openai, @langchain/core
-- **Memory**: In-memory session storage with automatic cleanup
-- **Flow**: Memory → Agent → Response with state persistence
-- **LLM Integration**: Uses LLM helper utility for provider configuration
-
-### Usage
-```javascript
-const agent = new AgentZero();
-const result = await agent.processMessage("Hello!", "session-123");
-// Returns: { success: true, message: "...", sessionId: "session-123", llmProvider: "openai", model: "gpt-4o-mini" }
-```
+- **Location**: `backend/src/orchestrator/`
+- **Core Components**: AgentOrchestrator, BackendIntegration, OrchestrationMiddleware
+- **Agent Support**: Individual agents, agencies, and legacy agent wrappers
+- **State Management**: Integrated with StateManager for session persistence
 
 ## Frontend Architecture
 
@@ -193,6 +190,10 @@ node test-all-backends.js
 
 ### Backend Mode Testing
 ```bash
+# Test Orchestration mode (recommended)
+echo "BACKEND=Orch" > backend/.env
+cd backend && node server.js
+
 # Test Generic mode
 echo "BACKEND=Generic" > backend/.env
 cd backend && node server.js
@@ -200,11 +201,6 @@ cd backend && node server.js
 # Test n8n mode
 echo "BACKEND=n8n" > backend/.env
 echo "WEBHOOK_URL=your_webhook" >> backend/.env
-cd backend && node server.js
-
-# Test Lang mode
-echo "BACKEND=Lang" > backend/.env
-echo "AZURE_OPENAI_API_KEY=your_key" >> backend/.env
 cd backend && node server.js
 ```
 

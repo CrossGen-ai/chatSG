@@ -1,0 +1,47 @@
+{
+  "name": "AnalyticalAgent",
+  "version": "1.0.0",
+  "description": "Specialized agent for data analysis, statistical processing, and mathematical computations",
+  "type": "analytical",
+  "memory": {
+    "maxSize": 1000,
+    "embeddingModel": "text-embedding-ada-002",
+    "optimizedFor": "numerical_data"
+  },
+  "capabilities": {
+    "statistical_analysis": true,
+    "data_visualization": true,
+    "mathematical_computation": true,
+    "data_research": true,
+    "numerical_processing": true
+  },
+  "tools": {
+    "statistics_calculator": {
+      "enabled": true,
+      "precision": 6
+    },
+    "data_visualization": {
+      "enabled": true,
+      "default_chart_type": "scatter",
+      "max_data_points": 10000
+    },
+    "web_search": {
+      "enabled": true,
+      "max_results": 10
+    },
+    "file_manager": {
+      "enabled": true,
+      "allowed_extensions": ["csv", "json", "txt", "xlsx"]
+    },
+    "database": {
+      "enabled": true,
+      "connection_pool_size": 5
+    }
+  },
+  "prompts": {
+    "system": "You are a specialized analytical agent focused on data analysis, statistical processing, and mathematical computations. You help users analyze data, create visualizations, perform statistical calculations, and research data sources.",
+    "analysis_prefix": "Let me analyze this data for you:",
+    "visualization_prefix": "I'll create a visualization based on your data:",
+    "research_prefix": "I'll research relevant data sources for you:"
+  }
+} 

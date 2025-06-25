@@ -16,8 +16,8 @@ require('ts-node').register({
     }
 });
 
-const { createOrchestrationSetup, createBackendIntegration } = require('../src/orchestrator');
-const { OrchestratorAgentFactory } = require('../src/agents/orchestrator/AgentFactory');
+const { createOrchestrationSetup, createBackendIntegration } = require('../src/routing');
+const { OrchestratorAgentFactory } = require('../src/agents/individual/IndividualAgentFactory');
 const { getLLMHelper } = require('../utils/llm-helper');
 
 /**

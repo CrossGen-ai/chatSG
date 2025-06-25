@@ -1,313 +1,219 @@
 {
   "tasks": [
     {
-      "id": "6cd9570b-95c6-4216-824d-2447cd05914b",
-      "name": "Create Specialized LLM Agent Base Class",
-      "description": "Create a base class for specialized LLM-powered agents that use the existing llm-helper.js pattern. This class will serve as the foundation for different agent types (analytical, creative, technical) and provide common LLM interaction functionality following the same patterns as AgentZero.",
-      "notes": "This provides the foundation for all specialized agents and ensures consistent LLM integration patterns across the orchestrator system.",
+      "id": "101bc0c5-0657-4d9e-aace-52cf234a1f73",
+      "name": "Remove AgentZero Direct Backend Mode from Server",
+      "description": "Remove the BACKEND='Lang' routing mode from server.js that directly initializes and routes to AgentZero. This includes removing AgentZero initialization, direct chat routing, session management endpoints, and startup logging. Update the default backend to use orchestration instead of n8n.",
+      "notes": "This task focuses on server-level routing changes. The orchestration system will handle all chat requests going forward, providing better agent selection and routing capabilities.",
       "status": "completed",
       "dependencies": [],
-      "createdAt": "2025-06-19T22:00:23.395Z",
-      "updatedAt": "2025-06-19T22:03:07.897Z",
-      "relatedFiles": [
-        {
-          "path": "backend/src/agents/BaseAgent.ts",
-          "type": "REFERENCE",
-          "description": "Base interface to extend"
-        },
-        {
-          "path": "backend/utils/llm-helper.js",
-          "type": "DEPENDENCY",
-          "description": "LLM helper for provider abstraction"
-        },
-        {
-          "path": "backend/agent/AgentZero/agent.js",
-          "type": "REFERENCE",
-          "description": "Reference implementation for LLM integration patterns"
-        },
-        {
-          "path": "backend/src/agents/orchestrator/SpecializedLLMAgent.ts",
-          "type": "CREATE",
-          "description": "New base class for orchestrator agents"
-        }
-      ],
-      "implementationGuide": "Create backend/src/agents/orchestrator/SpecializedLLMAgent.ts that extends AbstractBaseAgent and integrates with llm-helper.js:\\n\\n```typescript\\nimport { getLLMHelper } from '../../../utils/llm-helper';\\nimport { AbstractBaseAgent } from '../BaseAgent';\\n\\nclass SpecializedLLMAgent extends AbstractBaseAgent {\\n  constructor(agentType: string, specialization: string) {\\n    super(agentType, '1.0.0', `Specialized ${specialization} agent`, 'orchestrator');\\n    this.llmHelper = getLLMHelper();\\n    this.llm = this.llmHelper.createChatLLM();\\n    this.specialization = specialization;\\n  }\\n  \\n  async processMessage(input: string, sessionId: string) {\\n    const systemPrompt = this.getSpecializedPrompt();\\n    // Use same LLM call pattern as AgentZero\\n    const messages = [systemMessage, humanMessage];\\n    const response = await this.llm.invoke(messages);\\n    return this.formatResponse(response, sessionId);\\n  }\\n}\\n```\\n\\nReuse existing patterns from AgentZero and llm-helper.js for consistency.",
-      "verificationCriteria": "Base class should extend AbstractBaseAgent, integrate with llm-helper.js, support Azure/OpenAI provider switching, and provide specialized prompt methods. Agent should process messages and return responses in the same format as other agents.",
-      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
-      "summary": "Successfully created the SpecializedLLMAgent base class that extends AbstractBaseAgent and integrates with the llm-helper.js system. The class follows the same patterns as AgentZero for LLM integration, supports Azure/OpenAI provider switching, provides specialized prompt methods, session management, and proper error handling. The TypeScript code compiles without errors and provides the foundation for all orchestrator agents.",
-      "completedAt": "2025-06-19T22:03:07.896Z"
-    },
-    {
-      "id": "cf62dfbd-6ec0-4acd-8887-e9c8f77048f0",
-      "name": "Create Analytical Agent Implementation",
-      "description": "Create a specialized analytical agent that focuses on data analysis, research, and logical reasoning tasks. This agent will use specialized prompts for analytical work and integrate with the LLM helper system.",
-      "notes": "Focus on analytical capabilities and ensure the agent can handle data analysis, research, and logical reasoning tasks effectively.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "6cd9570b-95c6-4216-824d-2447cd05914b"
-        }
-      ],
-      "createdAt": "2025-06-19T22:00:23.395Z",
-      "updatedAt": "2025-06-19T22:59:48.093Z",
-      "relatedFiles": [
-        {
-          "path": "backend/src/agents/orchestrator/SpecializedLLMAgent.ts",
-          "type": "DEPENDENCY",
-          "description": "Base class to extend"
-        },
-        {
-          "path": "backend/utils/llm-helper.js",
-          "type": "DEPENDENCY",
-          "description": "For prompt management and LLM calls"
-        },
-        {
-          "path": "backend/src/agents/orchestrator/AnalyticalAgent.ts",
-          "type": "CREATE",
-          "description": "Analytical agent implementation"
-        }
-      ],
-      "implementationGuide": "Create backend/src/agents/orchestrator/AnalyticalAgent.ts that extends SpecializedLLMAgent:\\n\\n```typescript\\nclass AnalyticalAgent extends SpecializedLLMAgent {\\n  constructor() {\\n    super('AnalyticalAgent', 'analytical');\\n  }\\n  \\n  getSpecializedPrompt() {\\n    return this.llmHelper.getSystemPrompt('analyst', {\\n      agentType: 'analytical',\\n      specialization: 'data analysis and research'\\n    });\\n  }\\n  \\n  getCapabilities() {\\n    return {\\n      name: 'AnalyticalAgent',\\n      supportedModes: ['analysis', 'research', 'data'],\\n      features: ['logical_reasoning', 'pattern_analysis', 'research']\\n    };\\n  }\\n}\\n```\\n\\nUse llm-helper.js prompting system and follow existing agent patterns.",
-      "verificationCriteria": "Agent should extend SpecializedLLMAgent, provide analytical capabilities, use appropriate system prompts, and handle analytical tasks effectively. Should integrate with existing LLM helper patterns.",
-      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
-      "summary": "Successfully created the AnalyticalAgent that extends SpecializedLLMAgent and provides comprehensive analytical capabilities. The agent uses the 'analyst' prompt from llm-helper.js, includes enhanced task detection for different types of analytical work (data analysis, research, pattern recognition, etc.), provides detailed capabilities metadata, and integrates seamlessly with the existing LLM helper patterns. The implementation includes intelligent task classification and analysis approach detection to optimize analytical responses.",
-      "completedAt": "2025-06-19T22:59:48.093Z"
-    },
-    {
-      "id": "0f7d8bde-f26f-4118-b7fa-4a527db3adb2",
-      "name": "Create Creative Agent Implementation",
-      "description": "Create a specialized creative agent that focuses on creative writing, brainstorming, and innovative thinking tasks. This agent will use creative-focused prompts and integrate with the LLM helper system.",
-      "notes": "Ensure the agent excels at creative tasks like writing, brainstorming, and innovative problem-solving.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "6cd9570b-95c6-4216-824d-2447cd05914b"
-        }
-      ],
-      "createdAt": "2025-06-19T22:00:23.395Z",
-      "updatedAt": "2025-06-19T23:03:43.003Z",
-      "relatedFiles": [
-        {
-          "path": "backend/src/agents/orchestrator/SpecializedLLMAgent.ts",
-          "type": "DEPENDENCY",
-          "description": "Base class to extend"
-        },
-        {
-          "path": "backend/utils/llm-helper.js",
-          "type": "DEPENDENCY",
-          "description": "For prompt management and LLM calls"
-        },
-        {
-          "path": "backend/src/agents/orchestrator/CreativeAgent.ts",
-          "type": "CREATE",
-          "description": "Creative agent implementation"
-        }
-      ],
-      "implementationGuide": "Create backend/src/agents/orchestrator/CreativeAgent.ts that extends SpecializedLLMAgent:\\n\\n```typescript\\nclass CreativeAgent extends SpecializedLLMAgent {\\n  constructor() {\\n    super('CreativeAgent', 'creative');\\n  }\\n  \\n  getSpecializedPrompt() {\\n    return this.llmHelper.getSystemPrompt('creative', {\\n      agentType: 'creative',\\n      specialization: 'creative writing and innovation'\\n    });\\n  }\\n  \\n  getCapabilities() {\\n    return {\\n      name: 'CreativeAgent',\\n      supportedModes: ['creative', 'writing', 'brainstorming'],\\n      features: ['creative_writing', 'ideation', 'storytelling']\\n    };\\n  }\\n}\\n```\\n\\nFollow same patterns as AnalyticalAgent but focus on creative capabilities.",
-      "verificationCriteria": "Agent should extend SpecializedLLMAgent, provide creative capabilities, use appropriate creative prompts, and handle creative tasks effectively. Should follow same integration patterns as other agents.",
-      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
-      "summary": "Successfully created the CreativeAgent that extends SpecializedLLMAgent and provides comprehensive creative capabilities. The agent creates a custom creative prompt since no specific 'creative' prompt exists in llm-helper.js, includes intelligent task detection for different types of creative work (writing, brainstorming, storytelling, etc.), provides detailed capabilities metadata with 7 creative modes and 10 specialized features, and integrates seamlessly with the existing LLM helper patterns. The implementation includes creative task classification, approach detection, and inspiration level assessment to optimize creative responses.",
-      "completedAt": "2025-06-19T23:03:43.002Z"
-    },
-    {
-      "id": "4aadb6ad-fea7-4688-bdcf-f3009641cd72",
-      "name": "Create Technical Agent Implementation",
-      "description": "Create a specialized technical agent that focuses on coding, debugging, and technical problem-solving tasks. This agent will use technical-focused prompts and integrate with the LLM helper system.",
-      "notes": "This agent should excel at coding tasks, technical problem-solving, and debugging. Leverage existing technical prompts in the system.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "6cd9570b-95c6-4216-824d-2447cd05914b"
-        }
-      ],
-      "createdAt": "2025-06-19T22:00:23.395Z",
-      "updatedAt": "2025-06-19T23:05:42.996Z",
-      "relatedFiles": [
-        {
-          "path": "backend/src/agents/orchestrator/SpecializedLLMAgent.ts",
-          "type": "DEPENDENCY",
-          "description": "Base class to extend"
-        },
-        {
-          "path": "backend/utils/llm-helper.js",
-          "type": "DEPENDENCY",
-          "description": "For prompt management and LLM calls (use codeAssistant prompts)"
-        },
-        {
-          "path": "backend/src/agents/orchestrator/TechnicalAgent.ts",
-          "type": "CREATE",
-          "description": "Technical agent implementation"
-        }
-      ],
-      "implementationGuide": "Create backend/src/agents/orchestrator/TechnicalAgent.ts that extends SpecializedLLMAgent:\\n\\n```typescript\\nclass TechnicalAgent extends SpecializedLLMAgent {\\n  constructor() {\\n    super('TechnicalAgent', 'technical');\\n  }\\n  \\n  getSpecializedPrompt() {\\n    return this.llmHelper.getSystemPrompt('codeAssistant', {\\n      agentType: 'technical',\\n      specialization: 'coding and technical support'\\n    });\\n  }\\n  \\n  getCapabilities() {\\n    return {\\n      name: 'TechnicalAgent',\\n      supportedModes: ['coding', 'debugging', 'technical'],\\n      features: ['code_generation', 'debugging', 'technical_analysis']\\n    };\\n  }\\n}\\n```\\n\\nReuse existing codeAssistant prompts from llm-helper.js and focus on technical capabilities.",
-      "verificationCriteria": "Agent should extend SpecializedLLMAgent, provide technical capabilities, use appropriate technical prompts, and handle coding/debugging tasks effectively. Should integrate with existing technical prompt patterns.",
-      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
-      "summary": "Successfully created the TechnicalAgent that extends SpecializedLLMAgent and provides comprehensive technical capabilities. The agent uses the existing 'codeAssistant' prompt from llm-helper.js, includes intelligent task detection for different types of technical work (code generation, debugging, architecture design, etc.), programming language detection, complexity assessment, and technical domain identification. It supports 7 technical modes, 10 specialized features, and provides detailed metadata for orchestration including programming languages, technical domains, and optimal use cases.",
-      "completedAt": "2025-06-19T23:05:42.994Z"
-    },
-    {
-      "id": "890952a2-01db-4048-a0d1-dce528ae23f1",
-      "name": "Create Agent Factory for Orchestrator Agents",
-      "description": "Create a factory function that instantiates and configures all the specialized agents for the orchestrator. This factory will handle agent creation, validation, and initial setup while following existing factory patterns.",
-      "notes": "This factory ensures all agents are properly created and validated before registration. It should handle LLM configuration errors gracefully.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "cf62dfbd-6ec0-4acd-8887-e9c8f77048f0"
-        },
-        {
-          "taskId": "0f7d8bde-f26f-4118-b7fa-4a527db3adb2"
-        },
-        {
-          "taskId": "4aadb6ad-fea7-4688-bdcf-f3009641cd72"
-        }
-      ],
-      "createdAt": "2025-06-19T22:00:23.395Z",
-      "updatedAt": "2025-06-19T23:08:57.993Z",
-      "relatedFiles": [
-        {
-          "path": "backend/src/agents/orchestrator/AnalyticalAgent.ts",
-          "type": "DEPENDENCY",
-          "description": "Analytical agent to instantiate"
-        },
-        {
-          "path": "backend/src/agents/orchestrator/CreativeAgent.ts",
-          "type": "DEPENDENCY",
-          "description": "Creative agent to instantiate"
-        },
-        {
-          "path": "backend/src/agents/orchestrator/TechnicalAgent.ts",
-          "type": "DEPENDENCY",
-          "description": "Technical agent to instantiate"
-        },
-        {
-          "path": "backend/src/agents/AgentFactory.ts",
-          "type": "REFERENCE",
-          "description": "Reference for factory patterns"
-        },
-        {
-          "path": "backend/src/agents/orchestrator/AgentFactory.ts",
-          "type": "CREATE",
-          "description": "Factory for orchestrator agents"
-        }
-      ],
-      "implementationGuide": "Create backend/src/agents/orchestrator/AgentFactory.ts that creates and validates all specialized agents:\\n\\n```typescript\\nimport { AnalyticalAgent } from './AnalyticalAgent';\\nimport { CreativeAgent } from './CreativeAgent';\\nimport { TechnicalAgent } from './TechnicalAgent';\\n\\nexport class OrchestratorAgentFactory {\\n  static createAllAgents() {\\n    const agents = [\\n      new AnalyticalAgent(),\\n      new CreativeAgent(),\\n      new TechnicalAgent()\\n    ];\\n    \\n    // Validate each agent\\n    agents.forEach(agent => {\\n      const validation = agent.validateConfig();\\n      if (!validation.valid) {\\n        throw new Error(`Agent validation failed: ${validation.errors.join(', ')}`);\\n      }\\n    });\\n    \\n    return agents;\\n  }\\n}\\n```\\n\\nInclude proper error handling and validation following existing patterns.",
-      "verificationCriteria": "Factory should create all specialized agents successfully, validate their configurations, handle LLM setup errors gracefully, and return properly initialized agents ready for registration.",
-      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
-      "summary": "Successfully created OrchestratorAgentFactory with comprehensive agent creation, validation, and error handling. The factory follows existing patterns, includes LLM configuration validation, provides fallback mechanisms, and supports both batch and individual agent creation with proper logging and statistics tracking.",
-      "completedAt": "2025-06-19T23:08:57.993Z"
-    },
-    {
-      "id": "1ab5b343-239f-46bf-b56e-6117bdfe6447",
-      "name": "Integrate Agent Registration in Server Setup",
-      "description": "Modify the server.js orchestrator initialization to create and register the specialized LLM agents. This ensures the orchestrator path has actual LLM-powered agents available for processing requests.",
-      "notes": "This modification makes the orchestrator functional by providing actual LLM-powered agents. Error handling should gracefully degrade if LLM configuration is missing.",
-      "status": "completed",
-      "dependencies": [
-        {
-          "taskId": "890952a2-01db-4048-a0d1-dce528ae23f1"
-        }
-      ],
-      "createdAt": "2025-06-19T22:00:23.395Z",
-      "updatedAt": "2025-06-19T23:11:40.885Z",
+      "createdAt": "2025-06-24T16:34:03.911Z",
+      "updatedAt": "2025-06-24T16:36:50.114Z",
       "relatedFiles": [
         {
           "path": "backend/server.js",
           "type": "TO_MODIFY",
-          "description": "Server file to modify for agent registration",
-          "lineStart": 45,
-          "lineEnd": 70
-        },
-        {
-          "path": "backend/src/agents/orchestrator/AgentFactory.ts",
-          "type": "DEPENDENCY",
-          "description": "Factory to import and use"
-        },
-        {
-          "path": "backend/src/orchestrator/index.ts",
-          "type": "REFERENCE",
-          "description": "Orchestrator setup functions"
+          "description": "Main server file containing backend routing logic",
+          "lineStart": 32,
+          "lineEnd": 597
         }
       ],
-      "implementationGuide": "Modify backend/server.js in the Orch backend initialization section:\\n\\n```javascript\\n// Add import at top\\nconst { OrchestratorAgentFactory } = require('./dist/src/agents/orchestrator/AgentFactory');\\n\\n// Modify Orch initialization section (around line 47)\\nif (BACKEND === 'Orch') {\\n  try {\\n    orchestrationSetup = createOrchestrationSetup('development');\\n    backendIntegration = createBackendIntegration(orchestrationSetup.orchestrator, orchestrationSetup.middleware);\\n    \\n    // Create and register LLM-powered agents\\n    const agents = OrchestratorAgentFactory.createAllAgents();\\n    agents.forEach(agent => {\\n      orchestrationSetup.orchestrator.registerAgent(agent);\\n      console.log(`[Orchestrator] Registered ${agent.getInfo().name}`);\\n    });\\n    \\n    // Initialize backend integration\\n    await backendIntegration.initialize({ agentZero, agents });\\n    console.log(`[Orchestrator] Initialized with ${agents.length} LLM agents`);\\n  } catch (error) {\\n    console.error('[Orchestrator] Failed to initialize:', error);\\n  }\\n}\\n```\\n\\nEnsure proper error handling and logging.",
-      "verificationCriteria": "Server should successfully create and register all specialized agents when BACKEND=Orch, log registration confirmation, handle LLM configuration errors gracefully, and provide agents to the orchestrator for request processing.",
-      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
-      "summary": "Successfully integrated agent registration in server.js orchestrator initialization. Added OrchestratorAgentFactory import, implemented comprehensive agent creation with fallback handling, registered all specialized agents with detailed logging, and gracefully handled LLM configuration errors while maintaining backward compatibility with existing AgentZero integration.",
-      "completedAt": "2025-06-19T23:11:40.883Z"
+      "implementationGuide": "1. Remove AgentZero import and initialization (lines 19, 33-40)\\n2. Remove 'Lang' case from chat routing switch statement (lines 244-273)\\n3. Remove 'Lang' case from /api/chats endpoint (lines 390-417)\\n4. Remove 'Lang' case from /api/chats/{id}/history endpoint (lines 459-497)\\n5. Remove 'Lang' case from getBackendMode() function (lines 125-127)\\n6. Change default BACKEND from 'n8n' to 'Orch' (line 32)\\n7. Remove AgentZero startup logging (lines 567-581)",
+      "verificationCriteria": "Server starts successfully with BACKEND='Orch' as default. No AgentZero direct routing remains. All API endpoints still respond correctly through orchestration.",
+      "analysisResult": "Remove AgentZero workflows from ChatSG backend system to streamline architecture. The system currently has multiple backend routing paths including 'Lang' (AgentZero direct) and legacy AgentZero integration within orchestration. The goal is to eliminate AgentZero-specific paths and route all requests directly through the agent orchestration system for better consistency and maintainability. The orchestration system already contains GenericBackendWrapper infrastructure to handle n8n and Generic backends, making this transition seamless while improving performance and scalability.",
+      "summary": "Successfully removed all AgentZero direct backend mode functionality from server.js. Eliminated AgentZero imports, initialization code, and all Lang routing cases from chat endpoints, session management, and startup logging. Changed default BACKEND from 'n8n' to 'Orch' to make orchestration the primary backend mode. Server syntax validation confirms clean implementation with no AgentZero references remaining. The orchestration system is now positioned as the default entry point for all chat requests, providing better agent selection and routing capabilities.",
+      "completedAt": "2025-06-24T16:36:50.112Z"
     },
     {
-      "id": "eab135e6-4767-45e3-b64c-8a66f556948a",
-      "name": "Add Agent Selection Strategy for Specialized Agents",
-      "description": "Enhance the orchestrator's agent selection strategy to properly route requests to the appropriate specialized agent (analytical, creative, or technical) based on the user input content and context.",
-      "notes": "This ensures requests are routed to the most appropriate specialized agent based on content analysis, improving response quality and user experience.",
+      "id": "6cd0f5a0-a566-439c-8b2c-c2917adfb648",
+      "name": "Remove AgentZero Integration from Orchestration",
+      "description": "Clean up AgentZero-specific integration code from the orchestration system, including the LegacyAgentZeroWrapper class and AgentZero registration logic in BackendIntegrationManager. Update the initialization to work without AgentZero while maintaining n8n and Generic backend support.",
+      "notes": "This maintains the GenericBackendWrapper functionality for n8n and Generic backends while removing AgentZero-specific code. The orchestration system will use its built-in agent selection instead.",
       "status": "completed",
       "dependencies": [
         {
-          "taskId": "1ab5b343-239f-46bf-b56e-6117bdfe6447"
+          "taskId": "101bc0c5-0657-4d9e-aace-52cf234a1f73"
         }
       ],
-      "createdAt": "2025-06-19T22:00:23.395Z",
-      "updatedAt": "2025-06-19T23:15:28.339Z",
+      "createdAt": "2025-06-24T16:34:03.911Z",
+      "updatedAt": "2025-06-24T17:06:41.986Z",
       "relatedFiles": [
         {
-          "path": "backend/src/orchestrator/AgentOrchestrator.ts",
+          "path": "backend/src/orchestrator/BackendIntegration.ts",
           "type": "TO_MODIFY",
-          "description": "Orchestrator to enhance with better routing",
-          "lineStart": 336,
-          "lineEnd": 400
+          "description": "Backend integration layer with AgentZero wrapper",
+          "lineStart": 15,
+          "lineEnd": 402
         },
         {
-          "path": "backend/src/types/index.ts",
-          "type": "REFERENCE",
-          "description": "Type definitions for orchestration"
+          "path": "backend/server.js",
+          "type": "TO_MODIFY",
+          "description": "Server orchestration initialization code",
+          "lineStart": 88,
+          "lineEnd": 105
         }
       ],
-      "implementationGuide": "Modify backend/src/orchestrator/AgentOrchestrator.ts to improve the capability-based strategy for specialized agents:\\n\\n```typescript\\n// In initializeStrategies() method, enhance capability-based strategy\\nprivate initializeStrategies(): void {\\n  // Enhanced capability-based strategy for specialized agents\\n  this.strategies.set('capability-based', {\\n    async selectAgent(context: OrchestrationContext, agents: Map<string, BaseAgent>): Promise<AgentSelection> {\\n      const input = context.userInput.toLowerCase();\\n      \\n      // Route to specialized agents based on content\\n      if (input.includes('analyze') || input.includes('data') || input.includes('research')) {\\n        if (agents.has('AnalyticalAgent')) {\\n          return { selectedAgent: 'AnalyticalAgent', confidence: 0.9, reason: 'Analytical task detected' };\\n        }\\n      }\\n      \\n      if (input.includes('create') || input.includes('write') || input.includes('story')) {\\n        if (agents.has('CreativeAgent')) {\\n          return { selectedAgent: 'CreativeAgent', confidence: 0.9, reason: 'Creative task detected' };\\n        }\\n      }\\n      \\n      if (input.includes('code') || input.includes('debug') || input.includes('programming')) {\\n        if (agents.has('TechnicalAgent')) {\\n          return { selectedAgent: 'TechnicalAgent', confidence: 0.9, reason: 'Technical task detected' };\\n        }\\n      }\\n      \\n      // Fallback to first available agent\\n      const firstAgent = Array.from(agents.keys())[0];\\n      return { selectedAgent: firstAgent, confidence: 0.5, reason: 'Default selection' };\\n    }\\n  });\\n}\\n```\\n\\nImprove routing logic based on input analysis.",
-      "verificationCriteria": "Orchestrator should correctly route analytical requests to AnalyticalAgent, creative requests to CreativeAgent, technical requests to TechnicalAgent, and provide appropriate fallback behavior. Selection confidence should reflect routing accuracy.",
-      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
-      "summary": "Successfully enhanced the orchestrator's agent selection strategy with specialized routing logic. Added comprehensive content analysis that routes analytical, creative, and technical requests to appropriate specialized agents with confidence scoring and intelligent fallback behavior. The system now properly identifies task types and selects the most suitable agent based on keyword patterns and scoring algorithms.",
-      "completedAt": "2025-06-19T23:15:28.337Z"
+      "implementationGuide": "1. Remove LegacyAgentZeroWrapper class from BackendIntegration.ts (lines 15-113)\\n2. Remove agentZero parameter from BackendIntegrationManager.initialize() method signature (line 202)\\n3. Remove AgentZero registration logic (lines 210-217)\\n4. Remove 'lang' handler from createBackendHandlers function (line 400)\\n5. Update server.js orchestration initialization to not pass agentZero parameter (lines 88-95)\\n6. Update interface documentation to reflect n8n and Generic as the supported backends",
+      "verificationCriteria": "Orchestration initializes successfully without AgentZero. n8n and Generic backends still work through GenericBackendWrapper. No AgentZero references remain in orchestration code.",
+      "analysisResult": "Remove AgentZero workflows from ChatSG backend system to streamline architecture. The system currently has multiple backend routing paths including 'Lang' (AgentZero direct) and legacy AgentZero integration within orchestration. The goal is to eliminate AgentZero-specific paths and route all requests directly through the agent orchestration system for better consistency and maintainability. The orchestration system already contains GenericBackendWrapper infrastructure to handle n8n and Generic backends, making this transition seamless while improving performance and scalability.",
+      "summary": "Successfully removed all AgentZero integration code from the orchestration system. Eliminated LegacyAgentZeroWrapper class, updated BackendIntegrationManager.initialize() to remove agentZero parameter, removed AgentZero registration logic, removed 'lang' handler from createBackendHandlers, and updated AgentOrchestrator fallback logic to remove AgentZero preference. The orchestration system now cleanly supports only n8n and Generic backends through the GenericBackendWrapper, with server.js syntax validation confirming successful implementation.",
+      "completedAt": "2025-06-24T17:06:41.985Z"
     },
     {
-      "id": "c63ed263-7e52-4f7d-a862-0064fe608df1",
-      "name": "Test and Validate Orchestrator LLM Integration",
-      "description": "Create comprehensive tests to validate that the orchestrator path works with actual LLM calls, supports provider switching, and handles different agent types correctly. Ensure the integration works in both development and production modes.",
-      "notes": "This validates the complete integration works correctly and provides confidence that the orchestrator path is functional with real LLM calls.",
+      "id": "1515d949-5ce3-4736-a170-8de730734c00",
+      "name": "Remove AgentZero Wrapper Files",
+      "description": "Delete the AgentZero-specific wrapper files and clean up any remaining AgentZero references in the agent system. Update the legacy wrapper to remove AgentZero creation methods while preserving other compatibility functions.",
+      "notes": "This removes the AgentZero-specific wrapper infrastructure while preserving the general legacy compatibility system for other agents like AgentRouter.",
       "status": "completed",
       "dependencies": [
         {
-          "taskId": "eab135e6-4767-45e3-b64c-8a66f556948a"
+          "taskId": "6cd0f5a0-a566-439c-8b2c-c2917adfb648"
         }
       ],
-      "createdAt": "2025-06-19T22:00:23.395Z",
-      "updatedAt": "2025-06-19T23:20:32.949Z",
+      "createdAt": "2025-06-24T16:34:03.911Z",
+      "updatedAt": "2025-06-24T17:11:04.947Z",
       "relatedFiles": [
         {
-          "path": "backend/tests/test-orchestrator-llm-integration.js",
-          "type": "CREATE",
-          "description": "Integration test file"
-        },
-        {
-          "path": "backend/src/orchestrator/index.ts",
-          "type": "DEPENDENCY",
-          "description": "Orchestrator setup functions to test"
-        },
-        {
-          "path": "backend/src/agents/orchestrator/AgentFactory.ts",
-          "type": "DEPENDENCY",
-          "description": "Factory to test"
-        },
-        {
-          "path": "backend/tests/run-tests.js",
+          "path": "backend/src/agents/wrappers/AgentZeroWrapper.ts",
           "type": "TO_MODIFY",
-          "description": "Add new test to test runner"
+          "description": "AgentZero wrapper file to be deleted",
+          "lineStart": 1,
+          "lineEnd": 236
+        },
+        {
+          "path": "backend/src/agents/wrappers/LegacyAgentWrapper.ts",
+          "type": "TO_MODIFY",
+          "description": "Legacy wrapper with AgentZero methods to remove",
+          "lineStart": 27,
+          "lineEnd": 305
         }
       ],
-      "implementationGuide": "Create backend/tests/test-orchestrator-llm-integration.js to test the complete orchestrator LLM integration:\\n\\n```javascript\\nconst { createOrchestrationSetup } = require('../dist/src/orchestrator');\\nconst { OrchestratorAgentFactory } = require('../dist/src/agents/orchestrator/AgentFactory');\\n\\nasync function testOrchestratorLLMIntegration() {\\n  console.log('=== Orchestrator LLM Integration Tests ===');\\n  \\n  // Test 1: Agent Creation with LLM Helper\\n  const agents = OrchestratorAgentFactory.createAllAgents();\\n  console.log(`✅ Created ${agents.length} specialized agents`);\\n  \\n  // Test 2: Orchestrator Setup with Agent Registration\\n  const setup = createOrchestrationSetup('development');\\n  agents.forEach(agent => setup.orchestrator.registerAgent(agent));\\n  console.log(`✅ Registered agents with orchestrator`);\\n  \\n  // Test 3: Agent Selection for Different Request Types\\n  const testRequests = [\\n    { message: 'Analyze this data', expectedAgent: 'AnalyticalAgent' },\\n    { message: 'Write a creative story', expectedAgent: 'CreativeAgent' },\\n    { message: 'Debug this code', expectedAgent: 'TechnicalAgent' }\\n  ];\\n  \\n  for (const test of testRequests) {\\n    const selection = await setup.orchestrator.selectAgent(test.message, {\\n      sessionId: 'test', userInput: test.message, availableAgents: ['AnalyticalAgent', 'CreativeAgent', 'TechnicalAgent']\\n    });\\n    console.log(`✅ ${test.message} → ${selection.selectedAgent} (expected: ${test.expectedAgent})`);\\n  }\\n  \\n  console.log('✅ All orchestrator LLM integration tests passed');\\n}\\n```\\n\\nInclude tests for LLM provider detection and error handling.",
-      "verificationCriteria": "Tests should validate agent creation, orchestrator registration, agent selection accuracy, LLM provider detection, error handling for missing credentials, and end-to-end message processing with actual LLM calls.",
-      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
-      "summary": "Successfully created comprehensive orchestrator LLM integration tests that validate agent creation, orchestrator setup, agent selection, provider detection, and error handling. Both full LLM integration tests (requiring credentials) and basic integration tests (credential-free) were implemented. The tests confirm the orchestrator path is properly wired with actual LLM capabilities and ready for production use with proper API credentials.",
-      "completedAt": "2025-06-19T23:20:32.949Z"
+      "implementationGuide": "1. Delete backend/src/agents/wrappers/AgentZeroWrapper.ts file\\n2. Remove AgentZero creation methods from LegacyAgentWrapper.ts (lines 27-130)\\n3. Remove AgentZero references from createLegacyExports method (lines 234-243)\\n4. Update LegacyAgentWrapper to focus on AgentRouter compatibility only\\n5. Remove AgentZero from agent factory registration if present\\n6. Update wrapper index files to remove AgentZero exports",
+      "verificationCriteria": "AgentZeroWrapper.ts is deleted. LegacyAgentWrapper.ts no longer contains AgentZero creation methods. No broken imports or references remain.",
+      "analysisResult": "Remove AgentZero workflows from ChatSG backend system to streamline architecture. The system currently has multiple backend routing paths including 'Lang' (AgentZero direct) and legacy AgentZero integration within orchestration. The goal is to eliminate AgentZero-specific paths and route all requests directly through the agent orchestration system for better consistency and maintainability. The orchestration system already contains GenericBackendWrapper infrastructure to handle n8n and Generic backends, making this transition seamless while improving performance and scalability.",
+      "summary": "Successfully removed all AgentZero wrapper files and references from the agent system. Deleted AgentZeroWrapper.ts file completely, updated LegacyAgentWrapper.ts to remove AgentZero creation methods and replace them with error messages directing users to orchestration, removed AgentZero from AgentFactory and AgentRegistry registration systems, and updated all export statements and documentation to reflect AgentZero removal. The system now cleanly focuses on AgentRouter compatibility while completely eliminating AgentZero workflow support, with server syntax validation confirming successful implementation.",
+      "completedAt": "2025-06-24T17:11:04.945Z"
+    },
+    {
+      "id": "d1d04539-1b6a-4851-b4f8-76698eac2c4e",
+      "name": "Clean Up AgentZero Legacy Files",
+      "description": "Remove or update the legacy AgentZero files in the backend/agent/ directory. Since these files now contain only compatibility shims, clean them up and remove unnecessary dependencies.",
+      "notes": "These files were part of the legacy compatibility system. With AgentZero workflows removed, they are no longer needed. The orchestration system provides all necessary agent functionality.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "1515d949-5ce3-4736-a170-8de730734c00"
+        }
+      ],
+      "createdAt": "2025-06-24T16:34:03.911Z",
+      "updatedAt": "2025-06-24T17:20:51.497Z",
+      "relatedFiles": [
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "TO_MODIFY",
+          "description": "AgentZero compatibility shim to be deleted",
+          "lineStart": 1,
+          "lineEnd": 17
+        },
+        {
+          "path": "backend/agent/AgentZero/package.json",
+          "type": "TO_MODIFY",
+          "description": "AgentZero package dependencies to be removed",
+          "lineStart": 1,
+          "lineEnd": 14
+        },
+        {
+          "path": "backend/agent/AgentZero/agent-original.js",
+          "type": "TO_MODIFY",
+          "description": "Original AgentZero backup file to be deleted"
+        },
+        {
+          "path": "backend/agent/AgentZero/agent-legacy.js",
+          "type": "TO_MODIFY",
+          "description": "Legacy AgentZero backup file to be deleted"
+        }
+      ],
+      "implementationGuide": "1. Delete backend/agent/AgentZero/agent.js (compatibility shim no longer needed)\\n2. Delete backend/agent/AgentZero/agent-original.js (backup file)\\n3. Delete backend/agent/AgentZero/agent-legacy.js (legacy backup)\\n4. Remove backend/agent/AgentZero/package.json (AgentZero dependencies)\\n5. Update any remaining imports that reference these files\\n6. Clean up the agent directory structure",
+      "verificationCriteria": "All AgentZero files are removed from backend/agent/ directory. No broken imports remain. Directory structure is clean.",
+      "analysisResult": "Remove AgentZero workflows from ChatSG backend system to streamline architecture. The system currently has multiple backend routing paths including 'Lang' (AgentZero direct) and legacy AgentZero integration within orchestration. The goal is to eliminate AgentZero-specific paths and route all requests directly through the agent orchestration system for better consistency and maintainability. The orchestration system already contains GenericBackendWrapper infrastructure to handle n8n and Generic backends, making this transition seamless while improving performance and scalability.",
+      "summary": "Successfully cleaned up all AgentZero legacy files and updated references. Removed backend/agent/AgentZero/ directory completely including agent.js, agent-original.js, agent-legacy.js, package.json, and llm-config.json. Updated test files to reflect AgentZero removal, removing AgentZero-specific tests and updating integration tests. Updated LegacyAgentWrapper.ts to handle AgentZero removal with appropriate error messages. Directory structure is clean with no broken imports remaining. Server syntax validation confirmed successful implementation.",
+      "completedAt": "2025-06-24T17:20:51.497Z"
+    },
+    {
+      "id": "b56a4c5e-3252-4c53-97f4-03048908c948",
+      "name": "Update Configuration and Documentation",
+      "description": "Update environment configuration files and documentation to reflect the new orchestration-first architecture. Remove AgentZero references and update examples to show orchestration as the primary backend mode.",
+      "notes": "This ensures that new developers understand the orchestration-first architecture and don't attempt to use the removed AgentZero workflows.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "d1d04539-1b6a-4851-b4f8-76698eac2c4e"
+        }
+      ],
+      "createdAt": "2025-06-24T16:34:03.911Z",
+      "updatedAt": "2025-06-24T17:26:10.801Z",
+      "relatedFiles": [
+        {
+          "path": "backend/env-example.txt",
+          "type": "TO_MODIFY",
+          "description": "Environment configuration example",
+          "lineStart": 1,
+          "lineEnd": 59
+        },
+        {
+          "path": "shrimp-rules.md",
+          "type": "TO_MODIFY",
+          "description": "Project standards and guidelines",
+          "lineStart": 80,
+          "lineEnd": 140
+        },
+        {
+          "path": "docs/AGENT_DEVELOPMENT_GUIDE.md",
+          "type": "REFERENCE",
+          "description": "Agent development documentation to review for AgentZero references"
+        }
+      ],
+      "implementationGuide": "1. Update backend/env-example.txt to set BACKEND=Orch as default instead of Generic\\n2. Remove BACKEND=Lang option and related documentation\\n3. Update backend mode descriptions to reflect orchestration as primary\\n4. Update shrimp-rules.md to document orchestration as the main backend\\n5. Remove AgentZero sections from documentation\\n6. Add note about n8n and Generic working through orchestration\\n7. Update any README files that reference AgentZero workflows",
+      "verificationCriteria": "Environment examples default to orchestration. Documentation accurately reflects the new architecture. No outdated AgentZero references remain in guides.",
+      "analysisResult": "Remove AgentZero workflows from ChatSG backend system to streamline architecture. The system currently has multiple backend routing paths including 'Lang' (AgentZero direct) and legacy AgentZero integration within orchestration. The goal is to eliminate AgentZero-specific paths and route all requests directly through the agent orchestration system for better consistency and maintainability. The orchestration system already contains GenericBackendWrapper infrastructure to handle n8n and Generic backends, making this transition seamless while improving performance and scalability.",
+      "summary": "Successfully updated configuration and documentation to reflect orchestration-first architecture. Updated env-example.txt to default to BACKEND=Orch with clear descriptions of orchestration benefits. Updated shrimp-rules.md to document orchestration as primary backend with intelligent agent selection. Removed AgentZero/Lang mode references from all configuration examples. Updated backend mode descriptions to emphasize orchestration handling n8n and Generic backends. Added important notice to MIGRATION_GUIDE.md about AgentZero removal. Updated TESTS_README.md to reflect current backend modes and remove AgentZero test references. All documentation now accurately reflects the new orchestration-first architecture.",
+      "completedAt": "2025-06-24T17:26:10.801Z"
+    },
+    {
+      "id": "92a08821-9510-4170-9bef-035be542bbd2",
+      "name": "Verify Orchestration Default Behavior",
+      "description": "Test and validate that the orchestration system works correctly as the default backend mode. Ensure all existing functionality is preserved through the orchestration layer, including n8n webhook integration and generic simulation mode.",
+      "notes": "This comprehensive testing ensures that removing AgentZero workflows doesn't break any existing functionality and that orchestration provides equivalent or better capabilities.",
+      "status": "in_progress",
+      "dependencies": [
+        {
+          "taskId": "b56a4c5e-3252-4c53-97f4-03048908c948"
+        }
+      ],
+      "createdAt": "2025-06-24T16:34:03.911Z",
+      "updatedAt": "2025-06-24T17:26:55.789Z",
+      "relatedFiles": [
+        {
+          "path": "backend/tests/test-orchestrator.js",
+          "type": "REFERENCE",
+          "description": "Orchestration test suite",
+          "lineStart": 129,
+          "lineEnd": 230
+        },
+        {
+          "path": "backend/tests/test-all-backends.js",
+          "type": "REFERENCE",
+          "description": "Backend integration tests"
+        },
+        {
+          "path": "frontend/src/api/chat.ts",
+          "type": "REFERENCE",
+          "description": "Frontend API integration to verify"
+        }
+      ],
+      "implementationGuide": "1. Test server startup with default BACKEND=Orch configuration\\n2. Verify /api/chat endpoint works with orchestration\\n3. Test agent selection algorithms with different input types\\n4. Verify n8n backend integration through GenericBackendWrapper\\n5. Test Generic simulation mode through orchestration\\n6. Validate session management and chat history endpoints\\n7. Run existing test suite to ensure no regressions\\n8. Test frontend integration to ensure no breaking changes",
+      "verificationCriteria": "All tests pass with orchestration as default. Frontend works without changes. n8n and Generic backends function correctly through orchestration. Agent selection works for different input types. No functionality regressions detected.",
+      "analysisResult": "Remove AgentZero workflows from ChatSG backend system to streamline architecture. The system currently has multiple backend routing paths including 'Lang' (AgentZero direct) and legacy AgentZero integration within orchestration. The goal is to eliminate AgentZero-specific paths and route all requests directly through the agent orchestration system for better consistency and maintainability. The orchestration system already contains GenericBackendWrapper infrastructure to handle n8n and Generic backends, making this transition seamless while improving performance and scalability."
     }
   ]
 }

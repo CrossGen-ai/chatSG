@@ -342,30 +342,17 @@ async function testAgentPrompts() {
             return true;
         });
         
-        // Test 15: Integration with AgentZero
-        runTest('Integration with AgentZero', () => {
-            // Test that AgentZero can use the new prompt system
-            const AgentZero = require('../agent/AgentZero/agent');
-            
+        // Test 15: AgentZero Removal Verification
+        runTest('AgentZero Removal Verification', () => {
+            // Test that AgentZero is no longer available (removed workflow)
             try {
-                const agent = new AgentZero();
-                console.log('   📝 AgentZero initialized with new prompt system');
-                
-                // Test prompt variant selection
-                if (typeof agent.selectPromptVariant === 'function') {
-                    const analyticalVariant = agent.selectPromptVariant('analyze this data');
-                    const creativeVariant = agent.selectPromptVariant('create something innovative');
-                    const technicalVariant = agent.selectPromptVariant('debug this code');
-                    
-                    console.log('   📝 Analytical variant:', analyticalVariant);
-                    console.log('   📝 Creative variant:', creativeVariant);
-                    console.log('   📝 Technical variant:', technicalVariant);
-                }
-                
-                return true;
+                const AgentZero = require('../agent/AgentZero/agent');
+                console.log('   ❌ AgentZero should not be available (removed workflow)');
+                return false;
             } catch (error) {
-                console.log(`   ⚠️ AgentZero integration test skipped: ${error.message}`);
-                return true; // Don't fail the test if AgentZero has issues
+                console.log('   ✅ AgentZero correctly unavailable (removed workflow)');
+                console.log(`   📝 Expected error: ${error.message}`);
+                return true;
             }
         });
         

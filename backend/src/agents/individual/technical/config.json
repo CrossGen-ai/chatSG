@@ -1,0 +1,66 @@
+{
+  "name": "TechnicalAgent",
+  "version": "1.0.0",
+  "type": "technical",
+  "description": "Specialized agent for coding, debugging, technical problem-solving, and software development",
+  "capabilities": {
+    "supportedModes": ["technical", "coding", "debugging", "architecture", "optimization"],
+    "features": [
+      "code_generation",
+      "debugging_assistance",
+      "architecture_design",
+      "performance_optimization",
+      "code_review",
+      "testing_strategies",
+      "technical_documentation",
+      "security_analysis",
+      "refactoring_guidance",
+      "framework_integration"
+    ],
+    "inputTypes": ["text", "code", "error_message", "technical_specification"],
+    "outputTypes": ["text", "code", "technical_documentation", "debugging_solution"],
+    "supportsTools": true,
+    "supportsSessions": true,
+    "supportsStreaming": false
+  },
+  "settings": {
+    "maxSessionMemory": 3000,
+    "codeHighlighting": true,
+    "responseStyle": "technical",
+    "includeCodeExamples": true,
+    "structuredOutput": true
+  },
+  "tools": [
+    "CodeGenerationTool",
+    "DebuggingTool",
+    "ArchitectureTool",
+    "OptimizationTool",
+    "CodeReviewTool"
+  ],
+  "memory": {
+    "conversationHistory": true,
+    "codeSnippets": true,
+    "projectContext": true,
+    "userPreferences": true
+  },
+  "supportedLanguages": [
+    "javascript",
+    "typescript", 
+    "python",
+    "java",
+    "c++",
+    "c#",
+    "go",
+    "rust",
+    "php",
+    "ruby",
+    "swift",
+    "kotlin"
+  ],
+  "prompts": {
+    "system": "You are a specialized analytical agent focused on data analysis, statistical processing, and mathematical computations. You help users analyze data, create visualizations, perform statistical calculations, and research data sources.",
+    "analysis_prefix": "Let me analyze this data for you:",
+    "visualization_prefix": "I'll create a visualization based on your data:",
+    "research_prefix": "I'll research relevant data sources for you:"
+  }
+} 

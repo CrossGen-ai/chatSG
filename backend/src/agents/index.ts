@@ -5,20 +5,21 @@
  * Provides a clean API for importing agent functionality.
  */
 
-// Core interfaces and types
-export * from './BaseAgent';
+// Core interfaces and types (now from core/)
+export * from './core/BaseAgent';
 
-// Registry and factory
-export { AgentRegistry } from './AgentRegistry';
-export { AgentFactory } from './AgentFactory';
+// Registry and factory (now from core/)
+export { AgentRegistry } from './core/AgentRegistry';
+export { AgentFactory } from './core/AgentFactory';
 
-// Wrapper classes
-export { AgentZeroWrapper } from './wrappers/AgentZeroWrapper';
-export { AgentRouterWrapper } from './wrappers/AgentRouterWrapper';
+// Re-export all core components for convenience
+export * from './core';
+
+// Wrapper classes removed - orchestration system works independently
 
 // Import for internal use
-import { AgentRegistry } from './AgentRegistry';
-import { AgentFactory } from './AgentFactory';
+import { AgentRegistry } from './core/AgentRegistry';
+import { AgentFactory } from './core/AgentFactory';
 
 // Convenience functions
 export const getAgentRegistry = () => AgentRegistry.getInstance();

@@ -11,7 +11,7 @@ This directory contains all test files for the ChatSG backend system.
 - **`test-all-backends.js`** - Comprehensive test for all backend routing modes
 
 ### Agent Tests
-- **`test-agent-zero.js`** - Tests LangGraph AgentZero functionality (requires LLM credentials)
+- **`test-agent-router.js`** - Tests AgentRouter classification functionality
 
 ### Test Runner
 - **`run-tests.js`** - Automated test runner for all tests
@@ -38,7 +38,7 @@ cd backend/tests
 node test-env.js
 node test-llm-helper.js
 node test-all-backends.js
-node test-agent-zero.js
+node test-agent-router.js
 ```
 
 ### NPM Test Scripts
@@ -48,7 +48,7 @@ npm test              # Run all tests
 npm run test:env      # Environment variables test
 npm run test:llm      # LLM helper test
 npm run test:backend  # Backend routing tests
-npm run test:agent    # AgentZero test
+npm run test:agent    # AgentRouter test
 ```
 
 ## Test Requirements
@@ -64,11 +64,11 @@ npm run test:agent    # AgentZero test
 
 ### Backend Routing Tests
 - Requires backend server to be running: `cd backend && node server.js`
-- Tests all three backend modes: Generic, n8n, Lang
+- Tests backend modes: Orch (orchestration), n8n, Generic
 
-### AgentZero Test
-- Requires LLM credentials in `.env` file (OpenAI or Azure OpenAI)
-- Uses LLM helper utility for provider configuration
+### AgentRouter Test
+- No special requirements
+- Tests AgentRouter classification functionality
 
 ## LLM Configuration
 
@@ -100,20 +100,20 @@ LLM_MAX_TOKENS=3000      # Max response tokens, defaults based on environment
 
 ## Backend Modes
 
-The tests verify three different backend routing modes:
+The tests verify backend routing modes:
 
-1. **Generic Mode** (`BACKEND=Generic`)
+1. **Orchestration Mode** (`BACKEND=Orch`) - **RECOMMENDED**
+   - Intelligent agent selection and routing
+   - Handles other backends through orchestration
+   - Best performance and scalability
+
+2. **Generic Mode** (`BACKEND=Generic`)
    - Simulated responses for development
    - No external dependencies required
 
-2. **n8n Mode** (`BACKEND=n8n`)
+3. **n8n Mode** (`BACKEND=n8n`)
    - Forwards requests to webhook
    - Requires `WEBHOOK_URL` in .env
-
-3. **Lang Mode** (`BACKEND=Lang`)
-   - Uses LangGraph AgentZero with LLM helper
-   - Automatically detects and configures LLM provider
-   - Supports both OpenAI and Azure OpenAI
 
 ## Test Output
 
@@ -122,7 +122,7 @@ Tests provide detailed output including:
 - 📥 Response messages
 - 🔧 Backend mode identification
 - 📊 Response metadata
-- 🔗 Session information (for AgentZero)
+- 🔗 Session information (for orchestration)
 - 🤖 LLM provider and model information
 
 ## Troubleshooting
@@ -146,18 +146,11 @@ If environment tests show `undefined` values:
    ```
 
 ### LLM Configuration Issues
-If LLM helper or AgentZero tests fail:
+If LLM helper or AgentRouter tests fail:
 1. **For OpenAI**: Add `OPENAI_API_KEY` to .env file
 2. **For Azure OpenAI**: Add `AZURE_OPENAI_API_KEY` and `AZURE_OPENAI_ENDPOINT` to .env file
 3. **Provider Detection**: LLM helper automatically chooses provider based on available credentials
 4. **Validation**: Run `npm run test:llm` to check configuration
-
-### AgentZero Initialization Fails
-If AgentZero tests fail:
-1. Verify LLM credentials using `npm run test:llm`
-2. Check network connectivity to LLM endpoint
-3. Ensure LangChain dependencies are installed: `npm install`
-4. Review server logs for detailed error messages
 
 ## Environment-Based Behavior
 

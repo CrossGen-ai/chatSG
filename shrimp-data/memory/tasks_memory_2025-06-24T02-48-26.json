@@ -1,0 +1,313 @@
+{
+  "tasks": [
+    {
+      "id": "6cd9570b-95c6-4216-824d-2447cd05914b",
+      "name": "Create Specialized LLM Agent Base Class",
+      "description": "Create a base class for specialized LLM-powered agents that use the existing llm-helper.js pattern. This class will serve as the foundation for different agent types (analytical, creative, technical) and provide common LLM interaction functionality following the same patterns as AgentZero.",
+      "notes": "This provides the foundation for all specialized agents and ensures consistent LLM integration patterns across the orchestrator system.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-06-19T22:00:23.395Z",
+      "updatedAt": "2025-06-19T22:03:07.897Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/agents/BaseAgent.ts",
+          "type": "REFERENCE",
+          "description": "Base interface to extend"
+        },
+        {
+          "path": "backend/utils/llm-helper.js",
+          "type": "DEPENDENCY",
+          "description": "LLM helper for provider abstraction"
+        },
+        {
+          "path": "backend/agent/AgentZero/agent.js",
+          "type": "REFERENCE",
+          "description": "Reference implementation for LLM integration patterns"
+        },
+        {
+          "path": "backend/src/agents/orchestrator/SpecializedLLMAgent.ts",
+          "type": "CREATE",
+          "description": "New base class for orchestrator agents"
+        }
+      ],
+      "implementationGuide": "Create backend/src/agents/orchestrator/SpecializedLLMAgent.ts that extends AbstractBaseAgent and integrates with llm-helper.js:\\n\\n```typescript\\nimport { getLLMHelper } from '../../../utils/llm-helper';\\nimport { AbstractBaseAgent } from '../BaseAgent';\\n\\nclass SpecializedLLMAgent extends AbstractBaseAgent {\\n  constructor(agentType: string, specialization: string) {\\n    super(agentType, '1.0.0', `Specialized ${specialization} agent`, 'orchestrator');\\n    this.llmHelper = getLLMHelper();\\n    this.llm = this.llmHelper.createChatLLM();\\n    this.specialization = specialization;\\n  }\\n  \\n  async processMessage(input: string, sessionId: string) {\\n    const systemPrompt = this.getSpecializedPrompt();\\n    // Use same LLM call pattern as AgentZero\\n    const messages = [systemMessage, humanMessage];\\n    const response = await this.llm.invoke(messages);\\n    return this.formatResponse(response, sessionId);\\n  }\\n}\\n```\\n\\nReuse existing patterns from AgentZero and llm-helper.js for consistency.",
+      "verificationCriteria": "Base class should extend AbstractBaseAgent, integrate with llm-helper.js, support Azure/OpenAI provider switching, and provide specialized prompt methods. Agent should process messages and return responses in the same format as other agents.",
+      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
+      "summary": "Successfully created the SpecializedLLMAgent base class that extends AbstractBaseAgent and integrates with the llm-helper.js system. The class follows the same patterns as AgentZero for LLM integration, supports Azure/OpenAI provider switching, provides specialized prompt methods, session management, and proper error handling. The TypeScript code compiles without errors and provides the foundation for all orchestrator agents.",
+      "completedAt": "2025-06-19T22:03:07.896Z"
+    },
+    {
+      "id": "cf62dfbd-6ec0-4acd-8887-e9c8f77048f0",
+      "name": "Create Analytical Agent Implementation",
+      "description": "Create a specialized analytical agent that focuses on data analysis, research, and logical reasoning tasks. This agent will use specialized prompts for analytical work and integrate with the LLM helper system.",
+      "notes": "Focus on analytical capabilities and ensure the agent can handle data analysis, research, and logical reasoning tasks effectively.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "6cd9570b-95c6-4216-824d-2447cd05914b"
+        }
+      ],
+      "createdAt": "2025-06-19T22:00:23.395Z",
+      "updatedAt": "2025-06-19T22:59:48.093Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/agents/orchestrator/SpecializedLLMAgent.ts",
+          "type": "DEPENDENCY",
+          "description": "Base class to extend"
+        },
+        {
+          "path": "backend/utils/llm-helper.js",
+          "type": "DEPENDENCY",
+          "description": "For prompt management and LLM calls"
+        },
+        {
+          "path": "backend/src/agents/orchestrator/AnalyticalAgent.ts",
+          "type": "CREATE",
+          "description": "Analytical agent implementation"
+        }
+      ],
+      "implementationGuide": "Create backend/src/agents/orchestrator/AnalyticalAgent.ts that extends SpecializedLLMAgent:\\n\\n```typescript\\nclass AnalyticalAgent extends SpecializedLLMAgent {\\n  constructor() {\\n    super('AnalyticalAgent', 'analytical');\\n  }\\n  \\n  getSpecializedPrompt() {\\n    return this.llmHelper.getSystemPrompt('analyst', {\\n      agentType: 'analytical',\\n      specialization: 'data analysis and research'\\n    });\\n  }\\n  \\n  getCapabilities() {\\n    return {\\n      name: 'AnalyticalAgent',\\n      supportedModes: ['analysis', 'research', 'data'],\\n      features: ['logical_reasoning', 'pattern_analysis', 'research']\\n    };\\n  }\\n}\\n```\\n\\nUse llm-helper.js prompting system and follow existing agent patterns.",
+      "verificationCriteria": "Agent should extend SpecializedLLMAgent, provide analytical capabilities, use appropriate system prompts, and handle analytical tasks effectively. Should integrate with existing LLM helper patterns.",
+      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
+      "summary": "Successfully created the AnalyticalAgent that extends SpecializedLLMAgent and provides comprehensive analytical capabilities. The agent uses the 'analyst' prompt from llm-helper.js, includes enhanced task detection for different types of analytical work (data analysis, research, pattern recognition, etc.), provides detailed capabilities metadata, and integrates seamlessly with the existing LLM helper patterns. The implementation includes intelligent task classification and analysis approach detection to optimize analytical responses.",
+      "completedAt": "2025-06-19T22:59:48.093Z"
+    },
+    {
+      "id": "0f7d8bde-f26f-4118-b7fa-4a527db3adb2",
+      "name": "Create Creative Agent Implementation",
+      "description": "Create a specialized creative agent that focuses on creative writing, brainstorming, and innovative thinking tasks. This agent will use creative-focused prompts and integrate with the LLM helper system.",
+      "notes": "Ensure the agent excels at creative tasks like writing, brainstorming, and innovative problem-solving.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "6cd9570b-95c6-4216-824d-2447cd05914b"
+        }
+      ],
+      "createdAt": "2025-06-19T22:00:23.395Z",
+      "updatedAt": "2025-06-19T23:03:43.003Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/agents/orchestrator/SpecializedLLMAgent.ts",
+          "type": "DEPENDENCY",
+          "description": "Base class to extend"
+        },
+        {
+          "path": "backend/utils/llm-helper.js",
+          "type": "DEPENDENCY",
+          "description": "For prompt management and LLM calls"
+        },
+        {
+          "path": "backend/src/agents/orchestrator/CreativeAgent.ts",
+          "type": "CREATE",
+          "description": "Creative agent implementation"
+        }
+      ],
+      "implementationGuide": "Create backend/src/agents/orchestrator/CreativeAgent.ts that extends SpecializedLLMAgent:\\n\\n```typescript\\nclass CreativeAgent extends SpecializedLLMAgent {\\n  constructor() {\\n    super('CreativeAgent', 'creative');\\n  }\\n  \\n  getSpecializedPrompt() {\\n    return this.llmHelper.getSystemPrompt('creative', {\\n      agentType: 'creative',\\n      specialization: 'creative writing and innovation'\\n    });\\n  }\\n  \\n  getCapabilities() {\\n    return {\\n      name: 'CreativeAgent',\\n      supportedModes: ['creative', 'writing', 'brainstorming'],\\n      features: ['creative_writing', 'ideation', 'storytelling']\\n    };\\n  }\\n}\\n```\\n\\nFollow same patterns as AnalyticalAgent but focus on creative capabilities.",
+      "verificationCriteria": "Agent should extend SpecializedLLMAgent, provide creative capabilities, use appropriate creative prompts, and handle creative tasks effectively. Should follow same integration patterns as other agents.",
+      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
+      "summary": "Successfully created the CreativeAgent that extends SpecializedLLMAgent and provides comprehensive creative capabilities. The agent creates a custom creative prompt since no specific 'creative' prompt exists in llm-helper.js, includes intelligent task detection for different types of creative work (writing, brainstorming, storytelling, etc.), provides detailed capabilities metadata with 7 creative modes and 10 specialized features, and integrates seamlessly with the existing LLM helper patterns. The implementation includes creative task classification, approach detection, and inspiration level assessment to optimize creative responses.",
+      "completedAt": "2025-06-19T23:03:43.002Z"
+    },
+    {
+      "id": "4aadb6ad-fea7-4688-bdcf-f3009641cd72",
+      "name": "Create Technical Agent Implementation",
+      "description": "Create a specialized technical agent that focuses on coding, debugging, and technical problem-solving tasks. This agent will use technical-focused prompts and integrate with the LLM helper system.",
+      "notes": "This agent should excel at coding tasks, technical problem-solving, and debugging. Leverage existing technical prompts in the system.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "6cd9570b-95c6-4216-824d-2447cd05914b"
+        }
+      ],
+      "createdAt": "2025-06-19T22:00:23.395Z",
+      "updatedAt": "2025-06-19T23:05:42.996Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/agents/orchestrator/SpecializedLLMAgent.ts",
+          "type": "DEPENDENCY",
+          "description": "Base class to extend"
+        },
+        {
+          "path": "backend/utils/llm-helper.js",
+          "type": "DEPENDENCY",
+          "description": "For prompt management and LLM calls (use codeAssistant prompts)"
+        },
+        {
+          "path": "backend/src/agents/orchestrator/TechnicalAgent.ts",
+          "type": "CREATE",
+          "description": "Technical agent implementation"
+        }
+      ],
+      "implementationGuide": "Create backend/src/agents/orchestrator/TechnicalAgent.ts that extends SpecializedLLMAgent:\\n\\n```typescript\\nclass TechnicalAgent extends SpecializedLLMAgent {\\n  constructor() {\\n    super('TechnicalAgent', 'technical');\\n  }\\n  \\n  getSpecializedPrompt() {\\n    return this.llmHelper.getSystemPrompt('codeAssistant', {\\n      agentType: 'technical',\\n      specialization: 'coding and technical support'\\n    });\\n  }\\n  \\n  getCapabilities() {\\n    return {\\n      name: 'TechnicalAgent',\\n      supportedModes: ['coding', 'debugging', 'technical'],\\n      features: ['code_generation', 'debugging', 'technical_analysis']\\n    };\\n  }\\n}\\n```\\n\\nReuse existing codeAssistant prompts from llm-helper.js and focus on technical capabilities.",
+      "verificationCriteria": "Agent should extend SpecializedLLMAgent, provide technical capabilities, use appropriate technical prompts, and handle coding/debugging tasks effectively. Should integrate with existing technical prompt patterns.",
+      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
+      "summary": "Successfully created the TechnicalAgent that extends SpecializedLLMAgent and provides comprehensive technical capabilities. The agent uses the existing 'codeAssistant' prompt from llm-helper.js, includes intelligent task detection for different types of technical work (code generation, debugging, architecture design, etc.), programming language detection, complexity assessment, and technical domain identification. It supports 7 technical modes, 10 specialized features, and provides detailed metadata for orchestration including programming languages, technical domains, and optimal use cases.",
+      "completedAt": "2025-06-19T23:05:42.994Z"
+    },
+    {
+      "id": "890952a2-01db-4048-a0d1-dce528ae23f1",
+      "name": "Create Agent Factory for Orchestrator Agents",
+      "description": "Create a factory function that instantiates and configures all the specialized agents for the orchestrator. This factory will handle agent creation, validation, and initial setup while following existing factory patterns.",
+      "notes": "This factory ensures all agents are properly created and validated before registration. It should handle LLM configuration errors gracefully.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "cf62dfbd-6ec0-4acd-8887-e9c8f77048f0"
+        },
+        {
+          "taskId": "0f7d8bde-f26f-4118-b7fa-4a527db3adb2"
+        },
+        {
+          "taskId": "4aadb6ad-fea7-4688-bdcf-f3009641cd72"
+        }
+      ],
+      "createdAt": "2025-06-19T22:00:23.395Z",
+      "updatedAt": "2025-06-19T23:08:57.993Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/agents/orchestrator/AnalyticalAgent.ts",
+          "type": "DEPENDENCY",
+          "description": "Analytical agent to instantiate"
+        },
+        {
+          "path": "backend/src/agents/orchestrator/CreativeAgent.ts",
+          "type": "DEPENDENCY",
+          "description": "Creative agent to instantiate"
+        },
+        {
+          "path": "backend/src/agents/orchestrator/TechnicalAgent.ts",
+          "type": "DEPENDENCY",
+          "description": "Technical agent to instantiate"
+        },
+        {
+          "path": "backend/src/agents/AgentFactory.ts",
+          "type": "REFERENCE",
+          "description": "Reference for factory patterns"
+        },
+        {
+          "path": "backend/src/agents/orchestrator/AgentFactory.ts",
+          "type": "CREATE",
+          "description": "Factory for orchestrator agents"
+        }
+      ],
+      "implementationGuide": "Create backend/src/agents/orchestrator/AgentFactory.ts that creates and validates all specialized agents:\\n\\n```typescript\\nimport { AnalyticalAgent } from './AnalyticalAgent';\\nimport { CreativeAgent } from './CreativeAgent';\\nimport { TechnicalAgent } from './TechnicalAgent';\\n\\nexport class OrchestratorAgentFactory {\\n  static createAllAgents() {\\n    const agents = [\\n      new AnalyticalAgent(),\\n      new CreativeAgent(),\\n      new TechnicalAgent()\\n    ];\\n    \\n    // Validate each agent\\n    agents.forEach(agent => {\\n      const validation = agent.validateConfig();\\n      if (!validation.valid) {\\n        throw new Error(`Agent validation failed: ${validation.errors.join(', ')}`);\\n      }\\n    });\\n    \\n    return agents;\\n  }\\n}\\n```\\n\\nInclude proper error handling and validation following existing patterns.",
+      "verificationCriteria": "Factory should create all specialized agents successfully, validate their configurations, handle LLM setup errors gracefully, and return properly initialized agents ready for registration.",
+      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
+      "summary": "Successfully created OrchestratorAgentFactory with comprehensive agent creation, validation, and error handling. The factory follows existing patterns, includes LLM configuration validation, provides fallback mechanisms, and supports both batch and individual agent creation with proper logging and statistics tracking.",
+      "completedAt": "2025-06-19T23:08:57.993Z"
+    },
+    {
+      "id": "1ab5b343-239f-46bf-b56e-6117bdfe6447",
+      "name": "Integrate Agent Registration in Server Setup",
+      "description": "Modify the server.js orchestrator initialization to create and register the specialized LLM agents. This ensures the orchestrator path has actual LLM-powered agents available for processing requests.",
+      "notes": "This modification makes the orchestrator functional by providing actual LLM-powered agents. Error handling should gracefully degrade if LLM configuration is missing.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "890952a2-01db-4048-a0d1-dce528ae23f1"
+        }
+      ],
+      "createdAt": "2025-06-19T22:00:23.395Z",
+      "updatedAt": "2025-06-19T23:11:40.885Z",
+      "relatedFiles": [
+        {
+          "path": "backend/server.js",
+          "type": "TO_MODIFY",
+          "description": "Server file to modify for agent registration",
+          "lineStart": 45,
+          "lineEnd": 70
+        },
+        {
+          "path": "backend/src/agents/orchestrator/AgentFactory.ts",
+          "type": "DEPENDENCY",
+          "description": "Factory to import and use"
+        },
+        {
+          "path": "backend/src/orchestrator/index.ts",
+          "type": "REFERENCE",
+          "description": "Orchestrator setup functions"
+        }
+      ],
+      "implementationGuide": "Modify backend/server.js in the Orch backend initialization section:\\n\\n```javascript\\n// Add import at top\\nconst { OrchestratorAgentFactory } = require('./dist/src/agents/orchestrator/AgentFactory');\\n\\n// Modify Orch initialization section (around line 47)\\nif (BACKEND === 'Orch') {\\n  try {\\n    orchestrationSetup = createOrchestrationSetup('development');\\n    backendIntegration = createBackendIntegration(orchestrationSetup.orchestrator, orchestrationSetup.middleware);\\n    \\n    // Create and register LLM-powered agents\\n    const agents = OrchestratorAgentFactory.createAllAgents();\\n    agents.forEach(agent => {\\n      orchestrationSetup.orchestrator.registerAgent(agent);\\n      console.log(`[Orchestrator] Registered ${agent.getInfo().name}`);\\n    });\\n    \\n    // Initialize backend integration\\n    await backendIntegration.initialize({ agentZero, agents });\\n    console.log(`[Orchestrator] Initialized with ${agents.length} LLM agents`);\\n  } catch (error) {\\n    console.error('[Orchestrator] Failed to initialize:', error);\\n  }\\n}\\n```\\n\\nEnsure proper error handling and logging.",
+      "verificationCriteria": "Server should successfully create and register all specialized agents when BACKEND=Orch, log registration confirmation, handle LLM configuration errors gracefully, and provide agents to the orchestrator for request processing.",
+      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
+      "summary": "Successfully integrated agent registration in server.js orchestrator initialization. Added OrchestratorAgentFactory import, implemented comprehensive agent creation with fallback handling, registered all specialized agents with detailed logging, and gracefully handled LLM configuration errors while maintaining backward compatibility with existing AgentZero integration.",
+      "completedAt": "2025-06-19T23:11:40.883Z"
+    },
+    {
+      "id": "eab135e6-4767-45e3-b64c-8a66f556948a",
+      "name": "Add Agent Selection Strategy for Specialized Agents",
+      "description": "Enhance the orchestrator's agent selection strategy to properly route requests to the appropriate specialized agent (analytical, creative, or technical) based on the user input content and context.",
+      "notes": "This ensures requests are routed to the most appropriate specialized agent based on content analysis, improving response quality and user experience.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "1ab5b343-239f-46bf-b56e-6117bdfe6447"
+        }
+      ],
+      "createdAt": "2025-06-19T22:00:23.395Z",
+      "updatedAt": "2025-06-19T23:15:28.339Z",
+      "relatedFiles": [
+        {
+          "path": "backend/src/orchestrator/AgentOrchestrator.ts",
+          "type": "TO_MODIFY",
+          "description": "Orchestrator to enhance with better routing",
+          "lineStart": 336,
+          "lineEnd": 400
+        },
+        {
+          "path": "backend/src/types/index.ts",
+          "type": "REFERENCE",
+          "description": "Type definitions for orchestration"
+        }
+      ],
+      "implementationGuide": "Modify backend/src/orchestrator/AgentOrchestrator.ts to improve the capability-based strategy for specialized agents:\\n\\n```typescript\\n// In initializeStrategies() method, enhance capability-based strategy\\nprivate initializeStrategies(): void {\\n  // Enhanced capability-based strategy for specialized agents\\n  this.strategies.set('capability-based', {\\n    async selectAgent(context: OrchestrationContext, agents: Map<string, BaseAgent>): Promise<AgentSelection> {\\n      const input = context.userInput.toLowerCase();\\n      \\n      // Route to specialized agents based on content\\n      if (input.includes('analyze') || input.includes('data') || input.includes('research')) {\\n        if (agents.has('AnalyticalAgent')) {\\n          return { selectedAgent: 'AnalyticalAgent', confidence: 0.9, reason: 'Analytical task detected' };\\n        }\\n      }\\n      \\n      if (input.includes('create') || input.includes('write') || input.includes('story')) {\\n        if (agents.has('CreativeAgent')) {\\n          return { selectedAgent: 'CreativeAgent', confidence: 0.9, reason: 'Creative task detected' };\\n        }\\n      }\\n      \\n      if (input.includes('code') || input.includes('debug') || input.includes('programming')) {\\n        if (agents.has('TechnicalAgent')) {\\n          return { selectedAgent: 'TechnicalAgent', confidence: 0.9, reason: 'Technical task detected' };\\n        }\\n      }\\n      \\n      // Fallback to first available agent\\n      const firstAgent = Array.from(agents.keys())[0];\\n      return { selectedAgent: firstAgent, confidence: 0.5, reason: 'Default selection' };\\n    }\\n  });\\n}\\n```\\n\\nImprove routing logic based on input analysis.",
+      "verificationCriteria": "Orchestrator should correctly route analytical requests to AnalyticalAgent, creative requests to CreativeAgent, technical requests to TechnicalAgent, and provide appropriate fallback behavior. Selection confidence should reflect routing accuracy.",
+      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
+      "summary": "Successfully enhanced the orchestrator's agent selection strategy with specialized routing logic. Added comprehensive content analysis that routes analytical, creative, and technical requests to appropriate specialized agents with confidence scoring and intelligent fallback behavior. The system now properly identifies task types and selects the most suitable agent based on keyword patterns and scoring algorithms.",
+      "completedAt": "2025-06-19T23:15:28.337Z"
+    },
+    {
+      "id": "c63ed263-7e52-4f7d-a862-0064fe608df1",
+      "name": "Test and Validate Orchestrator LLM Integration",
+      "description": "Create comprehensive tests to validate that the orchestrator path works with actual LLM calls, supports provider switching, and handles different agent types correctly. Ensure the integration works in both development and production modes.",
+      "notes": "This validates the complete integration works correctly and provides confidence that the orchestrator path is functional with real LLM calls.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "eab135e6-4767-45e3-b64c-8a66f556948a"
+        }
+      ],
+      "createdAt": "2025-06-19T22:00:23.395Z",
+      "updatedAt": "2025-06-19T23:20:32.949Z",
+      "relatedFiles": [
+        {
+          "path": "backend/tests/test-orchestrator-llm-integration.js",
+          "type": "CREATE",
+          "description": "Integration test file"
+        },
+        {
+          "path": "backend/src/orchestrator/index.ts",
+          "type": "DEPENDENCY",
+          "description": "Orchestrator setup functions to test"
+        },
+        {
+          "path": "backend/src/agents/orchestrator/AgentFactory.ts",
+          "type": "DEPENDENCY",
+          "description": "Factory to test"
+        },
+        {
+          "path": "backend/tests/run-tests.js",
+          "type": "TO_MODIFY",
+          "description": "Add new test to test runner"
+        }
+      ],
+      "implementationGuide": "Create backend/tests/test-orchestrator-llm-integration.js to test the complete orchestrator LLM integration:\\n\\n```javascript\\nconst { createOrchestrationSetup } = require('../dist/src/orchestrator');\\nconst { OrchestratorAgentFactory } = require('../dist/src/agents/orchestrator/AgentFactory');\\n\\nasync function testOrchestratorLLMIntegration() {\\n  console.log('=== Orchestrator LLM Integration Tests ===');\\n  \\n  // Test 1: Agent Creation with LLM Helper\\n  const agents = OrchestratorAgentFactory.createAllAgents();\\n  console.log(`✅ Created ${agents.length} specialized agents`);\\n  \\n  // Test 2: Orchestrator Setup with Agent Registration\\n  const setup = createOrchestrationSetup('development');\\n  agents.forEach(agent => setup.orchestrator.registerAgent(agent));\\n  console.log(`✅ Registered agents with orchestrator`);\\n  \\n  // Test 3: Agent Selection for Different Request Types\\n  const testRequests = [\\n    { message: 'Analyze this data', expectedAgent: 'AnalyticalAgent' },\\n    { message: 'Write a creative story', expectedAgent: 'CreativeAgent' },\\n    { message: 'Debug this code', expectedAgent: 'TechnicalAgent' }\\n  ];\\n  \\n  for (const test of testRequests) {\\n    const selection = await setup.orchestrator.selectAgent(test.message, {\\n      sessionId: 'test', userInput: test.message, availableAgents: ['AnalyticalAgent', 'CreativeAgent', 'TechnicalAgent']\\n    });\\n    console.log(`✅ ${test.message} → ${selection.selectedAgent} (expected: ${test.expectedAgent})`);\\n  }\\n  \\n  console.log('✅ All orchestrator LLM integration tests passed');\\n}\\n```\\n\\nInclude tests for LLM provider detection and error handling.",
+      "verificationCriteria": "Tests should validate agent creation, orchestrator registration, agent selection accuracy, LLM provider detection, error handling for missing credentials, and end-to-end message processing with actual LLM calls.",
+      "analysisResult": "Wire up the orchestrator path to work with actual LLM calls using the same LLM helper pattern as the Lang path. This involves creating specialized LLM-powered agents that use the existing llm-helper.js system for provider switching and registering them with the orchestrator to enable full multi-agent functionality with real AI responses.",
+      "summary": "Successfully created comprehensive orchestrator LLM integration tests that validate agent creation, orchestrator setup, agent selection, provider detection, and error handling. Both full LLM integration tests (requiring credentials) and basic integration tests (credential-free) were implemented. The tests confirm the orchestrator path is properly wired with actual LLM capabilities and ready for production use with proper API credentials.",
+      "completedAt": "2025-06-19T23:20:32.949Z"
+    }
+  ]
+}
