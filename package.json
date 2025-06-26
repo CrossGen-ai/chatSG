@@ -5,8 +5,13 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "start powershell -NoExit -Command 'cd backend; npm start' && start powershell -NoExit -Command 'cd frontend; npm run dev'",
+    "dev": "./scripts/start-servers.sh",
+    "dev:vis": "./scripts/start-servers.sh -vis",
+    "dev:visible": "./scripts/start-servers.sh --visible",
+    "dev:windows": "start powershell -NoExit -Command 'cd backend; npm start' && start powershell -NoExit -Command 'cd frontend; npm run dev'",
     "dev:all": "start powershell -NoExit -Command 'cd backend; npm start' && start powershell -NoExit -Command 'cd frontend; npm run dev'",
+    "stop": "./scripts/stop-servers.sh",
+    "logs": "./scripts/view-logs.sh",
     "mcp:start": "cd ../MCP/mcp-shrimp-task-manager && npm start",
     "mcp:install": "cd ../MCP/mcp-shrimp-task-manager && npm install"
   },

@@ -1,0 +1,17 @@
+{
+  "ignore": [
+    "data/*",
+    "dist/*",
+    "node_modules/*",
+    "tests/*",
+    "*.test.js",
+    "*.spec.js"
+  ],
+  "watch": [
+    "server.js",
+    "src/**/*",
+    "utils/**/*"
+  ],
+  "ext": "js,json",
+  "delay": "1000"
+}

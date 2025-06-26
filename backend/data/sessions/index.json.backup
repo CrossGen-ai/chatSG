@@ -1,0 +1,128 @@
+{
+  "test-session-1750953638490": {
+    "file": "session_test-session-1750953638490.jsonl",
+    "toolsFile": "session_test-session-1750953638490_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-06-26T16:00:38.491Z",
+    "startedAt": "2025-06-26T16:00:38.491Z",
+    "lastActivityAt": "2025-06-26T16:00:38.492Z",
+    "messageCount": 1,
+    "title": "Hello, this is a test message for the simplified f...",
+    "metadata": {
+      "userId": "test-user"
+    }
+  },
+  "curl-test-123": {
+    "file": "session_curl-test-123.jsonl",
+    "toolsFile": "session_curl-test-123_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-06-26T16:05:59.979Z",
+    "startedAt": "2025-06-26T16:05:59.979Z",
+    "lastActivityAt": "2025-06-26T16:05:59.980Z",
+    "messageCount": 1,
+    "title": "Test from curl",
+    "metadata": {}
+  },
+  "test-session-1750954038592": {
+    "file": "session_test-session-1750954038592.jsonl",
+    "toolsFile": "session_test-session-1750954038592_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-06-26T16:07:18.593Z",
+    "startedAt": "2025-06-26T16:07:18.593Z",
+    "lastActivityAt": "2025-06-26T16:07:18.594Z",
+    "messageCount": 1,
+    "title": "Hello, this is a test message for the simplified f...",
+    "metadata": {
+      "userId": "test-user"
+    }
+  },
+  "curl-test-456": {
+    "file": "session_curl-test-456.jsonl",
+    "toolsFile": "session_curl-test-456_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-06-26T16:07:43.142Z",
+    "startedAt": "2025-06-26T16:07:43.142Z",
+    "lastActivityAt": "2025-06-26T16:07:43.144Z",
+    "messageCount": 1,
+    "title": "Test from curl",
+    "metadata": {}
+  },
+  "test-session-1750954250625": {
+    "file": "session_test-session-1750954250625.jsonl",
+    "toolsFile": "session_test-session-1750954250625_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-06-26T16:10:50.626Z",
+    "startedAt": "2025-06-26T16:10:50.626Z",
+    "lastActivityAt": "2025-06-26T16:10:52.189Z",
+    "messageCount": 2,
+    "title": "Hello, this is a test message for the simplified f...",
+    "metadata": {
+      "userId": "test-user",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "session_1750967015512_7zlfpb5q0": {
+    "file": "session_session_1750967015512_7zlfpb5q0.jsonl",
+    "toolsFile": "session_session_1750967015512_7zlfpb5q0_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-06-26T19:43:35.512Z",
+    "startedAt": "2025-06-26T19:43:35.512Z",
+    "lastActivityAt": "2025-06-26T19:43:35.512Z",
+    "messageCount": 0,
+    "title": "Test Chat",
+    "metadata": {
+      "userId": "default"
+    }
+  },
+  "session_1750967097723_z21jstcmh": {
+    "file": "session_session_1750967097723_z21jstcmh.jsonl",
+    "toolsFile": "session_session_1750967097723_z21jstcmh_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-06-26T19:44:57.723Z",
+    "startedAt": "2025-06-26T19:44:57.723Z",
+    "lastActivityAt": "2025-06-26T21:00:53.451Z",
+    "messageCount": 15,
+    "title": "Test Chat API",
+    "metadata": {
+      "userId": "default",
+      "lastAgent": "CreativeAgent"
+    }
+  },
+  "test-direct": {
+    "file": "session_test-direct.jsonl",
+    "toolsFile": "session_test-direct_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-06-26T20:00:32.501Z",
+    "startedAt": "2025-06-26T20:00:32.501Z",
+    "lastActivityAt": "2025-06-26T20:00:32.502Z",
+    "messageCount": 1,
+    "title": "Hello test",
+    "metadata": {}
+  },
+  "test-session": {
+    "file": "session_test-session.jsonl",
+    "toolsFile": "session_test-session_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-06-26T20:01:41.499Z",
+    "startedAt": "2025-06-26T20:01:41.499Z",
+    "lastActivityAt": "2025-06-26T20:07:25.126Z",
+    "messageCount": 5,
+    "title": "test from curl",
+    "metadata": {
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "9226ea5e-677a-4074-8b00-6d929307d0d5": {
+    "file": "session_9226ea5e-677a-4074-8b00-6d929307d0d5.jsonl",
+    "toolsFile": "session_9226ea5e-677a-4074-8b00-6d929307d0d5_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-06-26T20:31:19.386Z",
+    "startedAt": "2025-06-26T20:31:19.386Z",
+    "lastActivityAt": "2025-06-26T20:31:39.393Z",
+    "messageCount": 4,
+    "title": "Hello!",
+    "metadata": {
+      "lastAgent": "AnalyticalAgent"
+    }
+  }
+}

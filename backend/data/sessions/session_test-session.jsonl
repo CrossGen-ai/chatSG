@@ -1,0 +1,5 @@
+{"timestamp":"2025-06-26T20:01:41.499Z","type":"user","content":"test from curl","metadata":{"sessionId":"test-session"}}
+{"timestamp":"2025-06-26T20:04:19.072Z","type":"user","content":"Hello!","metadata":{"sessionId":"test-session"}}
+{"timestamp":"2025-06-26T20:04:20.064Z","type":"assistant","content":"Hello! How can I assist you today with your analytical needs? If you have a specific question or task in mind, feel free to provide the details, and I'll be happy to help.","metadata":{"sessionId":"test-session","agent":"AnalyticalAgent","confidence":0.1,"processingTime":986,"toolsUsed":[]}}
+{"timestamp":"2025-06-26T20:07:24.407Z","type":"user","content":"Hello!","metadata":{"sessionId":"test-session"}}
+{"timestamp":"2025-06-26T20:07:25.125Z","type":"assistant","content":"Hello! How can I assist you today with analytical tasks or data analysis? If you have a specific problem or dataset you'd like to discuss, feel free to provide the details.","metadata":{"sessionId":"test-session","agent":"AnalyticalAgent","confidence":0.2,"processingTime":717,"toolsUsed":[]}}

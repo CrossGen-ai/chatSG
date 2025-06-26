@@ -256,6 +256,27 @@ code {
   }
 }
 
+/* Skeleton loading animation */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.skeleton-pulse {
+  background-color: var(--text-secondary);
+  opacity: 0.4;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* Theme-aware skeleton colors */
+.skeleton-loader {
+  --skeleton-base: var(--text-secondary);
+}
+
 /* Focus styles */
 *:focus {
   outline: none;

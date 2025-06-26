@@ -158,7 +158,7 @@ const AgentIndicator: React.FC<AgentIndicatorProps> = ({ agentType, className })
 };
 
 export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
-  const { activeChatId, updateChatMetadata, chats, setChatLoading, markChatNewMessage, getChatMessages, saveChatMessage, getMessagesProgressively, trackAgentUsage } = useChatManager();
+  const { activeChatId, updateChatMetadata, chats, setChatLoading, markChatNewMessage, getChatMessages, getCachedMessages, saveChatMessage, trackAgentUsage } = useChatManager();
   const { settings } = useChatSettings();
   const currentSessionId = sessionId || activeChatId;
   const currentChat = chats.find(chat => chat.id === currentSessionId);
@@ -184,17 +184,13 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     
     try {
       console.log(`[ChatUI] Starting progressive loading for session: ${sessionId}`);
-      const result = await getMessagesProgressively(sessionId);
+      setIsLoadingRemoteMessages(true);
       
-      setIsLoadingRemoteMessages(result.isLoading);
+      const messages = await getChatMessages(sessionId);
       
-      if (result.isLoading) {
-        console.log(`[ChatUI] Remote messages loading in background for session: ${sessionId}`);
-      } else {
-        console.log(`[ChatUI] No remote loading needed for session: ${sessionId}`);
-      }
+      setIsLoadingRemoteMessages(false);
       
-      const finalMessages = result.messages.length > 0 ? result.messages : initialMessages;
+      const finalMessages = messages.length > 0 ? messages : initialMessages;
       console.log(`[ChatUI] Progressive loading completed: ${finalMessages.length} messages for session: ${sessionId}`);
       return finalMessages;
     } catch (error) {
@@ -228,7 +224,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     if (currentSessionId && !isLoadingRemoteMessages) {
       // Check for updated messages periodically when not loading
       const interval = setInterval(() => {
-        const currentMessages = getChatMessages(currentSessionId);
+        const currentMessages = getCachedMessages(currentSessionId);
         if (currentMessages.length !== messages.length) {
           console.log(`[ChatUI] Detected message updates from background sync for session: ${currentSessionId}`);
           setMessages(currentMessages.length > 0 ? currentMessages : initialMessages);
@@ -237,7 +233,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
 
       return () => clearInterval(interval);
     }
-  }, [currentSessionId, isLoadingRemoteMessages, messages.length]);
+  }, [currentSessionId, isLoadingRemoteMessages, messages.length, getCachedMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -350,10 +346,14 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
           synced: false
         };
         
-        // Save to hybrid storage
-        saveChatMessage(originatingSessionId, botMessage);
-        console.log(`[ChatUI] 🔄 BACKGROUND: Saved bot message to hybrid storage for session: ${originatingSessionId}`);
-        console.log(`[ChatUI] 🔄 BACKGROUND: Bot response content:`, chatResponse.message);
+        // Save to remote storage
+        try {
+          await saveChatMessage(originatingSessionId, botMessage);
+          console.log(`[ChatUI] 🔄 BACKGROUND: Saved bot message to remote storage for session: ${originatingSessionId}`);
+          console.log(`[ChatUI] 🔄 BACKGROUND: Bot response content:`, chatResponse.message);
+        } catch (error) {
+          console.error(`[ChatUI] Failed to save background bot message:`, error);
+        }
         
         markChatNewMessage(originatingSessionId, true);
         console.log(`[ChatUI] Background response received for session: ${originatingSessionId}`);
@@ -451,6 +451,12 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         {/* Remote loading indicator */}
         {isLoadingRemoteMessages && <RemoteLoadingIndicator />}
         
+        {/* Show skeleton messages while loading */}
+        {isLoadingRemoteMessages && messages.length === 0 && (
+          <MessageSkeleton count={3} />
+        )}
+        
+        {/* Show actual messages */}
         {messages.map((msg, index) => (
           <div
             key={msg.id}

@@ -93,6 +93,7 @@ export interface ChatMessage {
   type: string;
   timestamp: string;
   agent?: string;
+  sender?: 'user' | 'bot'; // Added to match backend response
 }
 
 export interface AgentInteraction {
@@ -122,8 +123,18 @@ export async function getChatHistory(sessionId: string): Promise<{
   analytics: any;
 }> {
   try {
-    const response = await axios.get(`/api/chats/${sessionId}/history`);
-    return response.data;
+    // Use the messages endpoint which reads from JSONL storage
+    const response = await axios.get(`/api/chats/${sessionId}/messages`);
+    
+    // Transform the response to match the expected format
+    return {
+      sessionId: response.data.sessionId,
+      messages: response.data.messages || [],
+      messageCount: response.data.totalMessages || response.data.messages?.length || 0,
+      agentHistory: [], // Not provided by messages endpoint
+      toolsUsed: [], // Not provided by messages endpoint
+      analytics: {} // Not provided by messages endpoint
+    };
   } catch (error: any) {
     throw new Error(`Failed to get chat history: ${error.response?.data?.error || error.message}`);
   }
@@ -262,24 +273,6 @@ export interface MessageBatch {
   compressed?: boolean;
 }
 
-export async function saveMessagesToRemote(
-  sessionId: string, 
-  messages: ChatMessage[]
-): Promise<{
-  sessionId: string;
-  messagesSaved: number;
-  success: boolean;
-}> {
-  try {
-    const response = await axios.post(`/api/chats/${sessionId}/messages`, {
-      messages
-    });
-    return response.data;
-  } catch (error: any) {
-    throw new Error(`Failed to save messages: ${error.response?.data?.error || error.message}`);
-  }
-}
-
 export async function loadMessagesFromRemote(
   sessionId: string,
   options?: {
@@ -306,21 +299,44 @@ export async function loadMessagesFromRemote(
   }
 }
 
-export async function syncMessagesWithRemote(
-  sessionId: string,
-  localMessages: ChatMessage[]
-): Promise<{
-  sessionId: string;
-  mergedMessages: ChatMessage[];
-  conflicts: ChatMessage[];
-  syncedCount: number;
+
+// Chat Management API
+export interface ChatMetadata {
+  id: string;
+  title: string;
+  createdAt: Date;
+  lastMessageAt: Date;
+  messageCount: number;
+}
+
+export async function getAllChats(): Promise<{
+  chats: ChatMetadata[];
+  totalChats: number;
 }> {
   try {
-    const response = await axios.post(`/api/chats/${sessionId}/messages/sync`, {
-      localMessages
-    });
+    const response = await axios.get('/api/chats');
+    return {
+      ...response.data,
+      chats: response.data.chats.map((chat: any) => ({
+        ...chat,
+        createdAt: new Date(chat.createdAt),
+        lastMessageAt: new Date(chat.lastMessageAt)
+      }))
+    };
+  } catch (error: any) {
+    throw new Error(`Failed to get chats: ${error.response?.data?.error || error.message}`);
+  }
+}
+
+
+export async function deleteChat(chatId: string): Promise<{
+  success: boolean;
+  chatId: string;
+}> {
+  try {
+    const response = await axios.delete(`/api/chats/${chatId}`);
     return response.data;
   } catch (error: any) {
-    throw new Error(`Failed to sync messages: ${error.response?.data?.error || error.message}`);
+    throw new Error(`Failed to delete chat: ${error.response?.data?.error || error.message}`);
   }
 } 

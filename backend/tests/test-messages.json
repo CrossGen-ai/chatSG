@@ -1,0 +1,15 @@
+{
+  "messages": [
+    {
+      "type": "user",
+      "content": "Hello from API test"
+    },
+    {
+      "type": "assistant",
+      "content": "Hello! API test response",
+      "metadata": {
+        "agent": "TestAgent"
+      }
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useChatManager } from '../hooks/useChatManager';
+import { ChatListSkeleton } from './SkeletonLoader';
 
 interface ChatSidebarProps {
   isOpen: boolean;
@@ -13,7 +14,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
     createChat, 
     deleteChat, 
     renameChat, 
-    switchChat 
+    switchChat,
+    isLoadingChats,
+    isCreatingChat,
+    isDeletingChat
   } = useChatManager();
 
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
@@ -132,29 +136,35 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
   };
 
   // Handle batch delete
-  const handleBatchDelete = () => {
-    selectedChatIds.forEach(chatId => {
-      // Clean up localStorage messages (using the same pattern as single delete)
-      try {
-        localStorage.removeItem(`chat-messages-${chatId}`);
-        console.log(`[ChatManager] Cleaned up messages for batch deleted chat: ${chatId}`);
-      } catch (error) {
-        console.warn(`[ChatManager] Failed to cleanup messages for chat ${chatId}:`, error);
+  const handleBatchDelete = async () => {
+    const chatCount = selectedChatIds.size;
+    try {
+      // Delete chats one by one
+      for (const chatId of selectedChatIds) {
+        await deleteChat(chatId);
       }
-      deleteChat(chatId);
-    });
-    
-    showSuccessMessage(`${selectedChatIds.size} chats deleted successfully`);
-    setSelectedChatIds(new Set());
-    setIsSelectionMode(false);
-    setShowBatchDeleteConfirm(false);
+      
+      showSuccessMessage(`${chatCount} chats deleted successfully`);
+      setSelectedChatIds(new Set());
+      setIsSelectionMode(false);
+      setShowBatchDeleteConfirm(false);
+    } catch (error) {
+      console.error('Failed to delete some chats:', error);
+      showSuccessMessage('Some chats could not be deleted. Please try again.');
+    }
   };
 
   // Handle new chat creation
-  const handleNewChat = () => {
-    const newChatId = createChat();
-    switchChat(newChatId);
-    onClose(); // Close sidebar on mobile after creating chat
+  const handleNewChat = async () => {
+    try {
+      const newChatId = await createChat();
+      switchChat(newChatId);
+      onClose(); // Close sidebar on mobile after creating chat
+    } catch (error) {
+      console.error('Failed to create chat:', error);
+      // Show error message
+      setSuccessMessage('Failed to create chat. Please try again.');
+    }
   };
 
   // Handle chat selection
@@ -171,7 +181,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
   };
 
   // Handle rename save
-  const handleRenameSave = () => {
+  const handleRenameSave = async () => {
     if (editingChatId && editingTitle.trim()) {
       const trimmedTitle = editingTitle.trim();
       
@@ -186,8 +196,13 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
         return; // Don't close edit mode, let user try again
       }
       
-      renameChat(editingChatId, trimmedTitle);
-      showSuccessMessage(`Chat renamed to "${trimmedTitle}"`);
+      try {
+        await renameChat(editingChatId, trimmedTitle);
+        showSuccessMessage(`Chat renamed to "${trimmedTitle}"`);
+      } catch (error) {
+        console.error('Failed to rename chat:', error);
+        showSuccessMessage('Failed to rename chat. Please try again.');
+      }
     }
     setEditingChatId(null);
     setEditingTitle('');
@@ -200,9 +215,14 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
   };
 
   // Handle delete confirmation
-  const handleDeleteConfirm = (chatId: string) => {
-    deleteChat(chatId);
-    showSuccessMessage('Chat deleted successfully');
+  const handleDeleteConfirm = async (chatId: string) => {
+    try {
+      await deleteChat(chatId);
+      showSuccessMessage('Chat deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete chat:', error);
+      showSuccessMessage('Failed to delete chat. Please try again.');
+    }
     setShowDeleteConfirm(null);
     setContextMenuChatId(null);
   };
@@ -306,20 +326,36 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
             {!isSelectionMode && (
               <button
                 onClick={handleNewChat}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-xl backdrop-blur-md bg-white/20 dark:bg-black/20 border border-white/30 dark:border-white/10 hover:bg-white/30 dark:hover:bg-black/30 transition-all duration-200 shadow-lg hover:shadow-xl group"
+                disabled={isCreatingChat}
+                className="w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-xl backdrop-blur-md bg-white/20 dark:bg-black/20 border border-white/30 dark:border-white/10 hover:bg-white/30 dark:hover:bg-black/30 transition-all duration-200 shadow-lg hover:shadow-xl group disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Create new chat"
               >
-                <svg className="w-5 h-5 theme-text-primary group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <span className="font-medium theme-text-primary">New Chat</span>
+                {isCreatingChat ? (
+                  <>
+                    <svg className="w-5 h-5 animate-spin theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span className="font-medium theme-text-primary">Creating...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 theme-text-primary group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span className="font-medium theme-text-primary">New Chat</span>
+                  </>
+                )}
               </button>
             )}
           </div>
 
           {/* Chat List */}
           <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-            {chats.length === 0 ? (
+            {isLoadingChats ? (
+              <div className="p-2">
+                <ChatListSkeleton count={5} />
+              </div>
+            ) : chats.length === 0 ? (
               <div className="p-4 text-center">
                 <div className="text-gray-400 dark:text-gray-500 text-sm">
                   No chats yet. Create your first chat!
@@ -393,7 +429,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
                                 {chat.title}
                               </div>
                               
-                              {/* NEW: Loading indicator for chats with pending requests */}
+                              {/* Loading indicator for chats with pending requests */}
                               {chat.isLoading && (
                                 <div className="flex-shrink-0">
                                   <svg className="w-3 h-3 animate-spin theme-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -402,10 +438,28 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
                                 </div>
                               )}
                               
-                              {/* NEW: Blue dot for chats with new messages */}
-                              {chat.hasNewMessages && !chat.isLoading && (
+                              {/* Deleting indicator */}
+                              {isDeletingChat === chat.id && (
+                                <div className="flex-shrink-0">
+                                  <svg className="w-3 h-3 animate-spin text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                  </svg>
+                                </div>
+                              )}
+                              
+                              {/* Blue dot for chats with new messages */}
+                              {chat.hasNewMessages && !chat.isLoading && isDeletingChat !== chat.id && (
                                 <div className="flex-shrink-0">
                                   <div className="w-3 h-3 bg-blue-500 rounded-full border border-white dark:border-gray-900"></div>
+                                </div>
+                              )}
+                              
+                              {/* Sync status indicator */}
+                              {!chat.isSynced && isDeletingChat !== chat.id && (
+                                <div className="flex-shrink-0" title="Not synced with server">
+                                  <svg className="w-3 h-3 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                  </svg>
                                 </div>
                               )}
                             </div>

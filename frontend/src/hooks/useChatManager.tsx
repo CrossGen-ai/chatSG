@@ -1,7 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getChatHistory, ChatMessage, loadMessagesFromRemote, saveMessagesToRemote, syncMessagesWithRemote } from '../api/chat';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { 
+  getChatHistory, 
+  ChatMessage, 
+  loadMessagesFromRemote, 
+  getAllChats,
+  deleteChat as deleteChatAPI,
+  ChatMetadata 
+} from '../api/chat';
 
-// Chat interface definition - enhanced for hybrid storage
+// Chat interface definition - enhanced for remote storage
 export interface Chat {
   id: string;
   title: string;
@@ -12,15 +19,13 @@ export interface Chat {
   hasNewMessages: boolean;      // tracks if chat has unread messages
   isSynced: boolean;           // tracks if chat is synced with backend
   lastSyncAt?: Date;           // last time chat was synced with backend
-  isLoadingMessages: boolean;  // NEW: tracks if messages are being loaded from remote
-  remoteMessageCount: number;  // NEW: number of messages stored remotely
-  localMessageCount: number;   // NEW: number of messages stored locally
-  lastRemoteSync?: Date;       // NEW: last time remote messages were synced
-  agentType?: string;          // NEW: current/last responding agent type for dynamic avatars
-  agentHistory?: string[];     // NEW: history of agents used in this chat
+  isLoadingMessages: boolean;  // tracks if messages are being loaded from remote
+  remoteMessageCount: number;  // number of messages stored remotely
+  agentType?: string;          // current/last responding agent type for dynamic avatars
+  agentHistory?: string[];     // history of agents used in this chat
 }
 
-// Message interface for hybrid storage
+// Message interface for remote storage
 export interface HybridMessage {
   id: number;
   content: string;
@@ -28,100 +33,40 @@ export interface HybridMessage {
   timestamp: Date;
   agent?: string;
   synced: boolean;        // tracks if message is synced with backend
-  compressed?: boolean;   // NEW: tracks if message content is compressed
-  batchId?: string;      // NEW: for message batching
+  compressed?: boolean;   // tracks if message content is compressed
+  batchId?: string;      // for message batching
 }
 
 // ChatManager context interface - enhanced
 interface ChatManagerContextType {
   chats: Chat[];
   activeChatId: string;
-  createChat: (title?: string) => string;
-  deleteChat: (id: string) => void;
-  renameChat: (id: string, title: string) => void;
+  isLoadingChats: boolean;          // NEW: Loading state for chat list
+  isCreatingChat: boolean;          // NEW: Loading state for chat creation
+  isDeletingChat: string | null;    // NEW: Chat ID being deleted or null
+  createChat: (title?: string) => Promise<string>;
+  deleteChat: (id: string) => Promise<void>;
+  renameChat: (id: string, title: string) => Promise<void>;
   switchChat: (id: string) => void;
-  updateChatMetadata: (id: string, updates: Partial<Pick<Chat, 'lastMessageAt' | 'messageCount' | 'isLoading' | 'hasNewMessages' | 'isSynced' | 'lastSyncAt' | 'isLoadingMessages' | 'remoteMessageCount' | 'localMessageCount' | 'lastRemoteSync' | 'agentType' | 'agentHistory'>>) => void;
+  updateChatMetadata: (id: string, updates: Partial<Pick<Chat, 'lastMessageAt' | 'messageCount' | 'isLoading' | 'hasNewMessages' | 'isSynced' | 'lastSyncAt' | 'isLoadingMessages' | 'remoteMessageCount' | 'agentType' | 'agentHistory'>>) => void;
   setChatLoading: (id: string, isLoading: boolean) => void;
   markChatNewMessage: (id: string, hasNew: boolean) => void;
   clearNewMessages: (id: string) => void;
   syncChatWithBackend: (id: string) => Promise<void>;
-  getChatMessages: (id: string) => HybridMessage[];
-  saveChatMessage: (id: string, message: HybridMessage) => void;
+  getChatMessages: (id: string) => Promise<HybridMessage[]>;
+  getCachedMessages: (id: string) => HybridMessage[];  // NEW: Get cached messages synchronously
+  saveChatMessage: (id: string, message: HybridMessage) => Promise<void>;
   markChatSynced: (id: string, synced: boolean) => void;
-  trackAgentUsage: (id: string, agentType?: string) => void; // NEW: Agent tracking function
-  // NEW: Enhanced hybrid storage functions
-  loadMessagesFromRemote: (id: string) => Promise<HybridMessage[]>;
-  saveMessagesToRemote: (id: string, messages: HybridMessage[]) => Promise<boolean>;
-  getMessagesProgressively: (id: string) => Promise<{ messages: HybridMessage[]; isLoading: boolean }>;
+  trackAgentUsage: (id: string, agentType?: string) => void;
+  refreshChats: () => Promise<void>;  // NEW: Refresh chat list from server
 }
 
 // Create context
 const ChatManagerContext = createContext<ChatManagerContextType | undefined>(undefined);
 
-// Storage keys
-const STORAGE_KEYS = {
-  CHATS: 'chatsg-chats',
-  ACTIVE_CHAT: 'chatsg-active-chat',
-  MESSAGES_PREFIX: 'chat-messages-',      // For local message cache
-  METADATA_PREFIX: 'chat-metadata-',      // NEW: For chat metadata only
-  REMOTE_SYNC: 'chatsg-remote-sync',      // NEW: For remote sync status
-} as const;
-
-// Helper function to safely access localStorage
-const getStorageItem = (key: string, fallback: any = null) => {
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : fallback;
-  } catch (error) {
-    console.warn(`[ChatManager] Failed to read from localStorage:`, error);
-    return fallback;
-  }
-};
-
-// Helper function to safely write to localStorage
-const setStorageItem = (key: string, value: any) => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (error) {
-    console.warn(`[ChatManager] Failed to write to localStorage:`, error);
-  }
-};
-
-// Helper function to create a default chat - enhanced
-const createDefaultChat = (): Chat => ({
-  id: crypto.randomUUID(),
-  title: 'New Chat',
-  createdAt: new Date(),
-  lastMessageAt: new Date(),
-  messageCount: 0,
-  isLoading: false,
-  hasNewMessages: false,
-  isSynced: false,
-  lastSyncAt: undefined,
-  isLoadingMessages: false,    // NEW
-  remoteMessageCount: 0,       // NEW
-  localMessageCount: 0,        // NEW
-  lastRemoteSync: undefined,   // NEW
-  agentType: undefined,        // NEW: no agent assigned initially
-  agentHistory: [],            // NEW: empty agent history
-});
-
-// Helper function to deserialize dates from localStorage - enhanced
-const deserializeChat = (chat: any): Chat => ({
-  ...chat,
-  createdAt: new Date(chat.createdAt),
-  lastMessageAt: new Date(chat.lastMessageAt),
-  isLoading: chat.isLoading || false,
-  hasNewMessages: chat.hasNewMessages || false,
-  isSynced: chat.isSynced || false,
-  lastSyncAt: chat.lastSyncAt ? new Date(chat.lastSyncAt) : undefined,
-  isLoadingMessages: chat.isLoadingMessages || false,           // NEW
-  remoteMessageCount: chat.remoteMessageCount || 0,             // NEW
-  localMessageCount: chat.localMessageCount || 0,              // NEW
-  lastRemoteSync: chat.lastRemoteSync ? new Date(chat.lastRemoteSync) : undefined, // NEW
-  agentType: chat.agentType || undefined,                       // NEW
-  agentHistory: chat.agentHistory || [],                        // NEW
-});
+// Message cache to avoid redundant API calls
+const messageCache = new Map<string, { messages: HybridMessage[], timestamp: number }>();
+const CACHE_TTL = 60000; // 1 minute cache
 
 // Helper function to convert ChatMessage to HybridMessage
 const convertToHybridMessage = (apiMessage: ChatMessage): HybridMessage => ({
@@ -142,45 +87,85 @@ const convertToApiMessage = (hybridMessage: HybridMessage): ChatMessage => ({
   agent: hybridMessage.agent,
 });
 
+// Helper function to convert ChatMetadata to Chat
+const convertMetadataToChat = (metadata: ChatMetadata): Chat => ({
+  ...metadata,
+  isLoading: false,
+  hasNewMessages: false,
+  isSynced: true,
+  isLoadingMessages: false,
+  remoteMessageCount: metadata.messageCount,
+  agentHistory: [],
+});
+
 // ChatManager Provider component
 export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Initialize state from localStorage, following ThemeSwitcher pattern
-  const [chats, setChats] = useState<Chat[]>(() => {
-    const storedChats = getStorageItem(STORAGE_KEYS.CHATS, []);
-    
-    // If no chats exist, create a default one
-    if (storedChats.length === 0) {
-      const defaultChat = createDefaultChat();
-      return [defaultChat];
-    }
-    
-    // Deserialize dates from stored chats
-    return storedChats.map(deserializeChat);
-  });
-
-  const [activeChatId, setActiveChatId] = useState<string>(() => {
-    const storedActiveId = getStorageItem(STORAGE_KEYS.ACTIVE_CHAT);
-    
-    // If no active chat stored, use the first chat's ID
-    if (!storedActiveId && chats.length > 0) {
-      return chats[0].id;
-    }
-    
-    return storedActiveId || '';
-  });
-
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string>('');
+  const [isLoadingChats, setIsLoadingChats] = useState(true);
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
+  const [isDeletingChat, setIsDeletingChat] = useState<string | null>(null);
+  
   // Track sync status for background operations
   const [syncInProgress, setSyncInProgress] = useState<Set<string>>(new Set());
 
-  // Auto-save chats to localStorage when state changes
-  useEffect(() => {
-    setStorageItem(STORAGE_KEYS.CHATS, chats);
-  }, [chats]);
-
-  // Auto-save active chat ID to localStorage when it changes
-  useEffect(() => {
-    setStorageItem(STORAGE_KEYS.ACTIVE_CHAT, activeChatId);
+  // Load chats from server on mount
+  const refreshChats = useCallback(async () => {
+    setIsLoadingChats(true);
+    try {
+      const { chats: remoteChats } = await getAllChats();
+      
+      if (remoteChats.length === 0) {
+        // Create a default local chat if none exist
+        const defaultChat: Chat = {
+          id: crypto.randomUUID(),
+          title: 'New Chat',
+          createdAt: new Date(),
+          lastMessageAt: new Date(),
+          messageCount: 0,
+          isLoading: false,
+          hasNewMessages: false,
+          isSynced: false,
+          isLoadingMessages: false,
+          remoteMessageCount: 0,
+          agentHistory: [],
+        };
+        setChats([defaultChat]);
+        setActiveChatId(defaultChat.id);
+      } else {
+        setChats(remoteChats.map(convertMetadataToChat));
+        // Set active chat to the first one if not set
+        if (!activeChatId && remoteChats.length > 0) {
+          setActiveChatId(remoteChats[0].id);
+        }
+      }
+    } catch (error) {
+      console.error('[ChatManager] Failed to load chats:', error);
+      // Create a default local chat on error
+      const defaultChat: Chat = {
+        id: crypto.randomUUID(),
+        title: 'New Chat',
+        createdAt: new Date(),
+        lastMessageAt: new Date(),
+        messageCount: 0,
+        isLoading: false,
+        hasNewMessages: false,
+        isSynced: false,
+        isLoadingMessages: false,
+        remoteMessageCount: 0,
+        agentHistory: [],
+      };
+      setChats([defaultChat]);
+      setActiveChatId(defaultChat.id);
+    } finally {
+      setIsLoadingChats(false);
+    }
   }, [activeChatId]);
+
+  // Initial load
+  useEffect(() => {
+    refreshChats();
+  }, []);
 
   // Ensure we have a valid active chat
   useEffect(() => {
@@ -189,23 +174,56 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   }, [chats, activeChatId]);
 
-  // NEW: Get chat messages from hybrid storage
-  const getChatMessages = (id: string): HybridMessage[] => {
+  // Update chat metadata
+  const updateChatMetadata = useCallback((
+    id: string, 
+    updates: Partial<Pick<Chat, 'lastMessageAt' | 'messageCount' | 'isLoading' | 'hasNewMessages' | 'isSynced' | 'lastSyncAt' | 'isLoadingMessages' | 'remoteMessageCount' | 'agentType' | 'agentHistory'>>
+  ): void => {
+    setChats(prevChats => 
+      prevChats.map(chat => (chat.id === id ? { ...chat, ...updates } : chat))
+    );
+  }, []);
+
+  // Clear new message indicator
+  const clearNewMessages = useCallback((id: string): void => {
+    updateChatMetadata(id, { hasNewMessages: false });
+  }, [updateChatMetadata]);
+
+  // Get chat messages from remote storage
+  const getChatMessages = useCallback(async (id: string): Promise<HybridMessage[]> => {
+    // Check cache first
+    const cached = messageCache.get(id);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.messages;
+    }
+
+    // Update loading state
+    updateChatMetadata(id, { isLoadingMessages: true });
+
     try {
-      const messages = getStorageItem(`${STORAGE_KEYS.MESSAGES_PREFIX}${id}`, []);
-      return messages.map((msg: any) => ({
-        ...msg,
-        timestamp: new Date(msg.timestamp),
-        synced: msg.synced || false,
-      }));
+      const history = await getChatHistory(id);
+      const messages = history.messages.map(convertToHybridMessage);
+      
+      // Update cache
+      messageCache.set(id, { messages, timestamp: Date.now() });
+      
+      // Update chat metadata
+      updateChatMetadata(id, { 
+        isLoadingMessages: false,
+        remoteMessageCount: messages.length,
+        messageCount: messages.length
+      });
+      
+      return messages;
     } catch (error) {
-      console.warn(`[ChatManager] Failed to load messages for chat ${id}:`, error);
+      console.error(`[ChatManager] Failed to load messages for chat ${id}:`, error);
+      updateChatMetadata(id, { isLoadingMessages: false });
       return [];
     }
-  };
+  }, [updateChatMetadata]);
 
-  // NEW: Track agent usage and update chat metadata
-  const trackAgentUsage = (id: string, agentType?: string): void => {
+  // Track agent usage and update chat metadata
+  const trackAgentUsage = useCallback((id: string, agentType?: string): void => {
     if (!agentType) return;
     
     setChats(prevChats => 
@@ -234,53 +252,44 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
     );
     
     console.log(`[ChatManager] Tracked agent usage: ${agentType} for chat ${id}`);
-  };
+  }, []);
 
-  // NEW: Enhanced saveChatMessage with agent tracking
-  const saveChatMessage = (id: string, message: HybridMessage): void => {
-    try {
-      const existingMessages = getChatMessages(id);
-      const updatedMessages = [...existingMessages, message];
-      setStorageItem(`${STORAGE_KEYS.MESSAGES_PREFIX}${id}`, updatedMessages);
-      
-      // Track agent usage if it's a bot message with agent info
-      if (message.sender === 'bot' && message.agent) {
-        trackAgentUsage(id, message.agent);
-      }
-      
-      // Update chat metadata with enhanced tracking
-      updateChatMetadata(id, {
-        lastMessageAt: message.timestamp,
-        messageCount: updatedMessages.length,
-        localMessageCount: updatedMessages.filter(m => !m.synced).length,
-        isSynced: message.synced, // Chat is only synced if the latest message is synced
-      });
-      
-      console.log(`[ChatManager] Saved message to hybrid storage for chat ${id}`);
-      
-      // Auto-sync new messages to remote storage in background
-      if (!message.synced) {
-        setTimeout(() => {
-          saveMessagesToRemoteImpl(id, [message]).catch(error => {
-            console.warn(`[ChatManager] Background sync failed for chat ${id}:`, error);
-          });
-        }, 1000); // Delay to avoid blocking UI
-      }
-    } catch (error) {
-      console.error(`[ChatManager] Failed to save message for chat ${id}:`, error);
+  // Save chat message (messages are now saved automatically by /api/chat endpoint)
+  const saveChatMessage = useCallback(async (id: string, message: HybridMessage): Promise<void> => {
+    // Update cache instead of deleting it
+    const cached = messageCache.get(id);
+    if (cached) {
+      // Add the new message to the cached messages
+      const updatedMessages = [...cached.messages, message];
+      messageCache.set(id, { messages: updatedMessages, timestamp: Date.now() });
     }
-  };
+    
+    // Track agent usage if it's a bot message with agent info
+    if (message.sender === 'bot' && message.agent) {
+      trackAgentUsage(id, message.agent);
+    }
+    
+    // Update chat metadata
+    updateChatMetadata(id, {
+      lastMessageAt: message.timestamp,
+      messageCount: (chats.find(c => c.id === id)?.messageCount || 0) + 1,
+      remoteMessageCount: (chats.find(c => c.id === id)?.remoteMessageCount || 0) + 1,
+      isSynced: true,
+    });
+    
+    console.log(`[ChatManager] Updated metadata for chat ${id}`);
+  }, [chats, trackAgentUsage, updateChatMetadata]);
 
-  // NEW: Mark chat as synced/unsynced
-  const markChatSynced = (id: string, synced: boolean): void => {
+  // Mark chat as synced/unsynced
+  const markChatSynced = useCallback((id: string, synced: boolean): void => {
     updateChatMetadata(id, {
       isSynced: synced,
       lastSyncAt: synced ? new Date() : undefined,
     });
-  };
+  }, [updateChatMetadata]);
 
-  // NEW: Sync chat with backend
-  const syncChatWithBackend = async (id: string): Promise<void> => {
+  // Sync chat with backend
+  const syncChatWithBackend = useCallback(async (id: string): Promise<void> => {
     if (syncInProgress.has(id)) {
       console.log(`[ChatManager] Sync already in progress for chat ${id}`);
       return;
@@ -291,43 +300,11 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
     try {
       console.log(`[ChatManager] Starting sync for chat ${id}`);
       
-      // Get chat history from backend
-      const backendHistory = await getChatHistory(id);
-      const backendMessages = backendHistory.messages.map(convertToHybridMessage);
+      // For now, just refresh the messages from the server
+      await getChatMessages(id);
       
-      // Get local messages
-      const localMessages = getChatMessages(id);
-      
-      // Merge messages (backend takes precedence for conflicts)
-      const mergedMessages: HybridMessage[] = [];
-      const messageMap = new Map<number, HybridMessage>();
-      
-      // Add backend messages first (they are authoritative)
-      backendMessages.forEach(msg => messageMap.set(msg.id, msg));
-      
-      // Add local messages that aren't in backend yet
-      localMessages.forEach(msg => {
-        if (!messageMap.has(msg.id)) {
-          messageMap.set(msg.id, { ...msg, synced: false });
-        }
-      });
-      
-      // Sort messages by timestamp
-      const sortedMessages = Array.from(messageMap.values())
-        .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-      
-      // Save merged messages to local storage
-      setStorageItem(`${STORAGE_KEYS.MESSAGES_PREFIX}${id}`, sortedMessages);
-      
-      // Update chat metadata
-      updateChatMetadata(id, {
-        messageCount: sortedMessages.length,
-        isSynced: true,
-        lastSyncAt: new Date(),
-        lastMessageAt: sortedMessages.length > 0 ? sortedMessages[sortedMessages.length - 1].timestamp : new Date(),
-      });
-      
-      console.log(`[ChatManager] Successfully synced chat ${id} with ${sortedMessages.length} messages`);
+      markChatSynced(id, true);
+      console.log(`[ChatManager] Successfully synced chat ${id}`);
       
     } catch (error) {
       console.warn(`[ChatManager] Failed to sync chat ${id} with backend:`, error);
@@ -339,256 +316,119 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
         return newSet;
       });
     }
-  };
+  }, [syncInProgress, getChatMessages, markChatSynced]);
 
-  // Create a new chat
-  const createChat = (title?: string): string => {
-    const newChat: Chat = {
-      id: crypto.randomUUID(),
+  // Create a new chat locally (will auto-create on server when first message is sent)
+  const createChat = useCallback(async (title?: string): Promise<string> => {
+    const optimisticId = crypto.randomUUID();
+    const optimisticChat: Chat = {
+      id: optimisticId,
       title: title || 'New Chat',
       createdAt: new Date(),
       lastMessageAt: new Date(),
       messageCount: 0,
-      isLoading: false,        // NEW: default to not loading
-      hasNewMessages: false,   // NEW: default to no new messages
-      isSynced: false,         // NEW: default to not synced
-      lastSyncAt: undefined,   // NEW: no sync yet
-      isLoadingMessages: false,    // NEW
-      remoteMessageCount: 0,       // NEW
-      localMessageCount: 0,        // NEW
-      lastRemoteSync: undefined,   // NEW
-      agentType: undefined,        // NEW: no agent assigned initially
-      agentHistory: [],            // NEW: empty agent history
+      isLoading: false,
+      hasNewMessages: false,
+      isSynced: false,
+      isLoadingMessages: false,
+      remoteMessageCount: 0,
+      agentHistory: [],
     };
+    
+    // Add chat locally
+    setChats(prevChats => [...prevChats, optimisticChat]);
+    setActiveChatId(optimisticId);
+    
+    console.log(`[ChatManager] Created new local chat: ${optimisticId}`);
+    return optimisticId;
+  }, []);
 
-    setChats(prevChats => [...prevChats, newChat]);
-    setActiveChatId(newChat.id);
+  // Delete a chat with optimistic update and rollback
+  const deleteChat = useCallback(async (id: string): Promise<void> => {
+    setIsDeletingChat(id);
     
-    // Initialize empty message array for new chat
-    setStorageItem(`${STORAGE_KEYS.MESSAGES_PREFIX}${newChat.id}`, []);
+    // Store the chat for potential rollback
+    const chatToDelete = chats.find(c => c.id === id);
+    const previousActiveId = activeChatId;
     
-    console.log('[ChatManager] Created new chat:', newChat.id);
-    return newChat.id;
-  };
-
-  // Delete a chat
-  const deleteChat = (id: string): void => {
-    // Clean up chat messages from localStorage
-    try {
-      localStorage.removeItem(`${STORAGE_KEYS.MESSAGES_PREFIX}${id}`);
-      console.log(`[ChatManager] Cleaned up messages for deleted chat: ${id}`);
-    } catch (error) {
-      console.warn(`[ChatManager] Failed to cleanup messages for chat ${id}:`, error);
-    }
-    
+    // Optimistic update - remove immediately
     setChats(prevChats => {
-      const updatedChats = prevChats.filter(chat => chat.id !== id);
+      const newChats = prevChats.filter(chat => chat.id !== id);
       
-      // If we deleted the active chat, switch to another one
-      if (id === activeChatId && updatedChats.length > 0) {
-        setActiveChatId(updatedChats[0].id);
-      } else if (updatedChats.length === 0) {
-        // If no chats left, create a new default one
-        const defaultChat = createDefaultChat();
-        setActiveChatId(defaultChat.id);
-        return [defaultChat];
+      // If we're deleting the active chat, switch to another one
+      if (activeChatId === id && newChats.length > 0) {
+        setActiveChatId(newChats[0].id);
       }
       
-      console.log('[ChatManager] Deleted chat:', id);
-      return updatedChats;
+      return newChats;
     });
-  };
+    
+    // Clear cache optimistically
+    messageCache.delete(id);
+    
+    try {
+      await deleteChatAPI(id);
+      console.log(`[ChatManager] Deleted chat: ${id}`);
+    } catch (error) {
+      console.error(`[ChatManager] Failed to delete chat ${id}:`, error);
+      
+      // Rollback on error
+      if (chatToDelete) {
+        setChats(prevChats => [...prevChats, chatToDelete]);
+        setActiveChatId(previousActiveId);
+        // Note: message cache was already cleared, would need to reload messages
+      }
+      
+      throw error;
+    } finally {
+      setIsDeletingChat(null);
+    }
+  }, [activeChatId, chats]);
 
   // Rename a chat
-  const renameChat = (id: string, title: string): void => {
-    setChats(prevChats => 
-      prevChats.map(chat => 
-        chat.id === id 
-          ? { ...chat, title: title.trim() || 'Untitled Chat' }
-          : chat
-      )
+  const renameChat = useCallback(async (id: string, title: string): Promise<void> => {
+    // Update locally first (optimistic update)
+    setChats(prevChats =>
+      prevChats.map(chat => (chat.id === id ? { ...chat, title } : chat))
     );
     
-    console.log('[ChatManager] Renamed chat:', id, 'to:', title);
-  };
+    // TODO: Implement rename endpoint on backend
+    console.log(`[ChatManager] Renamed chat ${id} to: ${title}`);
+  }, []);
 
-  // Update chat metadata (lastMessageAt, messageCount, isLoading, hasNewMessages, isSynced, lastSyncAt)
-  const updateChatMetadata = (id: string, updates: Partial<Pick<Chat, 'lastMessageAt' | 'messageCount' | 'isLoading' | 'hasNewMessages' | 'isSynced' | 'lastSyncAt' | 'isLoadingMessages' | 'remoteMessageCount' | 'localMessageCount' | 'lastRemoteSync' | 'agentType' | 'agentHistory'>>): void => {
-    setChats(prevChats => 
-      prevChats.map(chat => 
-        chat.id === id 
-          ? { ...chat, ...updates }
-          : chat
-      )
-    );
-  };
+  // Switch active chat
+  const switchChat = useCallback((id: string): void => {
+    console.log(`[ChatManager] Switching to chat: ${id}`);
+    setActiveChatId(id);
+    clearNewMessages(id);
+  }, [clearNewMessages]);
 
-  // NEW: Set loading state for a specific chat
-  const setChatLoading = (id: string, isLoading: boolean): void => {
-    setChats(prevChats => 
-      prevChats.map(chat => 
-        chat.id === id ? { ...chat, isLoading } : chat
-      )
-    );
-  };
+  // Set chat loading state
+  const setChatLoading = useCallback((id: string, isLoading: boolean): void => {
+    updateChatMetadata(id, { isLoading });
+  }, [updateChatMetadata]);
 
-  // NEW: Mark chat as having new messages
-  const markChatNewMessage = (id: string, hasNew: boolean): void => {
-    setChats(prevChats => 
-      prevChats.map(chat => 
-        chat.id === id ? { ...chat, hasNewMessages: hasNew } : chat
-      )
-    );
-  };
-
-  // NEW: Clear new message indicator for a specific chat
-  const clearNewMessages = (id: string): void => {
-    setChats(prevChats => 
-      prevChats.map(chat => 
-        chat.id === id ? { ...chat, hasNewMessages: false } : chat
-      )
-    );
-  };
-
-  // Switch to a different chat
-  const switchChat = (id: string): void => {
-    const chatExists = chats.find(chat => chat.id === id);
-    if (chatExists) {
-      setActiveChatId(id);
-      clearNewMessages(id); // NEW: clear new messages when switching
-      
-      // NEW: Attempt to sync chat with backend when switching (background operation)
-      if (!chatExists.isSynced || (chatExists.lastSyncAt && Date.now() - chatExists.lastSyncAt.getTime() > 5 * 60 * 1000)) {
-        // Sync if not synced or last sync was more than 5 minutes ago
-        syncChatWithBackend(id).catch(error => {
-          console.warn(`[ChatManager] Background sync failed for chat ${id}:`, error);
-        });
-      }
-      
-      console.log('[ChatManager] Switched to chat:', id);
-    } else {
-      console.warn('[ChatManager] Attempted to switch to non-existent chat:', id);
+  // Mark chat as having new messages
+  const markChatNewMessage = useCallback((id: string, hasNew: boolean): void => {
+    // Only mark as new if it's not the active chat
+    if (id !== activeChatId) {
+      updateChatMetadata(id, { hasNewMessages: hasNew });
     }
-  };
+  }, [activeChatId, updateChatMetadata]);
 
-  // NEW: Enhanced hybrid storage functions
-  const loadMessagesFromRemoteImpl = async (id: string): Promise<HybridMessage[]> => {
-    try {
-      updateChatMetadata(id, { isLoadingMessages: true });
-      
-      // Use getChatHistory instead of loadMessagesFromRemote since the backend has /api/chats/:sessionId/history
-      const historyResponse = await getChatHistory(id);
-      
-      // Convert ChatMessage[] to HybridMessage[]
-      const hybridMessages: HybridMessage[] = historyResponse.messages.map((entry: any) => ({
-        id: entry.id || parseInt(`${Date.now()}${Math.random()}`),
-        content: entry.content,
-        sender: entry.type === 'user' ? 'user' : 'bot',
-        timestamp: new Date(entry.timestamp),
-        agent: entry.agent,
-        sessionId: id,
-        synced: true  // Messages from remote are considered synced
-      }));
+  // Get cached messages synchronously (no API call)
+  const getCachedMessages = useCallback((id: string): HybridMessage[] => {
+    const cached = messageCache.get(id);
+    return cached ? cached.messages : [];
+  }, []);
 
-      updateChatMetadata(id, { 
-        isLoadingMessages: false, 
-        isSynced: true,
-        lastRemoteSync: new Date()
-      });
-      
-      return hybridMessages;
-    } catch (error) {
-      console.error('Failed to load messages from remote:', error);
-      updateChatMetadata(id, { isLoadingMessages: false });
-      return [];
-    }
-  };
-
-  const saveMessagesToRemoteImpl = async (id: string, messages: HybridMessage[]): Promise<boolean> => {
-    try {
-      const apiMessages = messages.map(convertToApiMessage);
-      const response = await saveMessagesToRemote(id, apiMessages);
-      
-      if (response.success) {
-        // Mark messages as synced
-        const syncedMessages = messages.map(msg => ({ ...msg, synced: true }));
-        setStorageItem(`${STORAGE_KEYS.MESSAGES_PREFIX}${id}`, syncedMessages);
-        
-        updateChatMetadata(id, {
-          remoteMessageCount: response.messagesSaved,
-          lastRemoteSync: new Date(),
-        });
-        
-        console.log(`[ChatManager] Saved ${response.messagesSaved} messages to remote for chat ${id}`);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.warn(`[ChatManager] Failed to save messages to remote for chat ${id}:`, error);
-      return false;
-    }
-  };
-
-  const getMessagesProgressively = async (id: string): Promise<{ messages: HybridMessage[]; isLoading: boolean }> => {
-    // First, return local messages immediately for fast UI response
-    const localMessages = getChatMessages(id);
-    const chat = chats.find(c => c.id === id);
-    
-    if (!chat) {
-      return { messages: localMessages, isLoading: false };
-    }
-
-    // Check if we need to load from remote
-    const shouldLoadRemote = !chat.isSynced || 
-      !chat.lastRemoteSync || 
-      (Date.now() - chat.lastRemoteSync.getTime() > 5 * 60 * 1000); // 5 minutes
-
-    if (shouldLoadRemote && !chat.isLoadingMessages) {
-      // Start loading from remote in background
-      loadMessagesFromRemoteImpl(id).then(remoteMessages => {
-        if (remoteMessages.length > 0) {
-          // Merge with local messages
-          const mergedMessages = mergeMessages(localMessages, remoteMessages);
-          setChats(prevChats => 
-            prevChats.map(c => 
-              c.id === id 
-                ? { ...c, messages: mergedMessages }
-                : c
-            )
-          );
-        }
-      }).catch(error => {
-        console.error('Background remote loading failed:', error);
-      });
-
-      return { messages: localMessages, isLoading: true };
-    }
-
-    return { messages: localMessages, isLoading: false };
-  };
-
-  // Helper function to merge local and remote messages
-  const mergeMessages = (localMessages: HybridMessage[], remoteMessages: HybridMessage[]): HybridMessage[] => {
-    const messageMap = new Map<number, HybridMessage>();
-    
-    // Add remote messages first (they are authoritative)
-    remoteMessages.forEach(msg => messageMap.set(msg.id, msg));
-    
-    // Add local messages that aren't in remote yet
-    localMessages.forEach(msg => {
-      if (!messageMap.has(msg.id)) {
-        messageMap.set(msg.id, msg);
-      }
-    });
-    
-    // Sort messages by timestamp
-    return Array.from(messageMap.values())
-      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-  };
-
+  // Context value
   const contextValue: ChatManagerContextType = {
     chats,
     activeChatId,
+    isLoadingChats,
+    isCreatingChat,
+    isDeletingChat,
     createChat,
     deleteChat,
     renameChat,
@@ -599,12 +439,11 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
     clearNewMessages,
     syncChatWithBackend,
     getChatMessages,
+    getCachedMessages,
     saveChatMessage,
     markChatSynced,
     trackAgentUsage,
-    loadMessagesFromRemote: loadMessagesFromRemoteImpl,
-    saveMessagesToRemote: saveMessagesToRemoteImpl,
-    getMessagesProgressively,
+    refreshChats,
   };
 
   return (
@@ -614,15 +453,11 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
   );
 };
 
-// Custom hook to use ChatManager context
-export const useChatManager = (): ChatManagerContextType => {
+// Custom hook to use the ChatManager context
+export const useChatManager = () => {
   const context = useContext(ChatManagerContext);
-  
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useChatManager must be used within a ChatManagerProvider');
   }
-  
   return context;
 };
-
-export default useChatManager; 

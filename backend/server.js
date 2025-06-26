@@ -16,9 +16,22 @@ const http = require('http');
 const https = require('https');
 const { exec } = require('child_process');
 const axios = require('axios');
+const crypto = require('crypto');
 
 // Import orchestrator modules with error handling
 let createOrchestrationSetup, createBackendIntegration, OrchestratorAgentFactory, StateManager, createStateContext;
+
+// Import new storage system
+let StorageManager, getStorageManager, ContextManager;
+try {
+    const storage = require('./dist/src/storage');
+    StorageManager = storage.StorageManager;
+    getStorageManager = storage.getStorageManager;
+    ContextManager = storage.ContextManager;
+    console.log('[Server] Loaded new storage system');
+} catch (error) {
+    console.warn('[Server] Could not load storage modules:', error.message);
+}
 
 try {
     const routing = require('./dist/src/routing');
@@ -54,6 +67,17 @@ const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3000';
 const WEBHOOK_URL = process.env.WEBHOOK_URL || 'http://localhost:5678/webhook/chat';
 const ENVIRONMENT = process.env.ENVIRONMENT || 'production'; // Legacy support
 const BACKEND = process.env.BACKEND || 'Orch'; // New backend routing: 'Orch', 'n8n', 'Generic'
+
+// Initialize storage manager
+let storageManager = null;
+if (getStorageManager) {
+    storageManager = getStorageManager();
+    storageManager.initialize().then(() => {
+        console.log('[Server] Storage manager initialized');
+    }).catch(error => {
+        console.error('[Server] Failed to initialize storage manager:', error);
+    });
+}
 
 // Initialize Orchestrator if using Orch backend
 let orchestrationSetup = null;
@@ -252,6 +276,36 @@ const server = http.createServer(async (req, res) => {
                 const data = JSON.parse(body);
                 const sessionId = data.sessionId || 'default';
                 
+                // Auto-create session if needed and save user message
+                if (storageManager && data.message) {
+                    try {
+                        // Check if session exists, create if not
+                        const sessionExists = storageManager.sessionExists(sessionId);
+                        
+                        if (!sessionExists) {
+                            // Auto-create session on first message
+                            await storageManager.createSession({
+                                sessionId: sessionId,
+                                title: data.message.substring(0, 50) + (data.message.length > 50 ? '...' : ''),
+                                userId: data.userId
+                            });
+                            console.log(`[Server] Auto-created session: ${sessionId}`);
+                        }
+                        
+                        // Save user message
+                        await storageManager.saveMessage({
+                            sessionId: sessionId,
+                            type: 'user',
+                            content: data.message,
+                            metadata: {
+                                userId: data.userId
+                            }
+                        });
+                    } catch (storageError) {
+                        console.error('[Server] Failed to save user message:', storageError);
+                    }
+                }
+                
                 // Route based on BACKEND configuration
                 switch (BACKEND) {
                     case 'Orch':
@@ -279,6 +333,25 @@ const server = http.createServer(async (req, res) => {
                             }
                         );
                         
+                        // Save assistant response to storage
+                        if (storageManager && orchResult.response && orchResult.response.message) {
+                            try {
+                                await storageManager.saveMessage({
+                                    sessionId: sessionId,
+                                    type: 'assistant',
+                                    content: orchResult.response.message,
+                                    metadata: {
+                                        agent: orchResult.response._agent || 'orchestrator',
+                                        confidence: orchResult.response._orchestration?.confidence,
+                                        processingTime: orchResult.response._orchestration?.executionTime,
+                                        toolsUsed: orchResult.response._toolsUsed || []
+                                    }
+                                });
+                            } catch (storageError) {
+                                console.error('[Server] Failed to save assistant message:', storageError);
+                            }
+                        }
+                        
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(orchResult.response));
                         break;
@@ -288,6 +361,23 @@ const server = http.createServer(async (req, res) => {
                         console.log(`[N8N] Forwarding to webhook: ${WEBHOOK_URL}`);
                         const response = await axios.post(WEBHOOK_URL, { message: data.message });
                         const output = response.data.output || 'No output from webhook.';
+                        
+                        // Save n8n response to storage
+                        if (storageManager) {
+                            try {
+                                await storageManager.saveMessage({
+                                    sessionId: sessionId,
+                                    type: 'assistant',
+                                    content: output,
+                                    metadata: {
+                                        agent: 'n8n-webhook',
+                                        backend: 'n8n'
+                                    }
+                                });
+                            } catch (storageError) {
+                                console.error('[Server] Failed to save n8n message:', storageError);
+                            }
+                        }
                         
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ 
@@ -305,6 +395,24 @@ const server = http.createServer(async (req, res) => {
                         await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
                         
                         const simulatedResponse = getSimulatedN8nResponse(data.message);
+                        
+                        // Save simulated response to storage
+                        if (storageManager) {
+                            try {
+                                await storageManager.saveMessage({
+                                    sessionId: sessionId,
+                                    type: 'assistant',
+                                    content: simulatedResponse,
+                                    metadata: {
+                                        agent: 'generic-simulator',
+                                        backend: 'Generic',
+                                        simulation: true
+                                    }
+                                });
+                            } catch (storageError) {
+                                console.error('[Server] Failed to save generic message:', storageError);
+                            }
+                        }
                         
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ 
@@ -372,6 +480,35 @@ const server = http.createServer(async (req, res) => {
     } else if (req.url === '/api/chats' && req.method === 'GET') {
         // List all chat sessions
         try {
+            // Use new storage manager if available
+            if (storageManager) {
+                const sessions = storageManager.listSessions({
+                    status: ['active', 'inactive'],
+                    sortBy: 'lastActivityAt',
+                    sortOrder: 'desc'
+                });
+                
+                // Convert to frontend format
+                const formattedSessions = sessions.map(session => ({
+                    id: session.sessionId || session.file?.replace('session_', '').replace('.jsonl', ''),
+                    title: session.title,
+                    createdAt: session.createdAt,
+                    lastMessageAt: session.lastActivityAt,
+                    messageCount: session.messageCount,
+                    status: session.status,
+                    agentType: session.metadata?.lastAgent
+                }));
+                
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    chats: formattedSessions,
+                    totalChats: formattedSessions.length,
+                    _backend: BACKEND,
+                    _storage: 'new'
+                }));
+                return;
+            }
+            
             switch (BACKEND) {
                 case 'Orch':
                     if (!backendIntegration) {
@@ -418,6 +555,38 @@ const server = http.createServer(async (req, res) => {
         try {
             const sessionId = req.url.match(/^\/api\/chats\/([^/]+)\/history$/)[1];
             
+            // Use new storage manager if available (preferred)
+            if (storageManager) {
+                const messages = await storageManager.getMessages(sessionId);
+                
+                // Convert to frontend format
+                const formattedMessages = messages.map((msg, index) => ({
+                    id: index,
+                    content: msg.content,
+                    type: msg.type,
+                    timestamp: msg.timestamp,
+                    agent: msg.metadata?.agent,
+                    sender: msg.type === 'user' ? 'user' : 'bot'
+                }));
+                
+                const sessionInfo = storageManager.sessionIndex.getSession(sessionId);
+                const totalCount = sessionInfo ? sessionInfo.messageCount : messages.length;
+                
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    sessionId: sessionId,
+                    messages: formattedMessages,
+                    messageCount: totalCount,
+                    agentHistory: [], // Would need to fetch from state manager if needed
+                    toolsUsed: [], // Would need to fetch from tool logger if needed
+                    analytics: {},
+                    _backend: BACKEND,
+                    _storage: 'jsonl'
+                }));
+                return;
+            }
+            
+            // Fallback to StateManager for backward compatibility
             switch (BACKEND) {
                 case 'Orch':
                     if (!backendIntegration) {
@@ -999,6 +1168,366 @@ const server = http.createServer(async (req, res) => {
                 }));
             }
         });
+    } else if (req.url === '/api/chats' && req.method === 'GET') {
+        // Get all chats with metadata
+        try {
+            switch (BACKEND) {
+                case 'Orch':
+                    if (!backendIntegration) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Orchestrator not available' }));
+                        return;
+                    }
+                    
+                    const stateManager = StateManager.getInstance();
+                    const context = createStateContext('system', 'system', 'default');
+                    
+                    // Get all sessions (this is a simplified approach - in production you'd want pagination)
+                    const allSessions = [];
+                    
+                    // For now, return empty array as we need a proper session listing mechanism
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({
+                        chats: allSessions,
+                        totalChats: 0,
+                        _backend: 'Orch'
+                    }));
+                    break;
+                    
+                default:
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ 
+                        chats: [],
+                        totalChats: 0,
+                        _backend: BACKEND,
+                        _note: 'Chat listing not available - only with Orch backend'
+                    }));
+                    break;
+            }
+        } catch (error) {
+            console.error('Chat list error:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                error: 'Failed to get chat list',
+                details: error.message
+            }));
+        }
+    } else if (req.url.match(/^\/api\/chats\/([^/]+)$/) && req.method === 'DELETE') {
+        // Delete chat
+        try {
+            const chatId = req.url.match(/^\/api\/chats\/([^/]+)$/)[1];
+            
+            // Use new storage manager if available
+            if (storageManager) {
+                await storageManager.deleteSession(chatId);
+                
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    success: true,
+                    chatId: chatId,
+                    _backend: BACKEND,
+                    _storage: 'new'
+                }));
+                return;
+            }
+            
+            switch (BACKEND) {
+                case 'Orch':
+                    if (!backendIntegration) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Orchestrator not available' }));
+                        return;
+                    }
+                    
+                    // For now, just return success as we need proper deletion mechanism
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({
+                        success: true,
+                        chatId: chatId,
+                        _backend: 'Orch'
+                    }));
+                    break;
+                    
+                default:
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ 
+                        success: true,
+                        chatId: chatId,
+                        _backend: BACKEND,
+                        _note: 'Chat not actually deleted - only with Orch backend'
+                    }));
+                    break;
+            }
+        } catch (error) {
+            console.error('Delete chat error:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                error: 'Failed to delete chat',
+                details: error.message
+            }));
+        }
+    } else if (req.url.match(/^\/api\/chats\/([^/]+)\/messages$/) && req.method === 'GET') {
+        // Get chat messages with pagination
+        try {
+            const sessionId = req.url.match(/^\/api\/chats\/([^/]+)\/messages$/)[1];
+            const urlParams = new URL(req.url, `http://localhost:${PORT}`).searchParams;
+            const limit = parseInt(urlParams.get('limit') || '50');
+            const offset = parseInt(urlParams.get('offset') || '0');
+            
+            // Use new storage manager if available
+            if (storageManager) {
+                const messages = await storageManager.getMessages(sessionId, {
+                    limit: limit,
+                    offset: offset
+                });
+                
+                // Convert to frontend format
+                const formattedMessages = messages.map((msg, index) => ({
+                    id: offset + index,
+                    content: msg.content,
+                    type: msg.type,
+                    timestamp: msg.timestamp,
+                    agent: msg.metadata?.agent,
+                    sender: msg.type === 'user' ? 'user' : 'bot'
+                }));
+                
+                const sessionInfo = storageManager.sessionIndex.getSession(sessionId);
+                const totalCount = sessionInfo ? sessionInfo.messageCount : messages.length;
+                
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    sessionId: sessionId,
+                    messages: formattedMessages,
+                    totalMessages: totalCount,
+                    hasMore: (offset + limit) < totalCount,
+                    _backend: BACKEND,
+                    _storage: 'new'
+                }));
+                return;
+            }
+            
+            switch (BACKEND) {
+                case 'Orch':
+                    if (!backendIntegration) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Orchestrator not available' }));
+                        return;
+                    }
+                    
+                    const stateManager = StateManager.getInstance();
+                    const context = createStateContext(sessionId, 'system', 'default');
+                    const sessionResult = await stateManager.getSessionState(sessionId, context);
+                    
+                    if (sessionResult.success && sessionResult.data) {
+                        const session = sessionResult.data;
+                        const messages = [];
+                        
+                        // Extract messages from message history
+                        if (session.messageHistory && session.messageHistory.messages) {
+                            session.messageHistory.messages.forEach((msg, index) => {
+                                messages.push({
+                                    id: index,
+                                    content: msg.content,
+                                    type: msg._getType(),
+                                    timestamp: new Date().toISOString(),
+                                    agent: session.metadata?.agent
+                                });
+                            });
+                        }
+                        
+                        // Apply pagination
+                        const paginatedMessages = messages.slice(offset, offset + limit);
+                        
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({
+                            sessionId: sessionId,
+                            messages: paginatedMessages,
+                            totalMessages: messages.length,
+                            hasMore: (offset + limit) < messages.length,
+                            _backend: 'Orch'
+                        }));
+                    } else {
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({
+                            sessionId: sessionId,
+                            messages: [],
+                            totalMessages: 0,
+                            hasMore: false,
+                            _backend: 'Orch'
+                        }));
+                    }
+                    break;
+                    
+                default:
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ 
+                        sessionId: sessionId,
+                        messages: [],
+                        totalMessages: 0,
+                        hasMore: false,
+                        _backend: BACKEND,
+                        _note: 'Message storage not available - only with Orch backend'
+                    }));
+                    break;
+            }
+        } catch (error) {
+            console.error('Get messages error:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                error: 'Failed to get messages',
+                details: error.message
+            }));
+        }
+    } else if (req.url === '/api/chats' && req.method === 'POST') {
+        // Create new chat session
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(body);
+                
+                // Generate unique session ID if not provided
+                const sessionId = data.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                
+                // Use new storage manager if available
+                if (storageManager) {
+                    const sessionData = {
+                        sessionId: sessionId,
+                        title: data.title || 'New Chat',
+                        userId: data.userId || 'default',
+                        metadata: data.metadata || {}
+                    };
+                    
+                    await storageManager.createSession(sessionData);
+                    
+                    // Get the created session details from the index
+                    const sessionInfo = storageManager.sessionIndex.getSession(sessionId);
+                    
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({
+                        success: true,
+                        sessionId: sessionId,
+                        session: {
+                            id: sessionId,
+                            title: sessionInfo.title,
+                            createdAt: sessionInfo.createdAt,
+                            status: sessionInfo.status,
+                            messageCount: 0
+                        },
+                        _backend: BACKEND,
+                        _storage: 'new'
+                    }));
+                    return;
+                }
+                
+                // Fallback for non-storage manager mode
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    success: true,
+                    sessionId: sessionId,
+                    session: {
+                        id: sessionId,
+                        title: data.title || 'New Chat',
+                        createdAt: new Date().toISOString(),
+                        status: 'active',
+                        messageCount: 0
+                    },
+                    _backend: BACKEND,
+                    _note: 'Session created in memory only - storage manager not available'
+                }));
+                
+            } catch (error) {
+                console.error('Create chat error:', error);
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ 
+                    error: 'Failed to create chat session',
+                    details: error.message
+                }));
+            }
+        });
+    } else if (req.url.match(/^\/api\/chats\/([^/]+)\/messages$/) && req.method === 'POST') {
+        // Save messages from frontend (batch operation)
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', async () => {
+            try {
+                const sessionId = req.url.match(/^\/api\/chats\/([^/]+)\/messages$/)[1];
+                const data = JSON.parse(body);
+                
+                // Validate input
+                if (!data.messages || !Array.isArray(data.messages)) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ 
+                        error: 'Invalid request',
+                        details: 'messages array is required'
+                    }));
+                    return;
+                }
+                
+                // Use new storage manager if available
+                if (storageManager) {
+                    // Check if session exists
+                    if (!storageManager.sessionIndex.sessionExists(sessionId)) {
+                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ 
+                            error: 'Session not found',
+                            sessionId: sessionId
+                        }));
+                        return;
+                    }
+                    
+                    // Save messages in batch
+                    let savedCount = 0;
+                    for (const message of data.messages) {
+                        try {
+                            await storageManager.saveMessage({
+                                sessionId: sessionId,
+                                type: message.type || 'user',
+                                content: message.content,
+                                metadata: message.metadata || {}
+                            });
+                            savedCount++;
+                        } catch (err) {
+                            console.error(`Failed to save message: ${err.message}`);
+                        }
+                    }
+                    
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({
+                        success: true,
+                        sessionId: sessionId,
+                        savedMessages: savedCount,
+                        totalMessages: data.messages.length,
+                        _backend: BACKEND,
+                        _storage: 'new'
+                    }));
+                    return;
+                }
+                
+                // Fallback for non-storage manager mode
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    success: true,
+                    sessionId: sessionId,
+                    savedMessages: data.messages.length,
+                    totalMessages: data.messages.length,
+                    _backend: BACKEND,
+                    _note: 'Messages not persisted - storage manager not available'
+                }));
+                
+            } catch (error) {
+                console.error('Save messages error:', error);
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ 
+                    error: 'Failed to save messages',
+                    details: error.message
+                }));
+            }
+        });
     } else {
         res.writeHead(404);
         res.end('Not found');
@@ -1044,5 +1573,36 @@ getIPAddresses().then(ips => {
         
         console.log(`- VNet IP: ${ips.private}`);
         console.log('===================================');
+    });
+});
+
+// Graceful shutdown handler
+process.on('SIGINT', async () => {
+    console.log('\n[Server] Shutting down gracefully...');
+    
+    // Close storage manager if available
+    if (storageManager) {
+        await storageManager.shutdown();
+    }
+    
+    // Close server
+    server.close(() => {
+        console.log('[Server] Server closed');
+        process.exit(0);
+    });
+});
+
+process.on('SIGTERM', async () => {
+    console.log('\n[Server] Shutting down gracefully...');
+    
+    // Close storage manager if available
+    if (storageManager) {
+        await storageManager.shutdown();
+    }
+    
+    // Close server
+    server.close(() => {
+        console.log('[Server] Server closed');
+        process.exit(0);
     });
 }); 
