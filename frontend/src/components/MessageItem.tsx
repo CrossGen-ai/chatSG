@@ -66,7 +66,7 @@ export const MessageItem = React.memo<MessageItemProps>(({
   return (
     <div
       className={clsx(
-        'flex items-end space-x-2 mb-4',
+        'flex items-end space-x-2',
         message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : 'flex-row',
         animationClass
       )}

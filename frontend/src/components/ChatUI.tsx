@@ -643,7 +643,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         )}
         
         {/* Show actual messages */}
-        <div className="space-y-4">
+        <div className="space-y-0">
           {displayedMessages.map((msg, index) => {
             // Only animate new messages, not on initial load or chat switch
             const showAnimation = !isInitialLoad && index === displayedMessages.length - 1 && index === messages.length - 1;
