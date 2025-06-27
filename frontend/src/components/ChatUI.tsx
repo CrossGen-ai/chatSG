@@ -513,7 +513,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     if (!effectiveActiveChatId || !currentChat) return;
     
     // Show loading state
-    setIsLoading(true);
+    setIsLoadingRemoteMessages(true);
     
     try {
       console.log(`[ChatUI] Loading more messages for ${effectiveActiveChatId}, current messages: ${messages.length}`);
@@ -577,7 +577,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     } catch (error) {
       console.error('[ChatUI] Failed to load more messages:', error);
     } finally {
-      setIsLoading(false);
+      setIsLoadingRemoteMessages(false);
     }
   }, [effectiveActiveChatId, currentChat, messages.length, loadMoreChatMessages]);
 
@@ -659,9 +659,9 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             <button
               onClick={loadMoreMessages}
               className="px-4 py-2 text-sm rounded-full backdrop-blur-md bg-white/40 dark:bg-black/30 border border-white/30 theme-text-secondary hover:bg-white/60 dark:hover:bg-black/50 transition-all duration-200"
-              disabled={isLoading}
+              disabled={isLoadingRemoteMessages}
             >
-              {isLoading ? 'Loading...' : `Load ${currentChat.messageCount - INITIAL_MESSAGE_COUNT} earlier messages`}
+              {isLoadingRemoteMessages ? 'Loading...' : `Load ${currentChat.messageCount - INITIAL_MESSAGE_COUNT} earlier messages`}
             </button>
           </div>
         )}
