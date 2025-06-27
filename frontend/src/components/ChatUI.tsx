@@ -171,6 +171,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   const [isLoadingRemoteMessages, setIsLoadingRemoteMessages] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [hasLoadedMore, setHasLoadedMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false); // NEW: Flag to prevent conflicting scroll management
   const [isScrollReady, setIsScrollReady] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -485,6 +486,12 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   
   // Update displayed messages when messages change
   useEffect(() => {
+    // Don't interfere with displayed messages during load more operations
+    if (isLoadingMore) {
+      console.log('[ChatUI] Skipping progressive display update - load more in progress');
+      return;
+    }
+    
     // Use total message count from chat metadata to decide whether to show all or recent messages
     const totalMessageCount = currentChat?.messageCount || messages.length;
     
@@ -494,10 +501,15 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       // Show only recent messages initially (the backend already returns the most recent 50)
       setDisplayedMessages(messages.slice(-INITIAL_MESSAGE_COUNT));
     }
-  }, [messages, hasLoadedMore, currentChat?.messageCount]);
+  }, [messages, hasLoadedMore, currentChat?.messageCount, isLoadingMore]);
   
   // Force scroll to bottom when messages are updated during initial load
   useEffect(() => {
+    if (isLoadingMore) {
+      console.log('[ChatUI] Skipping auto-scroll - load more in progress');
+      return;
+    }
+    
     if (!isScrollReady && displayedMessages.length > 0 && messagesContainerRef.current) {
       // Use setTimeout to ensure DOM has updated
       setTimeout(() => {
@@ -506,64 +518,82 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         }
       }, 0);
     }
-  }, [displayedMessages, isScrollReady]);
+  }, [displayedMessages, isScrollReady, isLoadingMore]);
   
-  // Load more messages handler with backend API call and scroll position preservation
+  // Load more messages handler with isolated scroll preservation
   const loadMoreMessages = useCallback(async () => {
-    if (!effectiveActiveChatId || !currentChat) return;
+    if (!effectiveActiveChatId || !currentChat || isLoadingMore) return;
     
-    // Show loading state
+    console.log(`[ChatUI] Starting load more - current messages: ${messages.length}, total: ${currentChat.messageCount}`);
+    
+    // Set loading flags to prevent interference from other useEffects
+    setIsLoadingMore(true);
     setIsLoadingRemoteMessages(true);
     
     try {
-      console.log(`[ChatUI] Loading more messages for ${effectiveActiveChatId}, current messages: ${messages.length}`);
+      // Save scroll position before any DOM changes
+      const scrollContainer = messagesContainerRef.current;
+      if (!scrollContainer) {
+        console.error('[ChatUI] No scroll container ref available');
+        return;
+      }
+      
+      const beforeState = {
+        scrollTop: scrollContainer.scrollTop,
+        scrollHeight: scrollContainer.scrollHeight,
+        clientHeight: scrollContainer.clientHeight
+      };
+      
+      console.log(`[ChatUI] Before load more:`, beforeState);
       
       // Call backend to get additional messages
       const allMessages = await loadMoreChatMessages(effectiveActiveChatId, messages.length);
       
-      if (messagesContainerRef.current) {
-        // Save the current scroll position and height - simpler approach
-        const scrollContainer = messagesContainerRef.current;
-        const previousScrollHeight = scrollContainer.scrollHeight;
-        const previousScrollTop = scrollContainer.scrollTop;
-        
-        console.log(`[ChatUI] Before loading: scrollTop=${previousScrollTop}, scrollHeight=${previousScrollHeight}`);
-        
-        // Update messages and mark as loaded
-        setMessages(allMessages);
-        setHasLoadedMore(true);
-        setDisplayedMessages(allMessages);
-        
-        // Restore scroll position using simpler logic
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            if (scrollContainer) {
-              const newScrollHeight = scrollContainer.scrollHeight;
-              const scrollHeightDiff = newScrollHeight - previousScrollHeight;
-              const newScrollTop = previousScrollTop + scrollHeightDiff;
-              
-              scrollContainer.scrollTop = newScrollTop;
-              console.log(`[ChatUI] After loading: scrollTop=${newScrollTop}, scrollHeight=${newScrollHeight}, diff=${scrollHeightDiff}`);
-            }
-          });
-        });
-      } else {
-        // No container ref, just update messages
-        setMessages(allMessages);
-        setHasLoadedMore(true);
-        setDisplayedMessages(allMessages);
-      }
+      console.log(`[ChatUI] Backend returned ${allMessages.length} total messages`);
       
-      console.log(`[ChatUI] Successfully loaded ${allMessages.length} total messages`);
+      // Batch all state updates together - set hasLoadedMore FIRST to prevent conflicts
+      setHasLoadedMore(true);
+      setMessages(allMessages);
+      setDisplayedMessages(allMessages);
+      
+      // Wait for DOM to update then restore scroll position
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          if (scrollContainer) {
+            const afterState = {
+              scrollTop: scrollContainer.scrollTop,
+              scrollHeight: scrollContainer.scrollHeight,
+              clientHeight: scrollContainer.clientHeight
+            };
+            
+            // Calculate the scroll position to maintain relative position
+            const heightDiff = afterState.scrollHeight - beforeState.scrollHeight;
+            const newScrollTop = beforeState.scrollTop + heightDiff;
+            
+            scrollContainer.scrollTop = newScrollTop;
+            
+            console.log(`[ChatUI] After load more:`, afterState);
+            console.log(`[ChatUI] Restored scroll: ${beforeState.scrollTop} + ${heightDiff} = ${newScrollTop}`);
+          }
+        });
+      }, 10);
+      
     } catch (error) {
       console.error('[ChatUI] Failed to load more messages:', error);
     } finally {
+      // Clear loading flags
+      setIsLoadingMore(false);
       setIsLoadingRemoteMessages(false);
     }
-  }, [effectiveActiveChatId, currentChat, messages.length, loadMoreChatMessages]);
+  }, [effectiveActiveChatId, currentChat, messages.length, loadMoreChatMessages, isLoadingMore]);
 
   // Ensure scroll stays at bottom when displayed messages change
   useEffect(() => {
+    if (isLoadingMore) {
+      console.log('[ChatUI] Skipping bottom auto-scroll - load more in progress');
+      return;
+    }
+    
     if (isScrollReady && !isInitialLoad && displayedMessages.length > 0) {
       // Use requestAnimationFrame for smoother scrolling
       requestAnimationFrame(() => {
@@ -579,7 +609,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         }
       });
     }
-  }, [displayedMessages, isScrollReady, isInitialLoad]);
+  }, [displayedMessages, isScrollReady, isInitialLoad, isLoadingMore]);
 
   return (
     <ChatSettingsProvider sessionId={effectiveActiveChatId || 'default'}>
