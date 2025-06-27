@@ -522,49 +522,30 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       const allMessages = await loadMoreChatMessages(effectiveActiveChatId, messages.length);
       
       if (messagesContainerRef.current) {
-        // Save the current scroll position and height
+        // Save the current scroll position and height - simpler approach
         const scrollContainer = messagesContainerRef.current;
         const previousScrollHeight = scrollContainer.scrollHeight;
         const previousScrollTop = scrollContainer.scrollTop;
         
-        // Find the first visible message as our anchor
-        const messageElements = scrollContainer.querySelectorAll('[data-message-id]');
-        let anchorMessageId = null;
-        let anchorOffsetTop = 0;
-        
-        for (let i = 0; i < messageElements.length; i++) {
-          const element = messageElements[i];
-          const rect = element.getBoundingClientRect();
-          const containerRect = scrollContainer.getBoundingClientRect();
-          if (rect.top >= containerRect.top) {
-            anchorMessageId = element.getAttribute('data-message-id');
-            anchorOffsetTop = rect.top - containerRect.top;
-            break;
-          }
-        }
+        console.log(`[ChatUI] Before loading: scrollTop=${previousScrollTop}, scrollHeight=${previousScrollHeight}`);
         
         // Update messages and mark as loaded
         setMessages(allMessages);
         setHasLoadedMore(true);
         setDisplayedMessages(allMessages);
         
-        // Restore scroll position after DOM update
+        // Restore scroll position using simpler logic
         requestAnimationFrame(() => {
-          if (anchorMessageId && scrollContainer) {
-            // Find the anchor message in the new DOM
-            const anchorElement = scrollContainer.querySelector(`[data-message-id="${anchorMessageId}"]`);
-            if (anchorElement) {
-              const containerRect = scrollContainer.getBoundingClientRect();
-              const anchorRect = anchorElement.getBoundingClientRect();
-              const newScrollTop = anchorRect.top - containerRect.top - anchorOffsetTop + scrollContainer.scrollTop;
-              scrollContainer.scrollTop = newScrollTop;
-            } else {
-              // Fallback: maintain relative position
+          requestAnimationFrame(() => {
+            if (scrollContainer) {
               const newScrollHeight = scrollContainer.scrollHeight;
               const scrollHeightDiff = newScrollHeight - previousScrollHeight;
-              scrollContainer.scrollTop = previousScrollTop + scrollHeightDiff;
+              const newScrollTop = previousScrollTop + scrollHeightDiff;
+              
+              scrollContainer.scrollTop = newScrollTop;
+              console.log(`[ChatUI] After loading: scrollTop=${newScrollTop}, scrollHeight=${newScrollHeight}, diff=${scrollHeightDiff}`);
             }
-          }
+          });
         });
       } else {
         // No container ref, just update messages
@@ -646,7 +627,21 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         style={{ scrollBehavior: isInitialLoad ? 'auto' : 'smooth' }}
       >
         {/* Remote loading indicator */}
-        {isLoadingRemoteMessages && <RemoteLoadingIndicator />}
+        {isLoadingRemoteMessages && messages.length === 0 && <RemoteLoadingIndicator />}
+        
+        {/* Loading more messages indicator */}
+        {isLoadingRemoteMessages && messages.length > 0 && (
+          <div className="flex justify-center py-2">
+            <div className="backdrop-blur-md bg-blue-500/20 dark:bg-blue-400/20 rounded-2xl px-4 py-2 shadow-lg border border-blue-400/30">
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4 animate-spin theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span className="text-sm font-medium theme-text-primary">Loading older messages...</span>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Show skeleton messages while loading */}
         {isLoadingRemoteMessages && messages.length === 0 && (
