@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import clsx from 'clsx';
 import { sendChatMessage, ChatResponse, markChatAsRead } from '../api/chat';
 import { useChatManager, HybridMessage } from '../hooks/useChatManager';
@@ -9,6 +9,7 @@ import { useChatSettings } from '../hooks/useChatSettings';
 import { SlashCommandInput } from './SlashCommandInput';
 import { SlashCommand } from '../hooks/useSlashCommands';
 import { MessageSkeleton } from './SkeletonLoader';
+import { MessageItem } from './MessageItem';
 
 interface ChatUIProps {
   sessionId?: string;
@@ -32,7 +33,6 @@ interface BotAvatarProps {
 
 const BotAvatar: React.FC<BotAvatarProps> = ({ agentType, className, showTooltip = true }) => {
   const avatarConfig = AgentAvatarService.getAvatarConfig(agentType);
-  const iconPath = AgentAvatarService.getIconPath(avatarConfig.icon);
   
   // Determine if we should use theme accent or specific gradient
   const isThemeAccent = avatarConfig.gradient === 'theme-accent';
@@ -56,14 +56,6 @@ const BotAvatar: React.FC<BotAvatarProps> = ({ agentType, className, showTooltip
     </div>
   );
 };
-
-const UserAvatar = () => (
-  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg flex-shrink-0">
-    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-    </svg>
-  </div>
-);
 
 interface TypingIndicatorProps {
   agentType?: string;
@@ -161,7 +153,7 @@ const AgentIndicator: React.FC<AgentIndicatorProps> = ({ agentType, className })
 };
 
 export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
-  const { activeChatId, updateChatMetadata, chats, setChatLoading, markChatNewMessage, getChatMessages, getCachedMessages, saveChatMessage, trackAgentUsage } = useChatManager();
+  const { activeChatId, chats, setChatLoading, markChatNewMessage, getChatMessages, getCachedMessages, saveChatMessage, trackAgentUsage } = useChatManager();
   const { settings } = useChatSettings();
   // Use activeChatId directly, with sessionId prop as override if provided
   const effectiveActiveChatId = sessionId || activeChatId;
@@ -174,13 +166,19 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   const activeChatIdRef = useRef(effectiveActiveChatId);
   
   const [messages, setMessages] = useState<HybridMessage[]>(initialMessages);
+  const [displayedMessages, setDisplayedMessages] = useState<HybridMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoadingRemoteMessages, setIsLoadingRemoteMessages] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [hasLoadedMore, setHasLoadedMore] = useState(false);
+  const [isScrollReady, setIsScrollReady] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [pendingRequests, setPendingRequests] = useState<Map<string, AbortController>>(new Map());
 
   // Remove global loading state, use per-chat loading from context
   const loading = currentChat?.isLoading || false;
+  const [wasLoading, setWasLoading] = useState(false);
 
   // Enhanced progressive message loading
   const loadMessagesProgressively = async (sessionId: string): Promise<HybridMessage[]> => {
@@ -208,9 +206,32 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   useEffect(() => {
     console.log(`[ChatUI] useEffect: Loading messages for session change: ${effectiveActiveChatId}`);
     if (effectiveActiveChatId) {
+      // Mark as initial load to prevent animations
+      setIsInitialLoad(true);
+      setIsScrollReady(false); // Hide content until scroll is set
+      
+      // Reset scroll position immediately when switching chats
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop = 0;
+      }
+      
       loadMessagesProgressively(effectiveActiveChatId).then(loadedMessages => {
         setMessages(loadedMessages);
+        setHasLoadedMore(false); // Reset when switching chats
         console.log(`[ChatUI] useEffect: Loaded ${loadedMessages.length} messages for session: ${effectiveActiveChatId}`);
+        
+        // Double requestAnimationFrame to ensure layout is complete
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (messagesContainerRef.current) {
+              messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+              console.log(`[ChatUI] Scroll set to bottom for session: ${effectiveActiveChatId}`);
+            }
+            setIsScrollReady(true); // Show content after scroll is set
+            // After messages are loaded, mark initial load as complete
+            setTimeout(() => setIsInitialLoad(false), 50);
+          });
+        });
       });
     }
   }, [effectiveActiveChatId]);
@@ -223,7 +244,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     }
   }, [currentChat?.isLoadingMessages, effectiveActiveChatId]);
 
-  // Listen for message updates from progressive loading
+  // Listen for message updates from progressive loading - optimized
   useEffect(() => {
     if (effectiveActiveChatId && !isLoadingRemoteMessages) {
       // Check for updated messages periodically when not loading
@@ -233,15 +254,42 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
           console.log(`[ChatUI] Detected message updates from background sync for session: ${effectiveActiveChatId}`);
           setMessages(currentMessages.length > 0 ? currentMessages : initialMessages);
         }
-      }, 2000); // Check every 2 seconds
+      }, 5000); // Check every 5 seconds (reduced frequency)
 
       return () => clearInterval(interval);
     }
   }, [effectiveActiveChatId, isLoadingRemoteMessages, messages.length, getCachedMessages]);
 
+  // Auto-scroll when loading state changes (typing indicator appears/disappears)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (loading && !wasLoading) {
+      // Typing indicator just appeared - scroll to show it
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 50);
+    }
+    setWasLoading(loading);
+  }, [loading, wasLoading]);
+  
+  // Auto-scroll to bottom for new messages only
+  useEffect(() => {
+    if (!isInitialLoad && isScrollReady && messages.length > 0) {
+      // Small delay to ensure DOM has updated with new message
+      const scrollTimeout = setTimeout(() => {
+        if (messagesContainerRef.current) {
+          const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+          const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
+          
+          // Always scroll for new messages if user is at or near bottom
+          if (isAtBottom || messages[messages.length - 1]?.sender === 'user') {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          }
+        }
+      }, 100);
+      
+      return () => clearTimeout(scrollTimeout);
+    }
+  }, [messages, isInitialLoad, isScrollReady]);
 
   // Update the ref whenever effectiveActiveChatId changes
   // 🚨 CRITICAL: DO NOT REMOVE - Required for race condition fix
@@ -430,9 +478,104 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     }
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+  // formatTime is used in MessageItem component
+
+  // Progressive message display for better performance
+  const INITIAL_MESSAGE_COUNT = 50;
+  
+  // Update displayed messages when messages change
+  useEffect(() => {
+    if (messages.length <= INITIAL_MESSAGE_COUNT || hasLoadedMore) {
+      setDisplayedMessages(messages);
+    } else {
+      // Show only recent messages initially
+      setDisplayedMessages(messages.slice(-INITIAL_MESSAGE_COUNT));
+    }
+  }, [messages, hasLoadedMore]);
+  
+  // Force scroll to bottom when messages are updated during initial load
+  useEffect(() => {
+    if (!isScrollReady && displayedMessages.length > 0 && messagesContainerRef.current) {
+      // Use setTimeout to ensure DOM has updated
+      setTimeout(() => {
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+      }, 0);
+    }
+  }, [displayedMessages, isScrollReady]);
+  
+  // Load more messages handler with scroll position preservation
+  const loadMoreMessages = useCallback(() => {
+    if (messagesContainerRef.current) {
+      // Save the current scroll position and height
+      const scrollContainer = messagesContainerRef.current;
+      const previousScrollHeight = scrollContainer.scrollHeight;
+      const previousScrollTop = scrollContainer.scrollTop;
+      
+      // Find the first visible message as our anchor
+      const messageElements = scrollContainer.querySelectorAll('[data-message-id]');
+      let anchorMessageId = null;
+      let anchorOffsetTop = 0;
+      
+      for (let i = 0; i < messageElements.length; i++) {
+        const element = messageElements[i];
+        const rect = element.getBoundingClientRect();
+        const containerRect = scrollContainer.getBoundingClientRect();
+        if (rect.top >= containerRect.top) {
+          anchorMessageId = element.getAttribute('data-message-id');
+          anchorOffsetTop = rect.top - containerRect.top;
+          break;
+        }
+      }
+      
+      // Load all messages
+      setHasLoadedMore(true);
+      setDisplayedMessages(messages);
+      
+      // Restore scroll position after DOM update
+      requestAnimationFrame(() => {
+        if (anchorMessageId && scrollContainer) {
+          // Find the anchor message in the new DOM
+          const anchorElement = scrollContainer.querySelector(`[data-message-id="${anchorMessageId}"]`);
+          if (anchorElement) {
+            const containerRect = scrollContainer.getBoundingClientRect();
+            const anchorRect = anchorElement.getBoundingClientRect();
+            const newScrollTop = anchorRect.top - containerRect.top - anchorOffsetTop + scrollContainer.scrollTop;
+            scrollContainer.scrollTop = newScrollTop;
+          } else {
+            // Fallback: maintain relative position
+            const newScrollHeight = scrollContainer.scrollHeight;
+            const scrollHeightDiff = newScrollHeight - previousScrollHeight;
+            scrollContainer.scrollTop = previousScrollTop + scrollHeightDiff;
+          }
+        }
+      });
+    } else {
+      // No container ref, just load messages
+      setHasLoadedMore(true);
+      setDisplayedMessages(messages);
+    }
+  }, [messages]);
+
+  // Ensure scroll stays at bottom when displayed messages change
+  useEffect(() => {
+    if (isScrollReady && !isInitialLoad && displayedMessages.length > 0) {
+      // Use requestAnimationFrame for smoother scrolling
+      requestAnimationFrame(() => {
+        if (messagesContainerRef.current) {
+          const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+          const isNearBottom = scrollHeight - scrollTop - clientHeight < 200;
+          
+          // Auto-scroll if near bottom or if the last message is from the user
+          const lastMessage = displayedMessages[displayedMessages.length - 1];
+          if (isNearBottom || lastMessage?.sender === 'user') {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          }
+        }
+      });
+    }
+  }, [displayedMessages, isScrollReady, isInitialLoad]);
 
   return (
     <ChatSettingsProvider sessionId={effectiveActiveChatId || 'default'}>
@@ -470,7 +613,15 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+      <div 
+        key={effectiveActiveChatId} // Force React to recreate this div when chat changes
+        ref={messagesContainerRef} 
+        className={clsx(
+          "flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent transition-opacity duration-150",
+          isScrollReady ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        style={{ scrollBehavior: isInitialLoad ? 'auto' : 'smooth' }}
+      >
         {/* Remote loading indicator */}
         {isLoadingRemoteMessages && <RemoteLoadingIndicator />}
         
@@ -479,47 +630,43 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
           <MessageSkeleton count={3} />
         )}
         
-        {/* Show actual messages */}
-        {messages.map((msg, index) => (
-          <div
-            key={msg.id}
-            className={clsx(
-              'flex items-end space-x-2 animate-in slide-in-from-bottom-2 duration-300',
-              msg.sender === 'user' ? 'flex-row-reverse space-x-reverse' : 'flex-row'
-            )}
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            {msg.sender === 'user' ? <UserAvatar /> : <BotAvatar agentType={msg.agent || currentChat?.agentType} />}
-            <div className={clsx(
-              'max-w-xs lg:max-w-md xl:max-w-lg',
-              msg.sender === 'user' ? 'order-1' : 'order-2'
-            )}>
-              <div
-                className={clsx(
-                  'px-4 py-3 rounded-2xl shadow-lg backdrop-blur-md border transition-all duration-200 hover:shadow-xl',
-                  msg.sender === 'user'
-                    ? 'theme-accent text-white rounded-br-md border-blue-400/30'
-                    : 'bg-white/60 dark:bg-black/40 theme-text-primary rounded-bl-md border-white/20'
-                )}
-              >
-                <p className="text-sm leading-relaxed">{msg.content}</p>
-              </div>
-              <div className={clsx(
-                'mt-1 text-xs theme-text-secondary',
-                msg.sender === 'user' ? 'text-right' : 'text-left'
-              )}>
-                {formatTime(msg.timestamp)}
-                {/* Show sync status for debugging */}
-                {!msg.synced && (
-                  <span className="ml-2 text-orange-500">•</span>
-                )}
-              </div>
-            </div>
+        {/* Load more button if there are hidden messages */}
+        {messages.length > INITIAL_MESSAGE_COUNT && !hasLoadedMore && (
+          <div className="flex justify-center py-4">
+            <button
+              onClick={loadMoreMessages}
+              className="px-4 py-2 text-sm rounded-full backdrop-blur-md bg-white/40 dark:bg-black/30 border border-white/30 theme-text-secondary hover:bg-white/60 dark:hover:bg-black/50 transition-all duration-200"
+            >
+              Load {messages.length - INITIAL_MESSAGE_COUNT} earlier messages
+            </button>
           </div>
-        ))}
+        )}
         
-        {loading && <TypingIndicator agentType={currentChat?.agentType} />}
-        <div ref={messagesEndRef} />
+        {/* Show actual messages */}
+        <div className="space-y-4">
+          {displayedMessages.map((msg, index) => {
+            // Only animate new messages, not on initial load or chat switch
+            const showAnimation = !isInitialLoad && index === displayedMessages.length - 1 && index === messages.length - 1;
+            
+            return (
+              <div key={msg.id} data-message-id={msg.id}>
+                <MessageItem
+                  message={msg}
+                  currentChatAgentType={currentChat?.agentType}
+                  showAnimation={showAnimation}
+                  index={0} // Don't use staggered animations
+                />
+              </div>
+            );
+          })}
+        </div>
+        
+        {loading && (
+          <div className="mb-4">
+            <TypingIndicator agentType={currentChat?.agentType} />
+          </div>
+        )}
+        <div ref={messagesEndRef} className="h-4" />
       </div>
 
       {/* Input area */}
