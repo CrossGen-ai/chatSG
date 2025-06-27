@@ -307,6 +307,8 @@ export interface ChatMetadata {
   createdAt: Date;
   lastMessageAt: Date;
   messageCount: number;
+  unreadCount?: number;
+  lastReadAt?: Date | null;
 }
 
 export async function getAllChats(): Promise<{
@@ -319,8 +321,10 @@ export async function getAllChats(): Promise<{
       ...response.data,
       chats: response.data.chats.map((chat: any) => ({
         ...chat,
-        createdAt: new Date(chat.createdAt),
-        lastMessageAt: new Date(chat.lastMessageAt)
+        createdAt: new Date(chat.createdAt || chat.timestamp),
+        lastMessageAt: new Date(chat.lastMessageAt || chat.timestamp),
+        unreadCount: chat.unreadCount || 0,
+        lastReadAt: chat.lastReadAt ? new Date(chat.lastReadAt) : null
       }))
     };
   } catch (error: any) {
@@ -338,5 +342,42 @@ export async function deleteChat(chatId: string): Promise<{
     return response.data;
   } catch (error: any) {
     throw new Error(`Failed to delete chat: ${error.response?.data?.error || error.message}`);
+  }
+}
+
+export async function markChatAsRead(chatId: string): Promise<{
+  success: boolean;
+  sessionId: string;
+  unreadCount: number;
+  lastReadAt: string;
+}> {
+  try {
+    const response = await axios.patch(`/api/chats/${chatId}/read`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(`Failed to mark chat as read: ${error.response?.data?.error || error.message}`);
+  }
+}
+
+export async function createChat(data: {
+  title?: string;
+  userId?: string;
+  metadata?: any;
+}): Promise<{
+  success: boolean;
+  sessionId: string;
+  session: {
+    id: string;
+    title: string;
+    createdAt: string;
+    status: string;
+    messageCount: number;
+  };
+}> {
+  try {
+    const response = await axios.post('/api/chats', data);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(`Failed to create chat: ${error.response?.data?.error || error.message}`);
   }
 } 

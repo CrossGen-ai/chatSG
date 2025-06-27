@@ -23,6 +23,8 @@ export interface SessionIndexEntry {
     metadata: {
         lastAgent?: string;
         userId?: string;
+        unreadCount?: number;
+        lastReadAt?: string | null;
         [key: string]: any;
     };
 }
@@ -198,7 +200,9 @@ export class SessionIndex {
             messageCount: 0,
             title: title || `Chat ${new Date().toLocaleDateString()}`,
             metadata: {
-                userId
+                userId,
+                unreadCount: 0,
+                lastReadAt: null
             }
         };
         
@@ -257,6 +261,46 @@ export class SessionIndex {
             
             await this.saveIndex();
         });
+    }
+    
+    /**
+     * Increment unread count for a session
+     */
+    async incrementUnreadCount(sessionId: string, count = 1): Promise<void> {
+        await this.mutex.runExclusive(async () => {
+            const entry = this.index.get(sessionId);
+            if (!entry) {
+                throw new Error(`Session not found: ${sessionId}`);
+            }
+            
+            if (!entry.metadata.unreadCount) {
+                entry.metadata.unreadCount = 0;
+            }
+            
+            entry.metadata.unreadCount += count;
+            entry.lastActivityAt = new Date().toISOString();
+            
+            await this.saveIndex();
+        });
+    }
+    
+    /**
+     * Mark session as read (reset unread count)
+     */
+    async markSessionAsRead(sessionId: string): Promise<void> {
+        await this.mutex.runExclusive(async () => {
+            const entry = this.index.get(sessionId);
+            if (!entry) {
+                throw new Error(`Session not found: ${sessionId}`);
+            }
+            
+            entry.metadata.unreadCount = 0;
+            entry.metadata.lastReadAt = new Date().toISOString();
+            
+            await this.saveIndex();
+        });
+        
+        console.log(`[SessionIndex] Marked session ${sessionId} as read`);
     }
     
     /**

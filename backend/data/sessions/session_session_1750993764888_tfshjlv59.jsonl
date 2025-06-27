@@ -1,0 +1,2 @@
+{"timestamp":"2025-06-27T03:09:32.756Z","type":"user","content":"How are you?","metadata":{"sessionId":"session_1750993764888_tfshjlv59"}}
+{"timestamp":"2025-06-27T03:09:34.297Z","type":"assistant","content":"I'm just a program, so I don't have feelings, but I'm here and ready to help you with any analytical tasks or questions you might have. How can I assist you today?","metadata":{"sessionId":"session_1750993764888_tfshjlv59","agent":"AnalyticalAgent","confidence":0.1,"processingTime":1537,"toolsUsed":[]}}

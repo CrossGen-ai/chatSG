@@ -347,6 +347,9 @@ const server = http.createServer(async (req, res) => {
                                         toolsUsed: orchResult.response._toolsUsed || []
                                     }
                                 });
+                                
+                                // Increment unread count for assistant messages
+                                await storageManager.sessionIndex.incrementUnreadCount(sessionId);
                             } catch (storageError) {
                                 console.error('[Server] Failed to save assistant message:', storageError);
                             }
@@ -374,6 +377,9 @@ const server = http.createServer(async (req, res) => {
                                         backend: 'n8n'
                                     }
                                 });
+                                
+                                // Increment unread count for assistant messages
+                                await storageManager.sessionIndex.incrementUnreadCount(sessionId);
                             } catch (storageError) {
                                 console.error('[Server] Failed to save n8n message:', storageError);
                             }
@@ -409,6 +415,9 @@ const server = http.createServer(async (req, res) => {
                                         simulation: true
                                     }
                                 });
+                                
+                                // Increment unread count for assistant messages
+                                await storageManager.sessionIndex.incrementUnreadCount(sessionId);
                             } catch (storageError) {
                                 console.error('[Server] Failed to save generic message:', storageError);
                             }
@@ -1171,6 +1180,40 @@ const server = http.createServer(async (req, res) => {
     } else if (req.url === '/api/chats' && req.method === 'GET') {
         // Get all chats with metadata
         try {
+            // Use new storage manager if available
+            if (storageManager) {
+                const sessions = storageManager.sessionIndex.listSessions({
+                    status: 'active',
+                    sortBy: 'lastActivityAt',
+                    sortOrder: 'desc'
+                });
+                
+                // Format sessions for frontend with unread counts
+                const formattedSessions = sessions.map(session => ({
+                    id: session.sessionId || session.file.replace('session_', '').replace('.jsonl', ''),
+                    name: session.title,
+                    lastMessage: `${session.messageCount} messages`,
+                    timestamp: session.lastActivityAt,
+                    hasNewMessages: (session.metadata.unreadCount || 0) > 0,
+                    unreadCount: session.metadata.unreadCount || 0,
+                    lastReadAt: session.metadata.lastReadAt || null,
+                    metadata: {
+                        messageCount: session.messageCount,
+                        createdAt: session.createdAt,
+                        lastAgent: session.metadata.lastAgent
+                    }
+                }));
+                
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    chats: formattedSessions,
+                    totalChats: formattedSessions.length,
+                    _backend: BACKEND,
+                    _storage: 'jsonl'
+                }));
+                return;
+            }
+            
             switch (BACKEND) {
                 case 'Orch':
                     if (!backendIntegration) {
@@ -1263,6 +1306,42 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ 
                 error: 'Failed to delete chat',
+                details: error.message
+            }));
+        }
+    } else if (req.url.match(/^\/api\/chats\/([^/]+)\/read$/) && req.method === 'PATCH') {
+        // Mark chat as read
+        try {
+            const sessionId = req.url.match(/^\/api\/chats\/([^/]+)\/read$/)[1];
+            
+            // Use new storage manager if available
+            if (storageManager) {
+                await storageManager.sessionIndex.markSessionAsRead(sessionId);
+                
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    success: true,
+                    sessionId: sessionId,
+                    unreadCount: 0,
+                    lastReadAt: new Date().toISOString(),
+                    _backend: BACKEND,
+                    _storage: 'jsonl'
+                }));
+                return;
+            }
+            
+            // Fallback response if no storage manager
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                success: false,
+                error: 'Storage manager not available',
+                _backend: BACKEND
+            }));
+        } catch (error) {
+            console.error('Mark as read error:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                error: 'Failed to mark session as read',
                 details: error.message
             }));
         }

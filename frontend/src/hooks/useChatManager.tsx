@@ -5,7 +5,9 @@ import {
   loadMessagesFromRemote, 
   getAllChats,
   deleteChat as deleteChatAPI,
-  ChatMetadata 
+  ChatMetadata,
+  markChatAsRead,
+  createChat as createChatAPI
 } from '../api/chat';
 
 // Chat interface definition - enhanced for remote storage
@@ -17,6 +19,8 @@ export interface Chat {
   messageCount: number;
   isLoading: boolean;           // tracks if chat has pending requests
   hasNewMessages: boolean;      // tracks if chat has unread messages
+  unreadCount: number;         // number of unread messages from backend
+  lastReadAt: Date | null;     // when chat was last marked as read
   isSynced: boolean;           // tracks if chat is synced with backend
   lastSyncAt?: Date;           // last time chat was synced with backend
   isLoadingMessages: boolean;  // tracks if messages are being loaded from remote
@@ -91,7 +95,9 @@ const convertToApiMessage = (hybridMessage: HybridMessage): ChatMessage => ({
 const convertMetadataToChat = (metadata: ChatMetadata): Chat => ({
   ...metadata,
   isLoading: false,
-  hasNewMessages: false,
+  hasNewMessages: (metadata.unreadCount || 0) > 0,
+  unreadCount: metadata.unreadCount || 0,
+  lastReadAt: metadata.lastReadAt || null,
   isSynced: true,
   isLoadingMessages: false,
   remoteMessageCount: metadata.messageCount,
@@ -116,22 +122,9 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
       const { chats: remoteChats } = await getAllChats();
       
       if (remoteChats.length === 0) {
-        // Create a default local chat if none exist
-        const defaultChat: Chat = {
-          id: crypto.randomUUID(),
-          title: 'New Chat',
-          createdAt: new Date(),
-          lastMessageAt: new Date(),
-          messageCount: 0,
-          isLoading: false,
-          hasNewMessages: false,
-          isSynced: false,
-          isLoadingMessages: false,
-          remoteMessageCount: 0,
-          agentHistory: [],
-        };
-        setChats([defaultChat]);
-        setActiveChatId(defaultChat.id);
+        // No chats exist - show empty state
+        setChats([]);
+        setActiveChatId('');
       } else {
         setChats(remoteChats.map(convertMetadataToChat));
         // Set active chat to the first one if not set
@@ -141,22 +134,9 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
       }
     } catch (error) {
       console.error('[ChatManager] Failed to load chats:', error);
-      // Create a default local chat on error
-      const defaultChat: Chat = {
-        id: crypto.randomUUID(),
-        title: 'New Chat',
-        createdAt: new Date(),
-        lastMessageAt: new Date(),
-        messageCount: 0,
-        isLoading: false,
-        hasNewMessages: false,
-        isSynced: false,
-        isLoadingMessages: false,
-        remoteMessageCount: 0,
-        agentHistory: [],
-      };
-      setChats([defaultChat]);
-      setActiveChatId(defaultChat.id);
+      // Show empty state on error
+      setChats([]);
+      setActiveChatId('');
     } finally {
       setIsLoadingChats(false);
     }
@@ -177,7 +157,7 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
   // Update chat metadata
   const updateChatMetadata = useCallback((
     id: string, 
-    updates: Partial<Pick<Chat, 'lastMessageAt' | 'messageCount' | 'isLoading' | 'hasNewMessages' | 'isSynced' | 'lastSyncAt' | 'isLoadingMessages' | 'remoteMessageCount' | 'agentType' | 'agentHistory'>>
+    updates: Partial<Pick<Chat, 'lastMessageAt' | 'messageCount' | 'isLoading' | 'hasNewMessages' | 'unreadCount' | 'lastReadAt' | 'isSynced' | 'lastSyncAt' | 'isLoadingMessages' | 'remoteMessageCount' | 'agentType' | 'agentHistory'>>
   ): void => {
     setChats(prevChats => 
       prevChats.map(chat => (chat.id === id ? { ...chat, ...updates } : chat))
@@ -186,7 +166,11 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   // Clear new message indicator
   const clearNewMessages = useCallback((id: string): void => {
-    updateChatMetadata(id, { hasNewMessages: false });
+    updateChatMetadata(id, { 
+      hasNewMessages: false, 
+      unreadCount: 0,
+      lastReadAt: new Date()
+    });
   }, [updateChatMetadata]);
 
   // Get chat messages from remote storage
@@ -318,29 +302,46 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   }, [syncInProgress, getChatMessages, markChatSynced]);
 
-  // Create a new chat locally (will auto-create on server when first message is sent)
+  // Create a new chat on backend immediately
   const createChat = useCallback(async (title?: string): Promise<string> => {
-    const optimisticId = crypto.randomUUID();
-    const optimisticChat: Chat = {
-      id: optimisticId,
-      title: title || 'New Chat',
-      createdAt: new Date(),
-      lastMessageAt: new Date(),
-      messageCount: 0,
-      isLoading: false,
-      hasNewMessages: false,
-      isSynced: false,
-      isLoadingMessages: false,
-      remoteMessageCount: 0,
-      agentHistory: [],
-    };
+    setIsCreatingChat(true);
     
-    // Add chat locally
-    setChats(prevChats => [...prevChats, optimisticChat]);
-    setActiveChatId(optimisticId);
-    
-    console.log(`[ChatManager] Created new local chat: ${optimisticId}`);
-    return optimisticId;
+    try {
+      // Call backend API to create chat
+      const response = await createChatAPI({
+        title: title || 'New Chat',
+        userId: 'default', // TODO: Get from user context
+        metadata: {}
+      });
+      
+      const newChat: Chat = {
+        id: response.sessionId,
+        title: response.session.title,
+        createdAt: new Date(response.session.createdAt),
+        lastMessageAt: new Date(response.session.createdAt),
+        messageCount: response.session.messageCount,
+        isLoading: false,
+        hasNewMessages: false,
+        unreadCount: 0,
+        lastReadAt: null,
+        isSynced: true,
+        isLoadingMessages: false,
+        remoteMessageCount: response.session.messageCount,
+        agentHistory: [],
+      };
+      
+      // Add chat to state
+      setChats(prevChats => [...prevChats, newChat]);
+      setActiveChatId(response.sessionId);
+      
+      console.log(`[ChatManager] Created chat on backend: ${response.sessionId}`);
+      return response.sessionId;
+    } catch (error) {
+      console.error('[ChatManager] Failed to create chat:', error);
+      throw error;
+    } finally {
+      setIsCreatingChat(false);
+    }
   }, []);
 
   // Delete a chat with optimistic update and rollback
@@ -400,7 +401,20 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
   const switchChat = useCallback((id: string): void => {
     console.log(`[ChatManager] Switching to chat: ${id}`);
     setActiveChatId(id);
+    
+    // Mark chat as read in backend
+    const markAsRead = async () => {
+      try {
+        await markChatAsRead(id);
+        console.log(`[ChatManager] Marked chat ${id} as read`);
+      } catch (error) {
+        console.error(`[ChatManager] Failed to mark chat ${id} as read:`, error);
+      }
+    };
+    
+    // Clear locally and mark as read on backend
     clearNewMessages(id);
+    markAsRead();
   }, [clearNewMessages]);
 
   // Set chat loading state

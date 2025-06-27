@@ -104,9 +104,21 @@ function AppContent() {
           
           {/* Chat container */}
           <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-            <div className="w-full max-w-4xl h-[calc(100vh-200px)]">
-              <ChatUI />
-            </div>
+            {activeChatId ? (
+              <div className="w-full max-w-4xl h-[calc(100vh-200px)]">
+                <ChatUI />
+              </div>
+            ) : (
+              <div className="text-center">
+                <div className="backdrop-blur-xl bg-white/10 dark:bg-black/10 rounded-2xl p-8 border border-white/20 dark:border-white/10">
+                  <svg className="w-16 h-16 mx-auto mb-4 theme-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  <h2 className="text-xl font-semibold theme-text-primary mb-2">No Chat Selected</h2>
+                  <p className="theme-text-secondary mb-4">Click "New Chat" to start a conversation</p>
+                </div>
+              </div>
+            )}
           </div>
         </main>
 
