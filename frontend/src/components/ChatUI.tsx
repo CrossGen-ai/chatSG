@@ -292,10 +292,21 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     setInput('');
     
     try {
-      const chatResponse = await sendChatMessage(currentInput, originatingSessionId, {
+      // Check for pending slash command metadata
+      const pendingSlashCommand = (window as any).__pendingSlashCommand;
+      const options: any = {
         signal: abortController.signal,
         activeSessionId: activeChatIdRef.current
-      });
+      };
+      
+      // Add slash command metadata if present
+      if (pendingSlashCommand) {
+        options.slashCommand = pendingSlashCommand;
+        // Clear the pending slash command
+        delete (window as any).__pendingSlashCommand;
+      }
+      
+      const chatResponse = await sendChatMessage(currentInput, originatingSessionId, options);
       
       // CRITICAL FIX: Use the ref to get the ACTUAL current session at response time
       // 🚨 CRITICAL: DO NOT CHANGE - Must use activeChatIdRef.current, not effectiveActiveChatId
@@ -520,7 +531,13 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             onSubmit={sendMessage}
             onSlashCommand={(command, cleanMessage) => {
               console.log('[ChatUI] Slash command selected:', command.name, 'Clean message:', cleanMessage);
-              // The slash command will be processed by the backend when sendMessage is called
+              // Update input to clean message and store slash command metadata
+              setInput(cleanMessage);
+              // Store slash command metadata for the next sendMessage call
+              (window as any).__pendingSlashCommand = {
+                command: command.name,
+                agentType: command.agentType
+              };
             }}
             disabled={loading}
             placeholder="Type your message or use /command..."

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import { SlashCommand } from '../hooks/useSlashCommands';
 
@@ -134,49 +135,49 @@ export const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
     }
   };
 
-  return (
+  const dropdownContent = (
     <div
       ref={dropdownRef}
       className={clsx(
-        'absolute z-50 mt-1 rounded-2xl shadow-2xl border transition-all duration-200',
-        'backdrop-blur-md bg-white/80 dark:bg-black/80',
+        'fixed z-50 rounded-xl shadow-2xl border transition-all duration-200',
+        'backdrop-blur-md bg-white/90 dark:bg-black/90',
         'border-white/30 dark:border-white/20',
-        'animate-in slide-in-from-top-2',
-        'max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent',
+        'animate-in slide-in-from-top-1',
+        'max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent',
         className
       )}
       style={{
         top: position?.top,
         left: position?.left,
         width: position?.width || 'auto',
-        minWidth: position?.width || '300px'
+        minWidth: position?.width || '280px'
       }}
     >
       {/* Header */}
-      <div className="px-4 py-2 border-b border-white/20 dark:border-white/10">
+      <div className="px-3 py-1.5 border-b border-white/20 dark:border-white/10">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium theme-text-secondary">
-            Slash Commands ({commands.length})
+            Commands ({commands.length})
           </span>
-          <span className="text-xs theme-text-secondary">
-            ↑↓ navigate • Enter select • Esc close
+          <span className="text-xs theme-text-secondary opacity-75">
+            ↑↓ • Enter • Esc
           </span>
         </div>
       </div>
 
       {/* Commands list */}
-      <div className="py-2">
+      <div className="py-1">
         {commands.map((command, index) => (
           <div
             key={`${command.name}-${index}`}
             ref={index === selectedIndex ? selectedItemRef : undefined}
             className={clsx(
-              'px-4 py-3 cursor-pointer transition-all duration-150',
-              'flex items-center space-x-3',
+              'px-3 py-2 cursor-pointer transition-all duration-150',
+              'flex items-center space-x-2.5',
               'hover:bg-white/40 dark:hover:bg-white/10',
               index === selectedIndex && [
                 'bg-white/60 dark:bg-white/20',
-                'border-l-4 border-blue-500'
+                'border-l-3 border-blue-500'
               ]
             )}
             onClick={() => onSelect(command)}
@@ -190,24 +191,24 @@ export const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
           >
             {/* Agent emoji */}
             <div className="flex-shrink-0">
-              <span className="text-lg" role="img" aria-label={command.agentType}>
+              <span className="text-sm" role="img" aria-label={command.agentType}>
                 {getAgentEmoji(command.agentType)}
               </span>
             </div>
 
             {/* Command info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-2">
-                <span className="font-medium theme-text-primary">
+              <div className="flex items-center space-x-1.5">
+                <span className="font-medium theme-text-primary text-sm">
                   /{command.name}
                 </span>
                 {command.aliases.length > 0 && (
-                  <span className="text-xs theme-text-secondary">
-                    ({command.aliases.slice(0, 2).join(', ')})
+                  <span className="text-xs theme-text-secondary opacity-75">
+                    ({command.aliases.slice(0, 1).join(', ')})
                   </span>
                 )}
               </div>
-              <p className="text-sm theme-text-secondary truncate">
+              <p className="text-xs theme-text-secondary truncate leading-tight">
                 {command.description}
               </p>
             </div>
@@ -215,8 +216,8 @@ export const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
             {/* Category indicator */}
             <div className="flex-shrink-0">
               <span className={clsx(
-                'text-xs font-medium px-2 py-1 rounded-full',
-                'bg-white/40 dark:bg-black/40',
+                'text-xs font-medium px-1.5 py-0.5 rounded-md',
+                'bg-white/30 dark:bg-black/30',
                 getCategoryColor(command.category)
               )}>
                 {command.category}
@@ -227,14 +228,17 @@ export const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
       </div>
 
       {/* Footer with help text */}
-      <div className="px-4 py-2 border-t border-white/20 dark:border-white/10">
-        <div className="flex items-center justify-between text-xs theme-text-secondary">
-          <span>Tab to complete • Enter to select</span>
+      <div className="px-3 py-1.5 border-t border-white/20 dark:border-white/10">
+        <div className="flex items-center justify-between text-xs theme-text-secondary opacity-75">
+          <span>Tab • Enter</span>
           <span>
-            {selectedIndex + 1} of {commands.length}
+            {selectedIndex + 1}/{commands.length}
           </span>
         </div>
       </div>
     </div>
   );
+
+  // Render using portal to avoid affecting parent layout
+  return createPortal(dropdownContent, document.body);
 }; 

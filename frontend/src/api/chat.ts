@@ -17,14 +17,28 @@ export interface ChatResponse {
 export async function sendChatMessage(
   message: string, 
   sessionId?: string, 
-  options?: { signal?: AbortSignal; activeSessionId?: string }
+  options?: { 
+    signal?: AbortSignal; 
+    activeSessionId?: string;
+    slashCommand?: {
+      command: string;
+      agentType: string;
+    };
+  }
 ): Promise<ChatResponse> {
   try {
-    const response = await axios.post('/api/chat', { 
+    const requestData: any = { 
       message,
       sessionId: sessionId || 'default',
       activeSessionId: options?.activeSessionId
-    }, {
+    };
+    
+    // Add slash command metadata if present
+    if (options?.slashCommand) {
+      requestData.slashCommand = options.slashCommand;
+    }
+    
+    const response = await axios.post('/api/chat', requestData, {
       signal: options?.signal
     });
     

@@ -53,25 +53,47 @@ export const SlashCommandInput = forwardRef<HTMLInputElement, SlashCommandInputP
   // Detect slash commands and filter
   const filteredCommands = value.startsWith('/') ? filterCommands(value) : [];
   
+  // Update dropdown position
+  const updateDropdownPosition = useCallback(() => {
+    if (inputRef.current && containerRef.current) {
+      const inputRect = inputRef.current.getBoundingClientRect();
+      const containerRect = containerRef.current.getBoundingClientRect();
+      
+      setDropdownPosition({
+        top: inputRect.bottom + 4, // 4px gap below input, using screen coordinates
+        left: containerRect.left,
+        width: containerRect.width
+      });
+    }
+  }, []);
+
   // Update dropdown visibility and position
   useEffect(() => {
     const shouldShow = value.startsWith('/') && filteredCommands.length > 0 && !disabled;
     setShowDropdown(shouldShow);
     
-    if (shouldShow && inputRef.current && containerRef.current) {
-      const inputRect = inputRef.current.getBoundingClientRect();
-      const containerRect = containerRef.current.getBoundingClientRect();
-      
-      setDropdownPosition({
-        top: inputRect.height + 4, // 4px gap below input
-        left: 0,
-        width: containerRect.width
-      });
+    if (shouldShow) {
+      updateDropdownPosition();
     }
     
     // Reset selected index when commands change
     setSelectedCommandIndex(0);
-  }, [value, filteredCommands.length, disabled]);
+  }, [value, filteredCommands.length, disabled, updateDropdownPosition]);
+
+  // Update position on scroll/resize
+  useEffect(() => {
+    if (showDropdown) {
+      const handleReposition = () => updateDropdownPosition();
+      
+      window.addEventListener('scroll', handleReposition, true);
+      window.addEventListener('resize', handleReposition);
+      
+      return () => {
+        window.removeEventListener('scroll', handleReposition, true);
+        window.removeEventListener('resize', handleReposition);
+      };
+    }
+  }, [showDropdown, updateDropdownPosition]);
 
   // Update ghost text for tab completion
   useEffect(() => {
@@ -195,8 +217,8 @@ export const SlashCommandInput = forwardRef<HTMLInputElement, SlashCommandInputP
 
   return (
     <div ref={containerRef} className="relative flex-1">
-      {/* Input container with ghost text overlay */}
-      <div className="relative">
+        {/* Input container with ghost text overlay */}
+        <div className="relative">
         <input
           ref={inputRef}
           className={clsx(

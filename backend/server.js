@@ -287,31 +287,29 @@ const server = http.createServer(async (req, res) => {
                 const data = JSON.parse(body);
                 const sessionId = data.sessionId || 'default';
                 
-                // Process slash commands if processor is available
-                let slashCommandResult = null;
+                // Process slash commands - frontend metadata only, normal orchestration as fallback
                 let processedMessage = data.message;
                 let routingMetadata = null;
                 
-                if (getSlashCommandProcessor && data.message) {
-                    try {
-                        const processor = getSlashCommandProcessor();
-                        slashCommandResult = await processor.processMessage(data.message);
-                        
-                        if (slashCommandResult.success) {
-                            processedMessage = slashCommandResult.cleanMessage;
-                            routingMetadata = slashCommandResult.routingMetadata;
-                            
-                            if (slashCommandResult.slashCommand?.isValid) {
-                                console.log(`[Server] Slash command detected: /${slashCommandResult.slashCommand.command.name} → ${slashCommandResult.routingMetadata?.agentType}`);
-                            } else if (slashCommandResult.error) {
-                                console.log(`[Server] Invalid slash command: ${slashCommandResult.error}`);
-                            }
-                        }
-                    } catch (processingError) {
-                        console.error('[Server] Slash command processing error:', processingError);
-                        // Continue with original message if processing fails
-                        processedMessage = data.message;
-                    }
+                // Check if frontend sent slash command metadata
+                if (data.slashCommand) {
+                    console.log(`[Server] Frontend slash command metadata received:`, data.slashCommand);
+                    
+                    // Create routing metadata from frontend data
+                    routingMetadata = {
+                        forceAgent: true,
+                        agentType: data.slashCommand.agentType,
+                        commandName: data.slashCommand.command,
+                        confidence: 1.0,
+                        reason: `Frontend slash command: /${data.slashCommand.command}`
+                    };
+                    
+                    // Message should already be clean from frontend
+                    processedMessage = data.message;
+                    
+                    console.log(`[Server] Using frontend slash command: /${data.slashCommand.command} → ${data.slashCommand.agentType}`);
+                } else {
+                    console.log(`[Server] No slash command metadata, using normal orchestration for: "${data.message}"`);
                 }
                 
                 // Auto-create session if needed and save user message
@@ -336,20 +334,13 @@ const server = http.createServer(async (req, res) => {
                         };
                         
                         // Add slash command metadata if present
-                        if (slashCommandResult?.slashCommand?.isValid && routingMetadata) {
+                        if (data.slashCommand && routingMetadata) {
+                            // Frontend slash command metadata
                             userMessageMetadata.slashCommand = {
-                                command: slashCommandResult.slashCommand.command.name,
-                                agentType: slashCommandResult.slashCommand.command.agentType,
-                                rawCommand: slashCommandResult.slashCommand.rawCommand,
-                                originalMessage: slashCommandResult.originalMessage
+                                command: data.slashCommand.command,
+                                agentType: data.slashCommand.agentType
                             };
                             userMessageMetadata.forcedRouting = routingMetadata;
-                        } else if (slashCommandResult?.error) {
-                            userMessageMetadata.slashCommandError = {
-                                error: slashCommandResult.error,
-                                suggestions: slashCommandResult.suggestions || [],
-                                originalMessage: slashCommandResult.originalMessage
-                            };
                         }
                         
                         await storageManager.saveMessage({
@@ -372,19 +363,122 @@ const server = http.createServer(async (req, res) => {
                         }
                         console.log(`[ORCHESTRATOR] Processing with enhanced orchestration: "${processedMessage}"`);
                         
-                        // Prepare orchestrator context with slash command metadata
-                        const orchContext = routingMetadata ? {
-                            forcedAgent: routingMetadata.forceAgent,
-                            agentType: routingMetadata.agentType,
-                            confidence: routingMetadata.confidence,
-                            slashCommand: slashCommandResult?.slashCommand?.command
-                        } : 'orchestrator';
+                        // Check if we have forced routing from slash command
+                        if (routingMetadata && routingMetadata.forceAgent) {
+                            console.log(`[ORCHESTRATOR] Forced routing to ${routingMetadata.agentType} via slash command /${routingMetadata.commandName}`);
+                            
+                            // Force route directly to specified agent, bypass orchestrator selection
+                            const forcedAgentName = routingMetadata.agentType;
+                            const availableAgents = orchestrationSetup.orchestrator.listAgents();
+                            const targetAgentCapabilities = availableAgents.find(agentCap => 
+                                agentCap.name === forcedAgentName || 
+                                agentCap.type === forcedAgentName ||
+                                agentCap.name.includes(forcedAgentName.replace('Agent', ''))
+                            );
+                            
+                            const targetAgent = targetAgentCapabilities ? 
+                                orchestrationSetup.orchestrator.getAgent(targetAgentCapabilities.name) : null;
+                            
+                            if (targetAgent) {
+                                const targetAgentName = targetAgentCapabilities.name;
+                                console.log(`[ORCHESTRATOR] Found target agent: ${targetAgentName} for forced routing`);
+                                
+                                // Create task for forced agent
+                                const forcedTask = {
+                                    id: `forced-task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                                    type: 'chat',
+                                    input: processedMessage,
+                                    parameters: { sessionId: sessionId },
+                                    priority: 1
+                                };
+                                
+                                // Delegate directly to forced agent
+                                const forcedResult = await orchestrationSetup.orchestrator.delegateTask(forcedTask, targetAgentName);
+                                
+                                if (forcedResult.success) {
+                                    console.log(`[ORCHESTRATOR] Forced routing successful to ${targetAgentName}`);
+                                    
+                                    const orchResult = {
+                                        success: true,
+                                        response: {
+                                            message: forcedResult.result?.message || 'Response from forced agent',
+                                            _backend: 'orchestrator',
+                                            _agent: targetAgentName,
+                                            _session: sessionId,
+                                            _timestamp: new Date().toISOString(),
+                                            _orchestration: {
+                                                confidence: 1.0, // Max confidence for forced routing
+                                                reason: `Forced routing via slash command: /${routingMetadata.commandName}`,
+                                                executionTime: forcedResult.executionTime,
+                                                agentLockUsed: false,
+                                                forcedBySlashCommand: true
+                                            },
+                                            success: true
+                                        }
+                                    };
+                                    
+                                    // Save forced routing result to storage
+                                    if (storageManager && orchResult.response && orchResult.response.message) {
+                                        try {
+                                            const assistantMetadata = {
+                                                agent: orchResult.response._agent || 'orchestrator',
+                                                confidence: orchResult.response._orchestration?.confidence,
+                                                processingTime: orchResult.response._orchestration?.executionTime,
+                                                toolsUsed: orchResult.response._toolsUsed || [],
+                                                slashCommandContext: {
+                                                    forcedAgent: routingMetadata.forceAgent,
+                                                    commandUsed: routingMetadata.commandName,
+                                                    wasForced: true
+                                                }
+                                            };
+                                            
+                                            await storageManager.saveMessage({
+                                                sessionId: sessionId,
+                                                type: 'assistant',
+                                                content: orchResult.response.message,
+                                                metadata: assistantMetadata
+                                            });
+                                            
+                                            if (data.activeSessionId !== sessionId) {
+                                                await storageManager.sessionIndex.incrementUnreadCount(sessionId);
+                                                console.log(`[Server] Incremented unread count for background session: ${sessionId}`);
+                                            } else {
+                                                console.log(`[Server] NOT incrementing unread count for active session: ${sessionId}`);
+                                            }
+                                        } catch (storageError) {
+                                            console.error('[Server] Failed to save forced routing message:', storageError);
+                                        }
+                                    }
+                                    
+                                    // Add slash command information to response
+                                    orchResult.response._slashCommand = {
+                                        detected: true,
+                                        command: routingMetadata.commandName,
+                                        agentType: routingMetadata.agentType,
+                                        processedMessage: processedMessage
+                                    };
+                                    
+                                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                                    res.end(JSON.stringify(orchResult.response));
+                                    break; // Exit the switch statement
+                                } else {
+                                    console.warn(`[ORCHESTRATOR] Forced agent task failed: ${forcedResult.error}, falling back to normal orchestration`);
+                                    // Fall through to normal orchestration
+                                }
+                            } else {
+                                console.warn(`[ORCHESTRATOR] Forced agent ${forcedAgentName} not found in available agents: [${availableAgents.map(a => a.name).join(', ')}], falling back to normal orchestration`);
+                                // Fall through to normal orchestration
+                            }
+                        }
                         
-                        // Use middleware directly instead of createEnhancedChatHandler
+                        // Normal orchestration (no forced routing or forced routing failed)
+                        console.log(`[ORCHESTRATOR] Using normal orchestration for: "${processedMessage}"`);
+                        
+                        // Use middleware with correct backend parameter
                         const orchResult = await orchestrationSetup.middleware.handleChatRequest(
                             processedMessage, // Use processed message without slash command
                             sessionId,
-                            orchContext,
+                            'orchestrator',   // Correct backend string parameter (was broken before)
                             req,
                             res,
                             async (msg, sid) => {
