@@ -54,7 +54,7 @@ interface ChatManagerContextType {
   switchChat: (id: string) => void;
   updateChatMetadata: (id: string, updates: Partial<Pick<Chat, 'lastMessageAt' | 'messageCount' | 'isLoading' | 'hasNewMessages' | 'isSynced' | 'lastSyncAt' | 'isLoadingMessages' | 'remoteMessageCount' | 'agentType' | 'agentHistory'>>) => void;
   setChatLoading: (id: string, isLoading: boolean) => void;
-  markChatNewMessage: (id: string, hasNew: boolean) => void;
+  markChatNewMessage: (id: string, hasNew: boolean, actualActiveChatId?: string) => void;
   clearNewMessages: (id: string) => void;
   syncChatWithBackend: (id: string) => Promise<void>;
   getChatMessages: (id: string) => Promise<HybridMessage[]>;
@@ -92,17 +92,21 @@ const convertToApiMessage = (hybridMessage: HybridMessage): ChatMessage => ({
 });
 
 // Helper function to convert ChatMetadata to Chat
-const convertMetadataToChat = (metadata: ChatMetadata): Chat => ({
-  ...metadata,
-  isLoading: false,
-  hasNewMessages: (metadata.unreadCount || 0) > 0,
-  unreadCount: metadata.unreadCount || 0,
-  lastReadAt: metadata.lastReadAt || null,
-  isSynced: true,
-  isLoadingMessages: false,
-  remoteMessageCount: metadata.messageCount,
-  agentHistory: [],
-});
+const convertMetadataToChat = (metadata: ChatMetadata): Chat => {
+  const converted = {
+    ...metadata,
+    isLoading: false,
+    hasNewMessages: false,  // Start with false, will be set by markChatNewMessage when needed
+    unreadCount: metadata.unreadCount || 0,
+    lastReadAt: metadata.lastReadAt || null,
+    isSynced: true,
+    isLoadingMessages: false,
+    remoteMessageCount: metadata.messageCount,
+    agentHistory: [],
+  };
+  console.log(`[convertMetadataToChat] Converting ${metadata.id}: unreadCount=${metadata.unreadCount}, hasNewMessages=${converted.hasNewMessages}`);
+  return converted;
+};
 
 // ChatManager Provider component
 export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -120,13 +124,16 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
     setIsLoadingChats(true);
     try {
       const { chats: remoteChats } = await getAllChats();
+      console.log('[ChatManager] Loaded chats from server:', remoteChats);
       
       if (remoteChats.length === 0) {
         // No chats exist - show empty state
         setChats([]);
         setActiveChatId('');
       } else {
-        setChats(remoteChats.map(convertMetadataToChat));
+        const convertedChats = remoteChats.map(convertMetadataToChat);
+        console.log('[ChatManager] Converted chats:', convertedChats);
+        setChats(convertedChats);
         // Set active chat to the first one if not set
         if (!activeChatId && remoteChats.length > 0) {
           setActiveChatId(remoteChats[0].id);
@@ -159,8 +166,16 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
     id: string, 
     updates: Partial<Pick<Chat, 'lastMessageAt' | 'messageCount' | 'isLoading' | 'hasNewMessages' | 'unreadCount' | 'lastReadAt' | 'isSynced' | 'lastSyncAt' | 'isLoadingMessages' | 'remoteMessageCount' | 'agentType' | 'agentHistory'>>
   ): void => {
+    console.log(`[updateChatMetadata] Updating ${id}:`, updates);
     setChats(prevChats => 
-      prevChats.map(chat => (chat.id === id ? { ...chat, ...updates } : chat))
+      prevChats.map(chat => {
+        if (chat.id === id) {
+          const updatedChat = { ...chat, ...updates };
+          console.log(`[updateChatMetadata] Chat ${id} updated - hasNewMessages: ${chat.hasNewMessages} -> ${updatedChat.hasNewMessages}, unreadCount: ${chat.unreadCount} -> ${updatedChat.unreadCount}`);
+          return updatedChat;
+        }
+        return chat;
+      })
     );
   }, []);
 
@@ -253,16 +268,25 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
       trackAgentUsage(id, message.agent);
     }
     
-    // Update chat metadata
-    updateChatMetadata(id, {
+    // Update chat metadata - but don't overwrite hasNewMessages for background chats
+    const currentChat = chats.find(c => c.id === id);
+    const updates: any = {
       lastMessageAt: message.timestamp,
-      messageCount: (chats.find(c => c.id === id)?.messageCount || 0) + 1,
-      remoteMessageCount: (chats.find(c => c.id === id)?.remoteMessageCount || 0) + 1,
+      messageCount: (currentChat?.messageCount || 0) + 1,
+      remoteMessageCount: (currentChat?.remoteMessageCount || 0) + 1,
       isSynced: true,
-    });
+    };
+    
+    // Preserve hasNewMessages and unreadCount if this is not the active chat
+    if (id !== activeChatId && currentChat?.hasNewMessages) {
+      updates.hasNewMessages = true;
+      updates.unreadCount = currentChat.unreadCount;
+    }
+    
+    updateChatMetadata(id, updates);
     
     console.log(`[ChatManager] Updated metadata for chat ${id}`);
-  }, [chats, trackAgentUsage, updateChatMetadata]);
+  }, [chats, trackAgentUsage, updateChatMetadata, activeChatId]);
 
   // Mark chat as synced/unsynced
   const markChatSynced = useCallback((id: string, synced: boolean): void => {
@@ -419,16 +443,72 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   // Set chat loading state
   const setChatLoading = useCallback((id: string, isLoading: boolean): void => {
-    updateChatMetadata(id, { isLoading });
-  }, [updateChatMetadata]);
+    setChats(prevChats => 
+      prevChats.map(chat => {
+        if (chat.id === id) {
+          // Only update isLoading, preserve other state
+          console.log(`[setChatLoading] Setting loading=${isLoading} for ${id}, preserving hasNewMessages=${chat.hasNewMessages}`);
+          return { ...chat, isLoading };
+        }
+        return chat;
+      })
+    );
+  }, []);
 
   // Mark chat as having new messages
-  const markChatNewMessage = useCallback((id: string, hasNew: boolean): void => {
+  const markChatNewMessage = useCallback((id: string, hasNew: boolean, actualActiveChatId?: string): void => {
+    // Use passed actualActiveChatId or fall back to activeChatId from state
+    const effectiveActiveChatId = actualActiveChatId || activeChatId;
+    console.log(`[useChatManager] markChatNewMessage called - id: ${id}, hasNew: ${hasNew}, actualActiveChatId: ${actualActiveChatId}, activeChatId from state: ${activeChatId}, using: ${effectiveActiveChatId}`);
+    
     // Only mark as new if it's not the active chat
-    if (id !== activeChatId) {
-      updateChatMetadata(id, { hasNewMessages: hasNew });
+    if (id !== effectiveActiveChatId) {
+      setChats(prevChats => {
+        const chatIndex = prevChats.findIndex(c => c.id === id);
+        console.log(`[useChatManager] Chat found at index:`, chatIndex);
+        
+        if (chatIndex !== -1) {
+          const chat = prevChats[chatIndex];
+          const newMessageCount = (chat.messageCount || 0) + 1;
+          console.log(`[useChatManager] Updating metadata - hasNewMessages: ${hasNew}, messageCount: ${chat.messageCount} -> ${newMessageCount}`);
+          
+          // Create a new array with a new object to ensure React detects the change
+          const newChats = [...prevChats];
+          newChats[chatIndex] = {
+            ...chat,
+            hasNewMessages: hasNew,  // Directly set based on hasNew parameter
+            unreadCount: hasNew ? (chat.unreadCount || 0) + 1 : 0,
+            messageCount: newMessageCount,
+            lastMessageAt: new Date()
+          };
+          console.log(`[useChatManager] Updated chat:`, newChats[chatIndex]);
+          return newChats;
+        } else {
+          console.log(`[useChatManager] Chat not found for id: ${id}`);
+          return prevChats;
+        }
+      });
+    } else {
+      console.log(`[useChatManager] Not marking as new - this is the active chat`);
+      // For active chat, just increment the message count
+      setChats(prevChats => {
+        const chatIndex = prevChats.findIndex(c => c.id === id);
+        if (chatIndex !== -1) {
+          const chat = prevChats[chatIndex];
+          const newChats = [...prevChats];
+          newChats[chatIndex] = {
+            ...chat,
+            hasNewMessages: false,  // Active chat should never show blue dot
+            messageCount: (chat.messageCount || 0) + 1,
+            lastMessageAt: new Date()
+          };
+          console.log(`[useChatManager] Updated active chat message count:`, newChats[chatIndex].messageCount);
+          return newChats;
+        }
+        return prevChats;
+      });
     }
-  }, [activeChatId, updateChatMetadata]);
+  }, [activeChatId]);
 
   // Get cached messages synchronously (no API call)
   const getCachedMessages = useCallback((id: string): HybridMessage[] => {

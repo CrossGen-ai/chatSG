@@ -17,12 +17,13 @@ export interface ChatResponse {
 export async function sendChatMessage(
   message: string, 
   sessionId?: string, 
-  options?: { signal?: AbortSignal }
+  options?: { signal?: AbortSignal; activeSessionId?: string }
 ): Promise<ChatResponse> {
   try {
     const response = await axios.post('/api/chat', { 
       message,
-      sessionId: sessionId || 'default'
+      sessionId: sessionId || 'default',
+      activeSessionId: options?.activeSessionId
     }, {
       signal: options?.signal
     });
@@ -317,7 +318,9 @@ export async function getAllChats(): Promise<{
 }> {
   try {
     const response = await axios.get('/api/chats');
-    return {
+    console.log('[API] getAllChats response:', response.data);
+    
+    const result = {
       ...response.data,
       chats: response.data.chats.map((chat: any) => ({
         ...chat,
@@ -327,6 +330,9 @@ export async function getAllChats(): Promise<{
         lastReadAt: chat.lastReadAt ? new Date(chat.lastReadAt) : null
       }))
     };
+    
+    console.log('[API] getAllChats processed:', result);
+    return result;
   } catch (error: any) {
     throw new Error(`Failed to get chats: ${error.response?.data?.error || error.message}`);
   }

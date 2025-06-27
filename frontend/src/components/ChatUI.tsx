@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
-import { sendChatMessage, ChatResponse } from '../api/chat';
+import { sendChatMessage, ChatResponse, markChatAsRead } from '../api/chat';
 import { useChatManager, HybridMessage } from '../hooks/useChatManager';
 import { ChatSettingsProvider } from '../hooks/useChatSettings';
 import { ChatSettingsToggles } from './ChatSettingsToggles';
 import { AgentAvatarService, AgentAvatarConfig } from '../services/AgentAvatarService';
 import { useChatSettings } from '../hooks/useChatSettings';
+import { SlashCommandInput } from './SlashCommandInput';
+import { SlashCommand } from '../hooks/useSlashCommands';
+import { MessageSkeleton } from './SkeletonLoader';
 
 interface ChatUIProps {
   sessionId?: string;
@@ -160,14 +163,15 @@ const AgentIndicator: React.FC<AgentIndicatorProps> = ({ agentType, className })
 export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   const { activeChatId, updateChatMetadata, chats, setChatLoading, markChatNewMessage, getChatMessages, getCachedMessages, saveChatMessage, trackAgentUsage } = useChatManager();
   const { settings } = useChatSettings();
-  const currentSessionId = sessionId || activeChatId;
-  const currentChat = chats.find(chat => chat.id === currentSessionId);
+  // Use activeChatId directly, with sessionId prop as override if provided
+  const effectiveActiveChatId = sessionId || activeChatId;
+  const currentChat = chats.find(chat => chat.id === effectiveActiveChatId);
   
-  // Create a ref to track the current active session for async operations
+  // Create a ref to track the current active chat ID for async operations
   // 🚨 CRITICAL: DO NOT REMOVE - Required for race condition fix
   // Without this useEffect, the ref becomes stale and race condition returns
   // See: frontend/RACE_CONDITION_FIX_DOCUMENTATION.md
-  const currentActiveSessionRef = useRef(currentSessionId);
+  const activeChatIdRef = useRef(effectiveActiveChatId);
   
   const [messages, setMessages] = useState<HybridMessage[]>(initialMessages);
   const [input, setInput] = useState('');
@@ -202,61 +206,61 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
 
   // Load messages when sessionId changes - now with progressive loading
   useEffect(() => {
-    console.log(`[ChatUI] useEffect: Loading messages for session change: ${currentSessionId}`);
-    if (currentSessionId) {
-      loadMessagesProgressively(currentSessionId).then(loadedMessages => {
+    console.log(`[ChatUI] useEffect: Loading messages for session change: ${effectiveActiveChatId}`);
+    if (effectiveActiveChatId) {
+      loadMessagesProgressively(effectiveActiveChatId).then(loadedMessages => {
         setMessages(loadedMessages);
-        console.log(`[ChatUI] useEffect: Loaded ${loadedMessages.length} messages for session: ${currentSessionId}`);
+        console.log(`[ChatUI] useEffect: Loaded ${loadedMessages.length} messages for session: ${effectiveActiveChatId}`);
       });
     }
-  }, [currentSessionId]);
+  }, [effectiveActiveChatId]);
 
   // Monitor chat loading state and update local loading indicator
   useEffect(() => {
     if (currentChat) {
       setIsLoadingRemoteMessages(currentChat.isLoadingMessages);
-      console.log(`[ChatUI] Updated loading state for session ${currentSessionId}: ${currentChat.isLoadingMessages}`);
+      console.log(`[ChatUI] Updated loading state for session ${effectiveActiveChatId}: ${currentChat.isLoadingMessages}`);
     }
-  }, [currentChat?.isLoadingMessages, currentSessionId]);
+  }, [currentChat?.isLoadingMessages, effectiveActiveChatId]);
 
   // Listen for message updates from progressive loading
   useEffect(() => {
-    if (currentSessionId && !isLoadingRemoteMessages) {
+    if (effectiveActiveChatId && !isLoadingRemoteMessages) {
       // Check for updated messages periodically when not loading
       const interval = setInterval(() => {
-        const currentMessages = getCachedMessages(currentSessionId);
+        const currentMessages = getCachedMessages(effectiveActiveChatId);
         if (currentMessages.length !== messages.length) {
-          console.log(`[ChatUI] Detected message updates from background sync for session: ${currentSessionId}`);
+          console.log(`[ChatUI] Detected message updates from background sync for session: ${effectiveActiveChatId}`);
           setMessages(currentMessages.length > 0 ? currentMessages : initialMessages);
         }
       }, 2000); // Check every 2 seconds
 
       return () => clearInterval(interval);
     }
-  }, [currentSessionId, isLoadingRemoteMessages, messages.length, getCachedMessages]);
+  }, [effectiveActiveChatId, isLoadingRemoteMessages, messages.length, getCachedMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Update the ref whenever currentSessionId changes
+  // Update the ref whenever effectiveActiveChatId changes
   // 🚨 CRITICAL: DO NOT REMOVE - Required for race condition fix
   // Without this useEffect, the ref becomes stale and race condition returns
   // See: frontend/RACE_CONDITION_FIX_DOCUMENTATION.md
   useEffect(() => {
-    currentActiveSessionRef.current = currentSessionId;
-    console.log(`[ChatUI] 🔄 Updated currentActiveSessionRef to: ${currentSessionId}`);
-  }, [currentSessionId]);
+    activeChatIdRef.current = effectiveActiveChatId;
+    console.log(`[ChatUI] 🔄 Updated activeChatIdRef to: ${effectiveActiveChatId}`);
+  }, [effectiveActiveChatId]);
 
   // REMOVED: Request cancellation useEffect for background processing
 
   const sendMessage = async () => {
-    if (!input.trim() || loading || !currentSessionId) return;
+    if (!input.trim() || loading || !effectiveActiveChatId) return;
     
     // CRITICAL FIX: Capture originating session as a STATIC VALUE
     // This prevents the value from changing when user switches chats
-    const originatingSessionId = String(currentSessionId);
-    console.log(`[ChatUI] 🚀 SENDING MESSAGE - originatingSessionId: ${originatingSessionId}, currentSessionId: ${currentSessionId}`);
+    const originatingSessionId = String(effectiveActiveChatId);
+    console.log(`[ChatUI] 🚀 SENDING MESSAGE - originatingSessionId: ${originatingSessionId}, effectiveActiveChatId: ${effectiveActiveChatId}`);
     
     const requestId = crypto.randomUUID();
     const abortController = new AbortController();
@@ -289,20 +293,19 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     
     try {
       const chatResponse = await sendChatMessage(currentInput, originatingSessionId, {
-        signal: abortController.signal
+        signal: abortController.signal,
+        activeSessionId: activeChatIdRef.current
       });
       
       // CRITICAL FIX: Use the ref to get the ACTUAL current session at response time
-      // 🚨 CRITICAL: DO NOT CHANGE - Must use currentActiveSessionRef.current, not currentSessionId
-      // Using currentSessionId here will cause race condition to return
+      // 🚨 CRITICAL: DO NOT CHANGE - Must use activeChatIdRef.current, not effectiveActiveChatId
+      // Using effectiveActiveChatId here will cause race condition to return
       // See: frontend/RACE_CONDITION_FIX_DOCUMENTATION.md
-      const currentSessionAtResponseTime = String(currentActiveSessionRef.current);
-      console.log(`[ChatUI] 📥 RESPONSE RECEIVED - originatingSessionId: ${originatingSessionId}, currentSessionId at response time: ${currentSessionAtResponseTime}`);
-      console.log(`[ChatUI] 🔍 Session validation: ${originatingSessionId} === ${currentSessionAtResponseTime} ? ${originatingSessionId === currentSessionAtResponseTime}`);
+      console.log(`[ChatUI] 📥 RESPONSE RECEIVED - originatingSessionId: ${originatingSessionId}, activeChatId at response time: ${activeChatIdRef.current}`);
+      console.log(`[ChatUI] 🔍 Session validation: ${originatingSessionId} === ${activeChatIdRef.current} ? ${originatingSessionId === activeChatIdRef.current}`);
       console.log(`[ChatUI] 🔍 DETAILED COMPARISON:`);
       console.log(`[ChatUI] 🔍   - originatingSessionId: "${originatingSessionId}" (length: ${originatingSessionId.length}, type: ${typeof originatingSessionId})`);
-      console.log(`[ChatUI] 🔍   - currentSessionAtResponseTime: "${currentSessionAtResponseTime}" (length: ${currentSessionAtResponseTime.length}, type: ${typeof currentSessionAtResponseTime})`);
-      console.log(`[ChatUI] 🔍   - currentActiveSessionRef.current: "${currentActiveSessionRef.current}"`);
+      console.log(`[ChatUI] 🔍   - activeChatIdRef.current: "${activeChatIdRef.current}" (length: ${String(activeChatIdRef.current).length}, type: ${typeof activeChatIdRef.current})`);
       console.log(`[ChatUI] 🔍   - sessionId prop: "${sessionId}"`);
       console.log(`[ChatUI] 🤖 Agent information:`, { agent: chatResponse.agent, backend: chatResponse.backend });
       
@@ -312,7 +315,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       }
       
       // Session validation before UI update
-      if (originatingSessionId === currentSessionAtResponseTime) {
+      if (originatingSessionId === activeChatIdRef.current) {
         console.log(`[ChatUI] ✅ ACTIVE CHAT PATH - Adding response to current UI`);
         // Response for currently active chat
         const botMessage: HybridMessage = {
@@ -334,6 +337,17 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
           return newMessages;
         });
         console.log(`[ChatUI] Message delivered to active session: ${originatingSessionId}`);
+        
+        // Update message count for active chat
+        markChatNewMessage(originatingSessionId, true, activeChatIdRef.current); // Pass current active ID
+        
+        // Mark as read immediately since we're viewing this chat
+        try {
+          await markChatAsRead(originatingSessionId);
+          console.log(`[ChatUI] Marked active session as read: ${originatingSessionId}`);
+        } catch (error) {
+          console.error(`[ChatUI] Failed to mark active session as read:`, error);
+        }
       } else {
         console.log(`[ChatUI] 🔄 BACKGROUND CHAT PATH - Saving response to hybrid storage only`);
         // Response for background chat - mark as having new messages
@@ -355,7 +369,8 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
           console.error(`[ChatUI] Failed to save background bot message:`, error);
         }
         
-        markChatNewMessage(originatingSessionId, true);
+        console.log(`[ChatUI] 🔵 CALLING markChatNewMessage for background session: ${originatingSessionId}`);
+        markChatNewMessage(originatingSessionId, true, activeChatIdRef.current); // Pass current active ID
         console.log(`[ChatUI] Background response received for session: ${originatingSessionId}`);
       }
     } catch (error: any) {
@@ -364,11 +379,8 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         return;
       }
       
-      // CRITICAL FIX: Use current session at response time for error handling too
-      const currentSessionAtResponseTime = String(currentActiveSessionRef.current);
-      
       // Handle errors for both active and background chats
-      if (originatingSessionId === currentSessionAtResponseTime) {
+      if (originatingSessionId === activeChatIdRef.current) {
         const errorMessage: HybridMessage = {
           id: Date.now() + 1,
           content: 'Sorry, I encountered an error. Please try again.',
@@ -412,7 +424,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   };
 
   return (
-    <ChatSettingsProvider sessionId={currentSessionId || 'default'}>
+    <ChatSettingsProvider sessionId={effectiveActiveChatId || 'default'}>
       <div className="h-full flex flex-col backdrop-blur-xl bg-white/10 dark:bg-black/10 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl overflow-hidden">
         {/* Chat header */}
         <div className="px-6 py-4 border-b border-white/20 dark:border-white/10 backdrop-blur-md bg-white/20 dark:bg-black/20">
@@ -502,16 +514,17 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       {/* Input area */}
       <div className="p-4 border-t border-white/20 dark:border-white/10 backdrop-blur-md bg-white/20 dark:bg-black/20">
         <div className="flex items-center space-x-3">
-          <div className="flex-1 relative">
-            <input
-              className="w-full px-4 py-3 rounded-2xl backdrop-blur-md bg-white/60 dark:bg-black/40 border border-white/30 dark:border-white/20 theme-text-primary placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-              placeholder="Type your message..."
-              disabled={loading}
-            />
-          </div>
+          <SlashCommandInput
+            value={input}
+            onChange={setInput}
+            onSubmit={sendMessage}
+            onSlashCommand={(command, cleanMessage) => {
+              console.log('[ChatUI] Slash command selected:', command.name, 'Clean message:', cleanMessage);
+              // The slash command will be processed by the backend when sendMessage is called
+            }}
+            disabled={loading}
+            placeholder="Type your message or use /command..."
+          />
           <button
             className={clsx(
               'px-6 py-3 rounded-2xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95',

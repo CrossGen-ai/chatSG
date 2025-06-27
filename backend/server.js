@@ -18,6 +18,17 @@ const { exec } = require('child_process');
 const axios = require('axios');
 const crypto = require('crypto');
 
+// Import slash commands service
+let SlashCommandsRouter, getSlashCommandProcessor;
+try {
+    SlashCommandsRouter = require('./dist/src/routing/SlashCommandsRouter');
+    const slashProcessor = require('./dist/src/routing/SlashCommandProcessor');
+    getSlashCommandProcessor = slashProcessor.getSlashCommandProcessor;
+    console.log('[Server] Loaded slash commands router and processor');
+} catch (error) {
+    console.warn('[Server] Could not load slash commands modules:', error.message);
+}
+
 // Import orchestrator modules with error handling
 let createOrchestrationSetup, createBackendIntegration, OrchestratorAgentFactory, StateManager, createStateContext;
 
@@ -276,6 +287,33 @@ const server = http.createServer(async (req, res) => {
                 const data = JSON.parse(body);
                 const sessionId = data.sessionId || 'default';
                 
+                // Process slash commands if processor is available
+                let slashCommandResult = null;
+                let processedMessage = data.message;
+                let routingMetadata = null;
+                
+                if (getSlashCommandProcessor && data.message) {
+                    try {
+                        const processor = getSlashCommandProcessor();
+                        slashCommandResult = await processor.processMessage(data.message);
+                        
+                        if (slashCommandResult.success) {
+                            processedMessage = slashCommandResult.cleanMessage;
+                            routingMetadata = slashCommandResult.routingMetadata;
+                            
+                            if (slashCommandResult.slashCommand?.isValid) {
+                                console.log(`[Server] Slash command detected: /${slashCommandResult.slashCommand.command.name} → ${slashCommandResult.routingMetadata?.agentType}`);
+                            } else if (slashCommandResult.error) {
+                                console.log(`[Server] Invalid slash command: ${slashCommandResult.error}`);
+                            }
+                        }
+                    } catch (processingError) {
+                        console.error('[Server] Slash command processing error:', processingError);
+                        // Continue with original message if processing fails
+                        processedMessage = data.message;
+                    }
+                }
+                
                 // Auto-create session if needed and save user message
                 if (storageManager && data.message) {
                     try {
@@ -292,14 +330,33 @@ const server = http.createServer(async (req, res) => {
                             console.log(`[Server] Auto-created session: ${sessionId}`);
                         }
                         
-                        // Save user message
+                        // Save user message with slash command metadata
+                        const userMessageMetadata = {
+                            userId: data.userId
+                        };
+                        
+                        // Add slash command metadata if present
+                        if (slashCommandResult?.slashCommand?.isValid && routingMetadata) {
+                            userMessageMetadata.slashCommand = {
+                                command: slashCommandResult.slashCommand.command.name,
+                                agentType: slashCommandResult.slashCommand.command.agentType,
+                                rawCommand: slashCommandResult.slashCommand.rawCommand,
+                                originalMessage: slashCommandResult.originalMessage
+                            };
+                            userMessageMetadata.forcedRouting = routingMetadata;
+                        } else if (slashCommandResult?.error) {
+                            userMessageMetadata.slashCommandError = {
+                                error: slashCommandResult.error,
+                                suggestions: slashCommandResult.suggestions || [],
+                                originalMessage: slashCommandResult.originalMessage
+                            };
+                        }
+                        
                         await storageManager.saveMessage({
                             sessionId: sessionId,
                             type: 'user',
-                            content: data.message,
-                            metadata: {
-                                userId: data.userId
-                            }
+                            content: processedMessage, // Use processed message (without slash command)
+                            metadata: userMessageMetadata
                         });
                     } catch (storageError) {
                         console.error('[Server] Failed to save user message:', storageError);
@@ -313,13 +370,21 @@ const server = http.createServer(async (req, res) => {
                         if (!backendIntegration) {
                             throw new Error('Orchestrator not initialized');
                         }
-                        console.log(`[ORCHESTRATOR] Processing with enhanced orchestration: "${data.message}"`);
+                        console.log(`[ORCHESTRATOR] Processing with enhanced orchestration: "${processedMessage}"`);
+                        
+                        // Prepare orchestrator context with slash command metadata
+                        const orchContext = routingMetadata ? {
+                            forcedAgent: routingMetadata.forceAgent,
+                            agentType: routingMetadata.agentType,
+                            confidence: routingMetadata.confidence,
+                            slashCommand: slashCommandResult?.slashCommand?.command
+                        } : 'orchestrator';
                         
                         // Use middleware directly instead of createEnhancedChatHandler
                         const orchResult = await orchestrationSetup.middleware.handleChatRequest(
-                            data.message,
+                            processedMessage, // Use processed message without slash command
                             sessionId,
-                            'orchestrator',
+                            orchContext,
                             req,
                             res,
                             async (msg, sid) => {
@@ -336,100 +401,204 @@ const server = http.createServer(async (req, res) => {
                         // Save assistant response to storage
                         if (storageManager && orchResult.response && orchResult.response.message) {
                             try {
+                                const assistantMetadata = {
+                                    agent: orchResult.response._agent || 'orchestrator',
+                                    confidence: orchResult.response._orchestration?.confidence,
+                                    processingTime: orchResult.response._orchestration?.executionTime,
+                                    toolsUsed: orchResult.response._toolsUsed || []
+                                };
+                                
+                                // Add slash command context if present
+                                if (routingMetadata) {
+                                    assistantMetadata.slashCommandContext = {
+                                        forcedAgent: routingMetadata.forceAgent,
+                                        commandUsed: routingMetadata.commandName,
+                                        wasForced: true
+                                    };
+                                }
+                                
                                 await storageManager.saveMessage({
                                     sessionId: sessionId,
                                     type: 'assistant',
                                     content: orchResult.response.message,
-                                    metadata: {
-                                        agent: orchResult.response._agent || 'orchestrator',
-                                        confidence: orchResult.response._orchestration?.confidence,
-                                        processingTime: orchResult.response._orchestration?.executionTime,
-                                        toolsUsed: orchResult.response._toolsUsed || []
-                                    }
+                                    metadata: assistantMetadata
                                 });
                                 
-                                // Increment unread count for assistant messages
-                                await storageManager.sessionIndex.incrementUnreadCount(sessionId);
+                                // Increment unread count only if this is not the active session
+                                if (data.activeSessionId !== sessionId) {
+                                    await storageManager.sessionIndex.incrementUnreadCount(sessionId);
+                                    console.log(`[Server] Incremented unread count for background session: ${sessionId}`);
+                                } else {
+                                    console.log(`[Server] NOT incrementing unread count for active session: ${sessionId}`);
+                                }
                             } catch (storageError) {
                                 console.error('[Server] Failed to save assistant message:', storageError);
                             }
                         }
                         
+                        // Add slash command information to orchestrator response
+                        const orchResponse = { ...orchResult.response };
+                        if (routingMetadata) {
+                            orchResponse._slashCommand = {
+                                detected: true,
+                                command: routingMetadata.commandName,
+                                agentType: routingMetadata.agentType,
+                                processedMessage: processedMessage
+                            };
+                        }
+                        
                         res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(orchResult.response));
+                        res.end(JSON.stringify(orchResponse));
                         break;
                         
                     case 'n8n':
                         // n8n Webhook mode (Production)
                         console.log(`[N8N] Forwarding to webhook: ${WEBHOOK_URL}`);
-                        const response = await axios.post(WEBHOOK_URL, { message: data.message });
+                        
+                        // Prepare webhook payload with slash command metadata
+                        const webhookPayload = { 
+                            message: processedMessage,
+                            originalMessage: data.message
+                        };
+                        
+                        if (routingMetadata) {
+                            webhookPayload.slashCommand = {
+                                forceAgent: routingMetadata.forceAgent,
+                                agentType: routingMetadata.agentType,
+                                commandName: routingMetadata.commandName
+                            };
+                        }
+                        
+                        const response = await axios.post(WEBHOOK_URL, webhookPayload);
                         const output = response.data.output || 'No output from webhook.';
                         
                         // Save n8n response to storage
                         if (storageManager) {
                             try {
+                                const n8nMetadata = {
+                                    agent: 'n8n-webhook',
+                                    backend: 'n8n'
+                                };
+                                
+                                // Add slash command context if present
+                                if (routingMetadata) {
+                                    n8nMetadata.slashCommandContext = {
+                                        forcedAgent: routingMetadata.forceAgent,
+                                        commandUsed: routingMetadata.commandName,
+                                        wasForced: true
+                                    };
+                                }
+                                
                                 await storageManager.saveMessage({
                                     sessionId: sessionId,
                                     type: 'assistant',
                                     content: output,
-                                    metadata: {
-                                        agent: 'n8n-webhook',
-                                        backend: 'n8n'
-                                    }
+                                    metadata: n8nMetadata
                                 });
                                 
-                                // Increment unread count for assistant messages
-                                await storageManager.sessionIndex.incrementUnreadCount(sessionId);
+                                // Increment unread count only if this is not the active session
+                                if (data.activeSessionId !== sessionId) {
+                                    await storageManager.sessionIndex.incrementUnreadCount(sessionId);
+                                    console.log(`[Server] Incremented unread count for background session: ${sessionId}`);
+                                } else {
+                                    console.log(`[Server] NOT incrementing unread count for active session: ${sessionId}`);
+                                }
                             } catch (storageError) {
                                 console.error('[Server] Failed to save n8n message:', storageError);
                             }
                         }
                         
-                        res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ 
+                        const n8nResponse = { 
                             message: output,
                             _backend: 'n8n',
                             _webhook: WEBHOOK_URL
-                        }));
+                        };
+                        
+                        // Add slash command information to n8n response
+                        if (routingMetadata) {
+                            n8nResponse._slashCommand = {
+                                detected: true,
+                                command: routingMetadata.commandName,
+                                agentType: routingMetadata.agentType,
+                                processedMessage: processedMessage
+                            };
+                        }
+                        
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(n8nResponse));
                         break;
                         
                     case 'Generic':
                         // Generic simulation mode (Development)
-                        console.log(`[GENERIC] Simulating response for message: "${data.message}"`);
+                        console.log(`[GENERIC] Simulating response for message: "${processedMessage}"`);
                         
                         // Simulate some processing delay (like a real API call)
                         await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
                         
-                        const simulatedResponse = getSimulatedN8nResponse(data.message);
+                        // Use processed message for simulation but include routing info
+                        let simulatedResponse = getSimulatedN8nResponse(processedMessage);
+                        
+                        // Add slash command acknowledgment if present
+                        if (routingMetadata) {
+                            simulatedResponse = `[${routingMetadata.agentType} Agent] ${simulatedResponse}`;
+                        }
                         
                         // Save simulated response to storage
                         if (storageManager) {
                             try {
+                                const genericMetadata = {
+                                    agent: 'generic-simulator',
+                                    backend: 'Generic',
+                                    simulation: true
+                                };
+                                
+                                // Add slash command context if present
+                                if (routingMetadata) {
+                                    genericMetadata.slashCommandContext = {
+                                        forcedAgent: routingMetadata.forceAgent,
+                                        commandUsed: routingMetadata.commandName,
+                                        wasForced: true
+                                    };
+                                }
+                                
                                 await storageManager.saveMessage({
                                     sessionId: sessionId,
                                     type: 'assistant',
                                     content: simulatedResponse,
-                                    metadata: {
-                                        agent: 'generic-simulator',
-                                        backend: 'Generic',
-                                        simulation: true
-                                    }
+                                    metadata: genericMetadata
                                 });
                                 
-                                // Increment unread count for assistant messages
-                                await storageManager.sessionIndex.incrementUnreadCount(sessionId);
+                                // Increment unread count only if this is not the active session
+                                if (data.activeSessionId !== sessionId) {
+                                    await storageManager.sessionIndex.incrementUnreadCount(sessionId);
+                                    console.log(`[Server] Incremented unread count for background session: ${sessionId}`);
+                                } else {
+                                    console.log(`[Server] NOT incrementing unread count for active session: ${sessionId}`);
+                                }
                             } catch (storageError) {
                                 console.error('[Server] Failed to save generic message:', storageError);
                             }
                         }
                         
-                        res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ 
+                        const genericResponse = { 
                             message: simulatedResponse,
                             _backend: 'Generic',
                             _simulation: true,
                             _original_message: data.message
-                        }));
+                        };
+                        
+                        // Add slash command information to response
+                        if (routingMetadata) {
+                            genericResponse._slashCommand = {
+                                detected: true,
+                                command: routingMetadata.commandName,
+                                agentType: routingMetadata.agentType,
+                                processedMessage: processedMessage
+                            };
+                        }
+                        
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(genericResponse));
                         break;
                         
                     default:
@@ -557,6 +726,181 @@ const server = http.createServer(async (req, res) => {
                 error: 'Failed to retrieve chat sessions',
                 details: error.message,
                 _backend: BACKEND
+            }));
+        }
+    } else if (req.url === '/api/slash-commands' && req.method === 'GET') {
+        // Slash Commands API - Get all available commands
+        try {
+            if (!SlashCommandsRouter) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ 
+                    success: false,
+                    error: 'Slash commands service not available',
+                    code: 'SERVICE_UNAVAILABLE'
+                }));
+                return;
+            }
+            
+            const { getSlashCommandService } = require('./dist/src/routing/SlashCommandService');
+            const service = getSlashCommandService();
+            
+            // Ensure configuration is loaded
+            const loaded = await service.loadConfiguration();
+            if (!loaded) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    success: false,
+                    error: 'Failed to load slash commands configuration',
+                    code: 'CONFIG_LOAD_ERROR'
+                }));
+                return;
+            }
+
+            // Get commands and metadata
+            const commands = service.getCommands();
+            const metadata = service.getMetadata();
+
+            const response = {
+                success: true,
+                commands,
+                metadata: {
+                    ...metadata,
+                    serverTimestamp: new Date().toISOString()
+                }
+            };
+
+            // Set caching headers for performance
+            res.writeHead(200, { 
+                'Content-Type': 'application/json',
+                'Cache-Control': 'public, max-age=300', // 5 minutes cache
+                'ETag': `"${metadata.version}-${metadata.commandCount}"`
+            });
+            res.end(JSON.stringify(response));
+            
+            console.log(`[SlashCommands] Served ${commands.length} commands to client`);
+
+        } catch (error) {
+            console.error('[SlashCommands] Error serving commands:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                success: false,
+                error: 'Internal server error while fetching commands',
+                code: 'INTERNAL_ERROR'
+            }));
+        }
+    } else if (req.url.match(/^\/api\/slash-commands\/validate\/([^/]+)$/) && req.method === 'GET') {
+        // Slash Commands API - Validate a specific command
+        try {
+            const command = req.url.match(/^\/api\/slash-commands\/validate\/([^/]+)$/)[1];
+            
+            if (!SlashCommandsRouter) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ 
+                    success: false,
+                    error: 'Slash commands service not available',
+                    code: 'SERVICE_UNAVAILABLE'
+                }));
+                return;
+            }
+            
+            const { getSlashCommandService } = require('./dist/src/routing/SlashCommandService');
+            const service = getSlashCommandService();
+            
+            // Ensure configuration is loaded
+            const loaded = await service.loadConfiguration();
+            if (!loaded) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    success: false,
+                    error: 'Failed to load slash commands configuration',
+                    code: 'CONFIG_LOAD_ERROR'
+                }));
+                return;
+            }
+
+            // Remove leading slash if present and decode URL
+            const cleanCommand = decodeURIComponent(command.startsWith('/') ? command.slice(1) : command);
+            
+            // Validate command name format
+            const isValidFormat = service.validateCommandName(cleanCommand);
+            if (!isValidFormat) {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    success: true,
+                    valid: false,
+                    error: 'Invalid command format. Commands must contain only letters, numbers, hyphens, and underscores.',
+                    suggestions: []
+                }));
+                return;
+            }
+
+            // Resolve command
+            const result = service.resolveCommand(cleanCommand);
+            
+            const response = {
+                success: true,
+                valid: result.success,
+                command: result.command,
+                error: result.error,
+                suggestions: result.suggestions || []
+            };
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(response));
+            
+            console.log(`[SlashCommands] Validated command: ${cleanCommand} → ${result.success ? 'valid' : 'invalid'}`);
+
+        } catch (error) {
+            console.error('[SlashCommands] Error validating command:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                success: false,
+                error: 'Internal server error while validating command',
+                code: 'INTERNAL_ERROR'
+            }));
+        }
+    } else if (req.url === '/api/slash-commands/health' && req.method === 'GET') {
+        // Slash Commands API - Health check
+        try {
+            if (!SlashCommandsRouter) {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    success: false,
+                    status: 'unavailable',
+                    configLoaded: false,
+                    timestamp: new Date().toISOString()
+                }));
+                return;
+            }
+            
+            const { getSlashCommandService } = require('./dist/src/routing/SlashCommandService');
+            const service = getSlashCommandService();
+            const loaded = await service.loadConfiguration();
+            
+            const health = {
+                success: true,
+                status: loaded ? 'healthy' : 'degraded',
+                configLoaded: loaded,
+                timestamp: new Date().toISOString()
+            };
+
+            if (loaded) {
+                const metadata = service.getMetadata();
+                health['commandCount'] = metadata.commandCount;
+                health['version'] = metadata.version;
+            }
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(health));
+
+        } catch (error) {
+            console.error('[SlashCommands] Health check failed:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                success: false,
+                status: 'unhealthy',
+                error: error instanceof Error ? error.message : 'Unknown error',
+                timestamp: new Date().toISOString()
             }));
         }
     } else if (req.url.match(/^\/api\/chats\/([^/]+)\/history$/) && req.method === 'GET') {
@@ -1189,20 +1533,23 @@ const server = http.createServer(async (req, res) => {
                 });
                 
                 // Format sessions for frontend with unread counts
-                const formattedSessions = sessions.map(session => ({
-                    id: session.sessionId || session.file.replace('session_', '').replace('.jsonl', ''),
-                    name: session.title,
-                    lastMessage: `${session.messageCount} messages`,
-                    timestamp: session.lastActivityAt,
-                    hasNewMessages: (session.metadata.unreadCount || 0) > 0,
-                    unreadCount: session.metadata.unreadCount || 0,
-                    lastReadAt: session.metadata.lastReadAt || null,
-                    metadata: {
-                        messageCount: session.messageCount,
-                        createdAt: session.createdAt,
-                        lastAgent: session.metadata.lastAgent
-                    }
-                }));
+                const formattedSessions = sessions.map(session => {
+                    console.log(`[Server] Formatting session ${session.sessionId}: unreadCount=${session.metadata.unreadCount}, lastReadAt=${session.metadata.lastReadAt}`);
+                    return {
+                        id: session.sessionId || session.file.replace('session_', '').replace('.jsonl', ''),
+                        name: session.title,
+                        lastMessage: `${session.messageCount} messages`,
+                        timestamp: session.lastActivityAt,
+                        hasNewMessages: (session.metadata.unreadCount || 0) > 0,
+                        unreadCount: session.metadata.unreadCount || 0,
+                        lastReadAt: session.metadata.lastReadAt || null,
+                        metadata: {
+                            messageCount: session.messageCount,
+                            createdAt: session.createdAt,
+                            lastAgent: session.metadata.lastAgent
+                        }
+                    };
+                });
                 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({

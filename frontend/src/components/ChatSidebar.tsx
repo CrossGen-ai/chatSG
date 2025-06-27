@@ -447,12 +447,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
                                 </div>
                               )}
                               
-                              {/* Blue dot for chats with new messages */}
-                              {chat.hasNewMessages && !chat.isLoading && isDeletingChat !== chat.id && (
-                                <div className="flex-shrink-0">
-                                  <div className="w-3 h-3 bg-blue-500 rounded-full border border-white dark:border-gray-900"></div>
-                                </div>
-                              )}
+                              {console.log(`[ChatSidebar] Chat ${chat.id}: hasNewMessages=${chat.hasNewMessages}, unreadCount=${chat.unreadCount}, isLoading=${chat.isLoading}`)}
                               
                               {/* Sync status indicator */}
                               {!chat.isSynced && isDeletingChat !== chat.id && (
@@ -468,8 +463,11 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
                                 {formatTimestamp(new Date(chat.lastMessageAt))}
                               </span>
                               {chat.messageCount > 0 && (
-                                <span className="text-xs theme-text-secondary">
+                                <span className="text-xs theme-text-secondary inline-flex items-center">
                                   • {chat.messageCount} messages
+                                  {chat.hasNewMessages && (
+                                    <span className="ml-2 inline-block w-3 h-3 bg-blue-500 rounded-full animate-pulse border border-white"></span>
+                                  )}
                                 </span>
                               )}
                             </div>

@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "description": "Slash commands configuration for ChatSG agent routing",
+  "lastUpdated": "2025-01-27T00:00:00.000Z",
+  "commands": [
+    {
+      "name": "creative",
+      "description": "Force route to Creative Agent for writing, brainstorming, and creative tasks",
+      "agentType": "CreativeAgent",
+      "category": "agents",
+      "aliases": ["c", "write", "story", "brainstorm"],
+      "enabled": true,
+      "priority": 1
+    },
+    {
+      "name": "analytical",
+      "description": "Force route to Analytical Agent for data analysis and statistical processing",
+      "agentType": "AnalyticalAgent", 
+      "category": "agents",
+      "aliases": ["a", "analyze", "data", "stats"],
+      "enabled": true,
+      "priority": 2
+    },
+    {
+      "name": "technical",
+      "description": "Force route to Technical Agent for coding, debugging, and technical tasks",
+      "agentType": "TechnicalAgent",
+      "category": "agents", 
+      "aliases": ["t", "code", "debug", "tech"],
+      "enabled": true,
+      "priority": 3
+    }
+  ],
+  "settings": {
+    "maxAliasLength": 10,
+    "caseSensitive": false,
+    "requireExactMatch": false,
+    "enablePartialMatching": true
+  }
+} 
