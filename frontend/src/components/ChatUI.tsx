@@ -153,7 +153,7 @@ const AgentIndicator: React.FC<AgentIndicatorProps> = ({ agentType, className })
 };
 
 export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
-  const { activeChatId, chats, setChatLoading, markChatNewMessage, getChatMessages, getCachedMessages, saveChatMessage, trackAgentUsage } = useChatManager();
+  const { activeChatId, chats, setChatLoading, markChatNewMessage, getChatMessages, loadMoreChatMessages, getCachedMessages, saveChatMessage, trackAgentUsage } = useChatManager();
   const { settings } = useChatSettings();
   // Use activeChatId directly, with sessionId prop as override if provided
   const effectiveActiveChatId = sessionId || activeChatId;
@@ -485,13 +485,16 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   
   // Update displayed messages when messages change
   useEffect(() => {
-    if (messages.length <= INITIAL_MESSAGE_COUNT || hasLoadedMore) {
+    // Use total message count from chat metadata to decide whether to show all or recent messages
+    const totalMessageCount = currentChat?.messageCount || messages.length;
+    
+    if (totalMessageCount <= INITIAL_MESSAGE_COUNT || hasLoadedMore) {
       setDisplayedMessages(messages);
     } else {
-      // Show only recent messages initially
+      // Show only recent messages initially (the backend already returns the most recent 50)
       setDisplayedMessages(messages.slice(-INITIAL_MESSAGE_COUNT));
     }
-  }, [messages, hasLoadedMore]);
+  }, [messages, hasLoadedMore, currentChat?.messageCount]);
   
   // Force scroll to bottom when messages are updated during initial load
   useEffect(() => {
@@ -505,58 +508,78 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     }
   }, [displayedMessages, isScrollReady]);
   
-  // Load more messages handler with scroll position preservation
-  const loadMoreMessages = useCallback(() => {
-    if (messagesContainerRef.current) {
-      // Save the current scroll position and height
-      const scrollContainer = messagesContainerRef.current;
-      const previousScrollHeight = scrollContainer.scrollHeight;
-      const previousScrollTop = scrollContainer.scrollTop;
+  // Load more messages handler with backend API call and scroll position preservation
+  const loadMoreMessages = useCallback(async () => {
+    if (!effectiveActiveChatId || !currentChat) return;
+    
+    // Show loading state
+    setIsLoading(true);
+    
+    try {
+      console.log(`[ChatUI] Loading more messages for ${effectiveActiveChatId}, current messages: ${messages.length}`);
       
-      // Find the first visible message as our anchor
-      const messageElements = scrollContainer.querySelectorAll('[data-message-id]');
-      let anchorMessageId = null;
-      let anchorOffsetTop = 0;
+      // Call backend to get additional messages
+      const allMessages = await loadMoreChatMessages(effectiveActiveChatId, messages.length);
       
-      for (let i = 0; i < messageElements.length; i++) {
-        const element = messageElements[i];
-        const rect = element.getBoundingClientRect();
-        const containerRect = scrollContainer.getBoundingClientRect();
-        if (rect.top >= containerRect.top) {
-          anchorMessageId = element.getAttribute('data-message-id');
-          anchorOffsetTop = rect.top - containerRect.top;
-          break;
-        }
-      }
-      
-      // Load all messages
-      setHasLoadedMore(true);
-      setDisplayedMessages(messages);
-      
-      // Restore scroll position after DOM update
-      requestAnimationFrame(() => {
-        if (anchorMessageId && scrollContainer) {
-          // Find the anchor message in the new DOM
-          const anchorElement = scrollContainer.querySelector(`[data-message-id="${anchorMessageId}"]`);
-          if (anchorElement) {
-            const containerRect = scrollContainer.getBoundingClientRect();
-            const anchorRect = anchorElement.getBoundingClientRect();
-            const newScrollTop = anchorRect.top - containerRect.top - anchorOffsetTop + scrollContainer.scrollTop;
-            scrollContainer.scrollTop = newScrollTop;
-          } else {
-            // Fallback: maintain relative position
-            const newScrollHeight = scrollContainer.scrollHeight;
-            const scrollHeightDiff = newScrollHeight - previousScrollHeight;
-            scrollContainer.scrollTop = previousScrollTop + scrollHeightDiff;
+      if (messagesContainerRef.current) {
+        // Save the current scroll position and height
+        const scrollContainer = messagesContainerRef.current;
+        const previousScrollHeight = scrollContainer.scrollHeight;
+        const previousScrollTop = scrollContainer.scrollTop;
+        
+        // Find the first visible message as our anchor
+        const messageElements = scrollContainer.querySelectorAll('[data-message-id]');
+        let anchorMessageId = null;
+        let anchorOffsetTop = 0;
+        
+        for (let i = 0; i < messageElements.length; i++) {
+          const element = messageElements[i];
+          const rect = element.getBoundingClientRect();
+          const containerRect = scrollContainer.getBoundingClientRect();
+          if (rect.top >= containerRect.top) {
+            anchorMessageId = element.getAttribute('data-message-id');
+            anchorOffsetTop = rect.top - containerRect.top;
+            break;
           }
         }
-      });
-    } else {
-      // No container ref, just load messages
-      setHasLoadedMore(true);
-      setDisplayedMessages(messages);
+        
+        // Update messages and mark as loaded
+        setMessages(allMessages);
+        setHasLoadedMore(true);
+        setDisplayedMessages(allMessages);
+        
+        // Restore scroll position after DOM update
+        requestAnimationFrame(() => {
+          if (anchorMessageId && scrollContainer) {
+            // Find the anchor message in the new DOM
+            const anchorElement = scrollContainer.querySelector(`[data-message-id="${anchorMessageId}"]`);
+            if (anchorElement) {
+              const containerRect = scrollContainer.getBoundingClientRect();
+              const anchorRect = anchorElement.getBoundingClientRect();
+              const newScrollTop = anchorRect.top - containerRect.top - anchorOffsetTop + scrollContainer.scrollTop;
+              scrollContainer.scrollTop = newScrollTop;
+            } else {
+              // Fallback: maintain relative position
+              const newScrollHeight = scrollContainer.scrollHeight;
+              const scrollHeightDiff = newScrollHeight - previousScrollHeight;
+              scrollContainer.scrollTop = previousScrollTop + scrollHeightDiff;
+            }
+          }
+        });
+      } else {
+        // No container ref, just update messages
+        setMessages(allMessages);
+        setHasLoadedMore(true);
+        setDisplayedMessages(allMessages);
+      }
+      
+      console.log(`[ChatUI] Successfully loaded ${allMessages.length} total messages`);
+    } catch (error) {
+      console.error('[ChatUI] Failed to load more messages:', error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [messages]);
+  }, [effectiveActiveChatId, currentChat, messages.length, loadMoreChatMessages]);
 
   // Ensure scroll stays at bottom when displayed messages change
   useEffect(() => {
@@ -631,13 +654,14 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         )}
         
         {/* Load more button if there are hidden messages */}
-        {messages.length > INITIAL_MESSAGE_COUNT && !hasLoadedMore && (
+        {currentChat && currentChat.messageCount > INITIAL_MESSAGE_COUNT && !hasLoadedMore && (
           <div className="flex justify-center py-4">
             <button
               onClick={loadMoreMessages}
               className="px-4 py-2 text-sm rounded-full backdrop-blur-md bg-white/40 dark:bg-black/30 border border-white/30 theme-text-secondary hover:bg-white/60 dark:hover:bg-black/50 transition-all duration-200"
+              disabled={isLoading}
             >
-              Load {messages.length - INITIAL_MESSAGE_COUNT} earlier messages
+              {isLoading ? 'Loading...' : `Load ${currentChat.messageCount - INITIAL_MESSAGE_COUNT} earlier messages`}
             </button>
           </div>
         )}

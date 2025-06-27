@@ -129,23 +129,35 @@ export interface ToolUsage {
   agentName?: string;
 }
 
-export async function getChatHistory(sessionId: string): Promise<{
+export async function getChatHistory(
+  sessionId: string, 
+  options?: { limit?: number; offset?: number }
+): Promise<{
   sessionId: string;
   messages: ChatMessage[];
   messageCount: number;
+  totalMessages: number;
+  hasMore: boolean;
   agentHistory: AgentInteraction[];
   toolsUsed: ToolUsage[];
   analytics: any;
 }> {
   try {
-    // Use the messages endpoint which reads from JSONL storage
-    const response = await axios.get(`/api/chats/${sessionId}/messages`);
+    // Build URL with pagination parameters
+    const params = new URLSearchParams();
+    if (options?.limit) params.append('limit', options.limit.toString());
+    if (options?.offset) params.append('offset', options.offset.toString());
+    
+    const url = `/api/chats/${sessionId}/messages${params.toString() ? '?' + params.toString() : ''}`;
+    const response = await axios.get(url);
     
     // Transform the response to match the expected format
     return {
       sessionId: response.data.sessionId,
       messages: response.data.messages || [],
-      messageCount: response.data.totalMessages || response.data.messages?.length || 0,
+      messageCount: response.data.messages?.length || 0, // Count of messages in this response
+      totalMessages: response.data.totalMessages || response.data.messages?.length || 0, // Total count in backend
+      hasMore: response.data.hasMore || false,
       agentHistory: [], // Not provided by messages endpoint
       toolsUsed: [], // Not provided by messages endpoint
       analytics: {} // Not provided by messages endpoint

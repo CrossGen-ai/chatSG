@@ -58,6 +58,7 @@ interface ChatManagerContextType {
   clearNewMessages: (id: string) => void;
   syncChatWithBackend: (id: string) => Promise<void>;
   getChatMessages: (id: string) => Promise<HybridMessage[]>;
+  loadMoreChatMessages: (id: string, currentMessageCount: number) => Promise<HybridMessage[]>;  // NEW: Load more messages with pagination
   getCachedMessages: (id: string) => HybridMessage[];  // NEW: Get cached messages synchronously
   saveChatMessage: (id: string, message: HybridMessage) => Promise<void>;
   markChatSynced: (id: string, synced: boolean) => void;
@@ -206,11 +207,11 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
       // Update cache
       messageCache.set(id, { messages, timestamp: Date.now() });
       
-      // Update chat metadata
+      // Update chat metadata - use totalMessages for the actual count
       updateChatMetadata(id, { 
         isLoadingMessages: false,
-        remoteMessageCount: messages.length,
-        messageCount: messages.length
+        remoteMessageCount: history.totalMessages, // Total messages in backend
+        messageCount: history.totalMessages // Display total count in sidebar
       });
       
       return messages;
@@ -220,6 +221,36 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
       return [];
     }
   }, [updateChatMetadata]);
+
+  // Load additional messages with pagination
+  const loadMoreChatMessages = useCallback(async (id: string, currentMessageCount: number): Promise<HybridMessage[]> => {
+    try {
+      // Calculate offset based on current loaded messages
+      const offset = currentMessageCount;
+      console.log(`[ChatManager] Loading more messages for ${id} from offset ${offset}`);
+      
+      const history = await getChatHistory(id, { offset });
+      const newMessages = history.messages.map(convertToHybridMessage);
+      
+      // Get existing cached messages
+      const cached = messageCache.get(id);
+      const existingMessages = cached ? cached.messages : [];
+      
+      // Merge existing messages with new older messages
+      // New messages should be prepended (they are older)
+      const allMessages = [...newMessages, ...existingMessages];
+      
+      // Update cache with all messages
+      messageCache.set(id, { messages: allMessages, timestamp: Date.now() });
+      
+      console.log(`[ChatManager] Loaded ${newMessages.length} more messages for ${id}, total now: ${allMessages.length}`);
+      
+      return allMessages;
+    } catch (error) {
+      console.error(`[ChatManager] Failed to load more messages for chat ${id}:`, error);
+      return [];
+    }
+  }, []);
 
   // Track agent usage and update chat metadata
   const trackAgentUsage = useCallback((id: string, agentType?: string): void => {
@@ -533,6 +564,7 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
     clearNewMessages,
     syncChatWithBackend,
     getChatMessages,
+    loadMoreChatMessages,
     getCachedMessages,
     saveChatMessage,
     markChatSynced,
