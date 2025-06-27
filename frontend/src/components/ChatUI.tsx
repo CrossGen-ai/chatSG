@@ -205,6 +205,12 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
 
   // Load messages when sessionId changes - now with progressive loading
   useEffect(() => {
+    // Don't run this during load more operations
+    if (isLoadingMore) {
+      console.log(`[ChatUI] Skipping chat switch logic - load more in progress`);
+      return;
+    }
+    
     console.log(`[ChatUI] useEffect: Loading messages for session change: ${effectiveActiveChatId}`);
     if (effectiveActiveChatId) {
       // Mark as initial load to prevent animations
@@ -235,7 +241,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         });
       });
     }
-  }, [effectiveActiveChatId]);
+  }, [effectiveActiveChatId, isLoadingMore]); // Added isLoadingMore to dependencies
 
   // Monitor chat loading state and update local loading indicator
   useEffect(() => {
@@ -652,7 +658,8 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         ref={messagesContainerRef} 
         className={clsx(
           "flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent transition-opacity duration-150",
-          isScrollReady ? "opacity-100" : "opacity-0 pointer-events-none"
+          // Don't hide during load more operations
+          (isScrollReady || isLoadingMore) ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         style={{ scrollBehavior: isInitialLoad ? 'auto' : 'smooth' }}
       >
