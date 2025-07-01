@@ -68,8 +68,8 @@ export class Mem0Service {
         }
         
         try {
-            // Initialize mem0 with local configuration
-            this.memory = new Memory({
+            // Build configuration object
+            const memoryConfig: any = {
                 version: 'v1.1',
                 embedder: {
                     provider: 'openai',
@@ -93,7 +93,24 @@ export class Mem0Service {
                     },
                 },
                 historyDbPath: this.config.historyDbPath,
-            });
+            };
+            
+            // Add graph store if enabled
+            if (STORAGE_CONFIG.mem0.graph.enabled) {
+                memoryConfig.enableGraph = true;
+                memoryConfig.graphStore = {
+                    provider: 'neo4j',
+                    config: {
+                        url: STORAGE_CONFIG.mem0.graph.url,
+                        username: STORAGE_CONFIG.mem0.graph.username,
+                        password: STORAGE_CONFIG.mem0.graph.password
+                    }
+                };
+                console.log('[Mem0Service] Graph store enabled with Neo4j');
+            }
+            
+            // Initialize mem0 with configuration
+            this.memory = new Memory(memoryConfig);
             
             this.initialized = true;
             console.log('[Mem0Service] Initialized successfully');

@@ -209,16 +209,16 @@
   "session_1750996171439_eblte15w6": {
     "file": "session_session_1750996171439_eblte15w6.jsonl",
     "toolsFile": "session_session_1750996171439_eblte15w6_tools.jsonl",
-    "status": "inactive",
+    "status": "active",
     "createdAt": "2025-06-27T03:49:31.439Z",
     "startedAt": "2025-06-27T03:49:31.439Z",
-    "lastActivityAt": "2025-06-27T05:58:42.798Z",
-    "messageCount": 4,
+    "lastActivityAt": "2025-07-01T22:29:41.516Z",
+    "messageCount": 5,
     "title": "New Chat",
     "metadata": {
       "userId": "default",
       "unreadCount": 0,
-      "lastReadAt": "2025-06-28T17:52:19.828Z",
+      "lastReadAt": "2025-07-01T22:29:34.725Z",
       "lastAgent": "AnalyticalAgent"
     }
   },
@@ -337,10 +337,10 @@
   "session_1751405685881_6grnw0ll8": {
     "file": "session_session_1751405685881_6grnw0ll8.jsonl",
     "toolsFile": "session_session_1751405685881_6grnw0ll8_tools.jsonl",
-    "status": "active",
+    "status": "inactive",
     "createdAt": "2025-07-01T21:34:45.881Z",
     "startedAt": "2025-07-01T21:34:45.881Z",
-    "lastActivityAt": "2025-07-01T21:35:45.779Z",
+    "lastActivityAt": "2025-07-01T22:05:45.762Z",
     "messageCount": 10,
     "title": "New Chat",
     "metadata": {

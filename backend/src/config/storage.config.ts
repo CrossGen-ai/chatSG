@@ -129,7 +129,18 @@ export const STORAGE_CONFIG = {
         maxSearchResults: parseInt(process.env.MEM0_MAX_SEARCH_RESULTS || '10', 10),
         
         // Maximum memories to store per session
-        maxMemoriesPerSession: parseInt(process.env.MEM0_MAX_MEMORIES_PER_SESSION || '1000', 10)
+        maxMemoriesPerSession: parseInt(process.env.MEM0_MAX_MEMORIES_PER_SESSION || '1000', 10),
+        
+        // Graph store configuration
+        graph: {
+            // Enable graph store for relationship tracking
+            enabled: process.env.MEM0_GRAPH_ENABLED === 'true',
+            
+            // Neo4j connection settings
+            url: process.env.NEO4J_URL || 'neo4j://localhost:7687',
+            username: process.env.NEO4J_USERNAME || 'neo4j',
+            password: process.env.NEO4J_PASSWORD || ''
+        }
     }
 };
 
