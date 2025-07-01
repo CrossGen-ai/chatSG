@@ -321,10 +321,10 @@
   "session_1751319227092_q9j1e3uvm": {
     "file": "session_session_1751319227092_q9j1e3uvm.jsonl",
     "toolsFile": "session_session_1751319227092_q9j1e3uvm_tools.jsonl",
-    "status": "active",
+    "status": "inactive",
     "createdAt": "2025-06-30T21:33:47.092Z",
     "startedAt": "2025-06-30T21:33:47.092Z",
-    "lastActivityAt": "2025-06-30T22:38:40.308Z",
+    "lastActivityAt": "2025-06-30T23:23:41.116Z",
     "messageCount": 12,
     "title": "New Chat",
     "metadata": {
@@ -332,6 +332,22 @@
       "unreadCount": 3,
       "lastReadAt": "2025-06-30T21:34:35.072Z",
       "lastAgent": "CreativeAgent"
+    }
+  },
+  "session_1751405685881_6grnw0ll8": {
+    "file": "session_session_1751405685881_6grnw0ll8.jsonl",
+    "toolsFile": "session_session_1751405685881_6grnw0ll8_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-01T21:34:45.881Z",
+    "startedAt": "2025-07-01T21:34:45.881Z",
+    "lastActivityAt": "2025-07-01T21:35:45.779Z",
+    "messageCount": 10,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "default",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-01T21:35:45.784Z",
+      "lastAgent": "AnalyticalAgent"
     }
   }
 }
