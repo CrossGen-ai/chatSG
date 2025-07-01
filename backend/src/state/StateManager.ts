@@ -209,6 +209,19 @@ export class StateManager implements StateManagerInterface {
             if (updates.metadata) {
                 sessionState.metadata = { ...sessionState.metadata, ...updates.metadata };
             }
+            // Handle other top-level fields (userPreferences, agentHistory, toolsUsed, analytics)
+            if (updates.userPreferences) {
+                sessionState.userPreferences = { ...sessionState.userPreferences, ...updates.userPreferences };
+            }
+            if (updates.agentHistory) {
+                sessionState.agentHistory = updates.agentHistory;
+            }
+            if (updates.toolsUsed) {
+                sessionState.toolsUsed = updates.toolsUsed;
+            }
+            if (updates.analytics) {
+                sessionState.analytics = { ...sessionState.analytics, ...updates.analytics };
+            }
             
             sessionState.metadata.updatedAt = new Date();
 

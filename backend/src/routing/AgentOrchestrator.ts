@@ -999,8 +999,12 @@ export class AgentOrchestrator implements IAgentOrchestrator {
                 // Update preferences
                 Object.assign(sessionState.userPreferences, preferences);
                 
-                // Update session state
-                await this.stateManager.updateSessionState(sessionId, sessionState, context);
+                // Update session state - only update the userPreferences field
+                await this.stateManager.updateSessionState(
+                    sessionId, 
+                    { userPreferences: sessionState.userPreferences }, 
+                    context
+                );
                 
                 console.log(`[AgentOrchestrator] Updated user preferences for session ${sessionId}:`, preferences);
             }

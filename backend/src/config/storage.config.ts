@@ -6,6 +6,7 @@
  */
 
 import * as path from 'path';
+import { CROSS_SESSION_CONFIG } from './cross-session.config';
 
 export const STORAGE_CONFIG = {
     // Maximum number of messages to load for context (user + assistant combined)
@@ -99,6 +100,36 @@ export const STORAGE_CONFIG = {
         
         // Log file operations
         logFileOps: false
+    },
+    
+    // Cross-session memory configuration
+    crossSession: CROSS_SESSION_CONFIG,
+    
+    // Mem0 configuration
+    mem0: {
+        // Enable mem0 memory service
+        enabled: process.env.MEM0_ENABLED !== 'false',
+        
+        // Embedding model for vector store
+        embeddingModel: process.env.MEM0_EMBEDDING_MODEL || 'text-embedding-3-small',
+        
+        // LLM model for memory generation
+        llmModel: process.env.MEM0_LLM_MODEL || 'gpt-4o-mini',
+        
+        // Path to SQLite history database
+        historyDbPath: process.env.MEM0_HISTORY_DB_PATH || path.join(path.resolve('./data/sessions'), 'memory.db'),
+        
+        // Collection name for vector store
+        collectionName: process.env.MEM0_COLLECTION_NAME || 'chatsg_memories',
+        
+        // Vector dimension (depends on embedding model)
+        dimension: parseInt(process.env.MEM0_DIMENSION || '1536', 10),
+        
+        // Maximum memories to retrieve per search
+        maxSearchResults: parseInt(process.env.MEM0_MAX_SEARCH_RESULTS || '10', 10),
+        
+        // Maximum memories to store per session
+        maxMemoriesPerSession: parseInt(process.env.MEM0_MAX_MEMORIES_PER_SESSION || '1000', 10)
     }
 };
 

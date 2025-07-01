@@ -29,6 +29,8 @@ export interface SlashCommandProcessingResult {
         forceAgent: string;
         agentType: string;
         commandName: string;
+        commandPath?: string;
+        commandCategory?: string;
         confidence: number;
     };
     
@@ -127,6 +129,8 @@ export class SlashCommandProcessor {
                     forceAgent: validationResult.command.name,
                     agentType: validationResult.command.agentType,
                     commandName: validationResult.command.name,
+                    commandPath: validationResult.command.path, // Include webhook path if present
+                    commandCategory: validationResult.command.category, // Include command category
                     confidence: 1.0 // High confidence for explicit slash commands
                 };
                 

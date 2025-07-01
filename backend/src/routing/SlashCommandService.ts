@@ -17,6 +17,7 @@ export interface SlashCommand {
     aliases: string[];
     enabled: boolean;
     priority: number;
+    path?: string; // Optional webhook URL for webhook-category commands
 }
 
 export interface SlashCommandConfig {
@@ -213,6 +214,12 @@ export class SlashCommandService {
                 if (!Array.isArray(command.aliases)) {
                     return false;
                 }
+                
+                // Validate webhook path if present
+                if (command.path && !this.isValidUrl(command.path)) {
+                    console.warn(`[SlashCommandService] Invalid webhook URL for command ${command.name}: ${command.path}`);
+                    return false;
+                }
             }
 
             return true;
@@ -312,6 +319,18 @@ export class SlashCommandService {
         }
 
         return matches / maxLen;
+    }
+
+    /**
+     * Validate if a string is a valid URL
+     */
+    private isValidUrl(url: string): boolean {
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
+        }
     }
 }
 

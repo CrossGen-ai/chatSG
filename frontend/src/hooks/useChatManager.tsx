@@ -225,32 +225,47 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
   // Load additional messages with pagination
   const loadMoreChatMessages = useCallback(async (id: string, currentMessageCount: number): Promise<HybridMessage[]> => {
     try {
-      // Calculate offset based on current loaded messages
-      const offset = currentMessageCount;
-      console.log(`[ChatManager] Loading more messages for ${id} from offset ${offset}`);
+      // Get chat metadata to know total message count
+      const chat = chats.find(c => c.id === id);
+      if (!chat) {
+        console.error(`[ChatManager] Chat ${id} not found`);
+        return [];
+      }
       
-      const history = await getChatHistory(id, { offset });
-      const newMessages = history.messages.map(convertToHybridMessage);
+      // Backend returns messages in descending order (newest first)
+      // To get older messages, we need to skip the ones we already have
+      // Since we initially load the most recent 50, we need to get the next batch
+      const offset = currentMessageCount;
+      const limit = 50;
+      
+      console.log(`[ChatManager] Loading more messages for ${id}: offset=${offset}, limit=${limit}, totalMessages=${chat.remoteMessageCount}`);
+      
+      const history = await getChatHistory(id, { offset, limit });
+      const olderMessages = history.messages.map(convertToHybridMessage);
+      
+      console.log(`[ChatManager] Received ${olderMessages.length} older messages from backend`);
       
       // Get existing cached messages
       const cached = messageCache.get(id);
       const existingMessages = cached ? cached.messages : [];
       
-      // Merge existing messages with new older messages
-      // New messages should be prepended (they are older)
-      const allMessages = [...newMessages, ...existingMessages];
+      // Since backend returns messages in descending order (newest first),
+      // and we're getting older messages, we need to append them to existing messages
+      const allMessages = [...existingMessages, ...olderMessages];
       
       // Update cache with all messages
       messageCache.set(id, { messages: allMessages, timestamp: Date.now() });
       
-      console.log(`[ChatManager] Loaded ${newMessages.length} more messages for ${id}, total now: ${allMessages.length}`);
+      console.log(`[ChatManager] Merged messages - existing: ${existingMessages.length}, new: ${olderMessages.length}, total: ${allMessages.length}`);
       
       return allMessages;
     } catch (error) {
       console.error(`[ChatManager] Failed to load more messages for chat ${id}:`, error);
-      return [];
+      // Return existing messages on error
+      const cached = messageCache.get(id);
+      return cached ? cached.messages : [];
     }
-  }, []);
+  }, [chats]);
 
   // Track agent usage and update chat metadata
   const trackAgentUsage = useCallback((id: string, agentType?: string): void => {

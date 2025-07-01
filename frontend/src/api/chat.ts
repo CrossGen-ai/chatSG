@@ -149,6 +149,7 @@ export async function getChatHistory(
     if (options?.offset) params.append('offset', options.offset.toString());
     
     const url = `/api/chats/${sessionId}/messages${params.toString() ? '?' + params.toString() : ''}`;
+    console.log(`[getChatHistory] Requesting URL: ${url}`);
     const response = await axios.get(url);
     
     // Transform the response to match the expected format

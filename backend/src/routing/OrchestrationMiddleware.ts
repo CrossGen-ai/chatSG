@@ -568,8 +568,11 @@ export class OrchestrationMiddleware {
             const context = createStateContext(sessionId, 'OrchestrationMiddleware');
             const sessionResult = await this.stateManager.getSessionState(sessionId, context);
             
-            if (sessionResult.success && sessionResult.data?.userPreferences) {
-                const preferences = sessionResult.data.userPreferences;
+            if (sessionResult.success && sessionResult.data) {
+                const preferences = sessionResult.data.userPreferences || {
+                    crossSessionMemory: false,
+                    agentLock: false
+                };
                 
                 if (this.config.enableLogging) {
                     console.log(`[OrchestrationMiddleware] Loaded user preferences for session ${sessionId}:`, preferences);
@@ -578,7 +581,7 @@ export class OrchestrationMiddleware {
                 return preferences;
             }
             
-            // Return default preferences if none exist
+            // Return default preferences if session doesn't exist
             return {
                 crossSessionMemory: false,
                 agentLock: false

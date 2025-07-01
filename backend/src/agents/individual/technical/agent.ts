@@ -110,13 +110,10 @@ export class TechnicalAgent extends AbstractBaseAgent {
             // Get appropriate system prompt based on task type
             const systemPrompt = this.getSystemPrompt(taskType, context);
 
-            // Create messages for LLM
-            const messages = [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: input }
-            ];
+            // Build context messages with conversation history
+            const messages = await this.buildContextMessages(sessionId, input, systemPrompt);
 
-            console.log(`[${this.name}] Calling LLM with ${messages.length} messages`);
+            console.log(`[${this.name}] Calling LLM with ${messages.length} messages (including conversation history)`);
 
             // Call LLM
             const response = await this.llm.invoke(messages);

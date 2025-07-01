@@ -29,6 +29,16 @@
       "aliases": ["t", "code", "debug", "tech"],
       "enabled": true,
       "priority": 3
+    },
+    {
+      "name": "check-email",
+      "description": "Check email status via n8n workflow",
+      "agentType": "n8n",
+      "category": "webhook",
+      "aliases": ["email", "check-mail"],
+      "enabled": true,
+      "priority": 4,
+      "path": "http://localhost:5678/webhook/check-email"
     }
   ],
   "settings": {

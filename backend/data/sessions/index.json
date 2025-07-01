@@ -197,13 +197,13 @@
     "status": "deleted",
     "createdAt": "2025-06-27T03:41:36.268Z",
     "startedAt": "2025-06-27T03:41:36.268Z",
-    "lastActivityAt": "2025-06-27T03:48:40.974Z",
-    "messageCount": 12,
+    "lastActivityAt": "2025-06-27T05:44:07.798Z",
+    "messageCount": 42,
     "title": "/creative Write a story about AI",
     "metadata": {
-      "unreadCount": 0,
+      "unreadCount": 14,
       "lastReadAt": "2025-06-27T03:48:16.695Z",
-      "lastAgent": "CreativeAgent"
+      "lastAgent": "AnalyticalAgent"
     }
   },
   "session_1750996171439_eblte15w6": {
@@ -212,13 +212,13 @@
     "status": "inactive",
     "createdAt": "2025-06-27T03:49:31.439Z",
     "startedAt": "2025-06-27T03:49:31.439Z",
-    "lastActivityAt": "2025-06-27T04:28:26.515Z",
-    "messageCount": 2,
+    "lastActivityAt": "2025-06-27T05:58:42.798Z",
+    "messageCount": 4,
     "title": "New Chat",
     "metadata": {
       "userId": "default",
       "unreadCount": 0,
-      "lastReadAt": "2025-06-27T05:06:03.457Z",
+      "lastReadAt": "2025-06-28T17:52:19.828Z",
       "lastAgent": "AnalyticalAgent"
     }
   },
@@ -228,14 +228,110 @@
     "status": "active",
     "createdAt": "2025-06-27T03:49:36.918Z",
     "startedAt": "2025-06-27T03:49:36.918Z",
-    "lastActivityAt": "2025-06-27T05:06:11.825Z",
-    "messageCount": 34,
+    "lastActivityAt": "2025-06-27T06:49:41.017Z",
+    "messageCount": 72,
     "title": "New Chat",
     "metadata": {
       "userId": "default",
       "unreadCount": 0,
-      "lastReadAt": "2025-06-27T05:06:15.969Z",
+      "lastReadAt": "2025-06-30T21:33:45.299Z",
       "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "session_1751003826306_ngfvcanuq": {
+    "file": "session_session_1751003826306_ngfvcanuq.jsonl",
+    "toolsFile": "session_session_1751003826306_ngfvcanuq_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-06-27T05:57:06.307Z",
+    "startedAt": "2025-06-27T05:57:06.307Z",
+    "lastActivityAt": "2025-06-27T06:36:22.310Z",
+    "messageCount": 14,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "default",
+      "unreadCount": 0,
+      "lastReadAt": "2025-06-27T06:39:06.607Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "session_1751006350070_25uat4tbl": {
+    "file": "session_session_1751006350070_25uat4tbl.jsonl",
+    "toolsFile": "session_session_1751006350070_25uat4tbl_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-06-27T06:39:10.070Z",
+    "startedAt": "2025-06-27T06:39:10.070Z",
+    "lastActivityAt": "2025-06-29T18:12:17.842Z",
+    "messageCount": 4,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "default",
+      "unreadCount": 0,
+      "lastReadAt": "2025-06-30T21:33:44.499Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "session_1751031600099_jh92kihv6": {
+    "file": "session_session_1751031600099_jh92kihv6.jsonl",
+    "toolsFile": "session_session_1751031600099_jh92kihv6_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-06-27T13:40:00.099Z",
+    "startedAt": "2025-06-27T13:40:00.099Z",
+    "lastActivityAt": "2025-06-30T20:06:33.311Z",
+    "messageCount": 30,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "default",
+      "unreadCount": 0,
+      "lastReadAt": "2025-06-30T21:33:43.623Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "session_1751133136995_3o91c3v8f": {
+    "file": "session_session_1751133136995_3o91c3v8f.jsonl",
+    "toolsFile": "session_session_1751133136995_3o91c3v8f_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-06-28T17:52:16.995Z",
+    "startedAt": "2025-06-28T17:52:16.995Z",
+    "lastActivityAt": "2025-06-28T19:03:39.827Z",
+    "messageCount": 12,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "default",
+      "unreadCount": 0,
+      "lastReadAt": "2025-06-28T18:33:39.799Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "session_1751317108633_jh9h7xcla": {
+    "file": "session_session_1751317108633_jh9h7xcla.jsonl",
+    "toolsFile": "session_session_1751317108633_jh9h7xcla_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-06-30T20:58:28.633Z",
+    "startedAt": "2025-06-30T20:58:28.633Z",
+    "lastActivityAt": "2025-06-30T22:33:06.602Z",
+    "messageCount": 12,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "default",
+      "unreadCount": 4,
+      "lastReadAt": "2025-06-30T20:58:41.410Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "session_1751319227092_q9j1e3uvm": {
+    "file": "session_session_1751319227092_q9j1e3uvm.jsonl",
+    "toolsFile": "session_session_1751319227092_q9j1e3uvm_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-06-30T21:33:47.092Z",
+    "startedAt": "2025-06-30T21:33:47.092Z",
+    "lastActivityAt": "2025-06-30T23:23:41.116Z",
+    "messageCount": 12,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "default",
+      "unreadCount": 3,
+      "lastReadAt": "2025-06-30T21:34:35.072Z",
+      "lastAgent": "CreativeAgent"
     }
   }
 }

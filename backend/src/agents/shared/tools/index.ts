@@ -9,6 +9,7 @@
 export { WebSearchTool } from './WebSearchTool';
 export { EnhancedFileManagerTool } from './EnhancedFileManagerTool';
 export { DatabaseTool } from './DatabaseTool';
+export { GenericWebhookTool } from './GenericWebhookTool';
 
 // Tool registry integration
 import { ToolRegistry } from '../../../tools/ToolRegistry';

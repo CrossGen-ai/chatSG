@@ -1786,13 +1786,23 @@ const server = http.createServer(async (req, res) => {
                 details: error.message
             }));
         }
-    } else if (req.url.match(/^\/api\/chats\/([^/]+)\/messages$/) && req.method === 'GET') {
+    } else if (req.url.match(/^\/api\/chats\/([^/]+)\/messages/) && req.method === 'GET') {
         // Get chat messages with pagination
+        console.log(`[Server] Messages endpoint hit: ${req.url}`);
         try {
-            const sessionId = req.url.match(/^\/api\/chats\/([^/]+)\/messages$/)[1];
+            const match = req.url.match(/^\/api\/chats\/([^/]+)\/messages/);
+            if (!match) {
+                console.error('[Server] URL match failed for:', req.url);
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Invalid URL format' }));
+                return;
+            }
+            const sessionId = match[1];
             const urlParams = new URL(req.url, `http://localhost:${PORT}`).searchParams;
             const limit = parseInt(urlParams.get('limit') || '50');
             const offset = parseInt(urlParams.get('offset') || '0');
+            
+            console.log(`[Server] Loading messages for session: ${sessionId}, offset: ${offset}, limit: ${limit}`);
             
             // Use new storage manager if available
             if (storageManager) {
@@ -2048,6 +2058,102 @@ const server = http.createServer(async (req, res) => {
                 }));
             }
         });
+    } else if (req.url.match(/^\/api\/debug\/cross-session\/([^/]+)$/) && req.method === 'GET') {
+        // Debug endpoint for cross-session context
+        const sessionId = req.url.match(/^\/api\/debug\/cross-session\/([^/]+)$/)[1];
+        
+        try {
+            if (!storageManager) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Storage manager not available' }));
+                return;
+            }
+            
+            // Get session info to find user ID
+            const sessions = storageManager.listSessions();
+            const sessionInfo = sessions.find(s => s.sessionId === sessionId);
+            
+            if (!sessionInfo) {
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ 
+                    error: 'Session not found',
+                    sessionId: sessionId
+                }));
+                return;
+            }
+            
+            const userId = sessionInfo.metadata?.userId;
+            
+            // Check if cross-session memory is enabled
+            const stateManager = StateManager.getInstance();
+            const context = createStateContext(sessionId, 'debug', userId);
+            const sessionState = await stateManager.getSessionState(sessionId, context);
+            
+            const crossSessionEnabled = sessionState.success && 
+                sessionState.data?.userPreferences?.crossSessionMemory;
+            
+            // Get cross-session context
+            const crossSessionData = await storageManager.getCrossSessionContext(
+                sessionId,
+                userId
+            );
+            
+            // Format the response to show what would be injected
+            const storageConfig = require('./dist/config/storage.config');
+            const config = storageConfig.STORAGE_CONFIG.crossSession.contextInjectionFormat;
+            let contextPreview = '';
+            
+            if (crossSessionData.sessions.length > 0) {
+                contextPreview = `${config.header}\n\n`;
+                
+                for (const session of crossSessionData.sessions) {
+                    const sessionHeader = config.sessionFormat
+                        .replace('{title}', session.title)
+                        .replace('{lastActive}', new Date(session.lastActive).toLocaleString());
+                    
+                    contextPreview += `${sessionHeader}\n`;
+                    
+                    // Add message preview
+                    for (const msg of session.messages.slice(-3)) { // Last 3 messages
+                        const role = msg.type === 'user' ? 'User' : 'Assistant';
+                        const preview = msg.content.substring(0, 100);
+                        contextPreview += `${role}: ${preview}${msg.content.length > 100 ? '...' : ''}\n`;
+                    }
+                    
+                    contextPreview += config.sessionSeparator;
+                }
+            }
+            
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                sessionId: sessionId,
+                userId: userId,
+                crossSessionEnabled: crossSessionEnabled,
+                crossSessionConfig: {
+                    maxMessages: storageConfig.STORAGE_CONFIG.crossSession.maxCrossSessionMessages,
+                    maxSessions: storageConfig.STORAGE_CONFIG.crossSession.maxActiveSessions,
+                    activeWindow: storageConfig.STORAGE_CONFIG.crossSession.activeSessionWindow
+                },
+                foundSessions: crossSessionData.sessions.length,
+                totalMessages: crossSessionData.totalMessages,
+                sessions: crossSessionData.sessions.map(s => ({
+                    sessionId: s.sessionId,
+                    title: s.title,
+                    lastActive: s.lastActive,
+                    messageCount: s.messages.length
+                })),
+                contextPreview: contextPreview || 'No cross-session context available',
+                _note: 'This is what would be injected into the LLM prompt when cross-session memory is enabled'
+            }));
+            
+        } catch (error) {
+            console.error('Debug cross-session error:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                error: 'Failed to get cross-session debug info',
+                details: error.message
+            }));
+        }
     } else {
         res.writeHead(404);
         res.end('Not found');

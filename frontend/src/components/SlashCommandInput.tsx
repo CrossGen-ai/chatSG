@@ -222,9 +222,10 @@ export const SlashCommandInput = forwardRef<HTMLInputElement, SlashCommandInputP
         <input
           ref={inputRef}
           className={clsx(
-            'w-full px-4 py-3 rounded-2xl backdrop-blur-md bg-white/60 dark:bg-black/40',
-            'border border-white/30 dark:border-white/20 theme-text-primary',
-            'placeholder-gray-500 dark:placeholder-gray-400',
+            'w-full px-4 py-3 rounded-2xl',
+            'bg-white text-black', // Always white background with black text
+            'border border-gray-300',
+            'placeholder-gray-500',
             'focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50',
             'transition-all duration-200',
             // Highlight when slash command is detected

@@ -224,6 +224,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       
       loadMessagesProgressively(effectiveActiveChatId).then(loadedMessages => {
         setMessages(loadedMessages);
+        setDisplayedMessages(loadedMessages.slice(-INITIAL_MESSAGE_COUNT)); // Reset displayed messages to last 50
         setHasLoadedMore(false); // Reset when switching chats
         console.log(`[ChatUI] useEffect: Loaded ${loadedMessages.length} messages for session: ${effectiveActiveChatId}`);
         
@@ -492,6 +493,12 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   
   // Update displayed messages when messages change
   useEffect(() => {
+    // Always show all messages after load more
+    if (hasLoadedMore) {
+      setDisplayedMessages(messages);
+      return;
+    }
+    
     // Don't interfere with displayed messages during load more operations
     if (isLoadingMore) {
       console.log('[ChatUI] Skipping progressive display update - load more in progress');
@@ -501,7 +508,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     // Use total message count from chat metadata to decide whether to show all or recent messages
     const totalMessageCount = currentChat?.messageCount || messages.length;
     
-    if (totalMessageCount <= INITIAL_MESSAGE_COUNT || hasLoadedMore) {
+    if (totalMessageCount <= INITIAL_MESSAGE_COUNT) {
       setDisplayedMessages(messages);
     } else {
       // Show only recent messages initially (the backend already returns the most recent 50)
@@ -530,7 +537,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   const loadMoreMessages = useCallback(async () => {
     if (!effectiveActiveChatId || !currentChat || isLoadingMore) return;
     
-    console.log(`[ChatUI] Starting load more - current messages: ${messages.length}, total: ${currentChat.messageCount}`);
+    console.log(`[ChatUI] Starting load more - current messages: ${messages.length}, displayed: ${displayedMessages.length}, total: ${currentChat.messageCount}`);
     
     // Set loading flags to prevent interference from other useEffects
     setIsLoadingMore(true);
@@ -553,50 +560,43 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       console.log(`[ChatUI] Before load more:`, beforeState);
       
       // Call backend to get additional messages
-      const allMessages = await loadMoreChatMessages(effectiveActiveChatId, messages.length);
+      const allMessages = await loadMoreChatMessages(effectiveActiveChatId, displayedMessages.length);
       
-      console.log(`[ChatUI] Backend returned ${allMessages.length} total messages`);
+      console.log(`[ChatUI] Backend returned ${allMessages.length} total messages (was ${messages.length})`);
       
-      // Batch all state updates together - set hasLoadedMore FIRST to prevent conflicts
-      setHasLoadedMore(true);
+      // Batch all state updates together
       setMessages(allMessages);
       setDisplayedMessages(allMessages);
+      setHasLoadedMore(true);
       
-      // Wait for DOM to update then restore scroll position
+      // Force scroll position restore after React renders
       setTimeout(() => {
-        requestAnimationFrame(() => {
-          if (scrollContainer) {
-            const afterState = {
-              scrollTop: scrollContainer.scrollTop,
-              scrollHeight: scrollContainer.scrollHeight,
-              clientHeight: scrollContainer.clientHeight
-            };
-            
-            // Calculate the scroll position to maintain relative position
-            const heightDiff = afterState.scrollHeight - beforeState.scrollHeight;
-            const newScrollTop = beforeState.scrollTop + heightDiff;
-            
-            scrollContainer.scrollTop = newScrollTop;
-            
-            console.log(`[ChatUI] After load more:`, afterState);
-            console.log(`[ChatUI] Restored scroll: ${beforeState.scrollTop} + ${heightDiff} = ${newScrollTop}`);
-          }
-        });
-      }, 10);
+        if (scrollContainer) {
+          const afterHeight = scrollContainer.scrollHeight;
+          const heightDiff = afterHeight - beforeState.scrollHeight;
+          
+          // Maintain scroll position by adding the height difference
+          scrollContainer.scrollTop = beforeState.scrollTop + heightDiff;
+          
+          console.log(`[ChatUI] Scroll restored: was ${beforeState.scrollTop}, height grew by ${heightDiff}, now ${scrollContainer.scrollTop}`);
+        }
+      }, 0);
       
     } catch (error) {
       console.error('[ChatUI] Failed to load more messages:', error);
     } finally {
-      // Clear loading flags
-      setIsLoadingMore(false);
-      setIsLoadingRemoteMessages(false);
+      // Clear loading flags after a delay to prevent race conditions
+      setTimeout(() => {
+        setIsLoadingMore(false);
+        setIsLoadingRemoteMessages(false);
+      }, 100);
     }
-  }, [effectiveActiveChatId, currentChat, messages.length, loadMoreChatMessages, isLoadingMore]);
+  }, [effectiveActiveChatId, currentChat, displayedMessages.length, loadMoreChatMessages, isLoadingMore]);
 
   // Ensure scroll stays at bottom when displayed messages change
   useEffect(() => {
-    if (isLoadingMore) {
-      console.log('[ChatUI] Skipping bottom auto-scroll - load more in progress');
+    if (isLoadingMore || hasLoadedMore) {
+      console.log('[ChatUI] Skipping bottom auto-scroll - load more operation');
       return;
     }
     
@@ -615,7 +615,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         }
       });
     }
-  }, [displayedMessages, isScrollReady, isInitialLoad, isLoadingMore]);
+  }, [displayedMessages, isScrollReady, isInitialLoad, isLoadingMore, hasLoadedMore]);
 
   return (
     <ChatSettingsProvider sessionId={effectiveActiveChatId || 'default'}>
@@ -686,14 +686,14 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         )}
         
         {/* Load more button if there are hidden messages */}
-        {currentChat && currentChat.messageCount > INITIAL_MESSAGE_COUNT && !hasLoadedMore && (
+        {currentChat && currentChat.messageCount > displayedMessages.length && !isLoadingRemoteMessages && (
           <div className="flex justify-center py-4">
             <button
               onClick={loadMoreMessages}
               className="px-4 py-2 text-sm rounded-full backdrop-blur-md bg-white/40 dark:bg-black/30 border border-white/30 theme-text-secondary hover:bg-white/60 dark:hover:bg-black/50 transition-all duration-200"
               disabled={isLoadingRemoteMessages}
             >
-              {isLoadingRemoteMessages ? 'Loading...' : `Load ${currentChat.messageCount - INITIAL_MESSAGE_COUNT} earlier messages`}
+              {`Load ${currentChat.messageCount - displayedMessages.length} earlier messages`}
             </button>
           </div>
         )}

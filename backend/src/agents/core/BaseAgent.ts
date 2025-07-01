@@ -6,6 +6,10 @@
  */
 
 import { AgentResponse, AgentCapabilities, ValidationResult } from '../../types';
+import { getStorageManager } from '../../storage/StorageManager';
+import { ContextManager, ContextMessage } from '../../storage/ContextManager';
+import { getStateManager } from '../../state/StateManager';
+import { STORAGE_CONFIG } from '../../config/storage.config';
 
 /**
  * Base interface that all agents must implement
@@ -108,6 +112,173 @@ export abstract class AbstractBaseAgent implements BaseAgent {
     async cleanup(): Promise<void> {
         // Default implementation - can be overridden
         console.log(`[${this.name}] Cleaned up`);
+    }
+
+    /**
+     * Build context messages with conversation history
+     * Helper method for agents to get properly formatted context
+     */
+    protected async buildContextMessages(
+        sessionId: string, 
+        currentInput: string,
+        systemPrompt: string
+    ): Promise<ContextMessage[]> {
+        const storageManager = getStorageManager();
+        const stateManager = getStateManager();
+        
+        // Check if Mem0 is enabled
+        if (STORAGE_CONFIG.mem0.enabled) {
+            console.log(`[${this.name}] Using Mem0 for context retrieval`);
+            
+            try {
+                // Check if cross-session memory is enabled
+                let enhancedSystemPrompt = systemPrompt;
+                const sessionState = await stateManager.getSessionState(sessionId, {
+                    sessionId,
+                    agentName: this.name,
+                    timestamp: new Date()
+                });
+                
+                if (sessionState.success && sessionState.data?.userPreferences?.crossSessionMemory) {
+                    // For now, add a note about cross-session memory
+                    // In the future, Mem0 will handle this automatically
+                    enhancedSystemPrompt = `[Cross-session memory is enabled]\n\n${systemPrompt}`;
+                }
+                
+                // Use Mem0's intelligent context retrieval
+                const contextMessages = await storageManager.getContextForQuery(
+                    currentInput,
+                    sessionId,
+                    enhancedSystemPrompt
+                );
+                
+                // Add the current user input
+                contextMessages.push({
+                    role: 'user',
+                    content: currentInput
+                });
+                
+                console.log(`[${this.name}] Mem0 returned ${contextMessages.length} context messages`);
+                return contextMessages as ContextMessage[];
+                
+            } catch (error) {
+                console.error(`[${this.name}] Failed to use Mem0, falling back to traditional context:`, error);
+                // Fall through to traditional method
+            }
+        }
+        
+        // Traditional context building (when Mem0 is disabled or fails)
+        const contextMessages = await storageManager.getContextMessages(sessionId);
+        
+        console.log(`[${this.name}] Retrieved ${contextMessages.length} messages from conversation history`);
+        
+        // Check if cross-session memory is enabled
+        let enhancedSystemPrompt = systemPrompt;
+        try {
+            const sessionState = await stateManager.getSessionState(sessionId, {
+                sessionId,
+                agentName: this.name,
+                timestamp: new Date()
+            });
+            
+            console.log(`[${this.name}] Session state:`, sessionState.data?.userPreferences);
+            
+            if (sessionState.success && sessionState.data?.userPreferences?.crossSessionMemory) {
+                console.log(`[${this.name}] Cross-session memory is enabled for session ${sessionId}`);
+                
+                // Get user ID from session metadata
+                const sessions = storageManager.listSessions();
+                const sessionInfo = sessions.find(s => s.sessionId === sessionId);
+                const userId = sessionInfo?.metadata?.userId;
+                
+                if (userId) {
+                    // Get cross-session context
+                    const crossSessionData = await storageManager.getCrossSessionContext(
+                        sessionId,
+                        userId
+                    );
+                    
+                    if (crossSessionData.sessions.length > 0) {
+                        const config = STORAGE_CONFIG.crossSession.contextInjectionFormat;
+                        
+                        // Build cross-session context string
+                        let crossSessionContext = `\n\n${config.header}\n\n`;
+                        
+                        for (const session of crossSessionData.sessions) {
+                            const sessionHeader = config.sessionFormat
+                                .replace('{title}', session.title)
+                                .replace('{lastActive}', new Date(session.lastActive).toLocaleString());
+                            
+                            crossSessionContext += `${sessionHeader}\n`;
+                            
+                            // Add messages from this session
+                            let sessionSnippet = '';
+                            for (const msg of session.messages.slice(-5)) { // Last 5 messages
+                                const role = msg.type === 'user' ? 'User' : 'Assistant';
+                                const preview = msg.content.substring(0, 200);
+                                sessionSnippet += `${role}: ${preview}${msg.content.length > 200 ? '...' : ''}\n`;
+                            }
+                            
+                            // Truncate if too long
+                            if (sessionSnippet.length > config.maxSnippetLength) {
+                                sessionSnippet = sessionSnippet.substring(0, config.maxSnippetLength) + '...';
+                            }
+                            
+                            crossSessionContext += sessionSnippet;
+                            crossSessionContext += config.sessionSeparator;
+                        }
+                        
+                        // Inject cross-session context at the beginning of system prompt
+                        enhancedSystemPrompt = crossSessionContext + '\n\n' + systemPrompt;
+                        
+                        console.log(`[${this.name}] Injected context from ${crossSessionData.sessions.length} cross-sessions (${crossSessionData.totalMessages} messages)`);
+                        
+                        // Debug: Log a preview of the cross-session context
+                        const contextPreview = crossSessionContext.substring(0, 500);
+                        console.log(`[${this.name}] Cross-session context preview: ${contextPreview}...`);
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn(`[${this.name}] Failed to get cross-session context:`, error);
+        }
+        
+        const contextResult = ContextManager.buildContext(
+            contextMessages,
+            currentInput,
+            {
+                systemPrompt: enhancedSystemPrompt,
+                maxMessages: 50,
+                overflowStrategy: 'sliding-window'
+            }
+        );
+        
+        console.log(`[${this.name}] Context built with ${contextResult.messages.length} messages (truncated: ${contextResult.truncated})`);
+        
+        // Debug output disabled - uncomment to enable
+        /*
+        // Save context to file for debugging
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const debugPath = path.join('/Users/crossgenai/sg/chatSG', 'llm-context-debug.json');
+            const debugData = {
+                sessionId,
+                timestamp: new Date().toISOString(),
+                agent: this.name,
+                messages: contextResult.messages,
+                messageCount: contextResult.messages.length,
+                systemPromptPreview: enhancedSystemPrompt.substring(0, 1000) + '...',
+                fullSystemPrompt: enhancedSystemPrompt
+            };
+            fs.writeFileSync(debugPath, JSON.stringify(debugData, null, 2));
+            console.log(`[${this.name}] Saved LLM context to ${debugPath}`);
+        } catch (error) {
+            console.warn(`[${this.name}] Failed to save debug context:`, error);
+        }
+        */
+        
+        return contextResult.messages;
     }
 }
 
