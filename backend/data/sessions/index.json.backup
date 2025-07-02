@@ -212,13 +212,13 @@
     "status": "active",
     "createdAt": "2025-06-27T03:49:31.439Z",
     "startedAt": "2025-06-27T03:49:31.439Z",
-    "lastActivityAt": "2025-07-01T22:29:47.000Z",
-    "messageCount": 6,
+    "lastActivityAt": "2025-07-02T16:46:17.969Z",
+    "messageCount": 10,
     "title": "New Chat",
     "metadata": {
       "userId": "default",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-01T22:29:47.006Z",
+      "lastReadAt": "2025-07-02T16:46:17.975Z",
       "lastAgent": "AnalyticalAgent"
     }
   },
@@ -348,6 +348,36 @@
       "unreadCount": 0,
       "lastReadAt": "2025-07-01T21:35:45.784Z",
       "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "mem0-test-1751474396674": {
+    "file": "session_mem0-test-1751474396674.jsonl",
+    "toolsFile": "session_mem0-test-1751474396674_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-02T16:39:56.686Z",
+    "startedAt": "2025-07-02T16:39:56.686Z",
+    "lastActivityAt": "2025-07-02T17:10:47.961Z",
+    "messageCount": 6,
+    "title": "My name is Alice and I work at TechCorp as a softw...",
+    "metadata": {
+      "unreadCount": 3,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "mem0-test-1751474441601": {
+    "file": "session_mem0-test-1751474441601.jsonl",
+    "toolsFile": "session_mem0-test-1751474441601_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-02T16:40:41.612Z",
+    "startedAt": "2025-07-02T16:40:41.612Z",
+    "lastActivityAt": "2025-07-02T17:12:40.433Z",
+    "messageCount": 12,
+    "title": "My name is Alice and I work at TechCorp as a softw...",
+    "metadata": {
+      "unreadCount": 6,
+      "lastReadAt": null,
+      "lastAgent": "TechnicalAgent"
     }
   }
 }
