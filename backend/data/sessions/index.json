@@ -209,10 +209,10 @@
   "session_1750996171439_eblte15w6": {
     "file": "session_session_1750996171439_eblte15w6.jsonl",
     "toolsFile": "session_session_1750996171439_eblte15w6_tools.jsonl",
-    "status": "active",
+    "status": "inactive",
     "createdAt": "2025-06-27T03:49:31.439Z",
     "startedAt": "2025-06-27T03:49:31.439Z",
-    "lastActivityAt": "2025-07-01T22:29:47.000Z",
+    "lastActivityAt": "2025-07-01T22:59:46.986Z",
     "messageCount": 6,
     "title": "New Chat",
     "metadata": {
