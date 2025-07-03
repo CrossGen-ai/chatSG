@@ -245,6 +245,29 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
+    if (req.url === '/api/debug/mem0-status' && req.method === 'GET') {
+        // Debug endpoint to check Mem0 status
+        const { STORAGE_CONFIG } = require('./dist/src/config/storage.config');
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+            mem0Enabled: STORAGE_CONFIG.mem0.enabled,
+            mem0Config: {
+                enabled: STORAGE_CONFIG.mem0.enabled,
+                embeddingModel: STORAGE_CONFIG.mem0.embeddingModel,
+                llmModel: STORAGE_CONFIG.mem0.llmModel,
+                collectionName: STORAGE_CONFIG.mem0.collectionName,
+                maxSearchResults: STORAGE_CONFIG.mem0.maxSearchResults,
+                graphEnabled: STORAGE_CONFIG.mem0.graph.enabled
+            },
+            envVars: {
+                MEM0_ENABLED: process.env.MEM0_ENABLED,
+                MEM0_GRAPH_ENABLED: process.env.MEM0_GRAPH_ENABLED
+            },
+            timestamp: new Date().toISOString()
+        }));
+        return;
+    }
+    
     if (req.url === '/') {
         // Serve the React app's index.html
         fs.readFile(path.join(__dirname, 'public', 'index.html'), (err, content) => {
@@ -392,6 +415,7 @@ const server = http.createServer(async (req, res) => {
                         }
                         
                         console.log(`[ORCHESTRATOR] Processing with streaming: "${processedMessage}"`);
+                        const orchStartTime = Date.now();
                         
                         try {
                             // Check if we have forced routing from slash command
@@ -430,6 +454,9 @@ const server = http.createServer(async (req, res) => {
                             
                             const agentInfo = targetAgent.getInfo();
                             
+                            const agentSelectionTime = Date.now() - orchStartTime;
+                            console.log(`[ORCHESTRATOR] Agent selection took ${agentSelectionTime}ms`);
+                            
                             sendEvent('start', { 
                                 agent: agentInfo.name,
                                 sessionId: sessionId
@@ -437,7 +464,10 @@ const server = http.createServer(async (req, res) => {
                             
                             // Process message with streaming
                             console.log(`[Server] Passing streamCallback to agent: ${typeof streamCallback}`);
+                            const agentStartTime = Date.now();
                             const result = await targetAgent.processMessage(processedMessage, sessionId, streamCallback);
+                            const agentProcessTime = Date.now() - agentStartTime;
+                            console.log(`[ORCHESTRATOR] Agent processing took ${agentProcessTime}ms`);
                             
                             // If agent doesn't support streaming, simulate it
                             if (fullResponse === '') {
@@ -452,32 +482,7 @@ const server = http.createServer(async (req, res) => {
                                 }
                             }
                             
-                            // Save complete message to storage
-                            if (storageManager && fullResponse) {
-                                try {
-                                    const assistantMetadata = {
-                                        agent: agentInfo.name,
-                                        agentType: agentInfo.type,
-                                        confidence: result.metadata?.confidence || 1.0,
-                                        streaming: true,
-                                        timestamp: new Date().toISOString()
-                                    };
-                                    
-                                    await storageManager.saveMessage({
-                                        sessionId: sessionId,
-                                        type: 'assistant',
-                                        content: fullResponse,
-                                        metadata: assistantMetadata
-                                    });
-                                    
-                                    if (data.activeSessionId !== sessionId) {
-                                        await storageManager.sessionIndex.incrementUnreadCount(sessionId);
-                                    }
-                                } catch (storageError) {
-                                    console.error('[Server] Failed to save streamed message:', storageError);
-                                }
-                            }
-                            
+                            // Send done event FIRST to unblock UI
                             sendEvent('done', { 
                                 agent: agentInfo.name,
                                 agentType: agentInfo.type,
@@ -485,6 +490,36 @@ const server = http.createServer(async (req, res) => {
                                 orchestration: {
                                     confidence: result.metadata?.confidence || 1.0,
                                     streaming: true
+                                }
+                            });
+                            
+                            // Save complete message to storage ASYNCHRONOUSLY after done event
+                            setImmediate(async () => {
+                                if (storageManager && fullResponse) {
+                                    try {
+                                        const assistantMetadata = {
+                                            agent: agentInfo.name,
+                                            agentType: agentInfo.type,
+                                            confidence: result.metadata?.confidence || 1.0,
+                                            streaming: true,
+                                            timestamp: new Date().toISOString()
+                                        };
+                                        
+                                        await storageManager.saveMessage({
+                                            sessionId: sessionId,
+                                            type: 'assistant',
+                                            content: fullResponse,
+                                            metadata: assistantMetadata
+                                        });
+                                        
+                                        if (data.activeSessionId !== sessionId) {
+                                            await storageManager.sessionIndex.incrementUnreadCount(sessionId);
+                                        }
+                                        
+                                        console.log('[Server] Async storage save completed for session:', sessionId);
+                                    } catch (storageError) {
+                                        console.error('[Server] Failed to save streamed message:', storageError);
+                                    }
                                 }
                             });
                             

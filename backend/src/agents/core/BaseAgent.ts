@@ -148,6 +148,8 @@ export abstract class AbstractBaseAgent implements BaseAgent {
                 
                 // Use Mem0's intelligent context retrieval with timeout
                 const startTime = Date.now();
+                console.log(`[${this.name}] Starting Mem0 context retrieval...`);
+                
                 const contextPromise = storageManager.getContextForQuery(
                     currentInput,
                     sessionId,
@@ -157,7 +159,8 @@ export abstract class AbstractBaseAgent implements BaseAgent {
                 // Create a timeout promise that resolves with minimal context
                 const timeoutPromise = new Promise<any[]>((resolve) => 
                     setTimeout(() => {
-                        console.log(`[${this.name}] Mem0 context retrieval timed out after 2s, using minimal context`);
+                        const timeoutElapsed = Date.now() - startTime;
+                        console.log(`[${this.name}] Mem0 context retrieval timed out after ${timeoutElapsed}ms (2s limit), using minimal context`);
                         resolve([
                             { role: 'system', content: enhancedSystemPrompt }
                         ]);
@@ -167,7 +170,7 @@ export abstract class AbstractBaseAgent implements BaseAgent {
                 // Race between actual context and timeout
                 const contextMessages = await Promise.race([contextPromise, timeoutPromise]);
                 const elapsed = Date.now() - startTime;
-                console.log(`[${this.name}] Context retrieval took ${elapsed}ms`);
+                console.log(`[${this.name}] Context retrieval completed in ${elapsed}ms`);
                 
                 // Add the current user input
                 contextMessages.push({

@@ -534,16 +534,16 @@
   "session_1751500190742_mc9i8p1qk": {
     "file": "session_session_1751500190742_mc9i8p1qk.jsonl",
     "toolsFile": "session_session_1751500190742_mc9i8p1qk_tools.jsonl",
-    "status": "active",
+    "status": "inactive",
     "createdAt": "2025-07-02T23:49:50.742Z",
     "startedAt": "2025-07-02T23:49:50.742Z",
-    "lastActivityAt": "2025-07-03T05:00:13.149Z",
-    "messageCount": 15,
+    "lastActivityAt": "2025-07-03T06:00:15.148Z",
+    "messageCount": 18,
     "title": "New Chat",
     "metadata": {
       "userId": "default",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-03T04:16:02.809Z",
+      "lastReadAt": "2025-07-03T05:30:15.104Z",
       "lastAgent": "AnalyticalAgent"
     }
   },
@@ -575,6 +575,110 @@
       "unreadCount": 0,
       "lastReadAt": "2025-07-03T00:37:33.058Z",
       "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "perf-test-1751519031546": {
+    "file": "session_perf-test-1751519031546.jsonl",
+    "toolsFile": "session_perf-test-1751519031546_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-03T05:03:51.553Z",
+    "startedAt": "2025-07-03T05:03:51.553Z",
+    "lastActivityAt": "2025-07-03T05:05:29.667Z",
+    "messageCount": 4,
+    "title": "Hello",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "CreativeAgent"
+    }
+  },
+  "timing-test-1751519233313": {
+    "file": "session_timing-test-1751519233313.jsonl",
+    "toolsFile": "session_timing-test-1751519233313_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-03T05:07:13.332Z",
+    "startedAt": "2025-07-03T05:07:13.332Z",
+    "lastActivityAt": "2025-07-03T05:07:34.279Z",
+    "messageCount": 2,
+    "title": "What is 2+2?",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "perf-test-1751519388787": {
+    "file": "session_perf-test-1751519388787.jsonl",
+    "toolsFile": "session_perf-test-1751519388787_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-03T05:09:48.801Z",
+    "startedAt": "2025-07-03T05:09:48.801Z",
+    "lastActivityAt": "2025-07-03T05:11:11.929Z",
+    "messageCount": 4,
+    "title": "Hello",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "CreativeAgent"
+    }
+  },
+  "test-123": {
+    "file": "session_test-123.jsonl",
+    "toolsFile": "session_test-123_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-03T05:11:32.024Z",
+    "startedAt": "2025-07-03T05:11:32.024Z",
+    "lastActivityAt": "2025-07-03T05:11:49.767Z",
+    "messageCount": 2,
+    "title": "test",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "timing-test-1751519518725": {
+    "file": "session_timing-test-1751519518725.jsonl",
+    "toolsFile": "session_timing-test-1751519518725_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-03T05:11:58.733Z",
+    "startedAt": "2025-07-03T05:11:58.733Z",
+    "lastActivityAt": "2025-07-03T05:12:24.343Z",
+    "messageCount": 2,
+    "title": "What is 2+2?",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "trace-test-1751519660554": {
+    "file": "session_trace-test-1751519660554.jsonl",
+    "toolsFile": "session_trace-test-1751519660554_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-03T05:14:20.566Z",
+    "startedAt": "2025-07-03T05:14:20.566Z",
+    "lastActivityAt": "2025-07-03T05:44:31.842Z",
+    "messageCount": 2,
+    "title": "Hi",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "trace-test-1751560594784": {
+    "file": "session_trace-test-1751560594784.jsonl",
+    "toolsFile": "session_trace-test-1751560594784_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-03T16:36:34.801Z",
+    "startedAt": "2025-07-03T16:36:34.801Z",
+    "lastActivityAt": "2025-07-03T16:36:41.387Z",
+    "messageCount": 1,
+    "title": "Hi",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": null
     }
   }
 }
