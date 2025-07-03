@@ -165,6 +165,59 @@ await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay
 2. **Stream Interruption**: Save partial message with error state
 3. **Agent Errors**: Display error message in UI
 
+## Performance Optimizations (Implemented)
+
+### 1. Asynchronous Storage Operations
+- **Problem**: Saving to Mem0 after streaming caused 5+ second UI freeze
+- **Solution**: Moved storage operations to `setImmediate()` after sending 'done' event
+- **Result**: UI updates immediately while storage happens in background
+
+### 2. Message Content Updates During Streaming
+- **Problem**: UI flicker when transitioning from streaming to final state
+- **Solution**: Update message content in array during `onToken` callbacks
+- **Result**: Smooth transition without re-renders
+
+### 3. Background Sync Optimization
+- **Problem**: Unnecessary re-syncs during active operations
+- **Solution**: Disable background sync when loading or streaming
+- **Result**: Prevents UI glitches and unnecessary renders
+
+## Lessons Learned
+
+### 1. Event Ordering Matters
+- Send UI completion events (`done`) before heavy operations
+- Use `setImmediate()` or `process.nextTick()` for deferred operations
+- Keep the streaming response path as lean as possible
+
+### 2. React State Management
+- Minimize array replacements to prevent component re-mounts
+- Update existing objects instead of replacing them
+- Use refs for accumulated data that doesn't need to trigger renders
+
+### 3. Memory System Integration
+- Implement timeouts for external services (2s for Mem0)
+- Make memory operations non-blocking
+- Consider eventual consistency for memory updates
+
+### 4. Debugging Streaming Issues
+```javascript
+// Add debug panel to monitor streaming state
+const [debugStreamData, setDebugStreamData] = useState({ 
+  tokens: [], 
+  events: [], 
+  raw: '' 
+});
+
+// Log all streaming events for troubleshooting
+onToken: (token) => {
+  setDebugStreamData(prev => ({
+    ...prev,
+    tokens: [...prev.tokens, token],
+    raw: prev.raw + token
+  }));
+}
+```
+
 ## Future Enhancements
 
 1. **Chunked Responses**: Stream larger chunks for better performance
@@ -172,3 +225,5 @@ await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay
 3. **Code Highlighting**: Real-time syntax highlighting
 4. **Abort Support**: Allow users to stop generation mid-stream
 5. **Retry Logic**: Automatic reconnection on network issues
+6. **Streaming Status**: Show memory save status after completion
+7. **Partial Save**: Save partial responses if stream is interrupted

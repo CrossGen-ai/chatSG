@@ -244,13 +244,13 @@
     "status": "active",
     "createdAt": "2025-06-27T05:57:06.307Z",
     "startedAt": "2025-06-27T05:57:06.307Z",
-    "lastActivityAt": "2025-07-03T18:44:02.084Z",
-    "messageCount": 18,
+    "lastActivityAt": "2025-07-03T18:48:51.805Z",
+    "messageCount": 19,
     "title": "New Chat",
     "metadata": {
       "userId": "default",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-03T18:43:53.564Z",
+      "lastReadAt": "2025-07-03T18:49:04.125Z",
       "lastAgent": "CreativeAgent"
     }
   },
@@ -718,12 +718,12 @@
     "status": "active",
     "createdAt": "2025-07-03T18:45:35.404Z",
     "startedAt": "2025-07-03T18:45:35.404Z",
-    "lastActivityAt": "2025-07-03T18:46:13.846Z",
-    "messageCount": 5,
+    "lastActivityAt": "2025-07-03T18:48:37.901Z",
+    "messageCount": 8,
     "title": "Hi",
     "metadata": {
       "unreadCount": 0,
-      "lastReadAt": "2025-07-03T18:46:16.429Z",
+      "lastReadAt": "2025-07-03T18:48:48.860Z",
       "lastAgent": "CreativeAgent"
     }
   }
