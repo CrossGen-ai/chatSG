@@ -186,6 +186,17 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   const streamControllerRef = useRef<{ abort: () => void } | null>(null);
   const accumulatedContentRef = useRef<string>(''); // Use ref to track accumulated content during streaming
   
+  // Per-session streaming state management
+  interface StreamingState {
+    isStreaming: boolean;
+    messageId: number;
+    content: string;
+    agent?: string;
+    statusMessages: StatusMessageProps[];
+  }
+  const streamingStatesRef = useRef<Map<string, StreamingState>>(new Map());
+  const streamControllersRef = useRef<Map<string, StreamController>>(new Map());
+  
   // DEBUG: State for debug panel
   const [debugStreamData, setDebugStreamData] = useState<{ tokens: string[]; events: string[]; raw: string }>({ 
     tokens: [], 
@@ -323,29 +334,66 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     activeChatIdRef.current = effectiveActiveChatId;
     console.log(`[ChatUI] 🔄 Updated activeChatIdRef to: ${effectiveActiveChatId}`);
     
-    // If we switch to a different session while streaming, clear UI state
+    // Save streaming state when switching away from a streaming session
     if (streamingSessionId && streamingSessionId !== effectiveActiveChatId) {
-      console.log(`[ChatUI] Clearing streaming UI state - switched from ${streamingSessionId} to ${effectiveActiveChatId}`);
+      console.log(`[ChatUI] Saving streaming state for session ${streamingSessionId} while switching to ${effectiveActiveChatId}`);
+      
+      // Save the current streaming state
+      if (streamingMessageId && isStreaming) {
+        streamingStatesRef.current.set(streamingSessionId, {
+          isStreaming: true,
+          messageId: streamingMessageId,
+          content: accumulatedContentRef.current || streamingMessage,
+          agent: streamingAgent,
+          statusMessages: statusMessages
+        });
+        
+        // Update the message with partial content
+        setMessages(msgs => msgs.map(msg => 
+          msg.id === streamingMessageId 
+            ? { ...msg, content: accumulatedContentRef.current || streamingMessage, isStreaming: true }
+            : msg
+        ));
+      }
+      
+      // Clear UI streaming state (but keep background streaming active)
       setIsStreaming(false);
       setStreamingMessage('');
       setStreamingMessageId(null);
       setStreamingAgent(undefined);
       setStatusMessages([]);
-      // Don't clear streamingSessionId here - let it complete in background
     }
-  }, [effectiveActiveChatId, streamingSessionId]);
+    
+    // Restore streaming state when switching to a session that was streaming
+    if (effectiveActiveChatId && streamingStatesRef.current.has(effectiveActiveChatId)) {
+      const savedState = streamingStatesRef.current.get(effectiveActiveChatId);
+      if (savedState?.isStreaming) {
+        console.log(`[ChatUI] Restoring streaming state for session ${effectiveActiveChatId}`);
+        setIsStreaming(true);
+        setStreamingSessionId(effectiveActiveChatId);
+        setStreamingMessageId(savedState.messageId);
+        setStreamingMessage(savedState.content);
+        setStreamingAgent(savedState.agent);
+        setStatusMessages(savedState.statusMessages);
+        accumulatedContentRef.current = savedState.content;
+      }
+    }
+  }, [effectiveActiveChatId, streamingSessionId, streamingMessageId, streamingMessage, streamingAgent, statusMessages, isStreaming]);
 
   // REMOVED: Request cancellation useEffect for background processing
 
-  // Cleanup streaming on unmount or chat change
+  // Cleanup streaming on unmount only (not on chat change)
   useEffect(() => {
     return () => {
-      if (streamControllerRef.current) {
-        streamControllerRef.current.abort();
-        streamControllerRef.current = null;
-      }
+      // Only abort all streams on component unmount
+      streamControllersRef.current.forEach((controller, sessionId) => {
+        console.log(`[ChatUI] Aborting stream for session ${sessionId} on unmount`);
+        controller.abort();
+      });
+      streamControllersRef.current.clear();
+      streamingStatesRef.current.clear();
     };
-  }, [effectiveActiveChatId]);
+  }, []); // Empty dependency array - only run on unmount
 
   const sendMessageWithStreaming = async () => {
     if (!input.trim() || loading || !effectiveActiveChatId || isStreaming) return;
@@ -458,11 +506,22 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             accumulatedContentRef.current += token;
             const currentContent = accumulatedContentRef.current;
             
-            // Update streaming state
-            setStreamingMessage(currentContent);
+            // Update streaming state map for this session
+            streamingStatesRef.current.set(originatingSessionId, {
+              isStreaming: true,
+              messageId: botMessageId,
+              content: currentContent,
+              agent: currentStreamingAgent,
+              statusMessages: []
+            });
             
-            // Also update the message content in the array
-            // This ensures when streaming stops, the message already has content
+            // Only update UI state if this is the active session
+            if (originatingSessionId === activeChatIdRef.current) {
+              setStreamingMessage(currentContent);
+            }
+            
+            // Always update the message content in the array
+            // This ensures the content is preserved even when switching tabs
             setMessages(msgs => msgs.map(msg => 
               msg.id === botMessageId ? { ...msg, content: currentContent } : msg
             ));
@@ -523,14 +582,19 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
               console.error('[ChatUI] Error saving message:', error);
             }
             
-            // Clean up streaming state AFTER updating the message
-            // This prevents the message from temporarily showing empty content
-            setIsStreaming(false);
-            setStreamingSessionId(null); // Clear streaming session
-            setStreamingMessageId(null); // Clear streaming message
+            // Clean up streaming state map for this session
+            streamingStatesRef.current.delete(originatingSessionId);
+            
+            // Only clear UI state if this is the active session
+            if (originatingSessionId === activeChatIdRef.current) {
+              setIsStreaming(false);
+              setStreamingSessionId(null); // Clear streaming session
+              setStreamingMessageId(null); // Clear streaming message
+              setStreamingMessage('');
+              setStatusMessages([]); // Clear status messages after streaming
+            }
+            
             setChatLoading(originatingSessionId, false);
-            setStreamingMessage('');
-            setStatusMessages([]); // Clear status messages after streaming
             accumulatedContentRef.current = ''; // Clear accumulated content
           },
           onError: (error: Error) => {
@@ -555,11 +619,18 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
                 : msg
             ));
             
-            setIsStreaming(false);
-            setStreamingSessionId(null); // Clear streaming session
-            setStreamingMessageId(null); // Clear streaming message
+            // Clean up streaming state map on error
+            streamingStatesRef.current.delete(originatingSessionId);
+            
+            // Only clear UI state if this is the active session
+            if (originatingSessionId === activeChatIdRef.current) {
+              setIsStreaming(false);
+              setStreamingSessionId(null); // Clear streaming session
+              setStreamingMessageId(null); // Clear streaming message
+              setStatusMessages([]); // Clear status messages on error
+            }
+            
             setChatLoading(originatingSessionId, false);
-            setStatusMessages([]); // Clear status messages on error
           }
         }
       };
@@ -570,8 +641,21 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         delete (window as any).__pendingSlashCommand;
       }
       
-      // Start streaming
-      streamControllerRef.current = sendChatMessageStream(currentInput, originatingSessionId, options);
+      // Start streaming (include activeSessionId for background message tracking)
+      options.activeSessionId = activeChatIdRef.current;
+      console.log(`[ChatUI] Starting stream - sessionId: ${originatingSessionId}, activeSessionId: ${activeChatIdRef.current}`);
+      
+      // Abort any existing stream for this session
+      const existingController = streamControllersRef.current.get(originatingSessionId);
+      if (existingController) {
+        console.log(`[ChatUI] Aborting existing stream for session ${originatingSessionId}`);
+        existingController.abort();
+      }
+      
+      // Start new stream and store controller
+      const newController = sendChatMessageStream(currentInput, originatingSessionId, options);
+      streamControllersRef.current.set(originatingSessionId, newController);
+      streamControllerRef.current = newController; // Keep for backward compatibility
       
     } catch (error: any) {
       console.error(`[ChatUI] Streaming error in session ${originatingSessionId}:`, error);
@@ -1003,27 +1087,34 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             // Only animate new messages, not on initial load or chat switch
             const showAnimation = !isInitialLoad && index === displayedMessages.length - 1 && index === messages.length - 1;
             
+            // Check if this message is currently streaming (either in UI state or in the map)
+            const streamingState = streamingStatesRef.current.get(effectiveActiveChatId);
+            const isMessageStreaming = msg.isStreaming || 
+                                     (streamingState && streamingState.messageId === msg.id);
+            
             // For the streaming message, override content with live streaming data
-            const isStreamingMessage = isStreaming && 
+            const isStreamingMessage = (isStreaming && 
                                       streamingSessionId === effectiveActiveChatId && 
-                                      streamingMessageId === msg.id;
+                                      streamingMessageId === msg.id) ||
+                                     isMessageStreaming;
             
             // DEBUG: Log streaming detection
-            if (msg.sender === 'bot' && isStreaming) {
+            if (msg.sender === 'bot' && (isStreaming || isMessageStreaming)) {
               console.log('[RENDER] Streaming check for bot msg:', {
                 msgId: msg.id,
                 streamingMessageId,
                 isMatch: msg.id === streamingMessageId,
                 isStreamingMessage,
-                streamingContent: streamingMessage.substring(0, 30) + '...'
+                hasStreamingState: !!streamingState,
+                streamingContent: (streamingMessage || streamingState?.content || '').substring(0, 30) + '...'
               });
             }
             
             const displayMessage = isStreamingMessage ? {
               ...msg,
-              content: streamingMessage,  // Use live streaming content
+              content: streamingMessage || streamingState?.content || msg.content,  // Use live streaming content
               isStreaming: true,
-              agent: streamingAgent || msg.agent
+              agent: streamingAgent || streamingState?.agent || msg.agent
             } : msg;
             
             return (

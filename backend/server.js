@@ -267,6 +267,25 @@ const server = http.createServer(async (req, res) => {
         }));
         return;
     }
+
+    if (req.url === '/health' && req.method === 'GET') {
+        // Health check endpoint
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            environment: process.env.ENVIRONMENT || 'unknown',
+            backend: process.env.BACKEND || 'unknown',
+            orchestrator: orchestrationSetup ? 'initialized' : 'not initialized',
+            storage: getStorageManager ? 'available' : 'not available',
+            services: {
+                mem0: process.env.MEM0_ENABLED === 'true',
+                neo4j: process.env.MEM0_GRAPH_ENABLED === 'true'
+            }
+        }));
+        return;
+    }
     
     if (req.url === '/') {
         // Serve the React app's index.html
@@ -312,6 +331,7 @@ const server = http.createServer(async (req, res) => {
                 const data = JSON.parse(body);
                 const sessionId = data.sessionId || 'default';
                 console.log(`[Server] Streaming request for session: ${sessionId}, message: "${data.message}"`);
+                console.log(`[Server] Received activeSessionId: ${data.activeSessionId}`);
                 
                 // Set SSE headers
                 res.writeHead(200, {
@@ -512,8 +532,10 @@ const server = http.createServer(async (req, res) => {
                                             metadata: assistantMetadata
                                         });
                                         
+                                        console.log(`[Server] Checking unread status - activeSessionId: ${data.activeSessionId}, sessionId: ${sessionId}, should increment: ${data.activeSessionId !== sessionId}`);
                                         if (data.activeSessionId !== sessionId) {
                                             await storageManager.sessionIndex.incrementUnreadCount(sessionId);
+                                            console.log(`[Server] Incremented unread count for session ${sessionId}`);
                                         }
                                         
                                         console.log('[Server] Async storage save completed for session:', sessionId);

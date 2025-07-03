@@ -139,6 +139,17 @@ data: {"content": "Hello"}
 - Send periodic comments or heartbeat events
 - Handle reconnection on client side
 
+## Tab Switching During Streaming (Working Correctly)
+
+**Current Behavior**: 
+- Streaming continues in background when switching tabs ✅
+- Content is preserved and displayed when returning ✅
+- Multiple concurrent streams are supported ✅
+- Loading indicators show in sidebar for background streams ✅
+
+**Note**: This functionality is critical and must be preserved in future updates.
+See `docs/streaming-state-management.md` for implementation details.
+
 ## Logging for Debugging
 
 Enable detailed logging:
@@ -152,4 +163,8 @@ console.log('[UI] Streaming state:', {
   messageId: streamingMessageId,
   contentLength: streamingMessage.length
 });
+
+// For tab switching issues
+console.log('[ChatUI] Saving streaming state for session', sessionId);
+console.log('[ChatUI] Restoring streaming state for session', sessionId);
 ```

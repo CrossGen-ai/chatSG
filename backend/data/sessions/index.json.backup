@@ -244,14 +244,14 @@
     "status": "active",
     "createdAt": "2025-06-27T05:57:06.307Z",
     "startedAt": "2025-06-27T05:57:06.307Z",
-    "lastActivityAt": "2025-07-03T18:48:51.805Z",
-    "messageCount": 19,
+    "lastActivityAt": "2025-07-03T19:54:54.872Z",
+    "messageCount": 34,
     "title": "New Chat",
     "metadata": {
       "userId": "default",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-03T18:49:04.125Z",
-      "lastAgent": "CreativeAgent"
+      "lastReadAt": "2025-07-03T19:54:25.127Z",
+      "lastAgent": "AnalyticalAgent"
     }
   },
   "session_1751006350070_25uat4tbl": {
@@ -715,15 +715,15 @@
   "trace-test-1751568335396": {
     "file": "session_trace-test-1751568335396.jsonl",
     "toolsFile": "session_trace-test-1751568335396_tools.jsonl",
-    "status": "active",
+    "status": "inactive",
     "createdAt": "2025-07-03T18:45:35.404Z",
     "startedAt": "2025-07-03T18:45:35.404Z",
-    "lastActivityAt": "2025-07-03T18:48:37.901Z",
+    "lastActivityAt": "2025-07-03T19:18:37.906Z",
     "messageCount": 8,
     "title": "Hi",
     "metadata": {
       "unreadCount": 0,
-      "lastReadAt": "2025-07-03T18:48:48.860Z",
+      "lastReadAt": "2025-07-03T19:54:24.338Z",
       "lastAgent": "CreativeAgent"
     }
   }

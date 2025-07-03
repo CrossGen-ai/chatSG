@@ -217,6 +217,39 @@ cat .mcp.json
 2. **Process cleanup**: Run `npm run stop` to kill all servers
 3. **Check logs**: Run `npm run logs` for recent activity
 
+## Future Enhancements / Backlog
+
+### High Priority
+1. **Scroll Position Management**: Clean up scroll positioning when switching between chats rapidly
+   - Handle quick back-and-forth tab switching
+   - Preserve scroll position per chat
+   - Smooth scroll restoration
+
+### Critical Features to Preserve
+⚠️ **IMPORTANT**: The following features are critical and must NEVER be broken in future updates:
+
+1. **Background Streaming Support**
+   - Messages continue streaming when switching tabs
+   - Content is preserved and accessible when returning to a chat
+   - Multiple concurrent streams are supported
+   - See `docs/streaming-state-management.md` for implementation details
+
+2. **Unread Message Indicators**
+   - Blue dots appear for messages received in background chats
+   - Active chat never shows blue dots for its own messages
+   - Unread counts are properly tracked per session
+
+### Medium Priority
+- Enhanced streaming status indicators in sidebar
+- Partial message preview tooltips
+- Stream pause/resume functionality
+- Better error recovery for interrupted streams
+
+### Low Priority
+- Stream priority management for resource optimization
+- Streaming bandwidth throttling options
+- Export streaming analytics
+
 ## Contributing
 
 See `CLAUDE.md` for AI assistant guidelines and `docs/` for detailed documentation.
