@@ -83,8 +83,12 @@ export interface AgentConfiguration {
 // Agent System Types
 // ============================================================================
 
+export interface StreamingCallback {
+  (token: string): void;
+}
+
 export interface BaseAgent {
-  processMessage(input: string, sessionId: string): Promise<AgentResponse>;
+  processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback): Promise<AgentResponse>;
   getCapabilities(): AgentCapabilities;
   validateConfig(): ValidationResult;
   getInfo(): {
@@ -219,6 +223,7 @@ export interface Task {
   parameters: Record<string, any>;
   priority: number;
   deadline?: Date;
+  streamCallback?: StreamingCallback;
 }
 
 export interface TaskResult {

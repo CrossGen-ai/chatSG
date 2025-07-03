@@ -6,7 +6,7 @@
  */
 
 import { AbstractBaseAgent } from '../../core/BaseAgent';
-import { AgentResponse, AgentCapabilities, ValidationResult } from '../../../types';
+import { AgentResponse, AgentCapabilities, ValidationResult, StreamingCallback } from '../../../types';
 
 // Import LLM helper for actual LLM processing
 // const { getLLMHelper } = require('../../../../utils/llm-helper');
@@ -68,7 +68,7 @@ export class TechnicalAgent extends AbstractBaseAgent {
     /**
      * Process user message with LLM integration
      */
-    async processMessage(input: string, sessionId: string): Promise<AgentResponse> {
+    async processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback): Promise<AgentResponse> {
         try {
             if (!this.initialized) {
                 await this.initialize();

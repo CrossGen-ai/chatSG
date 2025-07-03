@@ -277,7 +277,246 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(200, { 'Content-Type': contentType });
             res.end(content);
         });
+    } else if (req.url === '/api/chat/stream' && req.method === 'POST') {
+        // SSE streaming endpoint
+        console.log('[Server] Streaming endpoint hit: /api/chat/stream');
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(body);
+                const sessionId = data.sessionId || 'default';
+                console.log(`[Server] Streaming request for session: ${sessionId}, message: "${data.message}"`);
+                
+                // Set SSE headers
+                res.writeHead(200, {
+                    'Content-Type': 'text/event-stream',
+                    'Cache-Control': 'no-cache',
+                    'Connection': 'keep-alive',
+                    'Access-Control-Allow-Origin': '*',
+                    'X-Accel-Buffering': 'no' // Disable Nginx buffering
+                });
+                
+                // Helper to send SSE events
+                const sendEvent = (event, data) => {
+                    console.log(`[Server] Sending SSE event: ${event}`, data);
+                    res.write(`event: ${event}\n`);
+                    res.write(`data: ${JSON.stringify(data)}\n\n`);
+                };
+                
+                // Send initial connection event
+                sendEvent('connected', { sessionId });
+                
+                // Process slash commands - frontend metadata only
+                let processedMessage = data.message;
+                let routingMetadata = null;
+                
+                if (data.slashCommand) {
+                    console.log(`[Server] Frontend slash command metadata received:`, data.slashCommand);
+                    
+                    routingMetadata = {
+                        forceAgent: true,
+                        agentType: data.slashCommand.agentType,
+                        commandName: data.slashCommand.command,
+                        confidence: 1.0,
+                        reason: `Frontend slash command: /${data.slashCommand.command}`
+                    };
+                    
+                    processedMessage = data.message;
+                    console.log(`[Server] Using frontend slash command: /${data.slashCommand.command} → ${data.slashCommand.agentType}`);
+                }
+                
+                // Auto-create session if needed and save user message
+                if (storageManager && data.message) {
+                    try {
+                        const sessionExists = storageManager.sessionExists(sessionId);
+                        
+                        if (!sessionExists) {
+                            await storageManager.createSession({
+                                sessionId: sessionId,
+                                title: data.message.substring(0, 50) + (data.message.length > 50 ? '...' : ''),
+                                userId: data.userId
+                            });
+                            console.log(`[Server] Auto-created session: ${sessionId}`);
+                        }
+                        
+                        const userMessageMetadata = {
+                            userId: data.userId
+                        };
+                        
+                        if (data.slashCommand && routingMetadata) {
+                            userMessageMetadata.slashCommand = {
+                                command: data.slashCommand.command,
+                                agentType: data.slashCommand.agentType
+                            };
+                            userMessageMetadata.forcedRouting = routingMetadata;
+                        }
+                        
+                        await storageManager.saveMessage({
+                            sessionId: sessionId,
+                            type: 'user',
+                            content: processedMessage,
+                            metadata: userMessageMetadata
+                        });
+                    } catch (storageError) {
+                        console.error('[Server] Failed to save user message:', storageError);
+                    }
+                }
+                
+                // Create streaming callback with status injection support
+                let fullResponse = '';
+                const streamCallback = (token) => {
+                    // Check if this is a status injection
+                    if (typeof token === 'object' && token.type === 'status') {
+                        sendEvent('status', {
+                            type: token.statusType,
+                            message: token.message,
+                            metadata: token.metadata
+                        });
+                    } else {
+                        // Regular token
+                        sendEvent('token', { content: token });
+                        fullResponse += token;
+                    }
+                };
+                
+                // Route based on BACKEND configuration
+                switch (BACKEND) {
+                    case 'Orch':
+                        if (!backendIntegration) {
+                            sendEvent('error', { message: 'Orchestrator not initialized' });
+                            res.end();
+                            return;
+                        }
+                        
+                        console.log(`[ORCHESTRATOR] Processing with streaming: "${processedMessage}"`);
+                        
+                        try {
+                            // Check if we have forced routing from slash command
+                            let targetAgent = null;
+                            if (routingMetadata && routingMetadata.forceAgent) {
+                                const availableAgents = orchestrationSetup.orchestrator.listAgents();
+                                const targetAgentCapabilities = availableAgents.find(agentCap => 
+                                    agentCap.name === routingMetadata.agentType || 
+                                    agentCap.type === routingMetadata.agentType ||
+                                    agentCap.name.includes(routingMetadata.agentType.replace('Agent', ''))
+                                );
+                                
+                                if (targetAgentCapabilities) {
+                                    targetAgent = orchestrationSetup.orchestrator.getAgent(targetAgentCapabilities.name);
+                                    console.log(`[ORCHESTRATOR] Forced routing to ${targetAgentCapabilities.name} for streaming`);
+                                }
+                            }
+                            
+                            // If no forced routing, select agent normally
+                            if (!targetAgent) {
+                                const context = {
+                                    sessionId: sessionId,
+                                    userInput: processedMessage,
+                                    availableAgents: orchestrationSetup.orchestrator.listAgents().map(a => a.name),
+                                    userPreferences: {}
+                                };
+                                
+                                const selection = await orchestrationSetup.orchestrator.selectAgent(processedMessage, context);
+                                targetAgent = orchestrationSetup.orchestrator.getAgent(selection.selectedAgent);
+                                console.log(`[ORCHESTRATOR] Selected ${selection.selectedAgent} for streaming`);
+                            }
+                            
+                            if (!targetAgent) {
+                                throw new Error('No agent available for processing');
+                            }
+                            
+                            const agentInfo = targetAgent.getInfo();
+                            
+                            sendEvent('start', { 
+                                agent: agentInfo.name,
+                                sessionId: sessionId
+                            });
+                            
+                            // Process message with streaming
+                            console.log(`[Server] Passing streamCallback to agent: ${typeof streamCallback}`);
+                            const result = await targetAgent.processMessage(processedMessage, sessionId, streamCallback);
+                            
+                            // If agent doesn't support streaming, simulate it
+                            if (fullResponse === '') {
+                                const responseText = result.message;
+                                const chunkSize = 5;
+                                
+                                for (let i = 0; i < responseText.length; i += chunkSize) {
+                                    const chunk = responseText.slice(i, i + chunkSize);
+                                    sendEvent('token', { content: chunk });
+                                    fullResponse += chunk;
+                                    await new Promise(resolve => setTimeout(resolve, 50));
+                                }
+                            }
+                            
+                            // Save complete message to storage
+                            if (storageManager && fullResponse) {
+                                try {
+                                    const assistantMetadata = {
+                                        agent: agentInfo.name,
+                                        agentType: agentInfo.type,
+                                        confidence: result.metadata?.confidence || 1.0,
+                                        streaming: true,
+                                        timestamp: new Date().toISOString()
+                                    };
+                                    
+                                    await storageManager.saveMessage({
+                                        sessionId: sessionId,
+                                        type: 'assistant',
+                                        content: fullResponse,
+                                        metadata: assistantMetadata
+                                    });
+                                    
+                                    if (data.activeSessionId !== sessionId) {
+                                        await storageManager.sessionIndex.incrementUnreadCount(sessionId);
+                                    }
+                                } catch (storageError) {
+                                    console.error('[Server] Failed to save streamed message:', storageError);
+                                }
+                            }
+                            
+                            sendEvent('done', { 
+                                agent: agentInfo.name,
+                                agentType: agentInfo.type,
+                                sessionId: sessionId,
+                                orchestration: {
+                                    confidence: result.metadata?.confidence || 1.0,
+                                    streaming: true
+                                }
+                            });
+                            
+                        } catch (error) {
+                            console.error('[Server] Streaming error:', error);
+                            sendEvent('error', { message: error.message });
+                        }
+                        
+                        res.end();
+                        break;
+                        
+                    case 'n8n':
+                    case 'Generic':
+                        // Not implemented for other backends yet
+                        sendEvent('error', { message: 'Streaming not supported for this backend' });
+                        res.end();
+                        break;
+                        
+                    default:
+                        sendEvent('error', { message: 'Unknown backend' });
+                        res.end();
+                        break;
+                }
+                
+            } catch (error) {
+                console.error('Stream API error:', error);
+                res.write(`event: error\ndata: ${JSON.stringify({ message: error.message })}\n\n`);
+                res.end();
+            }
+        });
     } else if (req.url === '/api/chat' && req.method === 'POST') {
+        console.log('[Server] Regular chat endpoint hit - THIS SHOULD NOT BE CALLED, USE STREAMING!');
         let body = '';
         req.on('data', chunk => {
             body += chunk.toString();

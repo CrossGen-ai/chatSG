@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatSG Streaming Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background: #f5f5f5;
+        }
+        #input {
+            width: 70%;
+            padding: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #ccc;
+        }
+        .user-msg {
+            background: #e3f2fd;
+            padding: 5px 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .bot-msg {
+            background: #f3e5f5;
+            padding: 5px 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .status-msg {
+            background: #fff3cd;
+            padding: 5px 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>ChatSG Streaming Test</h1>
+    <div id="messages"></div>
+    <div>
+        <input type="text" id="input" placeholder="Type a message..." value="Hello, how are you?" />
+        <button id="sendBtn" onclick="sendMessage()">Send</button>
+    </div>
+    <div id="status"></div>
+
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const inputField = document.getElementById('input');
+        const sendBtn = document.getElementById('sendBtn');
+        const statusDiv = document.getElementById('status');
+        let currentBotMessage = null;
+
+        function addMessage(content, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = type + '-msg';
+            msgDiv.textContent = content;
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return msgDiv;
+        }
+
+        async function sendMessage() {
+            const message = inputField.value.trim();
+            if (!message) return;
+
+            // Disable input
+            inputField.disabled = true;
+            sendBtn.disabled = true;
+
+            // Add user message
+            addMessage('You: ' + message, 'user');
+            inputField.value = '';
+
+            // Create bot message placeholder
+            currentBotMessage = addMessage('Bot: ', 'bot');
+
+            try {
+                const response = await fetch('http://localhost:3000/api/chat/stream', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        sessionId: 'test-html-' + Date.now()
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+
+                    for (const line of lines) {
+                        if (line.startsWith('event: ')) {
+                            const event = line.slice(7);
+                            const nextLine = lines[lines.indexOf(line) + 1];
+                            
+                            if (nextLine && nextLine.startsWith('data: ')) {
+                                try {
+                                    const data = JSON.parse(nextLine.slice(6));
+                                    
+                                    switch (event) {
+                                        case 'connected':
+                                            statusDiv.textContent = 'Connected to stream...';
+                                            break;
+                                        case 'start':
+                                            statusDiv.textContent = `Agent: ${data.agent}`;
+                                            break;
+                                        case 'token':
+                                            if (currentBotMessage && data.content) {
+                                                currentBotMessage.textContent += data.content;
+                                            }
+                                            break;
+                                        case 'status':
+                                            addMessage(`Status: ${data.message}`, 'status');
+                                            break;
+                                        case 'done':
+                                            statusDiv.textContent = 'Stream completed';
+                                            break;
+                                        case 'error':
+                                            statusDiv.textContent = `Error: ${data.message}`;
+                                            break;
+                                    }
+                                } catch (e) {
+                                    console.error('Parse error:', e);
+                                }
+                            }
+                        }
+                    }
+                }
+
+            } catch (error) {
+                statusDiv.textContent = `Error: ${error.message}`;
+                if (currentBotMessage) {
+                    currentBotMessage.textContent = 'Bot: Error occurred while processing your message.';
+                }
+            } finally {
+                // Re-enable input
+                inputField.disabled = false;
+                sendBtn.disabled = false;
+                inputField.focus();
+            }
+        }
+
+        // Allow Enter key to send
+        inputField.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !inputField.disabled) {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -6,7 +6,7 @@
  */
 
 import { AbstractBaseAgent } from '../../core/BaseAgent';
-import { AgentResponse, AgentCapabilities, ValidationResult } from '../../../types';
+import { AgentResponse, AgentCapabilities, ValidationResult, StreamingCallback } from '../../../types';
 
 // Import LLM helper for actual LLM processing
 // const { getLLMHelper } = require('../../../../utils/llm-helper');
@@ -65,7 +65,7 @@ export class AnalyticalAgent extends AbstractBaseAgent {
     /**
      * Process user message with LLM integration
      */
-    async processMessage(input: string, sessionId: string): Promise<AgentResponse> {
+    async processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback): Promise<AgentResponse> {
         try {
             if (!this.initialized) {
                 await this.initialize();
@@ -111,26 +111,71 @@ export class AnalyticalAgent extends AbstractBaseAgent {
             const messages = await this.buildContextMessages(sessionId, input, systemPrompt);
 
             console.log(`[${this.name}] Calling LLM with ${messages.length} messages (including conversation history)`);
+            console.log(`[${this.name}] streamCallback type: ${typeof streamCallback}, value: ${streamCallback}`);
 
-            // Call LLM
-            const response = await this.llm.invoke(messages);
-            const responseContent = response.content || response;
+            // Check if streaming is requested
+            if (streamCallback) {
+                console.log(`[${this.name}] Streaming mode enabled`);
+                
+                // Create streaming LLM instance with callback
+                let fullResponse = '';
+                const streamingLLM = this.llmHelper.createChatLLM({ 
+                    streaming: true,
+                    callbacks: [{
+                        handleLLMNewToken: (token: string) => {
+                            console.log(`[${this.name}] Token received: "${token}"`);
+                            fullResponse += token;
+                            streamCallback(token);
+                        },
+                        handleLLMEnd: () => {
+                            console.log(`[${this.name}] Streaming completed (${fullResponse.length} chars)`);
+                        },
+                        handleLLMError: (error: Error) => {
+                            console.error(`[${this.name}] Streaming error:`, error);
+                        }
+                    }]
+                });
+                
+                // Invoke the LLM with messages
+                const response = await streamingLLM.invoke(messages);
+                
+                console.log(`[${this.name}] Final response length: ${fullResponse.length} chars`);
+                
+                return {
+                    success: true,
+                    message: fullResponse || response.content || response,
+                    sessionId,
+                    timestamp: new Date().toISOString(),
+                    metadata: {
+                        analysisType: taskType,
+                        agentName: this.name,
+                        agentType: this.type,
+                        llmUsed: true,
+                        streaming: true,
+                        responseLength: fullResponse.length || (response.content || response).length
+                    }
+                };
+            } else {
+                // Non-streaming mode
+                const response = await this.llm.invoke(messages);
+                const responseContent = response.content || response;
 
-            console.log(`[${this.name}] LLM response received (${responseContent.length} chars)`);
+                console.log(`[${this.name}] LLM response received (${responseContent.length} chars)`);
 
-            return {
-                success: true,
-                message: responseContent,
-                sessionId,
-                timestamp: new Date().toISOString(),
-                metadata: {
-                    analysisType: taskType,
-                    agentName: this.name,
-                    agentType: this.type,
-                    llmUsed: true,
-                    responseLength: responseContent.length
-                }
-            };
+                return {
+                    success: true,
+                    message: responseContent,
+                    sessionId,
+                    timestamp: new Date().toISOString(),
+                    metadata: {
+                        analysisType: taskType,
+                        agentName: this.name,
+                        agentType: this.type,
+                        llmUsed: true,
+                        responseLength: responseContent.length
+                    }
+                };
+            }
         } catch (error) {
             console.error(`[${this.name}] Error processing message:`, error);
             return {

@@ -5,7 +5,7 @@
  * Provides common methods and capabilities while preserving existing agent functionality.
  */
 
-import { AgentResponse, AgentCapabilities, ValidationResult } from '../../types';
+import { AgentResponse, AgentCapabilities, ValidationResult, StreamingCallback } from '../../types';
 import { getStorageManager } from '../../storage/StorageManager';
 import { ContextManager, ContextMessage } from '../../storage/ContextManager';
 import { getStateManager } from '../../state/StateManager';
@@ -19,9 +19,10 @@ export interface BaseAgent {
      * Process a user message and return a response
      * @param input - The user's input message
      * @param sessionId - Session identifier for conversation context
+     * @param streamCallback - Optional callback for streaming responses
      * @returns Promise resolving to agent response
      */
-    processMessage(input: string, sessionId: string): Promise<AgentResponse>;
+    processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback): Promise<AgentResponse>;
 
     /**
      * Get agent capabilities and metadata
@@ -145,12 +146,28 @@ export abstract class AbstractBaseAgent implements BaseAgent {
                     enhancedSystemPrompt = `[Cross-session memory is enabled]\n\n${systemPrompt}`;
                 }
                 
-                // Use Mem0's intelligent context retrieval
-                const contextMessages = await storageManager.getContextForQuery(
+                // Use Mem0's intelligent context retrieval with timeout
+                const startTime = Date.now();
+                const contextPromise = storageManager.getContextForQuery(
                     currentInput,
                     sessionId,
                     enhancedSystemPrompt
                 );
+                
+                // Create a timeout promise that resolves with minimal context
+                const timeoutPromise = new Promise<any[]>((resolve) => 
+                    setTimeout(() => {
+                        console.log(`[${this.name}] Mem0 context retrieval timed out after 2s, using minimal context`);
+                        resolve([
+                            { role: 'system', content: enhancedSystemPrompt }
+                        ]);
+                    }, 2000) // 2 second timeout for faster streaming start
+                );
+                
+                // Race between actual context and timeout
+                const contextMessages = await Promise.race([contextPromise, timeoutPromise]);
+                const elapsed = Date.now() - startTime;
+                console.log(`[${this.name}] Context retrieval took ${elapsed}ms`);
                 
                 // Add the current user input
                 contextMessages.push({

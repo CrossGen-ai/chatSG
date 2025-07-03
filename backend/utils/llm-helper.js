@@ -164,7 +164,7 @@ class LLMHelper {
     createChatLLM(overrides = {}) {
         const config = { ...this.config, ...overrides };
         
-        console.log(`[LLMHelper] Creating ChatLLM with provider: ${config.provider}, model: ${config.modelName}`);
+        console.log(`[LLMHelper] Creating ChatLLM with provider: ${config.provider}, model: ${config.modelName}, streaming: ${overrides.streaming || false}`);
         
         return new ChatOpenAI({
             modelName: config.modelName,
@@ -172,6 +172,7 @@ class LLMHelper {
             configuration: config.configuration,
             temperature: config.temperature,
             maxTokens: config.maxTokens,
+            streaming: overrides.streaming || false,
             ...overrides
         });
     }

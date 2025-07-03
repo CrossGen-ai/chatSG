@@ -85,7 +85,25 @@ export const MessageItem = React.memo<MessageItemProps>(({
               : 'bg-white/60 dark:bg-black/40 theme-text-primary rounded-bl-md border-white/20'
           )}
         >
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+          {message.content && !message.isStreaming ? (
+            // Show content for non-streaming messages
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+          ) : message.isStreaming && message.content && message.content.trim() ? (
+            // Show content with cursor for streaming messages (only if there's visible content)
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+              {message.content}
+              <span className="inline-block w-2 h-4 bg-gray-600 dark:bg-gray-400 animate-pulse ml-1"></span>
+            </p>
+          ) : (
+            // Show typing indicator for empty bot messages (streaming or loading) or streaming with only whitespace
+            message.sender === 'bot' && (
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            )
+          )}
         </div>
         <div className={clsx(
           'mt-1 text-xs theme-text-secondary',
@@ -107,6 +125,7 @@ export const MessageItem = React.memo<MessageItemProps>(({
     prevProps.message.id === nextProps.message.id &&
     prevProps.message.content === nextProps.message.content &&
     prevProps.message.synced === nextProps.message.synced &&
+    prevProps.message.isStreaming === nextProps.message.isStreaming &&
     prevProps.currentChatAgentType === nextProps.currentChatAgentType &&
     prevProps.showAnimation === nextProps.showAnimation
   );

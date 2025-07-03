@@ -1,0 +1,4 @@
+{"timestamp":"2025-07-03T00:05:18.332Z","type":"user","content":"Tell me a very short joke.","metadata":{"sessionId":"test-debug-1751501118323"}}
+{"timestamp":"2025-07-03T00:05:27.307Z","type":"assistant","content":"Why don't skeletons fight each other?\n\nThey don't have the guts.","metadata":{"sessionId":"test-debug-1751501118323","agent":"CreativeAgent","agentType":"creative","confidence":1,"streaming":true,"timestamp":"2025-07-03T00:05:27.307Z"}}
+{"timestamp":"2025-07-03T00:08:52.308Z","type":"user","content":"How are you?","metadata":{"sessionId":"test-debug-1751501118323"}}
+{"timestamp":"2025-07-03T00:09:01.322Z","type":"assistant","content":"I'm here and ready to assist you with any data analysis or research tasks you have. How can I help you today?","metadata":{"sessionId":"test-debug-1751501118323","agent":"AnalyticalAgent","agentType":"analytical","confidence":1,"streaming":true,"timestamp":"2025-07-03T00:09:01.322Z"}}

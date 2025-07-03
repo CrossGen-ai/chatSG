@@ -39,6 +39,7 @@ export interface HybridMessage {
   synced: boolean;        // tracks if message is synced with backend
   compressed?: boolean;   // tracks if message content is compressed
   batchId?: string;      // for message batching
+  isStreaming?: boolean;  // tracks if message is currently streaming
 }
 
 // ChatManager context interface - enhanced

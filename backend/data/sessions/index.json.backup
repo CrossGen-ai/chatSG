@@ -209,10 +209,10 @@
   "session_1750996171439_eblte15w6": {
     "file": "session_session_1750996171439_eblte15w6.jsonl",
     "toolsFile": "session_session_1750996171439_eblte15w6_tools.jsonl",
-    "status": "active",
+    "status": "deleted",
     "createdAt": "2025-06-27T03:49:31.439Z",
     "startedAt": "2025-06-27T03:49:31.439Z",
-    "lastActivityAt": "2025-07-02T16:46:17.969Z",
+    "lastActivityAt": "2025-07-03T00:12:50.820Z",
     "messageCount": 10,
     "title": "New Chat",
     "metadata": {
@@ -329,8 +329,8 @@
     "title": "New Chat",
     "metadata": {
       "userId": "default",
-      "unreadCount": 3,
-      "lastReadAt": "2025-06-30T21:34:35.072Z",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-03T00:37:29.194Z",
       "lastAgent": "CreativeAgent"
     }
   },
@@ -353,10 +353,10 @@
   "mem0-test-1751474396674": {
     "file": "session_mem0-test-1751474396674.jsonl",
     "toolsFile": "session_mem0-test-1751474396674_tools.jsonl",
-    "status": "inactive",
+    "status": "deleted",
     "createdAt": "2025-07-02T16:39:56.686Z",
     "startedAt": "2025-07-02T16:39:56.686Z",
-    "lastActivityAt": "2025-07-02T17:10:47.961Z",
+    "lastActivityAt": "2025-07-03T00:12:50.834Z",
     "messageCount": 6,
     "title": "My name is Alice and I work at TechCorp as a softw...",
     "metadata": {
@@ -368,16 +368,213 @@
   "mem0-test-1751474441601": {
     "file": "session_mem0-test-1751474441601.jsonl",
     "toolsFile": "session_mem0-test-1751474441601_tools.jsonl",
-    "status": "inactive",
+    "status": "deleted",
     "createdAt": "2025-07-02T16:40:41.612Z",
     "startedAt": "2025-07-02T16:40:41.612Z",
-    "lastActivityAt": "2025-07-02T17:12:40.433Z",
+    "lastActivityAt": "2025-07-03T00:12:50.828Z",
     "messageCount": 12,
     "title": "My name is Alice and I work at TechCorp as a softw...",
     "metadata": {
       "unreadCount": 6,
       "lastReadAt": null,
       "lastAgent": "TechnicalAgent"
+    }
+  },
+  "session_1751495587896_fu1tdmkou": {
+    "file": "session_session_1751495587896_fu1tdmkou.jsonl",
+    "toolsFile": "session_session_1751495587896_fu1tdmkou_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-07-02T22:33:07.896Z",
+    "startedAt": "2025-07-02T22:33:07.896Z",
+    "lastActivityAt": "2025-07-03T00:12:50.797Z",
+    "messageCount": 2,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "default",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-02T22:33:07.905Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test123": {
+    "file": "session_test123.jsonl",
+    "toolsFile": "session_test123_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-07-02T22:41:17.366Z",
+    "startedAt": "2025-07-02T22:41:17.366Z",
+    "lastActivityAt": "2025-07-03T00:12:50.791Z",
+    "messageCount": 8,
+    "title": "test",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-02T23:05:56.851Z",
+      "lastAgent": "CreativeAgent"
+    }
+  },
+  "test-streaming-1751497364030": {
+    "file": "session_test-streaming-1751497364030.jsonl",
+    "toolsFile": "session_test-streaming-1751497364030_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-07-02T23:02:44.041Z",
+    "startedAt": "2025-07-02T23:02:44.041Z",
+    "lastActivityAt": "2025-07-03T00:12:50.787Z",
+    "messageCount": 2,
+    "title": "Hello, how are you?",
+    "metadata": {
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-streaming-1751497412303": {
+    "file": "session_test-streaming-1751497412303.jsonl",
+    "toolsFile": "session_test-streaming-1751497412303_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-07-02T23:03:32.311Z",
+    "startedAt": "2025-07-02T23:03:32.311Z",
+    "lastActivityAt": "2025-07-03T00:12:50.770Z",
+    "messageCount": 2,
+    "title": "Hello, how are you?",
+    "metadata": {
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-streaming-1751497452221": {
+    "file": "session_test-streaming-1751497452221.jsonl",
+    "toolsFile": "session_test-streaming-1751497452221_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-07-02T23:04:12.228Z",
+    "startedAt": "2025-07-02T23:04:12.228Z",
+    "lastActivityAt": "2025-07-03T00:12:50.781Z",
+    "messageCount": 2,
+    "title": "Hello, how are you?",
+    "metadata": {
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-streaming-1751497604485": {
+    "file": "session_test-streaming-1751497604485.jsonl",
+    "toolsFile": "session_test-streaming-1751497604485_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-07-02T23:06:44.494Z",
+    "startedAt": "2025-07-02T23:06:44.494Z",
+    "lastActivityAt": "2025-07-03T00:12:50.775Z",
+    "messageCount": 2,
+    "title": "Hello, how are you?",
+    "metadata": {
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-html-1751497886962": {
+    "file": "session_test-html-1751497886962.jsonl",
+    "toolsFile": "session_test-html-1751497886962_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-07-02T23:11:26.979Z",
+    "startedAt": "2025-07-02T23:11:26.979Z",
+    "lastActivityAt": "2025-07-03T00:12:50.764Z",
+    "messageCount": 2,
+    "title": "Hello, how are you?",
+    "metadata": {
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "debug-1751497951": {
+    "file": "session_debug-1751497951.jsonl",
+    "toolsFile": "session_debug-1751497951_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-07-02T23:12:31.030Z",
+    "startedAt": "2025-07-02T23:12:31.030Z",
+    "lastActivityAt": "2025-07-03T00:12:50.756Z",
+    "messageCount": 6,
+    "title": "test streaming debug",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-02T23:48:18.332Z",
+      "lastAgent": "CreativeAgent"
+    }
+  },
+  "speed-test-1751498357": {
+    "file": "session_speed-test-1751498357.jsonl",
+    "toolsFile": "session_speed-test-1751498357_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-07-02T23:19:17.586Z",
+    "startedAt": "2025-07-02T23:19:17.586Z",
+    "lastActivityAt": "2025-07-03T00:12:50.751Z",
+    "messageCount": 2,
+    "title": "test quick response",
+    "metadata": {
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-html-1751498546497": {
+    "file": "session_test-html-1751498546497.jsonl",
+    "toolsFile": "session_test-html-1751498546497_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-02T23:22:26.502Z",
+    "startedAt": "2025-07-02T23:22:26.502Z",
+    "lastActivityAt": "2025-07-03T00:54:42.801Z",
+    "messageCount": 24,
+    "title": "hello",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-03T00:37:39.382Z",
+      "lastAgent": "CreativeAgent"
+    }
+  },
+  "session_1751500190742_mc9i8p1qk": {
+    "file": "session_session_1751500190742_mc9i8p1qk.jsonl",
+    "toolsFile": "session_session_1751500190742_mc9i8p1qk_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-02T23:49:50.742Z",
+    "startedAt": "2025-07-02T23:49:50.742Z",
+    "lastActivityAt": "2025-07-03T05:00:13.149Z",
+    "messageCount": 15,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "default",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-03T04:16:02.809Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-debug-1751501079281": {
+    "file": "session_test-debug-1751501079281.jsonl",
+    "toolsFile": "session_test-debug-1751501079281_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-03T00:04:39.288Z",
+    "startedAt": "2025-07-03T00:04:39.288Z",
+    "lastActivityAt": "2025-07-03T01:07:03.438Z",
+    "messageCount": 6,
+    "title": "Tell me a very short joke.",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-03T00:37:03.422Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-debug-1751501118323": {
+    "file": "session_test-debug-1751501118323.jsonl",
+    "toolsFile": "session_test-debug-1751501118323_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-03T00:05:18.332Z",
+    "startedAt": "2025-07-03T00:05:18.332Z",
+    "lastActivityAt": "2025-07-03T00:39:09.528Z",
+    "messageCount": 4,
+    "title": "Tell me a very short joke.",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-03T00:37:33.058Z",
+      "lastAgent": "AnalyticalAgent"
     }
   }
 }

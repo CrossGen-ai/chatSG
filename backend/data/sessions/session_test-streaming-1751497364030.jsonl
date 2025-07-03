@@ -1,0 +1,2 @@
+{"timestamp":"2025-07-02T23:02:44.041Z","type":"user","content":"Hello, how are you?","metadata":{"sessionId":"test-streaming-1751497364030"}}
+{"timestamp":"2025-07-02T23:02:51.418Z","type":"assistant","content":"Hello! I'm here and ready to assist you with any analytical tasks or questions you may have. How can I help you today?","metadata":{"sessionId":"test-streaming-1751497364030","agent":"AnalyticalAgent","agentType":"analytical","confidence":1,"streaming":true,"timestamp":"2025-07-02T23:02:51.418Z"}}

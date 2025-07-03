@@ -413,4 +413,179 @@ export async function createChat(data: {
   } catch (error: any) {
     throw new Error(`Failed to create chat: ${error.response?.data?.error || error.message}`);
   }
+}
+
+// Streaming chat interface
+export interface StreamingChatCallbacks {
+  onStart?: (data: { agent?: string; sessionId: string }) => void;
+  onToken?: (token: string) => void;
+  onStatus?: (data: { type: string; message: string; metadata?: any }) => void;
+  onDone?: (data: { agent?: string; orchestration?: any }) => void;
+  onError?: (error: Error) => void;
+}
+
+export interface StreamController {
+  abort: () => void;
+}
+
+export function sendChatMessageStream(
+  message: string,
+  sessionId?: string,
+  options?: {
+    activeSessionId?: string;
+    slashCommand?: {
+      command: string;
+      agentType: string;
+    };
+    callbacks: StreamingChatCallbacks;
+  }
+): StreamController {
+  const abortController = new AbortController();
+  
+  // Send the initial request
+  const requestData: any = {
+    message,
+    sessionId: sessionId || 'default',
+    activeSessionId: options?.activeSessionId
+  };
+  
+  if (options?.slashCommand) {
+    requestData.slashCommand = options.slashCommand;
+  }
+  
+  // Use fetch to send POST with body to SSE endpoint
+  console.log('[sendChatMessageStream] Sending request to /api/chat/stream:', requestData);
+  console.log('[sendChatMessageStream] Full URL:', window.location.origin + '/api/chat/stream');
+  console.log('[sendChatMessageStream] Callbacks provided:', {
+    onStart: !!options?.callbacks.onStart,
+    onToken: !!options?.callbacks.onToken,
+    onStatus: !!options?.callbacks.onStatus,
+    onDone: !!options?.callbacks.onDone,
+    onError: !!options?.callbacks.onError
+  });
+  
+  fetch('/api/chat/stream', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestData),
+    signal: abortController.signal,
+  }).then(response => {
+    console.log('[sendChatMessageStream] Response received:', response.status, response.headers.get('content-type'));
+    console.log('[sendChatMessageStream] Response ok:', response.ok);
+    console.log('[sendChatMessageStream] Response body:', response.body);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    
+    const processChunk = async () => {
+      if (!reader) return;
+      
+      try {
+        const { done, value } = await reader.read();
+        if (done) {
+          console.log('[Streaming] Stream ended (done=true)');
+          return;
+        }
+        
+        const chunk = decoder.decode(value, { stream: true });
+        console.log('[Streaming] Chunk received:', chunk.length, 'bytes');
+        buffer += chunk;
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        
+        console.log('[Streaming] Processing', lines.length, 'lines');
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          console.log('[Streaming] Line:', line);
+          if (line.startsWith('event: ')) {
+            const event = line.slice(7);
+            // Look for the next data line
+            let dataLine = '';
+            for (let j = i + 1; j < lines.length; j++) {
+              if (lines[j].trim().startsWith('data: ')) {
+                dataLine = lines[j].trim();
+                i = j; // Skip the data line in the outer loop
+                break;
+              }
+            }
+            
+            if (dataLine) {
+              try {
+                const data = JSON.parse(dataLine.slice(6));
+                
+                switch (event) {
+                  case 'connected':
+                    console.log('[Streaming] Connected to stream:', data);
+                    break;
+                  case 'start':
+                    options?.callbacks.onStart?.(data);
+                    break;
+                  case 'token':
+                    // Skip empty tokens
+                    if (data.content) {
+                      options?.callbacks.onToken?.(data.content);
+                    }
+                    break;
+                  case 'status':
+                    options?.callbacks.onStatus?.(data);
+                    break;
+                  case 'done':
+                    options?.callbacks.onDone?.(data);
+                    return; // Stop processing
+                  case 'error':
+                    options?.callbacks.onError?.(new Error(data.message));
+                    return; // Stop processing
+                }
+              } catch (parseError) {
+                console.error('[Streaming] Error parsing data:', parseError, dataLine);
+              }
+            }
+          }
+        }
+        
+        // Continue reading
+        processChunk();
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.log('[Streaming] Request aborted');
+        } else {
+          console.error('[Streaming] Error processing chunk:', error);
+          console.error('[Streaming] Chunk processing error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            lastLine: lines[lines.length - 1],
+            buffer: buffer
+          });
+          options?.callbacks.onError?.(error as Error);
+        }
+      }
+    };
+    
+    processChunk();
+  }).catch(error => {
+    if (error.name === 'AbortError') {
+      console.log('[Streaming] Request aborted');
+    } else {
+      console.error('[Streaming] Failed to connect:', error);
+      console.error('[Streaming] Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      options?.callbacks.onError?.(error);
+    }
+  });
+  
+  return {
+    abort: () => abortController.abort()
+  };
 } 
