@@ -270,8 +270,8 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
 
   // Listen for message updates from progressive loading - optimized
   useEffect(() => {
-    if (effectiveActiveChatId && !isLoadingRemoteMessages) {
-      // Check for updated messages periodically when not loading
+    if (effectiveActiveChatId && !isLoadingRemoteMessages && !loading && !isStreaming) {
+      // Check for updated messages periodically when not loading or streaming
       const interval = setInterval(() => {
         const currentMessages = getCachedMessages(effectiveActiveChatId);
         if (currentMessages.length !== messages.length) {
@@ -282,7 +282,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
 
       return () => clearInterval(interval);
     }
-  }, [effectiveActiveChatId, isLoadingRemoteMessages, messages.length, getCachedMessages]);
+  }, [effectiveActiveChatId, isLoadingRemoteMessages, messages.length, getCachedMessages, loading, isStreaming]);
 
   // Auto-scroll when loading state changes (typing indicator appears/disappears)
   useEffect(() => {
@@ -461,12 +461,15 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             // Update streaming state
             setStreamingMessage(currentContent);
             
+            // Also update the message content in the array
+            // This ensures when streaming stops, the message already has content
+            setMessages(msgs => msgs.map(msg => 
+              msg.id === botMessageId ? { ...msg, content: currentContent } : msg
+            ));
+            
             // Debug: log the accumulated content
             const hasNonEmptyContent = currentContent.trim().length > 0;
             console.log('[ChatUI] Content check - hasNonEmptyContent:', hasNonEmptyContent);
-            
-            // Don't update messages/displayedMessages during streaming
-            // We'll use streamingMessage state directly in the render
             console.log('[ChatUI] Streaming content updated:', currentContent.length, 'chars');
           },
           onStatus: (data: { type: string; message: string; metadata?: any }) => {
@@ -500,12 +503,10 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
               isStreaming: false // Remove streaming flag
             };
             
-            // Update the message one final time with complete agent info
+            // Update the message with final metadata (agent info, etc)
+            // Content is already in the array from onToken updates
             setMessages(msgs => msgs.map(msg => 
-              msg.id === botMessageId ? finalMessage : msg
-            ));
-            setDisplayedMessages(msgs => msgs.map(msg => 
-              msg.id === botMessageId ? finalMessage : msg
+              msg.id === botMessageId ? { ...msg, agent: finalMessage.agent, isStreaming: false } : msg
             ));
             
             // Save to hybrid storage
@@ -522,7 +523,8 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
               console.error('[ChatUI] Error saving message:', error);
             }
             
-            // Clean up streaming state
+            // Clean up streaming state AFTER updating the message
+            // This prevents the message from temporarily showing empty content
             setIsStreaming(false);
             setStreamingSessionId(null); // Clear streaming session
             setStreamingMessageId(null); // Clear streaming message

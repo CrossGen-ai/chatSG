@@ -225,10 +225,10 @@
   "session_1750996176918_gq9s7kjfl": {
     "file": "session_session_1750996176918_gq9s7kjfl.jsonl",
     "toolsFile": "session_session_1750996176918_gq9s7kjfl_tools.jsonl",
-    "status": "active",
+    "status": "deleted",
     "createdAt": "2025-06-27T03:49:36.918Z",
     "startedAt": "2025-06-27T03:49:36.918Z",
-    "lastActivityAt": "2025-06-27T06:49:41.017Z",
+    "lastActivityAt": "2025-07-03T18:42:55.405Z",
     "messageCount": 72,
     "title": "New Chat",
     "metadata": {
@@ -244,23 +244,23 @@
     "status": "active",
     "createdAt": "2025-06-27T05:57:06.307Z",
     "startedAt": "2025-06-27T05:57:06.307Z",
-    "lastActivityAt": "2025-06-27T06:36:22.310Z",
-    "messageCount": 14,
+    "lastActivityAt": "2025-07-03T18:44:02.084Z",
+    "messageCount": 18,
     "title": "New Chat",
     "metadata": {
       "userId": "default",
       "unreadCount": 0,
-      "lastReadAt": "2025-06-27T06:39:06.607Z",
-      "lastAgent": "AnalyticalAgent"
+      "lastReadAt": "2025-07-03T18:43:53.564Z",
+      "lastAgent": "CreativeAgent"
     }
   },
   "session_1751006350070_25uat4tbl": {
     "file": "session_session_1751006350070_25uat4tbl.jsonl",
     "toolsFile": "session_session_1751006350070_25uat4tbl_tools.jsonl",
-    "status": "active",
+    "status": "deleted",
     "createdAt": "2025-06-27T06:39:10.070Z",
     "startedAt": "2025-06-27T06:39:10.070Z",
-    "lastActivityAt": "2025-06-29T18:12:17.842Z",
+    "lastActivityAt": "2025-07-03T18:42:55.360Z",
     "messageCount": 4,
     "title": "New Chat",
     "metadata": {
@@ -273,10 +273,10 @@
   "session_1751031600099_jh92kihv6": {
     "file": "session_session_1751031600099_jh92kihv6.jsonl",
     "toolsFile": "session_session_1751031600099_jh92kihv6_tools.jsonl",
-    "status": "active",
+    "status": "deleted",
     "createdAt": "2025-06-27T13:40:00.099Z",
     "startedAt": "2025-06-27T13:40:00.099Z",
-    "lastActivityAt": "2025-06-30T20:06:33.311Z",
+    "lastActivityAt": "2025-07-03T18:42:55.349Z",
     "messageCount": 30,
     "title": "New Chat",
     "metadata": {
@@ -289,10 +289,10 @@
   "session_1751133136995_3o91c3v8f": {
     "file": "session_session_1751133136995_3o91c3v8f.jsonl",
     "toolsFile": "session_session_1751133136995_3o91c3v8f_tools.jsonl",
-    "status": "inactive",
+    "status": "deleted",
     "createdAt": "2025-06-28T17:52:16.995Z",
     "startedAt": "2025-06-28T17:52:16.995Z",
-    "lastActivityAt": "2025-06-28T19:03:39.827Z",
+    "lastActivityAt": "2025-07-03T18:42:55.381Z",
     "messageCount": 12,
     "title": "New Chat",
     "metadata": {
@@ -305,10 +305,10 @@
   "session_1751317108633_jh9h7xcla": {
     "file": "session_session_1751317108633_jh9h7xcla.jsonl",
     "toolsFile": "session_session_1751317108633_jh9h7xcla_tools.jsonl",
-    "status": "inactive",
+    "status": "deleted",
     "createdAt": "2025-06-30T20:58:28.633Z",
     "startedAt": "2025-06-30T20:58:28.633Z",
-    "lastActivityAt": "2025-06-30T22:33:06.602Z",
+    "lastActivityAt": "2025-07-03T18:42:55.337Z",
     "messageCount": 12,
     "title": "New Chat",
     "metadata": {
@@ -321,10 +321,10 @@
   "session_1751319227092_q9j1e3uvm": {
     "file": "session_session_1751319227092_q9j1e3uvm.jsonl",
     "toolsFile": "session_session_1751319227092_q9j1e3uvm_tools.jsonl",
-    "status": "inactive",
+    "status": "deleted",
     "createdAt": "2025-06-30T21:33:47.092Z",
     "startedAt": "2025-06-30T21:33:47.092Z",
-    "lastActivityAt": "2025-06-30T23:23:41.116Z",
+    "lastActivityAt": "2025-07-03T18:42:55.319Z",
     "messageCount": 12,
     "title": "New Chat",
     "metadata": {
@@ -337,10 +337,10 @@
   "session_1751405685881_6grnw0ll8": {
     "file": "session_session_1751405685881_6grnw0ll8.jsonl",
     "toolsFile": "session_session_1751405685881_6grnw0ll8_tools.jsonl",
-    "status": "inactive",
+    "status": "deleted",
     "createdAt": "2025-07-01T21:34:45.881Z",
     "startedAt": "2025-07-01T21:34:45.881Z",
-    "lastActivityAt": "2025-07-01T22:05:45.762Z",
+    "lastActivityAt": "2025-07-03T18:42:55.313Z",
     "messageCount": 10,
     "title": "New Chat",
     "metadata": {
@@ -519,10 +519,10 @@
   "test-html-1751498546497": {
     "file": "session_test-html-1751498546497.jsonl",
     "toolsFile": "session_test-html-1751498546497_tools.jsonl",
-    "status": "inactive",
+    "status": "deleted",
     "createdAt": "2025-07-02T23:22:26.502Z",
     "startedAt": "2025-07-02T23:22:26.502Z",
-    "lastActivityAt": "2025-07-03T00:54:42.801Z",
+    "lastActivityAt": "2025-07-03T18:42:55.285Z",
     "messageCount": 24,
     "title": "hello",
     "metadata": {
@@ -534,10 +534,10 @@
   "session_1751500190742_mc9i8p1qk": {
     "file": "session_session_1751500190742_mc9i8p1qk.jsonl",
     "toolsFile": "session_session_1751500190742_mc9i8p1qk_tools.jsonl",
-    "status": "inactive",
+    "status": "deleted",
     "createdAt": "2025-07-02T23:49:50.742Z",
     "startedAt": "2025-07-02T23:49:50.742Z",
-    "lastActivityAt": "2025-07-03T06:00:15.148Z",
+    "lastActivityAt": "2025-07-03T18:42:55.194Z",
     "messageCount": 18,
     "title": "New Chat",
     "metadata": {
@@ -550,10 +550,10 @@
   "test-debug-1751501079281": {
     "file": "session_test-debug-1751501079281.jsonl",
     "toolsFile": "session_test-debug-1751501079281_tools.jsonl",
-    "status": "inactive",
+    "status": "deleted",
     "createdAt": "2025-07-03T00:04:39.288Z",
     "startedAt": "2025-07-03T00:04:39.288Z",
-    "lastActivityAt": "2025-07-03T01:07:03.438Z",
+    "lastActivityAt": "2025-07-03T18:42:55.276Z",
     "messageCount": 6,
     "title": "Tell me a very short joke.",
     "metadata": {
@@ -565,10 +565,10 @@
   "test-debug-1751501118323": {
     "file": "session_test-debug-1751501118323.jsonl",
     "toolsFile": "session_test-debug-1751501118323_tools.jsonl",
-    "status": "inactive",
+    "status": "deleted",
     "createdAt": "2025-07-03T00:05:18.332Z",
     "startedAt": "2025-07-03T00:05:18.332Z",
-    "lastActivityAt": "2025-07-03T00:39:09.528Z",
+    "lastActivityAt": "2025-07-03T18:42:55.294Z",
     "messageCount": 4,
     "title": "Tell me a very short joke.",
     "metadata": {
@@ -580,10 +580,10 @@
   "perf-test-1751519031546": {
     "file": "session_perf-test-1751519031546.jsonl",
     "toolsFile": "session_perf-test-1751519031546_tools.jsonl",
-    "status": "active",
+    "status": "deleted",
     "createdAt": "2025-07-03T05:03:51.553Z",
     "startedAt": "2025-07-03T05:03:51.553Z",
-    "lastActivityAt": "2025-07-03T05:05:29.667Z",
+    "lastActivityAt": "2025-07-03T18:42:55.260Z",
     "messageCount": 4,
     "title": "Hello",
     "metadata": {
@@ -595,10 +595,10 @@
   "timing-test-1751519233313": {
     "file": "session_timing-test-1751519233313.jsonl",
     "toolsFile": "session_timing-test-1751519233313_tools.jsonl",
-    "status": "active",
+    "status": "deleted",
     "createdAt": "2025-07-03T05:07:13.332Z",
     "startedAt": "2025-07-03T05:07:13.332Z",
-    "lastActivityAt": "2025-07-03T05:07:34.279Z",
+    "lastActivityAt": "2025-07-03T18:42:55.252Z",
     "messageCount": 2,
     "title": "What is 2+2?",
     "metadata": {
@@ -610,10 +610,10 @@
   "perf-test-1751519388787": {
     "file": "session_perf-test-1751519388787.jsonl",
     "toolsFile": "session_perf-test-1751519388787_tools.jsonl",
-    "status": "active",
+    "status": "deleted",
     "createdAt": "2025-07-03T05:09:48.801Z",
     "startedAt": "2025-07-03T05:09:48.801Z",
-    "lastActivityAt": "2025-07-03T05:11:11.929Z",
+    "lastActivityAt": "2025-07-03T18:42:55.242Z",
     "messageCount": 4,
     "title": "Hello",
     "metadata": {
@@ -625,10 +625,10 @@
   "test-123": {
     "file": "session_test-123.jsonl",
     "toolsFile": "session_test-123_tools.jsonl",
-    "status": "active",
+    "status": "deleted",
     "createdAt": "2025-07-03T05:11:32.024Z",
     "startedAt": "2025-07-03T05:11:32.024Z",
-    "lastActivityAt": "2025-07-03T05:11:49.767Z",
+    "lastActivityAt": "2025-07-03T18:42:55.227Z",
     "messageCount": 2,
     "title": "test",
     "metadata": {
@@ -640,10 +640,10 @@
   "timing-test-1751519518725": {
     "file": "session_timing-test-1751519518725.jsonl",
     "toolsFile": "session_timing-test-1751519518725_tools.jsonl",
-    "status": "active",
+    "status": "deleted",
     "createdAt": "2025-07-03T05:11:58.733Z",
     "startedAt": "2025-07-03T05:11:58.733Z",
-    "lastActivityAt": "2025-07-03T05:12:24.343Z",
+    "lastActivityAt": "2025-07-03T18:42:55.221Z",
     "messageCount": 2,
     "title": "What is 2+2?",
     "metadata": {
@@ -655,10 +655,10 @@
   "trace-test-1751519660554": {
     "file": "session_trace-test-1751519660554.jsonl",
     "toolsFile": "session_trace-test-1751519660554_tools.jsonl",
-    "status": "inactive",
+    "status": "deleted",
     "createdAt": "2025-07-03T05:14:20.566Z",
     "startedAt": "2025-07-03T05:14:20.566Z",
-    "lastActivityAt": "2025-07-03T05:44:31.842Z",
+    "lastActivityAt": "2025-07-03T18:42:55.213Z",
     "messageCount": 2,
     "title": "Hi",
     "metadata": {
@@ -670,15 +670,61 @@
   "trace-test-1751560594784": {
     "file": "session_trace-test-1751560594784.jsonl",
     "toolsFile": "session_trace-test-1751560594784_tools.jsonl",
-    "status": "active",
+    "status": "deleted",
     "createdAt": "2025-07-03T16:36:34.801Z",
     "startedAt": "2025-07-03T16:36:34.801Z",
-    "lastActivityAt": "2025-07-03T16:36:41.387Z",
-    "messageCount": 1,
+    "lastActivityAt": "2025-07-03T18:42:55.178Z",
+    "messageCount": 4,
     "title": "Hi",
     "metadata": {
       "unreadCount": 0,
-      "lastReadAt": null
+      "lastReadAt": "2025-07-03T16:39:04.075Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "trace-test-1751561028500": {
+    "file": "session_trace-test-1751561028500.jsonl",
+    "toolsFile": "session_trace-test-1751561028500_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-07-03T16:43:48.509Z",
+    "startedAt": "2025-07-03T16:43:48.509Z",
+    "lastActivityAt": "2025-07-03T18:42:55.169Z",
+    "messageCount": 4,
+    "title": "Hi",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-03T18:32:37.192Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "trace-test-1751567673109": {
+    "file": "session_trace-test-1751567673109.jsonl",
+    "toolsFile": "session_trace-test-1751567673109_tools.jsonl",
+    "status": "deleted",
+    "createdAt": "2025-07-03T18:34:33.116Z",
+    "startedAt": "2025-07-03T18:34:33.116Z",
+    "lastActivityAt": "2025-07-03T18:42:55.153Z",
+    "messageCount": 8,
+    "title": "Hi",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-03T18:42:16.477Z",
+      "lastAgent": "CreativeAgent"
+    }
+  },
+  "trace-test-1751568335396": {
+    "file": "session_trace-test-1751568335396.jsonl",
+    "toolsFile": "session_trace-test-1751568335396_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-03T18:45:35.404Z",
+    "startedAt": "2025-07-03T18:45:35.404Z",
+    "lastActivityAt": "2025-07-03T18:46:13.846Z",
+    "messageCount": 5,
+    "title": "Hi",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-03T18:46:16.429Z",
+      "lastAgent": "CreativeAgent"
     }
   }
 }
