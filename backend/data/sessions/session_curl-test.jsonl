@@ -1,0 +1,2 @@
+{"timestamp":"2025-07-04T01:37:03.593Z","type":"user","content":"test","metadata":{"sessionId":"curl-test"}}
+{"timestamp":"2025-07-04T01:37:10.675Z","type":"assistant","content":"Thank you for reaching out. It seems like you're testing the system. If you have a specific analytical task or question you'd like me to address, please let me know, and I'll be happy to assist you with a detailed analysis.","metadata":{"sessionId":"curl-test","agent":"AnalyticalAgent","agentType":"analytical","confidence":1,"streaming":true}}

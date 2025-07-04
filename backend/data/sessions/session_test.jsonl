@@ -1,0 +1,2 @@
+{"timestamp":"2025-07-04T01:34:14.180Z","type":"user","content":"hello","metadata":{"sessionId":"test"}}
+{"timestamp":"2025-07-04T01:34:24.006Z","type":"assistant","content":"Hello! How can I assist you today with your analytical or data-related tasks? If you have a specific problem or question in mind, feel free to share it, and I'll do my best to help.","metadata":{"sessionId":"test","agent":"AnalyticalAgent","agentType":"analytical","confidence":1,"streaming":true}}

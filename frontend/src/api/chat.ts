@@ -98,7 +98,7 @@ export async function updateChatSettings(
     const response = await axios.post(`/api/chats/${sessionId}/settings`, {
       settings
     }, {
-      headers: await contentValidator.addCSRFHeaders()
+      headers: await csrfManager.addHeaders()
     });
     return response.data;
   } catch (error: any) {
@@ -249,7 +249,7 @@ export async function manageCrossSessionMemory(
 ): Promise<CrossSessionGetResponse | CrossSessionShareResponse | CrossSessionLoadResponse> {
   try {
     const response = await axios.post('/api/memory/cross-session', params, {
-      headers: await contentValidator.addCSRFHeaders()
+      headers: await csrfManager.addHeaders()
     });
     return response.data;
   } catch (error: any) {
@@ -379,7 +379,7 @@ export async function deleteChat(chatId: string): Promise<{
 }> {
   try {
     const response = await axios.delete(`/api/chats/${chatId}`, {
-      headers: await contentValidator.addCSRFHeaders()
+      headers: await csrfManager.addHeaders()
     });
     return response.data;
   } catch (error: any) {
@@ -395,7 +395,7 @@ export async function markChatAsRead(chatId: string): Promise<{
 }> {
   try {
     const response = await axios.patch(`/api/chats/${chatId}/read`, {}, {
-      headers: await contentValidator.addCSRFHeaders()
+      headers: await csrfManager.addHeaders()
     });
     return response.data;
   } catch (error: any) {
@@ -420,7 +420,7 @@ export async function createChat(data: {
 }> {
   try {
     const response = await axios.post('/api/chats', data, {
-      headers: await contentValidator.addCSRFHeaders()
+      headers: await csrfManager.addHeaders()
     });
     return response.data;
   } catch (error: any) {
@@ -554,10 +554,16 @@ export function sendChatMessageStream(
                     options?.callbacks.onStatus?.(data);
                     break;
                   case 'done':
+                    console.log('[Streaming] DONE EVENT RECEIVED:', data);
+                    console.log('[Streaming] Calling onDone callback...');
                     options?.callbacks.onDone?.(data);
+                    console.log('[Streaming] Canceling reader...');
+                    reader.cancel(); // Close the reader
+                    console.log('[Streaming] Reader canceled, exiting processChunk');
                     return; // Stop processing
                   case 'error':
                     options?.callbacks.onError?.(new Error(data.message));
+                    reader.cancel(); // Close the reader
                     return; // Stop processing
                 }
               } catch (parseError) {

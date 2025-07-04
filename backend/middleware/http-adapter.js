@@ -80,6 +80,12 @@ function parseCookies(cookieHeader) {
 
 // Parse JSON body
 async function parseBody(req) {
+  // If body already parsed (not null, not undefined), skip
+  if (req.body !== undefined && req.body !== null) {
+    console.log('[parseBody] Body already parsed, skipping');
+    return Promise.resolve();
+  }
+  
   return new Promise((resolve, reject) => {
     let body = '';
     req.on('data', chunk => {
@@ -88,6 +94,7 @@ async function parseBody(req) {
     req.on('end', () => {
       try {
         req.body = body ? JSON.parse(body) : {};
+        console.log('[parseBody] Body parsed successfully');
         resolve();
       } catch (error) {
         reject(new Error('Invalid JSON body'));

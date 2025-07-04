@@ -21,9 +21,11 @@ const cookieParser = require('cookie-parser');
 
 // Import security middleware and http adapter
 const securityMiddleware = require('./middleware/security');
-const { applyMiddleware } = require('./middleware/http-adapter');
+const { applyMiddleware, enhanceRequest, enhanceResponse, parseBody } = require('./middleware/http-adapter');
 const { errorHandler } = require('./middleware/errorHandler');
 const csrf = require('./middleware/security/csrf');
+const csrfHeader = require('./middleware/security/csrf-header');
+const sseSecure = require('./middleware/security/sse');
 const markdownConfig = require('./config/markdown.config.json');
 const securityConfig = require('./config/security.config');
 
@@ -242,14 +244,241 @@ function getSimulatedN8nResponse(message) {
     return responses[Math.floor(Math.random() * responses.length)];
 }
 
-const server = http.createServer(async (req, res) => {
-    // Apply security middleware first
+// Handle SSE streaming request
+async function handleSSERequest(req, res) {
+    const origin = req.headers.origin || 'http://localhost:5173';
+    console.log('[Server] Processing SSE request');
+    console.log('[Server] req.body:', req.body);
+    
     try {
-        // Skip security for static files, OPTIONS, and streaming endpoints
-        if (req.method !== 'OPTIONS' && req.url.startsWith('/api/') && req.url !== '/api/chat/stream') {
+        // Extract data from already-parsed body
+        const data = req.body;
+        if (!data) {
+            throw new Error('Request body is null');
+        }
+        const sessionId = data.sessionId || 'default';
+        console.log(`[Server] Streaming request for session: ${sessionId}, message: "${data.message}"`);
+        
+        // Set SSE headers
+        res.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': origin,
+            'X-Accel-Buffering': 'no' // Disable Nginx buffering
+        });
+        
+        // Helper to send SSE events
+        const sendEvent = (event, data) => {
+            console.log(`[Server] Sending SSE event: ${event}`, data);
+            res.write(`event: ${event}\n`);
+            res.write(`data: ${JSON.stringify(data)}\n\n`);
+        };
+        
+        // Send initial connection event
+        sendEvent('connected', { sessionId });
+        
+        // Process with real orchestrator
+        const message = data.message || '';
+        
+        // Auto-create session if needed
+        if (storageManager && message) {
+            try {
+                const sessionExists = storageManager.sessionExists(sessionId);
+                if (!sessionExists) {
+                    await storageManager.createSession({
+                        sessionId: sessionId,
+                        title: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
+                        userId: data.userId
+                    });
+                    console.log(`[Server] Auto-created session: ${sessionId}`);
+                }
+                
+                // Save user message
+                await storageManager.saveMessage({
+                    sessionId: sessionId,
+                    type: 'user',
+                    content: message,
+                    metadata: { userId: data.userId }
+                });
+            } catch (storageError) {
+                console.error('[Server] Failed to save user message:', storageError);
+            }
+        }
+        
+        // Create streaming callback
+        let fullResponse = '';
+        const streamCallback = (token) => {
+            if (typeof token === 'object' && token.type === 'status') {
+                sendEvent('status', {
+                    type: token.statusType,
+                    message: token.message,
+                    metadata: token.metadata
+                });
+            } else {
+                sendEvent('token', { content: token });
+                fullResponse += token;
+            }
+        };
+        
+        // Route based on backend
+        if (BACKEND === 'Orch' && backendIntegration) {
+            console.log(`[ORCHESTRATOR] Processing with streaming: "${message}"`);
+            
+            try {
+                // Select agent
+                const context = {
+                    sessionId: sessionId,
+                    userInput: message,
+                    availableAgents: orchestrationSetup.orchestrator.listAgents().map(a => a.name),
+                    userPreferences: {}
+                };
+                
+                const selection = await orchestrationSetup.orchestrator.selectAgent(message, context);
+                const targetAgent = orchestrationSetup.orchestrator.getAgent(selection.selectedAgent);
+                console.log(`[ORCHESTRATOR] Selected ${selection.selectedAgent} for streaming`);
+                
+                if (!targetAgent) {
+                    throw new Error('No agent available');
+                }
+                
+                const agentInfo = targetAgent.getInfo();
+                sendEvent('start', { 
+                    agent: agentInfo.name,
+                    sessionId: sessionId
+                });
+                
+                // Process with streaming
+                const result = await targetAgent.processMessage(message, sessionId, streamCallback);
+                
+                // If no streaming happened, simulate it
+                if (fullResponse === '') {
+                    const responseText = result.message;
+                    const chunkSize = 5;
+                    
+                    for (let i = 0; i < responseText.length; i += chunkSize) {
+                        const chunk = responseText.slice(i, i + chunkSize);
+                        sendEvent('token', { content: chunk });
+                        fullResponse += chunk;
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    }
+                }
+                
+                sendEvent('done', { 
+                    agent: agentInfo.name,
+                    agentType: agentInfo.type,
+                    sessionId: sessionId,
+                    orchestration: {
+                        confidence: result.metadata?.confidence || 1.0,
+                        streaming: true
+                    }
+                });
+                
+                // Save response asynchronously
+                setImmediate(async () => {
+                    if (storageManager && fullResponse) {
+                        try {
+                            await storageManager.saveMessage({
+                                sessionId: sessionId,
+                                type: 'assistant',
+                                content: fullResponse,
+                                metadata: {
+                                    agent: agentInfo.name,
+                                    agentType: agentInfo.type,
+                                    confidence: result.metadata?.confidence || 1.0,
+                                    streaming: true
+                                }
+                            });
+                        } catch (error) {
+                            console.error('[Server] Failed to save response:', error);
+                        }
+                    }
+                });
+                
+                // Close the SSE connection after streaming completes
+                res.end();
+                
+            } catch (error) {
+                console.error('[ORCHESTRATOR] Error:', error);
+                sendEvent('error', { message: error.message });
+                res.end();
+            }
+        } else {
+            // Fallback test response
+            sendEvent('start', { agent: 'test', sessionId });
+            const testMsg = "Orchestrator not available. This is a test response.";
+            for (const word of testMsg.split(' ')) {
+                sendEvent('token', { content: word + ' ' });
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            sendEvent('done', { agent: 'test', sessionId });
+            
+            // Close the SSE connection after fallback response
+            res.end();
+        }
+    } catch (error) {
+        console.error('[Server] SSE error:', error);
+        if (!res.headersSent) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: error.message }));
+        } else {
+            res.write(`event: error\ndata: ${JSON.stringify({ message: error.message })}\n\n`);
+            res.end();
+        }
+    }
+}
+
+const server = http.createServer(async (req, res) => {
+    // Handle SSE endpoint specially to avoid body parsing issues
+    if (req.url === '/api/chat/stream' && req.method === 'POST') {
+        // For SSE, manually parse body first
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(body);
+                
+                // Apply enhancements first, then set body
+                enhanceRequest(req);
+                enhanceResponse(res);
+                
+                // Set parsed body AFTER enhancement (which sets body to null)
+                req.body = data;
+                
+                // Simple CSRF check
+                const csrfToken = req.headers['x-csrf-token'];
+                if (!csrfToken) {
+                    res.statusCode = 403;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({ 
+                        error: 'CSRF token required',
+                        message: 'Missing X-CSRF-Token header'
+                    }));
+                    return;
+                }
+                
+                // Process SSE request
+                handleSSERequest(req, res);
+            } catch (error) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: 'Invalid request' }));
+            }
+        });
+        return; // Exit early for SSE
+    }
+    
+    // Apply security middleware for all other endpoints
+    try {
+        // Skip security for static files and OPTIONS
+        if (req.method !== 'OPTIONS' && req.url.startsWith('/api/')) {
             // Apply security middleware with CSRF disabled temporarily
             // We'll use header-based CSRF instead
             await applyMiddleware(securityMiddleware({ csrf: false }), req, res);
+            
+            // Apply header-based CSRF for all API routes
+            await applyMiddleware(csrfHeader.initialize(), req, res);
         }
     } catch (error) {
         console.error('[Security] Middleware error:', error);
@@ -345,259 +574,6 @@ const server = http.createServer(async (req, res) => {
             
             res.writeHead(200, { 'Content-Type': contentType });
             res.end(content);
-        });
-    } else if (req.url === '/api/chat/stream' && req.method === 'POST') {
-        // SSE streaming endpoint
-        console.log('[Server] Streaming endpoint hit: /api/chat/stream');
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', async () => {
-            try {
-                const data = JSON.parse(body);
-                const sessionId = data.sessionId || 'default';
-                console.log(`[Server] Streaming request for session: ${sessionId}, message: "${data.message}"`);
-                console.log(`[Server] Received activeSessionId: ${data.activeSessionId}`);
-                
-                // Set SSE headers
-                res.writeHead(200, {
-                    'Content-Type': 'text/event-stream',
-                    'Cache-Control': 'no-cache',
-                    'Connection': 'keep-alive',
-                    'Access-Control-Allow-Origin': '*',
-                    'X-Accel-Buffering': 'no' // Disable Nginx buffering
-                });
-                
-                // Helper to send SSE events
-                const sendEvent = (event, data) => {
-                    console.log(`[Server] Sending SSE event: ${event}`, data);
-                    res.write(`event: ${event}\n`);
-                    res.write(`data: ${JSON.stringify(data)}\n\n`);
-                };
-                
-                // Send initial connection event
-                sendEvent('connected', { sessionId });
-                
-                // Process slash commands - frontend metadata only
-                let processedMessage = data.message;
-                let routingMetadata = null;
-                
-                if (data.slashCommand) {
-                    console.log(`[Server] Frontend slash command metadata received:`, data.slashCommand);
-                    
-                    routingMetadata = {
-                        forceAgent: true,
-                        agentType: data.slashCommand.agentType,
-                        commandName: data.slashCommand.command,
-                        confidence: 1.0,
-                        reason: `Frontend slash command: /${data.slashCommand.command}`
-                    };
-                    
-                    processedMessage = data.message;
-                    console.log(`[Server] Using frontend slash command: /${data.slashCommand.command} → ${data.slashCommand.agentType}`);
-                }
-                
-                // Auto-create session if needed and save user message
-                if (storageManager && data.message) {
-                    try {
-                        const sessionExists = storageManager.sessionExists(sessionId);
-                        
-                        if (!sessionExists) {
-                            await storageManager.createSession({
-                                sessionId: sessionId,
-                                title: data.message.substring(0, 50) + (data.message.length > 50 ? '...' : ''),
-                                userId: data.userId
-                            });
-                            console.log(`[Server] Auto-created session: ${sessionId}`);
-                        }
-                        
-                        const userMessageMetadata = {
-                            userId: data.userId
-                        };
-                        
-                        if (data.slashCommand && routingMetadata) {
-                            userMessageMetadata.slashCommand = {
-                                command: data.slashCommand.command,
-                                agentType: data.slashCommand.agentType
-                            };
-                            userMessageMetadata.forcedRouting = routingMetadata;
-                        }
-                        
-                        await storageManager.saveMessage({
-                            sessionId: sessionId,
-                            type: 'user',
-                            content: processedMessage,
-                            metadata: userMessageMetadata
-                        });
-                    } catch (storageError) {
-                        console.error('[Server] Failed to save user message:', storageError);
-                    }
-                }
-                
-                // Create streaming callback with status injection support
-                let fullResponse = '';
-                const streamCallback = (token) => {
-                    // Check if this is a status injection
-                    if (typeof token === 'object' && token.type === 'status') {
-                        sendEvent('status', {
-                            type: token.statusType,
-                            message: token.message,
-                            metadata: token.metadata
-                        });
-                    } else {
-                        // Regular token
-                        sendEvent('token', { content: token });
-                        fullResponse += token;
-                    }
-                };
-                
-                // Route based on BACKEND configuration
-                switch (BACKEND) {
-                    case 'Orch':
-                        if (!backendIntegration) {
-                            sendEvent('error', { message: 'Orchestrator not initialized' });
-                            res.end();
-                            return;
-                        }
-                        
-                        console.log(`[ORCHESTRATOR] Processing with streaming: "${processedMessage}"`);
-                        const orchStartTime = Date.now();
-                        
-                        try {
-                            // Check if we have forced routing from slash command
-                            let targetAgent = null;
-                            if (routingMetadata && routingMetadata.forceAgent) {
-                                const availableAgents = orchestrationSetup.orchestrator.listAgents();
-                                const targetAgentCapabilities = availableAgents.find(agentCap => 
-                                    agentCap.name === routingMetadata.agentType || 
-                                    agentCap.type === routingMetadata.agentType ||
-                                    agentCap.name.includes(routingMetadata.agentType.replace('Agent', ''))
-                                );
-                                
-                                if (targetAgentCapabilities) {
-                                    targetAgent = orchestrationSetup.orchestrator.getAgent(targetAgentCapabilities.name);
-                                    console.log(`[ORCHESTRATOR] Forced routing to ${targetAgentCapabilities.name} for streaming`);
-                                }
-                            }
-                            
-                            // If no forced routing, select agent normally
-                            if (!targetAgent) {
-                                const context = {
-                                    sessionId: sessionId,
-                                    userInput: processedMessage,
-                                    availableAgents: orchestrationSetup.orchestrator.listAgents().map(a => a.name),
-                                    userPreferences: {}
-                                };
-                                
-                                const selection = await orchestrationSetup.orchestrator.selectAgent(processedMessage, context);
-                                targetAgent = orchestrationSetup.orchestrator.getAgent(selection.selectedAgent);
-                                console.log(`[ORCHESTRATOR] Selected ${selection.selectedAgent} for streaming`);
-                            }
-                            
-                            if (!targetAgent) {
-                                throw new Error('No agent available for processing');
-                            }
-                            
-                            const agentInfo = targetAgent.getInfo();
-                            
-                            const agentSelectionTime = Date.now() - orchStartTime;
-                            console.log(`[ORCHESTRATOR] Agent selection took ${agentSelectionTime}ms`);
-                            
-                            sendEvent('start', { 
-                                agent: agentInfo.name,
-                                sessionId: sessionId
-                            });
-                            
-                            // Process message with streaming
-                            console.log(`[Server] Passing streamCallback to agent: ${typeof streamCallback}`);
-                            const agentStartTime = Date.now();
-                            const result = await targetAgent.processMessage(processedMessage, sessionId, streamCallback);
-                            const agentProcessTime = Date.now() - agentStartTime;
-                            console.log(`[ORCHESTRATOR] Agent processing took ${agentProcessTime}ms`);
-                            
-                            // If agent doesn't support streaming, simulate it
-                            if (fullResponse === '') {
-                                const responseText = result.message;
-                                const chunkSize = 5;
-                                
-                                for (let i = 0; i < responseText.length; i += chunkSize) {
-                                    const chunk = responseText.slice(i, i + chunkSize);
-                                    sendEvent('token', { content: chunk });
-                                    fullResponse += chunk;
-                                    await new Promise(resolve => setTimeout(resolve, 50));
-                                }
-                            }
-                            
-                            // Send done event FIRST to unblock UI
-                            sendEvent('done', { 
-                                agent: agentInfo.name,
-                                agentType: agentInfo.type,
-                                sessionId: sessionId,
-                                orchestration: {
-                                    confidence: result.metadata?.confidence || 1.0,
-                                    streaming: true
-                                }
-                            });
-                            
-                            // Save complete message to storage ASYNCHRONOUSLY after done event
-                            setImmediate(async () => {
-                                if (storageManager && fullResponse) {
-                                    try {
-                                        const assistantMetadata = {
-                                            agent: agentInfo.name,
-                                            agentType: agentInfo.type,
-                                            confidence: result.metadata?.confidence || 1.0,
-                                            streaming: true,
-                                            timestamp: new Date().toISOString()
-                                        };
-                                        
-                                        await storageManager.saveMessage({
-                                            sessionId: sessionId,
-                                            type: 'assistant',
-                                            content: fullResponse,
-                                            metadata: assistantMetadata
-                                        });
-                                        
-                                        console.log(`[Server] Checking unread status - activeSessionId: ${data.activeSessionId}, sessionId: ${sessionId}, should increment: ${data.activeSessionId !== sessionId}`);
-                                        if (data.activeSessionId !== sessionId) {
-                                            await storageManager.sessionIndex.incrementUnreadCount(sessionId);
-                                            console.log(`[Server] Incremented unread count for session ${sessionId}`);
-                                        }
-                                        
-                                        console.log('[Server] Async storage save completed for session:', sessionId);
-                                    } catch (storageError) {
-                                        console.error('[Server] Failed to save streamed message:', storageError);
-                                    }
-                                }
-                            });
-                            
-                        } catch (error) {
-                            console.error('[Server] Streaming error:', error);
-                            sendEvent('error', { message: error.message });
-                        }
-                        
-                        res.end();
-                        break;
-                        
-                    case 'n8n':
-                    case 'Generic':
-                        // Not implemented for other backends yet
-                        sendEvent('error', { message: 'Streaming not supported for this backend' });
-                        res.end();
-                        break;
-                        
-                    default:
-                        sendEvent('error', { message: 'Unknown backend' });
-                        res.end();
-                        break;
-                }
-                
-            } catch (error) {
-                console.error('Stream API error:', error);
-                res.write(`event: error\ndata: ${JSON.stringify({ message: error.message })}\n\n`);
-                res.end();
-            }
         });
     } else if (req.url === '/api/chat' && req.method === 'POST') {
         console.log('[Server] Regular chat endpoint hit - THIS SHOULD NOT BE CALLED, USE STREAMING!');

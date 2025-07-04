@@ -539,6 +539,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             }]);
           },
           onDone: async (data: { agent?: string; orchestration?: any }) => {
+            console.log('[ChatUI] ===== onDone CALLBACK CALLED =====');
             console.log('[ChatUI] Stream completed:', data);
             
             // DEBUG: Add to debug panel
@@ -570,14 +571,20 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             
             // Save to hybrid storage
             try {
+              console.log('[ChatUI] onDone - About to save message...');
               await saveChatMessage(originatingSessionId, finalMessage);
+              console.log('[ChatUI] onDone - Message saved, updating count...');
               // Update message count
               markChatNewMessage(originatingSessionId, true, activeChatIdRef.current);
-              // Mark as read immediately
+              console.log('[ChatUI] onDone - Count updated, marking as read...');
+              // Mark as read immediately (non-blocking)
               if (originatingSessionId === activeChatIdRef.current) {
-                await markChatAsRead(originatingSessionId);
-                console.log(`[ChatUI] Marked streaming session as read: ${originatingSessionId}`);
+                console.log('[ChatUI] onDone - Calling markChatAsRead (non-blocking)...');
+                markChatAsRead(originatingSessionId)
+                  .then(() => console.log(`[ChatUI] Marked streaming session as read: ${originatingSessionId}`))
+                  .catch(err => console.error('[ChatUI] Failed to mark as read:', err));
               }
+              console.log('[ChatUI] onDone - All saves complete');
             } catch (error) {
               console.error('[ChatUI] Error saving message:', error);
             }
@@ -586,12 +593,20 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             streamingStatesRef.current.delete(originatingSessionId);
             
             // Only clear UI state if this is the active session
+            console.log(`[ChatUI] onDone - Checking if should clear UI state:`);
+            console.log(`[ChatUI] onDone - originatingSessionId: ${originatingSessionId}`);
+            console.log(`[ChatUI] onDone - activeChatIdRef.current: ${activeChatIdRef.current}`);
+            console.log(`[ChatUI] onDone - Match: ${originatingSessionId === activeChatIdRef.current}`);
+            
             if (originatingSessionId === activeChatIdRef.current) {
+              console.log('[ChatUI] onDone - CLEARING UI STATE - setIsStreaming(false)');
               setIsStreaming(false);
               setStreamingSessionId(null); // Clear streaming session
               setStreamingMessageId(null); // Clear streaming message
               setStreamingMessage('');
               setStatusMessages([]); // Clear status messages after streaming
+            } else {
+              console.log('[ChatUI] onDone - NOT clearing UI state - session mismatch');
             }
             
             setChatLoading(originatingSessionId, false);

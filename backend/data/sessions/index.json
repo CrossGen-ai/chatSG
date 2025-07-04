@@ -244,13 +244,13 @@
     "status": "active",
     "createdAt": "2025-06-27T05:57:06.307Z",
     "startedAt": "2025-06-27T05:57:06.307Z",
-    "lastActivityAt": "2025-07-04T00:08:37.338Z",
-    "messageCount": 40,
+    "lastActivityAt": "2025-07-04T01:29:12.402Z",
+    "messageCount": 48,
     "title": "New Chat",
     "metadata": {
       "userId": "default",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-04T00:08:27.382Z",
+      "lastReadAt": "2025-07-04T00:19:06.099Z",
       "lastAgent": "AnalyticalAgent"
     }
   },
@@ -725,6 +725,66 @@
       "unreadCount": 0,
       "lastReadAt": "2025-07-03T19:54:24.338Z",
       "lastAgent": "CreativeAgent"
+    }
+  },
+  "test": {
+    "file": "session_test.jsonl",
+    "toolsFile": "session_test_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-04T01:34:14.180Z",
+    "startedAt": "2025-07-04T01:34:14.180Z",
+    "lastActivityAt": "2025-07-04T01:34:33.153Z",
+    "messageCount": 2,
+    "title": "hello",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-done": {
+    "file": "session_test-done.jsonl",
+    "toolsFile": "session_test-done_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-04T01:34:47.202Z",
+    "startedAt": "2025-07-04T01:34:47.202Z",
+    "lastActivityAt": "2025-07-04T01:35:14.613Z",
+    "messageCount": 2,
+    "title": "What is 2+2?",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "curl-test": {
+    "file": "session_curl-test.jsonl",
+    "toolsFile": "session_curl-test_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-04T01:37:03.592Z",
+    "startedAt": "2025-07-04T01:37:03.592Z",
+    "lastActivityAt": "2025-07-04T01:37:19.094Z",
+    "messageCount": 2,
+    "title": "test",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "curl-test2": {
+    "file": "session_curl-test2.jsonl",
+    "toolsFile": "session_curl-test2_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-04T01:37:19.621Z",
+    "startedAt": "2025-07-04T01:37:19.621Z",
+    "lastActivityAt": "2025-07-04T01:52:00.940Z",
+    "messageCount": 18,
+    "title": "2+2",
+    "metadata": {
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
     }
   }
 }

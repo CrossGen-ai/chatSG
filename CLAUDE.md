@@ -134,12 +134,6 @@ The project includes tmux-mcp integration for server management:
 - WebGUI available at http://localhost:59011?lang=en
 - Tasks show comprehensive chat persistence system was recently built
 
-## Next Steps
-1. Configure .env with LLM credentials
-2. Start both servers
-3. Test orchestration system
-4. Consider Claude integration approach
-
 ## Development Guidelines (from shrimp-rules.md)
 - Use TypeScript for frontend
 - Prefer async/await over promises
