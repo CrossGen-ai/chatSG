@@ -72,10 +72,12 @@ const authenticate = async (req, res, next) => {
 const authorize = (req, res, next) => {
   // Basic authorization - just check if authenticated
   if (!req.isAuthenticated) {
-    return res.status(401).json({
+    res.writeHead(401, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
       error: 'Authentication required',
       message: 'Please authenticate to access this resource'
-    });
+    }));
+    return;
   }
   next();
 };
@@ -83,10 +85,12 @@ const authorize = (req, res, next) => {
 const requireAuth = (req, res, next) => {
   // Middleware to require authentication for specific routes
   if (!req.isAuthenticated) {
-    return res.status(401).json({
+    res.writeHead(401, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
       error: 'Authentication required',
       message: 'Please authenticate to access this resource'
-    });
+    }));
+    return;
   }
   next();
 };
@@ -95,10 +99,12 @@ const requireRole = (role) => {
   return (req, res, next) => {
     // Check if user has required role
     if (!req.user || !req.user.groups || !req.user.groups.includes(role)) {
-      return res.status(403).json({
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
         error: 'Insufficient permissions',
         message: 'You do not have permission to access this resource'
-      });
+      }));
+      return;
     }
     next();
   };
@@ -107,16 +113,45 @@ const requireRole = (role) => {
 // Auth route handlers
 const login = async (req, res) => {
   try {
+    // Development mode bypass
+    if (process.env.ENVIRONMENT === 'dev' && process.env.USE_MOCK_AUTH === 'true') {
+      // In dev mode, just set the user in session
+      if (req.session) {
+        req.session.user = {
+          id: 'dev-user-id',
+          email: 'dev@example.com',
+          name: 'Development User',
+          groups: ['developers'],
+          azureId: 'mock-azure-id'
+        };
+      }
+      
+      // Manual redirect response
+      res.writeHead(302, {
+        'Location': process.env.FRONTEND_URL || 'http://localhost:5173'
+      });
+      res.end();
+      return;
+    }
+    
     const state = crypto.randomBytes(32).toString('hex');
     const nonce = crypto.randomBytes(32).toString('hex');
     
-    req.session.authState = { state, nonce };
+    if (req.session) {
+      req.session.authState = { state, nonce };
+    }
     
     const authUrl = await authProvider.getAuthCodeUrl(state, nonce);
-    res.redirect(authUrl);
+    
+    // Manual redirect response
+    res.writeHead(302, {
+      'Location': authUrl
+    });
+    res.end();
   } catch (error) {
     console.error('[Auth] Login error:', error);
-    res.status(500).json({ error: 'Login failed', message: error.message });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Login failed', message: error.message }));
   }
 };
 
@@ -128,7 +163,7 @@ const callback = async (req, res) => {
       throw new Error(error_description);
     }
     
-    if (!req.session.authState || req.session.authState.state !== state) {
+    if (!req.session || !req.session.authState || req.session.authState.state !== state) {
       throw new Error('Invalid state parameter');
     }
     
@@ -147,24 +182,32 @@ const callback = async (req, res) => {
     }
     
     // Store in session
-    req.session.user = {
-      id: dbUser.id,
-      email: dbUser.email,
-      name: dbUser.name,
-      groups: dbUser.groups,
-      azureId: dbUser.azure_id
-    };
-    
-    // Clean up auth state
-    delete req.session.authState;
+    if (req.session) {
+      req.session.user = {
+        id: dbUser.id,
+        email: dbUser.email,
+        name: dbUser.name,
+        groups: dbUser.groups,
+        azureId: dbUser.azure_id
+      };
+      
+      // Clean up auth state
+      delete req.session.authState;
+    }
     
     // Redirect to frontend
-    res.redirect(process.env.FRONTEND_URL || 'http://localhost:5173');
+    res.writeHead(302, {
+      'Location': process.env.FRONTEND_URL || 'http://localhost:5173'
+    });
+    res.end();
     
   } catch (error) {
     console.error('[Auth] Callback error:', error);
     const errorMessage = encodeURIComponent(error.message);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/error?message=${errorMessage}`);
+    res.writeHead(302, {
+      'Location': `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/error?message=${errorMessage}`
+    });
+    res.end();
   }
 };
 
@@ -179,24 +222,27 @@ const logout = async (req, res) => {
       });
     }
     
-    res.json({ success: true, message: 'Logged out successfully' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, message: 'Logged out successfully' }));
   } catch (error) {
     console.error('[Auth] Logout error:', error);
-    res.status(500).json({ error: 'Logout failed', message: error.message });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Logout failed', message: error.message }));
   }
 };
 
 const getCurrentUser = (req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
   if (req.isAuthenticated && req.user) {
-    res.json({ 
+    res.end(JSON.stringify({ 
       user: req.user,
       isAuthenticated: true 
-    });
+    }));
   } else {
-    res.json({ 
+    res.end(JSON.stringify({ 
       user: null,
       isAuthenticated: false 
-    });
+    }));
   }
 };
 

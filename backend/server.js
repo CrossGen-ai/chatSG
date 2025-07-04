@@ -603,25 +603,30 @@ const server = http.createServer(async (req, res) => {
         return;
     }
     
-    // Auth routes
-    if (req.url === '/api/auth/login' && req.method === 'GET') {
-        auth.login(req, res);
-        return;
-    }
-    
-    if (req.url === '/api/auth/callback' && req.method === 'GET') {
-        auth.callback(req, res);
-        return;
-    }
-    
-    if (req.url === '/api/auth/logout' && req.method === 'POST') {
-        auth.logout(req, res);
-        return;
-    }
-    
-    if (req.url === '/api/auth/user' && req.method === 'GET') {
-        auth.getCurrentUser(req, res);
-        return;
+    // Auth routes (need session middleware)
+    if (req.url.startsWith('/api/auth/')) {
+        // Apply session middleware for auth routes
+        await applyMiddleware(sessionMiddleware, req, res);
+        
+        if (req.url === '/api/auth/login' && req.method === 'GET') {
+            auth.login(req, res);
+            return;
+        }
+        
+        if (req.url === '/api/auth/callback' && req.method === 'GET') {
+            auth.callback(req, res);
+            return;
+        }
+        
+        if (req.url === '/api/auth/logout' && req.method === 'POST') {
+            auth.logout(req, res);
+            return;
+        }
+        
+        if (req.url === '/api/auth/user' && req.method === 'GET') {
+            auth.getCurrentUser(req, res);
+            return;
+        }
     }
     
     if (req.url === '/') {

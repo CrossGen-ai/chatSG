@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ChatUI } from './components/ChatUI';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { ChatSidebar } from './components/ChatSidebar';
 import { ChatManagerProvider, useChatManager } from './hooks/useChatManager';
 import { ChatSettingsProvider } from './hooks/useChatSettings';
 import { contentValidator } from './security/ContentValidator';
+import { AuthProvider } from './contexts/AuthContext';
+import { Login } from './pages/Login';
+import { AuthCallback } from './pages/AuthCallback';
+import { LoginButton } from './components/LoginButton';
+import { useAuth } from './hooks/useAuth';
 
 // Inner component that has access to ChatManager context
 function AppContent() {
@@ -104,8 +110,11 @@ function AppContent() {
                 </div>
               </div>
 
-              {/* Right side - Theme Switcher */}
-              <ThemeSwitcher />
+              {/* Right side - Login Button + Theme Switcher */}
+              <div className="flex items-center space-x-4">
+                <LoginButton />
+                <ThemeSwitcher />
+              </div>
             </div>
           </div>
         </header>
@@ -154,11 +163,44 @@ function AppContent() {
   );
 }
 
+// Protected route component
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+  
+  // For now, allow access even if not authenticated (for development)
+  // To require auth, change this to: return isAuthenticated ? children : <Navigate to="/login" />;
+  return <>{children}</>;
+}
+
 function App() {
   return (
-    <ChatManagerProvider>
-      <AppContent />
-    </ChatManagerProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/auth/error" element={<Navigate to="/login" />} />
+          <Route 
+            path="/*" 
+            element={
+              <ProtectedRoute>
+                <ChatManagerProvider>
+                  <AppContent />
+                </ChatManagerProvider>
+              </ProtectedRoute>
+            } 
+          />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

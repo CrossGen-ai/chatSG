@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from './axiosConfig';
 import { contentValidator } from '../security/ContentValidator';
 import { csrfManager } from '../security/CSRFManager';
 
