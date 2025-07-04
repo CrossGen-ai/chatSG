@@ -1,3 +1,5 @@
+// TypeScript interfaces for authentication
+
 export interface User {
   id: string;
   azureId: string;
@@ -9,21 +11,12 @@ export interface User {
   updatedAt?: Date;
 }
 
-export interface UserSession {
+export interface SessionUser {
   id: string;
-  userId: string;
-  token: string;
-  expiresAt: Date;
-  createdAt: Date;
-}
-
-export interface AuthConfig {
-  clientId: string;
-  clientSecret: string;
-  tenantId: string;
-  authority: string;
-  redirectUri: string;
-  scopes: string[];
+  email: string;
+  name: string;
+  groups: string[];
+  azureId: string;
 }
 
 export interface AuthState {
@@ -33,15 +26,18 @@ export interface AuthState {
   codeChallenge?: string;
 }
 
+export interface MSALConfig {
+  clientId: string;
+  clientSecret: string;
+  authority: string;
+  redirectUri: string;
+}
+
 export interface TokenResponse {
   accessToken: string;
   idToken: string;
   expiresOn: Date;
-  account: {
-    username: string;
-    name?: string;
-    localAccountId: string;
-  };
+  account: any;
   idTokenClaims: {
     oid: string;
     email?: string;
@@ -52,16 +48,20 @@ export interface TokenResponse {
   };
 }
 
-import { Request } from 'express';
-
+// Express session augmentation
 declare module 'express-session' {
   interface SessionData {
-    user?: User;
+    user?: SessionUser;
     authState?: AuthState;
   }
 }
 
-export interface AuthRequest extends Request {
-  user?: User;
-  isAuthenticated?: boolean;
+// Express request augmentation
+declare global {
+  namespace Express {
+    interface Request {
+      user?: SessionUser | null;
+      isAuthenticated?: boolean;
+    }
+  }
 }

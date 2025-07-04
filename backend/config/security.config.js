@@ -51,10 +51,11 @@ module.exports = {
     }
   },
   
-  // Future auth placeholder
+  // Auth configuration
   auth: {
-    enabled: false, // Will be enabled when auth is implemented
+    enabled: true, // Authentication is now implemented
     sessionTimeout: 30 * 60 * 1000, // 30 minutes
-    requireAuth: false // Will be true when auth is implemented
+    requireAuth: false, // Set to true to require auth for all API endpoints
+    mockAuth: process.env.USE_MOCK_AUTH === 'true' // Use mock auth in development
   }
 };

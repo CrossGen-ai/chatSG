@@ -18,11 +18,15 @@ const { exec } = require('child_process');
 const axios = require('axios');
 const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+const { getPool } = require('./src/database/pool');
 
 // Import security middleware and http adapter
 const securityMiddleware = require('./middleware/security');
 const { applyMiddleware, enhanceRequest, enhanceResponse, parseBody } = require('./middleware/http-adapter');
 const { errorHandler } = require('./middleware/errorHandler');
+const auth = require('./middleware/security/auth');
 const csrf = require('./middleware/security/csrf');
 const csrfHeader = require('./middleware/security/csrf-header');
 const sseSecure = require('./middleware/security/sse');
@@ -428,7 +432,43 @@ async function handleSSERequest(req, res) {
     }
 }
 
+// Initialize session store
+const sessionStore = new pgSession({
+    pool: getPool(),
+    tableName: 'session',
+    createTableIfMissing: true
+});
+
+// Session configuration
+const sessionConfig = {
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || 'development-secret-change-this',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: parseInt(process.env.SESSION_MAX_AGE) || 24 * 60 * 60 * 1000, // 24 hours
+        sameSite: 'lax'
+    },
+    name: process.env.SESSION_NAME || 'chatsg_session'
+};
+
+// Create session middleware
+const sessionMiddleware = session(sessionConfig);
+
 const server = http.createServer(async (req, res) => {
+    // Apply session middleware to all requests
+    try {
+        await applyMiddleware(sessionMiddleware, req, res);
+        await applyMiddleware(auth.authenticate, req, res);
+    } catch (error) {
+        console.error('[Server] Session/Auth middleware error:', error);
+        res.statusCode = 500;
+        res.end(JSON.stringify({ error: 'Session initialization failed' }));
+        return;
+    }
+    
     // Handle SSE endpoint specially to avoid body parsing issues
     if (req.url === '/api/chat/stream' && req.method === 'POST') {
         // For SSE, manually parse body first
@@ -482,9 +522,15 @@ const server = http.createServer(async (req, res) => {
             // Apply header-based CSRF for all API routes
             console.log('[Server] About to apply CSRF header middleware...');
             
-            // Skip CSRF for read endpoint (it's a safe operation)
-            if (req.url.match(/^\/api\/chats\/[^/]+\/read$/)) {
-                console.log('[Server] Skipping CSRF for read endpoint');
+            // Skip CSRF for read endpoint and auth endpoints
+            if (req.url.match(/^\/api\/chats\/[^/]+\/read$/) || 
+                req.url.startsWith('/api/auth/') ||
+                req.url === '/api/config/security') {
+                console.log('[Server] Skipping CSRF for auth/read/config endpoint');
+                // Still initialize CSRF token for GET requests to these endpoints
+                if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+                    await applyMiddleware(csrfHeader.initialize(), req, res);
+                }
             } else if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
                 await applyMiddleware(csrfHeader.initialize(), req, res);
             } else {
@@ -554,6 +600,27 @@ const server = http.createServer(async (req, res) => {
                 neo4j: process.env.MEM0_GRAPH_ENABLED === 'true'
             }
         }));
+        return;
+    }
+    
+    // Auth routes
+    if (req.url === '/api/auth/login' && req.method === 'GET') {
+        auth.login(req, res);
+        return;
+    }
+    
+    if (req.url === '/api/auth/callback' && req.method === 'GET') {
+        auth.callback(req, res);
+        return;
+    }
+    
+    if (req.url === '/api/auth/logout' && req.method === 'POST') {
+        auth.logout(req, res);
+        return;
+    }
+    
+    if (req.url === '/api/auth/user' && req.method === 'GET') {
+        auth.getCurrentUser(req, res);
         return;
     }
     

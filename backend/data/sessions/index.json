@@ -775,10 +775,10 @@
   "curl-test2": {
     "file": "session_curl-test2.jsonl",
     "toolsFile": "session_curl-test2_tools.jsonl",
-    "status": "active",
+    "status": "inactive",
     "createdAt": "2025-07-04T01:37:19.621Z",
     "startedAt": "2025-07-04T01:37:19.621Z",
-    "lastActivityAt": "2025-07-04T21:18:11.613Z",
+    "lastActivityAt": "2025-07-04T21:48:11.635Z",
     "messageCount": 20,
     "title": "2+2",
     "metadata": {
