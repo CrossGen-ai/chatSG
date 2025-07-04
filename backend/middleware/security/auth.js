@@ -1,7 +1,7 @@
 // Enhanced auth middleware with Azure AD integration
 const crypto = require('crypto');
 const { createAuthProvider } = require('../../src/auth/mockAuth');
-const { getUserByAzureId, createUser, updateUser, updateLastLogin } = require('../../src/database/userRepository');
+const { getUserByAzureId, updateLastLogin } = require('../../src/database/userRepository');
 
 // Initialize auth provider based on environment
 const authConfig = {
@@ -18,12 +18,25 @@ const authenticate = async (req, res, next) => {
   try {
     // Development mode bypass
     if (process.env.ENVIRONMENT === 'dev' && process.env.USE_MOCK_AUTH === 'true') {
+      // Just get the existing dev user from database
+      const dbUser = await getUserByAzureId('mock-azure-id');
+      
+      if (!dbUser) {
+        console.error('[Auth] Mock user not found in database. Please ensure dev@example.com user exists.');
+        req.user = null;
+        req.isAuthenticated = false;
+        return next();
+      }
+      
+      // Update last login
+      await updateLastLogin(dbUser.azure_id);
+      
       req.user = {
-        id: 'dev-user-id',
-        email: 'dev@example.com',
-        name: 'Development User',
-        groups: ['developers'],
-        azureId: 'mock-azure-id'
+        id: dbUser.id,
+        email: dbUser.email,
+        name: dbUser.name,
+        groups: dbUser.groups,
+        azureId: dbUser.azure_id
       };
       req.isAuthenticated = true;
       return next();
@@ -115,14 +128,27 @@ const login = async (req, res) => {
   try {
     // Development mode bypass
     if (process.env.ENVIRONMENT === 'dev' && process.env.USE_MOCK_AUTH === 'true') {
-      // In dev mode, just set the user in session
+      // Just get the existing dev user from database
+      const dbUser = await getUserByAzureId('mock-azure-id');
+      
+      if (!dbUser) {
+        console.error('[Auth] Mock user not found in database. Please ensure dev@example.com user exists.');
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Mock user not configured in database' }));
+        return;
+      }
+      
+      // Update last login
+      await updateLastLogin(dbUser.azure_id);
+      
+      // In dev mode, set the user in session with real database ID
       if (req.session) {
         req.session.user = {
-          id: 'dev-user-id',
-          email: 'dev@example.com',
-          name: 'Development User',
-          groups: ['developers'],
-          azureId: 'mock-azure-id'
+          id: dbUser.id,
+          email: dbUser.email,
+          name: dbUser.name,
+          groups: dbUser.groups,
+          azureId: dbUser.azure_id
         };
       }
       
