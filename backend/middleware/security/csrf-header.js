@@ -26,6 +26,18 @@ function initialize(options = {}) {
         expires: Date.now() + (60 * 60 * 1000) // 1 hour
       });
       
+      console.log('[CSRF-Header] Token created:', {
+        sessionId,
+        token: token.substring(0, 20) + '...',
+        ip: req.ip,
+        connectionRemoteAddress: req.connection?.remoteAddress,
+        socketRemoteAddress: req.socket?.remoteAddress,
+        headers: {
+          'x-forwarded-for': req.headers['x-forwarded-for'],
+          'x-real-ip': req.headers['x-real-ip']
+        }
+      });
+      
       // Send token in response header (accessible to JavaScript)
       res.setHeader('X-CSRF-Token', token);
       
@@ -38,6 +50,7 @@ function initialize(options = {}) {
       }
     }
     
+    console.log(`[CSRF-Header] Calling next() for ${req.method} ${req.url}`);
     next();
   };
 }
@@ -55,7 +68,13 @@ function verify(req, res, next) {
     method: req.method,
     url: req.url,
     headerToken: headerToken ? 'present' : 'missing',
-    sessionId
+    sessionId,
+    tokenValue: headerToken ? headerToken.substring(0, 20) + '...' : 'none',
+    storedTokenExists: tokens.has(sessionId),
+    headers: {
+      'x-forwarded-for': req.headers['x-forwarded-for'],
+      'x-real-ip': req.headers['x-real-ip']
+    }
   });
   
   if (!headerToken) {
@@ -70,12 +89,28 @@ function verify(req, res, next) {
   
   // Verify token
   const storedToken = tokens.get(sessionId);
+  
+  console.log('[CSRF-Header] Token verification details:', {
+    storedTokenExists: !!storedToken,
+    storedToken: storedToken ? storedToken.token.substring(0, 20) + '...' : 'none',
+    headerToken: headerToken.substring(0, 20) + '...',
+    tokensMatch: storedToken && storedToken.token === headerToken,
+    isExpired: storedToken && storedToken.expires < Date.now(),
+    expiresIn: storedToken ? Math.floor((storedToken.expires - Date.now()) / 1000) + 's' : 'N/A',
+    allStoredSessions: Array.from(tokens.keys())
+  });
+  
   if (!storedToken || storedToken.token !== headerToken || storedToken.expires < Date.now()) {
     res.statusCode = 403;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({
       error: 'CSRF token validation failed',
-      message: 'Invalid or expired CSRF token'
+      message: 'Invalid or expired CSRF token',
+      debug: {
+        sessionId,
+        hasStoredToken: !!storedToken,
+        tokenExpired: storedToken && storedToken.expires < Date.now()
+      }
     }));
     return;
   }

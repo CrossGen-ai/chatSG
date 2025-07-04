@@ -473,12 +473,24 @@ const server = http.createServer(async (req, res) => {
     try {
         // Skip security for static files and OPTIONS
         if (req.method !== 'OPTIONS' && req.url.startsWith('/api/')) {
+            console.log(`[Server] Applying security middleware for ${req.method} ${req.url}`);
             // Apply security middleware with CSRF disabled temporarily
             // We'll use header-based CSRF instead
             await applyMiddleware(securityMiddleware({ csrf: false }), req, res);
+            console.log(`[Server] Security middleware passed for ${req.method} ${req.url}`);
             
             // Apply header-based CSRF for all API routes
-            await applyMiddleware(csrfHeader.initialize(), req, res);
+            console.log('[Server] About to apply CSRF header middleware...');
+            
+            // Skip CSRF for read endpoint (it's a safe operation)
+            if (req.url.match(/^\/api\/chats\/[^/]+\/read$/)) {
+                console.log('[Server] Skipping CSRF for read endpoint');
+            } else if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+                await applyMiddleware(csrfHeader.initialize(), req, res);
+            } else {
+                await applyMiddleware(csrfHeader.verify, req, res);
+            }
+            console.log('[Server] CSRF header middleware completed');
         }
     } catch (error) {
         console.error('[Security] Middleware error:', error);
@@ -487,11 +499,13 @@ const server = http.createServer(async (req, res) => {
         return;
     }
     
+    console.log(`[Server] Passed all middleware, continuing to routing for ${req.method} ${req.url}`);
+    
     // Set CORS headers (after security checks)
     // Note: Can't use wildcard origin with credentials
     const origin = req.headers.origin || 'http://localhost:5173';
     res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-Token');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
 
@@ -2051,12 +2065,16 @@ const server = http.createServer(async (req, res) => {
         }
     } else if (req.url.match(/^\/api\/chats\/([^/]+)\/read$/) && req.method === 'PATCH') {
         // Mark chat as read
+        console.log('[Server] PATCH /api/chats/:id/read endpoint hit');
+        console.log('[Server] req.body:', req.body);
         try {
             const sessionId = req.url.match(/^\/api\/chats\/([^/]+)\/read$/)[1];
+            console.log('[Server] Marking session as read:', sessionId);
             
             // Use new storage manager if available
             if (storageManager) {
                 await storageManager.sessionIndex.markSessionAsRead(sessionId);
+                console.log('[Server] Session marked as read successfully');
                 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({

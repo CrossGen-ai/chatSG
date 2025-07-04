@@ -24,7 +24,10 @@
     "dev:analytical": "cd src/agents/individual/analytical && npm run dev:isolated",
     "dev:customer-support": "cd src/agents/agencies/customer-support && npm run dev:isolated",
     "test:analytical": "cd src/agents/individual/analytical && npm run test:isolated",
-    "test:customer-support": "cd src/agents/agencies/customer-support && npm run test:isolated"
+    "test:customer-support": "cd src/agents/agencies/customer-support && npm run test:isolated",
+    "test:security": "cd tests && node test-all-security.js",
+    "test:security:sse": "cd tests && node test-sse-security.js",
+    "test:security:middleware": "cd tests && node test-security-middleware.js"
   },
   "keywords": [
     "chatsg",

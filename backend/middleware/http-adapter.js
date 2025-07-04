@@ -106,18 +106,27 @@ async function parseBody(req) {
 
 // Apply middleware to raw Node.js request/response
 async function applyMiddleware(middleware, req, res) {
-  // Enhance request and response objects
-  enhanceRequest(req);
-  enhanceResponse(res);
+  // Enhance request and response objects (only if not already enhanced)
+  if (!req.get) {
+    enhanceRequest(req);
+    enhanceResponse(res);
+  }
   
   // Parse body for POST/PUT/PATCH requests
   if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
-    try {
-      await parseBody(req);
-    } catch (error) {
-      res.statusCode = 400;
-      res.end(JSON.stringify({ error: 'Invalid request body' }));
-      throw error;
+    // Skip if body already parsed
+    console.log(`[applyMiddleware] Checking body for ${req.method} - req.body:`, req.body);
+    if (req.body === null || req.body === undefined) {
+      try {
+        console.log('[applyMiddleware] Body not parsed, calling parseBody...');
+        await parseBody(req);
+      } catch (error) {
+        res.statusCode = 400;
+        res.end(JSON.stringify({ error: 'Invalid request body' }));
+        throw error;
+      }
+    } else {
+      console.log('[applyMiddleware] Body already parsed, skipping parseBody');
     }
   }
   
