@@ -20,6 +20,7 @@ tests/
 ### All Tests
 ```bash
 npm test                    # Run main test suite
+npm run test:security       # Run all security tests
 ```
 
 ### Category-Specific Tests
@@ -58,17 +59,24 @@ node tests/unit/test-tool-system.js           # Tool system tests
 
 #### Security Tests
 ```bash
-# Main security test suite
-node tests/security/chat-endpoint-security.test.js    # XSS, validation tests
-node tests/security/csrf.test.js                     # CSRF protection test
+# Comprehensive security test suite
+npm run test:security                               # Run ALL security tests
+npm run test:security:sse                           # SSE-specific security tests  
+npm run test:security:middleware                    # Security middleware tests
+
+# Individual security tests
+node tests/security/chat-endpoint-security.test.js  # XSS, validation tests
+node tests/security/csrf.test.js                    # CSRF protection test
+node tests/security/middleware.test.js              # Security middleware tests
 
 # Rate limiting tests
-node tests/security/rate-limit-proof.test.js         # Proves rate limiting is configured
-node tests/security/rate-limit-simple.test.js        # Simple rate limit test
-
-# Additional tests (optional)
-node tests/security/middleware.test.js               # Security middleware tests
+node tests/security/rate-limit-proof.test.js        # Proves rate limiting is configured
+node tests/security/rate-limit-simple.test.js       # Simple rate limit test
 node tests/security/rate-limit-burst.test.js        # Burst test (parallel requests)
+
+# SSE security tests
+node tests/test-sse-done.js                         # SSE stream completion
+node tests/test-csrf-only.js                        # CSRF with SSE endpoints
 ```
 
 ## Test Data
@@ -115,5 +123,7 @@ node tests/integration/test-chat-with-mem0.js
 node tests/agents/test-analytical-agent.js
 
 # Test security features
-node tests/security/chat-endpoint-security.test.js
+npm run test:security
+# Or test specific security component
+node tests/security/csrf.test.js
 ```

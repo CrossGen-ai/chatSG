@@ -9,7 +9,7 @@ ChatSG is a sophisticated multi-agent conversational AI platform that I'm helpin
 - **Agent System**: Modular architecture with specialized agents (Analytical, Creative, Technical)
 - **Storage**: JSONL file-based persistence with comprehensive index for fast lookups
 
-## Current Status (2025-06-26)
+## Current Status (2025-07-04)
 - ✅ Dependencies installed (frontend needs --legacy-peer-deps)
 - ✅ TypeScript compiled (npm run build in backend)
 - ❌ Backend needs .env configuration for LLM provider
@@ -24,6 +24,9 @@ ChatSG is a sophisticated multi-agent conversational AI platform that I'm helpin
 - ✅ Context management with configurable limits
 - ✅ Session status tracking (active/inactive/archived/deleted)
 - ✅ tmux-mcp integration for server management via Claude Code
+- ✅ Comprehensive security middleware implementation
+- ✅ SSE streaming with security (CSRF, rate limiting)
+- ✅ Markdown formatting with XSS protection
 
 ## Key Features Implemented
 1. **JSONL Storage**: Append-only chat messages in `./data/sessions`
@@ -33,6 +36,14 @@ ChatSG is a sophisticated multi-agent conversational AI platform that I'm helpin
 5. **Session Lifecycle**: Active → Inactive → Archived → Deleted states
 6. **Agent Tracking**: Records which agent responded to each message
 7. **Dynamic Avatars**: 📊 Analytical, 🎨 Creative, ⚙️ Technical, 🎧 Support
+8. **Security Layer**: Comprehensive security middleware with:
+   - Header-based CSRF protection (X-CSRF-Token)
+   - Rate limiting (IP-based and connection-based)
+   - Input validation and sanitization
+   - XSS prevention with DOMPurify
+   - Security headers via Helmet.js
+9. **SSE Security**: Special security handling for streaming endpoints
+10. **Markdown Support**: Real-time markdown rendering with security
 
 ## Project Structure
 ```
@@ -95,6 +106,11 @@ tmux attach -t chatsg-frontend   # Attach to frontend
 
 # Tests
 cd backend/tests && node run-tests.js
+
+# Security tests
+npm run test:security            # Run all security tests
+npm run test:security:sse        # Test SSE security
+npm run test:security:middleware # Test security middleware
 ```
 
 ## Server Management Details
@@ -121,11 +137,15 @@ The project includes tmux-mcp integration for server management:
 ## Important Files
 - `/backend/utils/llm-helper.js` - LLM provider abstraction
 - `/backend/src/routing/AgentOrchestrator.ts` - Agent selection logic
-- `/backend/server.js` - Main API server (now with storage integration)
+- `/backend/server.js` - Main API server (now with storage integration and security)
 - `/backend/src/storage/StorageManager.ts` - Unified storage interface
 - `/backend/src/storage/SessionStorage.ts` - JSONL message storage
 - `/backend/src/storage/SessionIndex.ts` - Fast session index
 - `/backend/src/config/storage.config.ts` - Storage configuration
+- `/backend/middleware/security/` - Security middleware components
+- `/backend/middleware/security/csrf-header.js` - Header-based CSRF protection
+- `/backend/middleware/security/sse.js` - SSE-specific security
+- `/backend/tests/test-all-security.js` - Comprehensive security test runner
 - `/frontend/src/hooks/useChatManager.tsx` - Chat state management
 - `/backend/.env` - Environment configuration (needs setup)
 

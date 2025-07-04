@@ -14,10 +14,15 @@ This document summarizes the implementation of real-time markdown rendering with
 
 ### 2. Security Middleware
 - **Helmet.js Integration**: Security headers (CSP, HSTS, X-Frame-Options, etc.)
-- **Rate Limiting**: IP-based rate limiting (100 requests per 15 minutes)
+- **Rate Limiting**: 
+  - IP-based rate limiting (100 requests per 15 minutes)
+  - Connection-based rate limiting for SSE endpoints
+  - Burst protection mechanisms
 - **Input Validation**: Message length, session ID format, content validation
 - **Input Sanitization**: Server-side sanitization of all user input
-- **CSRF Protection**: Double-submit cookie pattern with origin validation
+- **CSRF Protection**: Header-based token implementation (X-CSRF-Token)
+- **SSE Security**: Special security handling for Server-Sent Events
+- **XSS Prevention**: Multiple validation layers blocking script injection
 - **Auth Middleware Stub**: Extensible authentication framework for future implementation
 
 ## Architecture
@@ -47,7 +52,9 @@ backend/
 │   │   ├── rateLimiter.js     # Rate limiting
 │   │   ├── validator.js       # Input validation
 │   │   ├── sanitizer.js       # Input sanitization
-│   │   ├── csrf.js            # CSRF protection
+│   │   ├── csrf.js            # Cookie-based CSRF (deprecated)
+│   │   ├── csrf-header.js     # Header-based CSRF protection
+│   │   ├── sse.js             # SSE-specific security
 │   │   └── auth.js            # Auth stub for future
 │   ├── errorHandler.js        # Centralized error handling
 │   └── http-adapter.js        # Adapter for raw http server
@@ -67,10 +74,20 @@ The parser identifies complete markdown elements and only renders them when full
 
 ### Security Layers
 1. **Network Layer**: Rate limiting prevents DoS attacks
+   - IP-based rate limiting for regular endpoints
+   - Connection-based rate limiting for SSE endpoints
 2. **HTTP Layer**: Helmet.js sets security headers
+   - CSP, HSTS, X-Frame-Options, etc.
 3. **Application Layer**: CSRF tokens validate requests
+   - Header-based tokens (X-CSRF-Token)
+   - Special handling for SSE endpoints
 4. **Data Layer**: Input validation and sanitization
+   - Message length validation
+   - Session ID format validation
+   - Content sanitization
 5. **Presentation Layer**: XSS prevention via DOMPurify
+   - Client-side sanitization
+   - Server-side validation
 
 ### Configuration System
 - Server provides markdown configuration via `/api/config/markdown`
@@ -100,11 +117,29 @@ npm run dev
 ```
 
 ### Testing Security
-Run the security test suite:
+Run the comprehensive security test suite:
 ```bash
-cd backend/tests/security
-node middleware.test.js
+# Run all security tests
+npm run test:security
+
+# Run specific security test suites
+npm run test:security:sse      # SSE-specific security tests
+npm run test:security:middleware  # Middleware tests
+
+# Individual test files
+cd backend/tests
+node security/csrf.test.js
+node security/rate-limit-simple.test.js
+node test-sse-done.js
 ```
+
+Security test coverage includes:
+- CSRF protection verification
+- Rate limiting functionality
+- XSS prevention
+- Input validation
+- SSE security handling
+- Security headers
 
 ### Testing Markdown
 Run the frontend tests:
@@ -140,9 +175,10 @@ npm test
 3. Check if content is being sanitized too aggressively
 
 ### CSRF Errors
-1. Ensure CSRF token is being fetched on app load
-2. Check that cookies are enabled
-3. Verify origin header is being sent
+1. Ensure CSRF token is being fetched via GET request
+2. Check that X-CSRF-Token header is included in requests
+3. Verify token is being refreshed when needed
+4. For SSE endpoints, ensure token is passed in query parameters
 
 ### Rate Limiting Issues
 1. Check if IP is being correctly detected
