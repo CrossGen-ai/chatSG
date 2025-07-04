@@ -241,16 +241,16 @@
   "session_1751003826306_ngfvcanuq": {
     "file": "session_session_1751003826306_ngfvcanuq.jsonl",
     "toolsFile": "session_session_1751003826306_ngfvcanuq_tools.jsonl",
-    "status": "inactive",
+    "status": "active",
     "createdAt": "2025-06-27T05:57:06.307Z",
     "startedAt": "2025-06-27T05:57:06.307Z",
-    "lastActivityAt": "2025-07-03T20:24:54.892Z",
-    "messageCount": 34,
+    "lastActivityAt": "2025-07-04T00:08:37.338Z",
+    "messageCount": 40,
     "title": "New Chat",
     "metadata": {
       "userId": "default",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-03T19:54:25.127Z",
+      "lastReadAt": "2025-07-04T00:08:27.382Z",
       "lastAgent": "AnalyticalAgent"
     }
   },

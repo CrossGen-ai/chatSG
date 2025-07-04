@@ -1,0 +1,96 @@
+{
+  "enabled": true,
+  "security": {
+    "sanitize": true,
+    "allowedTags": ["b", "i", "em", "strong", "a", "p", "code", "pre", "blockquote", "ul", "ol", "li", "h1", "h2", "h3", "h4", "h5", "h6", "br", "hr", "span", "del"],
+    "allowedAttributes": {
+      "a": ["href", "title"],
+      "code": ["class"],
+      "span": ["class"]
+    },
+    "allowedSchemes": ["http", "https", "mailto"],
+    "forceProtocol": true
+  },
+  "theme": {
+    "bold": {
+      "fontWeight": "600",
+      "color": "inherit"
+    },
+    "italic": {
+      "fontStyle": "italic"
+    },
+    "h1": {
+      "fontSize": "1.5em",
+      "fontWeight": "700",
+      "marginTop": "1em",
+      "marginBottom": "0.5em"
+    },
+    "h2": {
+      "fontSize": "1.3em",
+      "fontWeight": "600",
+      "marginTop": "0.8em",
+      "marginBottom": "0.4em"
+    },
+    "h3": {
+      "fontSize": "1.1em",
+      "fontWeight": "600",
+      "marginTop": "0.6em",
+      "marginBottom": "0.3em"
+    },
+    "code": {
+      "backgroundColor": "rgba(0, 0, 0, 0.05)",
+      "padding": "0.2em 0.4em",
+      "borderRadius": "3px",
+      "fontFamily": "monospace",
+      "fontSize": "0.9em"
+    },
+    "codeBlock": {
+      "backgroundColor": "rgba(0, 0, 0, 0.05)",
+      "padding": "1em",
+      "borderRadius": "5px",
+      "overflowX": "auto",
+      "fontFamily": "monospace",
+      "fontSize": "0.9em",
+      "lineHeight": "1.4"
+    },
+    "link": {
+      "color": "#0066cc",
+      "textDecoration": "underline",
+      "cursor": "pointer"
+    },
+    "blockquote": {
+      "borderLeft": "4px solid #ddd",
+      "paddingLeft": "1em",
+      "marginLeft": "0",
+      "color": "#666",
+      "fontStyle": "italic"
+    },
+    "list": {
+      "paddingLeft": "1.5em",
+      "marginBottom": "0.5em"
+    },
+    "strikethrough": {
+      "textDecoration": "line-through",
+      "opacity": "0.7"
+    }
+  },
+  "darkThemeOverrides": {
+    "code": {
+      "backgroundColor": "rgba(255, 255, 255, 0.1)"
+    },
+    "codeBlock": {
+      "backgroundColor": "rgba(255, 255, 255, 0.05)"
+    },
+    "link": {
+      "color": "#66b3ff"
+    },
+    "blockquote": {
+      "borderLeftColor": "#666",
+      "color": "#aaa"
+    }
+  },
+  "supportedElements": [
+    "bold", "italic", "h1", "h2", "h3", "h4", "h5", "h6",
+    "code", "codeBlock", "link", "list", "blockquote", "strikethrough"
+  ]
+}

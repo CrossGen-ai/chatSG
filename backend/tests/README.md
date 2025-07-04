@@ -9,6 +9,7 @@ tests/
 ├── agents/          # Agent-specific tests
 ├── memory/          # Memory, storage, and Neo4j tests  
 ├── integration/     # API and system integration tests
+├── security/        # Security, validation, and XSS tests
 ├── unit/           # Unit tests for individual components
 ├── utils/          # Utility and helper tests
 └── typescript/     # TypeScript test files
@@ -55,6 +56,21 @@ node tests/unit/test-llm-helper.js            # LLM provider tests
 node tests/unit/test-tool-system.js           # Tool system tests
 ```
 
+#### Security Tests
+```bash
+# Main security test suite
+node tests/security/chat-endpoint-security.test.js    # XSS, validation tests
+node tests/security/csrf.test.js                     # CSRF protection test
+
+# Rate limiting tests
+node tests/security/rate-limit-proof.test.js         # Proves rate limiting is configured
+node tests/security/rate-limit-simple.test.js        # Simple rate limit test
+
+# Additional tests (optional)
+node tests/security/middleware.test.js               # Security middleware tests
+node tests/security/rate-limit-burst.test.js        # Burst test (parallel requests)
+```
+
 ## Test Data
 
 Test data files:
@@ -97,4 +113,7 @@ node tests/integration/test-chat-with-mem0.js
 
 # Test specific agent
 node tests/agents/test-analytical-agent.js
+
+# Test security features
+node tests/security/chat-endpoint-security.test.js
 ```

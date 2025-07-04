@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["enabled", "security", "theme", "supportedElements"],
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "description": "Whether markdown rendering is enabled"
+    },
+    "security": {
+      "type": "object",
+      "required": ["sanitize", "allowedTags", "allowedAttributes", "allowedSchemes"],
+      "properties": {
+        "sanitize": {
+          "type": "boolean"
+        },
+        "allowedTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowedAttributes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "allowedSchemes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "forceProtocol": {
+          "type": "boolean"
+        }
+      }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "darkThemeOverrides": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "supportedElements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

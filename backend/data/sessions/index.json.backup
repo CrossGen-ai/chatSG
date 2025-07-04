@@ -244,13 +244,13 @@
     "status": "active",
     "createdAt": "2025-06-27T05:57:06.307Z",
     "startedAt": "2025-06-27T05:57:06.307Z",
-    "lastActivityAt": "2025-07-03T19:54:54.872Z",
-    "messageCount": 34,
+    "lastActivityAt": "2025-07-04T00:08:23.361Z",
+    "messageCount": 39,
     "title": "New Chat",
     "metadata": {
       "userId": "default",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-03T19:54:25.127Z",
+      "lastReadAt": "2025-07-04T00:08:27.382Z",
       "lastAgent": "AnalyticalAgent"
     }
   },

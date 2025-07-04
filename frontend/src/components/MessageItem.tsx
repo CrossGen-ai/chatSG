@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { HybridMessage } from '../hooks/useChatManager';
 import { AgentAvatarService } from '../services/AgentAvatarService';
+import MarkdownRenderer from './MarkdownRenderer';
 
 interface MessageItemProps {
   message: HybridMessage;
@@ -86,14 +87,21 @@ export const MessageItem = React.memo<MessageItemProps>(({
           )}
         >
           {message.content && !message.isStreaming ? (
-            // Show content for non-streaming messages
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+            // Show content for non-streaming messages with markdown
+            <MarkdownRenderer 
+              content={message.content} 
+              isStreaming={false}
+              className="text-sm leading-relaxed"
+              darkMode={document.documentElement.classList.contains('dark')}
+            />
           ) : message.isStreaming && message.content && message.content.trim() ? (
-            // Show content with cursor for streaming messages (only if there's visible content)
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">
-              {message.content}
-              <span className="inline-block w-2 h-4 bg-gray-600 dark:bg-gray-400 animate-pulse ml-1"></span>
-            </p>
+            // Show content with progressive markdown for streaming messages
+            <MarkdownRenderer 
+              content={message.content} 
+              isStreaming={true}
+              className="text-sm leading-relaxed"
+              darkMode={document.documentElement.classList.contains('dark')}
+            />
           ) : (
             // Show typing indicator for empty bot messages (streaming or loading) or streaming with only whitespace
             message.sender === 'bot' && (

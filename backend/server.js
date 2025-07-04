@@ -17,6 +17,15 @@ const https = require('https');
 const { exec } = require('child_process');
 const axios = require('axios');
 const crypto = require('crypto');
+const cookieParser = require('cookie-parser');
+
+// Import security middleware and http adapter
+const securityMiddleware = require('./middleware/security');
+const { applyMiddleware } = require('./middleware/http-adapter');
+const { errorHandler } = require('./middleware/errorHandler');
+const csrf = require('./middleware/security/csrf');
+const markdownConfig = require('./config/markdown.config.json');
+const securityConfig = require('./config/security.config');
 
 // Import slash commands service
 let SlashCommandsRouter, getSlashCommandProcessor;
@@ -234,10 +243,28 @@ function getSimulatedN8nResponse(message) {
 }
 
 const server = http.createServer(async (req, res) => {
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Apply security middleware first
+    try {
+        // Skip security for static files, OPTIONS, and streaming endpoints
+        if (req.method !== 'OPTIONS' && req.url.startsWith('/api/') && req.url !== '/api/chat/stream') {
+            // Apply security middleware with CSRF disabled temporarily
+            // We'll use header-based CSRF instead
+            await applyMiddleware(securityMiddleware({ csrf: false }), req, res);
+        }
+    } catch (error) {
+        console.error('[Security] Middleware error:', error);
+        res.statusCode = 500;
+        res.end(JSON.stringify({ error: 'Security check failed' }));
+        return;
+    }
+    
+    // Set CORS headers (after security checks)
+    // Note: Can't use wildcard origin with credentials
+    const origin = req.headers.origin || 'http://localhost:5173';
+    res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-CSRF-Token');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
 
     if (req.method === 'OPTIONS') {
         res.writeHead(200);
@@ -2450,6 +2477,45 @@ const server = http.createServer(async (req, res) => {
                 details: error.message
             }));
         }
+    } else if (req.url === '/api/config/markdown' && req.method === 'GET') {
+        // Markdown configuration endpoint
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(markdownConfig));
+    } else if (req.url === '/api/config/security' && req.method === 'GET') {
+        // Security configuration endpoint (sanitized for frontend)
+        const sanitizedConfig = {
+            validation: {
+                maxMessageLength: securityConfig.validation.maxMessageLength,
+                maxSessionIdLength: securityConfig.validation.maxSessionIdLength
+            },
+            csrf: {
+                enabled: true
+            },
+            auth: {
+                enabled: securityConfig.auth.enabled,
+                requireAuth: securityConfig.auth.requireAuth
+            }
+        };
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(sanitizedConfig));
+    } else if (req.url === '/api/security/csrf-token' && req.method === 'GET') {
+        // CSRF token endpoint
+        // Since we're using raw Node.js, we need to handle this differently
+        const token = csrf.generateToken();
+        
+        // Set the cookie
+        const cookieOptions = [
+            `csrf-token=${token}`,
+            'SameSite=strict',
+            `Max-Age=${60 * 60}` // 1 hour in seconds
+        ];
+        if (process.env.NODE_ENV === 'production') {
+            cookieOptions.push('Secure');
+        }
+        
+        res.setHeader('Set-Cookie', cookieOptions.join('; '));
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ token }));
     } else {
         res.writeHead(404);
         res.end('Not found');

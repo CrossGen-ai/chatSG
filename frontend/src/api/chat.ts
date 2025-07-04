@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { contentValidator } from '../security/ContentValidator';
+import { csrfManager } from '../security/CSRFManager';
 
 export interface ChatResponse {
   message: string;
@@ -39,7 +41,8 @@ export async function sendChatMessage(
     }
     
     const response = await axios.post('/api/chat', requestData, {
-      signal: options?.signal
+      signal: options?.signal,
+      headers: await csrfManager.addHeaders()
     });
     
     // Return the full response with agent information
@@ -94,6 +97,8 @@ export async function updateChatSettings(
   try {
     const response = await axios.post(`/api/chats/${sessionId}/settings`, {
       settings
+    }, {
+      headers: await contentValidator.addCSRFHeaders()
     });
     return response.data;
   } catch (error: any) {
@@ -243,7 +248,9 @@ export async function manageCrossSessionMemory(
   params: CrossSessionMemoryAction
 ): Promise<CrossSessionGetResponse | CrossSessionShareResponse | CrossSessionLoadResponse> {
   try {
-    const response = await axios.post('/api/memory/cross-session', params);
+    const response = await axios.post('/api/memory/cross-session', params, {
+      headers: await contentValidator.addCSRFHeaders()
+    });
     return response.data;
   } catch (error: any) {
     throw new Error(`Failed to manage cross-session memory: ${error.response?.data?.error || error.message}`);
@@ -371,7 +378,9 @@ export async function deleteChat(chatId: string): Promise<{
   chatId: string;
 }> {
   try {
-    const response = await axios.delete(`/api/chats/${chatId}`);
+    const response = await axios.delete(`/api/chats/${chatId}`, {
+      headers: await contentValidator.addCSRFHeaders()
+    });
     return response.data;
   } catch (error: any) {
     throw new Error(`Failed to delete chat: ${error.response?.data?.error || error.message}`);
@@ -385,7 +394,9 @@ export async function markChatAsRead(chatId: string): Promise<{
   lastReadAt: string;
 }> {
   try {
-    const response = await axios.patch(`/api/chats/${chatId}/read`);
+    const response = await axios.patch(`/api/chats/${chatId}/read`, {}, {
+      headers: await contentValidator.addCSRFHeaders()
+    });
     return response.data;
   } catch (error: any) {
     throw new Error(`Failed to mark chat as read: ${error.response?.data?.error || error.message}`);
@@ -408,7 +419,9 @@ export async function createChat(data: {
   };
 }> {
   try {
-    const response = await axios.post('/api/chats', data);
+    const response = await axios.post('/api/chats', data, {
+      headers: await contentValidator.addCSRFHeaders()
+    });
     return response.data;
   } catch (error: any) {
     throw new Error(`Failed to create chat: ${error.response?.data?.error || error.message}`);
@@ -464,14 +477,17 @@ export function sendChatMessageStream(
     onError: !!options?.callbacks.onError
   });
   
-  fetch('/api/chat/stream', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(requestData),
-    signal: abortController.signal,
-  }).then(response => {
+  csrfManager.addHeaders().then(csrfHeaders => {
+    fetch('/api/chat/stream', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...csrfHeaders
+      },
+      body: JSON.stringify(requestData),
+      signal: abortController.signal,
+      credentials: 'include' // Important for cookies!
+    }).then(response => {
     console.log('[sendChatMessageStream] Response received:', response.status, response.headers.get('content-type'));
     console.log('[sendChatMessageStream] Response ok:', response.ok);
     console.log('[sendChatMessageStream] Response body:', response.body);
@@ -583,6 +599,10 @@ export function sendChatMessageStream(
       });
       options?.callbacks.onError?.(error);
     }
+  });
+  }).catch(error => {
+    console.error('[Streaming] Failed to get CSRF token:', error);
+    options?.callbacks.onError?.(new Error('Failed to get CSRF token'));
   });
   
   return {

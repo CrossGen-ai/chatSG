@@ -290,3 +290,184 @@ code {
 .dark ::selection {
   background-color: rgba(147, 197, 253, 0.3);
 }
+
+/* Markdown Styles */
+.markdown-content {
+  /* Base markdown styles */
+  word-break: break-word;
+}
+
+/* Markdown CSS Variables */
+.markdown-content {
+  color: var(--text-primary);
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  font-weight: var(--md-h1-weight, 600);
+  line-height: 1.25;
+  margin-top: var(--md-h1-margin-top, 0.5em);
+  margin-bottom: var(--md-h1-margin-bottom, 0.25em);
+}
+
+.markdown-content h1 {
+  font-size: var(--md-h1-size, 1.5em);
+}
+
+.markdown-content h2 {
+  font-size: var(--md-h2-size, 1.3em);
+  font-weight: var(--md-h2-weight, 600);
+}
+
+.markdown-content h3 {
+  font-size: 1.1em;
+}
+
+.markdown-content h4 {
+  font-size: 1em;
+}
+
+.markdown-content h5 {
+  font-size: 0.9em;
+}
+
+.markdown-content h6 {
+  font-size: 0.85em;
+}
+
+.markdown-content p {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content code {
+  background-color: var(--md-code-bg, rgba(0, 0, 0, 0.05));
+  padding: var(--md-code-padding, 0.2em 0.4em);
+  border-radius: var(--md-code-radius, 3px);
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.markdown-content pre {
+  background-color: var(--md-code-block-bg, rgba(0, 0, 0, 0.05));
+  padding: var(--md-code-block-padding, 1em);
+  border-radius: 5px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+  font-size: 0.9em;
+}
+
+.markdown-content blockquote {
+  border-left: var(--md-blockquote-border, 4px solid rgba(0, 0, 0, 0.1));
+  padding-left: var(--md-blockquote-padding, 1em);
+  margin-left: 0;
+  margin-right: 0;
+  font-style: italic;
+  color: var(--md-blockquote-color, var(--text-secondary));
+}
+
+.markdown-content a {
+  color: var(--md-link-color, #0066cc);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.markdown-content a:hover {
+  color: #0052a3;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding-left: 1.5em;
+}
+
+.markdown-content li {
+  margin-bottom: 0.25em;
+}
+
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  margin: 1em 0;
+}
+
+.markdown-content strong,
+.markdown-content b {
+  font-weight: 600;
+}
+
+.markdown-content em,
+.markdown-content i {
+  font-style: italic;
+}
+
+.markdown-content del,
+.markdown-content s {
+  text-decoration: line-through;
+}
+
+/* Dark theme overrides */
+.markdown-dark code {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.markdown-dark pre {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.markdown-dark blockquote {
+  border-left-color: rgba(255, 255, 255, 0.2);
+}
+
+.markdown-dark a {
+  color: #66b3ff;
+}
+
+.markdown-dark a:hover {
+  color: #4da3ff;
+}
+
+.markdown-dark hr {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Markdown streaming styles */
+.markdown-pending-indicator {
+  color: var(--text-secondary);
+  opacity: 0.6;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.pending-markdown {
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+
+/* Markdown rendered content */
+.markdown-rendered {
+  /* Ensure proper spacing */
+  line-height: 1.6;
+}
+
+.markdown-rendered > *:first-child {
+  margin-top: 0;
+}
+
+.markdown-rendered > *:last-child {
+  margin-bottom: 0;
+}

@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChatUI } from './components/ChatUI';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { ChatSidebar } from './components/ChatSidebar';
 import { ChatManagerProvider, useChatManager } from './hooks/useChatManager';
 import { ChatSettingsProvider } from './hooks/useChatSettings';
+import { contentValidator } from './security/ContentValidator';
 
 // Inner component that has access to ChatManager context
 function AppContent() {
   const { activeChatId } = useChatManager();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Ensure contentValidator is initialized (happens automatically on first use)
+  useEffect(() => {
+    // Just accessing contentValidator triggers its initialization
+    console.log('[App] Security validator ready');
+    
+    // Trigger CSRF token refresh to ensure we have a token
+    contentValidator.getCSRFToken().then(token => {
+      if (token) {
+        console.log('[App] CSRF token available');
+      } else {
+        console.log('[App] No CSRF token yet - will be set on first API call');
+      }
+    });
+  }, []);
 
   return (
     <ChatSettingsProvider sessionId={activeChatId}>
