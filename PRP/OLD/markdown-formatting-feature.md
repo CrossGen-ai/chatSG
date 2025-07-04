@@ -33,18 +33,18 @@ Implement real-time markdown formatting in chat bubbles that progressively rende
 - Security headers and CSRF protection
 
 ### Success Criteria
-- [X] Markdown renders correctly during streaming (progressive updates)
-- [X] Static messages display with full markdown formatting
-- [X] No performance degradation during streaming
-- [X] Configuration allows customization of markdown styles
-- [X] All basic markdown formats are supported
-- [X] Theme consistency maintained (light/dark modes)
-- [X] Security middleware blocks XSS attempts
-- [X] CSRF tokens validate properly
-- [X] Input sanitization prevents injection attacks
-- [X] Security headers are properly set
-- [X] Rate limiting prevents abuse
-- [X] Security layer is extensible for future auth
+- [ ] Markdown renders correctly during streaming (progressive updates)
+- [ ] Static messages display with full markdown formatting
+- [ ] No performance degradation during streaming
+- [ ] Configuration allows customization of markdown styles
+- [ ] All basic markdown formats are supported
+- [ ] Theme consistency maintained (light/dark modes)
+- [ ] Security middleware blocks XSS attempts
+- [ ] CSRF tokens validate properly
+- [ ] Input sanitization prevents injection attacks
+- [ ] Security headers are properly set
+- [ ] Rate limiting prevents abuse
+- [ ] Security layer is extensible for future auth
 
 ## All Needed Context
 

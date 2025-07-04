@@ -232,6 +232,7 @@ Task 1 - Install dependencies and create types:
   - CREATE backend/src/auth/types.ts with User, Session interfaces
   - Define MSAL configuration types
   - Validation: npm run type-check should pass
+  - Let user test nothign is broken
 
 Task 2 - Setup database components:
   - SKIP creating tables (they already exist from previous attempt)
@@ -239,6 +240,7 @@ Task 2 - Setup database components:
   - CREATE backend/src/database/pool.js for connection pooling
   - Test connection with existing test script
   - Verify tables with: psql query or test script
+  - Let user test nothign is broken
 
 Task 3 - Implement Azure Auth Provider:
   - CREATE backend/src/auth/AzureAuthProvider.ts
