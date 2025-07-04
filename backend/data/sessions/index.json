@@ -778,12 +778,12 @@
     "status": "active",
     "createdAt": "2025-07-04T01:37:19.621Z",
     "startedAt": "2025-07-04T01:37:19.621Z",
-    "lastActivityAt": "2025-07-04T01:52:00.940Z",
-    "messageCount": 18,
+    "lastActivityAt": "2025-07-04T21:18:11.613Z",
+    "messageCount": 20,
     "title": "2+2",
     "metadata": {
       "unreadCount": 0,
-      "lastReadAt": null,
+      "lastReadAt": "2025-07-04T21:18:05.595Z",
       "lastAgent": "AnalyticalAgent"
     }
   }
