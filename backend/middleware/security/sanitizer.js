@@ -26,7 +26,7 @@ function sanitizeObject(obj) {
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === 'string') {
       // Strip HTML and dangerous content
-      let cleanValue = DOMPurify(value, { 
+      let cleanValue = DOMPurify.sanitize(value, { 
         ALLOWED_TAGS: [],
         ALLOWED_ATTR: {},
         KEEP_CONTENT: true 

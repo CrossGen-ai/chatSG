@@ -289,13 +289,15 @@ async function handleSSERequest(req, res) {
         if (storageManager && message) {
             try {
                 const sessionExists = storageManager.sessionExists(sessionId);
+                const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
+                
                 if (!sessionExists) {
                     await storageManager.createSession({
                         sessionId: sessionId,
                         title: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
-                        userId: data.userId
+                        userId: userId
                     });
-                    console.log(`[Server] Auto-created session: ${sessionId}`);
+                    console.log(`[Server] Auto-created session: ${sessionId} for user: ${userId}`);
                 }
                 
                 // Save user message
@@ -303,7 +305,7 @@ async function handleSSERequest(req, res) {
                     sessionId: sessionId,
                     type: 'user',
                     content: message,
-                    metadata: { userId: data.userId }
+                    metadata: { userId: userId }
                 });
             } catch (storageError) {
                 console.error('[Server] Failed to save user message:', storageError);
@@ -663,13 +665,8 @@ const server = http.createServer(async (req, res) => {
         });
     } else if (req.url === '/api/chat' && req.method === 'POST') {
         console.log('[Server] Regular chat endpoint hit - THIS SHOULD NOT BE CALLED, USE STREAMING!');
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', async () => {
-            try {
-                const data = JSON.parse(body);
+        try {
+            const data = req.body; // Body already parsed by middleware
                 const sessionId = data.sessionId || 'default';
                 
                 // Process slash commands - frontend metadata only, normal orchestration as fallback
@@ -705,17 +702,19 @@ const server = http.createServer(async (req, res) => {
                         
                         if (!sessionExists) {
                             // Auto-create session on first message
+                            const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
                             await storageManager.createSession({
                                 sessionId: sessionId,
                                 title: data.message.substring(0, 50) + (data.message.length > 50 ? '...' : ''),
-                                userId: data.userId
+                                userId: userId
                             });
-                            console.log(`[Server] Auto-created session: ${sessionId}`);
+                            console.log(`[Server] Auto-created session: ${sessionId} for user: ${userId}`);
                         }
                         
                         // Save user message with slash command metadata
+                        const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
                         const userMessageMetadata = {
-                            userId: data.userId
+                            userId: userId
                         };
                         
                         // Add slash command metadata if present
@@ -1118,7 +1117,6 @@ const server = http.createServer(async (req, res) => {
                     _backend: BACKEND
                 }));
             }
-        });
     } else if (req.url === '/webhook-test/chat' && req.method === 'POST') {
         let body = '';
         req.on('data', chunk => {
@@ -1139,11 +1137,23 @@ const server = http.createServer(async (req, res) => {
         try {
             // Use new storage manager if available
             if (storageManager) {
-                const sessions = storageManager.listSessions({
+                // Filter sessions by authenticated user
+                const listOptions = {
                     status: ['active', 'inactive'],
                     sortBy: 'lastActivityAt',
                     sortOrder: 'desc'
-                });
+                };
+                
+                // If user is authenticated, only show their sessions
+                if (req.isAuthenticated && req.user) {
+                    listOptions.userId = String(req.user.id);
+                } else {
+                    // For unauthenticated users, show sessions with "default" userId
+                    listOptions.userId = 'default';
+                }
+                
+                console.log(`[Server] Listing chats for user: ${listOptions.userId}`);
+                const sessions = storageManager.listSessions(listOptions);
                 
                 // Convert to frontend format
                 const formattedSessions = sessions.map(session => ({
@@ -2299,73 +2309,71 @@ const server = http.createServer(async (req, res) => {
         }
     } else if (req.url === '/api/chats' && req.method === 'POST') {
         // Create new chat session
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', async () => {
-            try {
-                const data = JSON.parse(body);
+        try {
+            const data = req.body; // Body already parsed by middleware
+            
+            // Generate unique session ID if not provided
+            const sessionId = data.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            
+            // Use new storage manager if available
+            if (storageManager) {
+                // Use authenticated user's ID if available, otherwise 'default'
+                const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
                 
-                // Generate unique session ID if not provided
-                const sessionId = data.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                const sessionData = {
+                    sessionId: sessionId,
+                    title: data.title || 'New Chat',
+                    userId: userId,
+                    metadata: data.metadata || {}
+                };
                 
-                // Use new storage manager if available
-                if (storageManager) {
-                    const sessionData = {
-                        sessionId: sessionId,
-                        title: data.title || 'New Chat',
-                        userId: data.userId || 'default',
-                        metadata: data.metadata || {}
-                    };
-                    
-                    await storageManager.createSession(sessionData);
-                    
-                    // Get the created session details from the index
-                    const sessionInfo = storageManager.sessionIndex.getSession(sessionId);
-                    
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({
-                        success: true,
-                        sessionId: sessionId,
-                        session: {
-                            id: sessionId,
-                            title: sessionInfo.title,
-                            createdAt: sessionInfo.createdAt,
-                            status: sessionInfo.status,
-                            messageCount: 0
-                        },
-                        _backend: BACKEND,
-                        _storage: 'new'
-                    }));
-                    return;
-                }
+                console.log(`[Server] Creating chat session for user: ${userId}`);
+                await storageManager.createSession(sessionData);
                 
-                // Fallback for non-storage manager mode
+                // Get the created session details from the index
+                const sessionInfo = storageManager.sessionIndex.getSession(sessionId);
+                
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                     success: true,
                     sessionId: sessionId,
                     session: {
                         id: sessionId,
-                        title: data.title || 'New Chat',
-                        createdAt: new Date().toISOString(),
-                        status: 'active',
+                        title: sessionInfo.title,
+                        createdAt: sessionInfo.createdAt,
+                        status: sessionInfo.status,
                         messageCount: 0
                     },
                     _backend: BACKEND,
-                    _note: 'Session created in memory only - storage manager not available'
+                    _storage: 'new'
                 }));
-                
-            } catch (error) {
-                console.error('Create chat error:', error);
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ 
-                    error: 'Failed to create chat session',
-                    details: error.message
-                }));
+                return;
             }
-        });
+            
+            // Fallback for non-storage manager mode
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                success: true,
+                sessionId: sessionId,
+                session: {
+                    id: sessionId,
+                    title: data.title || 'New Chat',
+                    createdAt: new Date().toISOString(),
+                    status: 'active',
+                    messageCount: 0
+                },
+                _backend: BACKEND,
+                _note: 'Session created in memory only - storage manager not available'
+            }));
+            
+        } catch (error) {
+            console.error('Create chat error:', error);
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                error: 'Failed to create chat session',
+                details: error.message
+            }));
+        }
     } else if (req.url.match(/^\/api\/chats\/([^/]+)\/messages$/) && req.method === 'POST') {
         // Save messages from frontend (batch operation)
         let body = '';

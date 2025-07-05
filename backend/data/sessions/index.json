@@ -786,5 +786,320 @@
       "lastReadAt": "2025-07-04T21:18:05.595Z",
       "lastAgent": "AnalyticalAgent"
     }
+  },
+  "session_1751738417411_94lsgoiig": {
+    "file": "session_session_1751738417411_94lsgoiig.jsonl",
+    "toolsFile": "session_session_1751738417411_94lsgoiig_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:00:17.411Z",
+    "startedAt": "2025-07-05T18:00:17.411Z",
+    "lastActivityAt": "2025-07-05T18:00:17.411Z",
+    "messageCount": 0,
+    "title": "root => createDOMPurify(root)",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751738426950_jtdxdt8xk": {
+    "file": "session_session_1751738426950_jtdxdt8xk.jsonl",
+    "toolsFile": "session_session_1751738426950_jtdxdt8xk_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:00:26.950Z",
+    "startedAt": "2025-07-05T18:00:26.950Z",
+    "lastActivityAt": "2025-07-05T18:00:26.950Z",
+    "messageCount": 0,
+    "title": "root => createDOMPurify(root)",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751738696383_vmz5yi3t4": {
+    "file": "session_session_1751738696383_vmz5yi3t4.jsonl",
+    "toolsFile": "session_session_1751738696383_vmz5yi3t4_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:04:56.383Z",
+    "startedAt": "2025-07-05T18:04:56.383Z",
+    "lastActivityAt": "2025-07-05T18:04:56.384Z",
+    "messageCount": 0,
+    "title": "root => createDOMPurify(root)",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-05T18:04:56.392Z"
+    }
+  },
+  "session_1751738837813_ejvycymqk": {
+    "file": "session_session_1751738837813_ejvycymqk.jsonl",
+    "toolsFile": "session_session_1751738837813_ejvycymqk_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:07:17.813Z",
+    "startedAt": "2025-07-05T18:07:17.813Z",
+    "lastActivityAt": "2025-07-05T18:07:17.814Z",
+    "messageCount": 0,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-05T18:07:17.824Z"
+    }
+  },
+  "session_1751738859640_xci38u6oi": {
+    "file": "session_session_1751738859640_xci38u6oi.jsonl",
+    "toolsFile": "session_session_1751738859640_xci38u6oi_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:07:39.640Z",
+    "startedAt": "2025-07-05T18:07:39.640Z",
+    "lastActivityAt": "2025-07-05T18:07:39.640Z",
+    "messageCount": 0,
+    "title": "Test Chat Title",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751738959848_8z6ocn5pb": {
+    "file": "session_session_1751738959848_8z6ocn5pb.jsonl",
+    "toolsFile": "session_session_1751738959848_8z6ocn5pb_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:09:19.848Z",
+    "startedAt": "2025-07-05T18:09:19.848Z",
+    "lastActivityAt": "2025-07-05T18:09:19.849Z",
+    "messageCount": 0,
+    "title": "Test Chat Title",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751738959867_4xnn2oycw": {
+    "file": "session_session_1751738959867_4xnn2oycw.jsonl",
+    "toolsFile": "session_session_1751738959867_4xnn2oycw_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:09:19.867Z",
+    "startedAt": "2025-07-05T18:09:19.867Z",
+    "lastActivityAt": "2025-07-05T18:09:19.867Z",
+    "messageCount": 0,
+    "title": "Chat with @#$% symbols!",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751738959889_red1rmqme": {
+    "file": "session_session_1751738959889_red1rmqme.jsonl",
+    "toolsFile": "session_session_1751738959889_red1rmqme_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:09:19.889Z",
+    "startedAt": "2025-07-05T18:09:19.889Z",
+    "lastActivityAt": "2025-07-05T18:09:19.890Z",
+    "messageCount": 0,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751738959900_besbsoz0o": {
+    "file": "session_session_1751738959900_besbsoz0o.jsonl",
+    "toolsFile": "session_session_1751738959900_besbsoz0o_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:09:19.900Z",
+    "startedAt": "2025-07-05T18:09:19.900Z",
+    "lastActivityAt": "2025-07-05T18:09:19.900Z",
+    "messageCount": 0,
+    "title": "Trimmed Title",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751738998108_cw4wsq3ic": {
+    "file": "session_session_1751738998108_cw4wsq3ic.jsonl",
+    "toolsFile": "session_session_1751738998108_cw4wsq3ic_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:09:58.108Z",
+    "startedAt": "2025-07-05T18:09:58.108Z",
+    "lastActivityAt": "2025-07-05T18:09:58.108Z",
+    "messageCount": 0,
+    "title": "Test Chat Title",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751738998119_cri7qhf1o": {
+    "file": "session_session_1751738998119_cri7qhf1o.jsonl",
+    "toolsFile": "session_session_1751738998119_cri7qhf1o_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:09:58.119Z",
+    "startedAt": "2025-07-05T18:09:58.119Z",
+    "lastActivityAt": "2025-07-05T18:09:58.119Z",
+    "messageCount": 0,
+    "title": "Chat with @#$% symbols!",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751738998132_dzm50wbqa": {
+    "file": "session_session_1751738998132_dzm50wbqa.jsonl",
+    "toolsFile": "session_session_1751738998132_dzm50wbqa_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:09:58.132Z",
+    "startedAt": "2025-07-05T18:09:58.132Z",
+    "lastActivityAt": "2025-07-05T18:09:58.132Z",
+    "messageCount": 0,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751738998145_61yqmbsgf": {
+    "file": "session_session_1751738998145_61yqmbsgf.jsonl",
+    "toolsFile": "session_session_1751738998145_61yqmbsgf_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:09:58.145Z",
+    "startedAt": "2025-07-05T18:09:58.145Z",
+    "lastActivityAt": "2025-07-05T18:09:58.145Z",
+    "messageCount": 0,
+    "title": "Trimmed Title",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751739031686_ge1543fg3": {
+    "file": "session_session_1751739031686_ge1543fg3.jsonl",
+    "toolsFile": "session_session_1751739031686_ge1543fg3_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:10:31.686Z",
+    "startedAt": "2025-07-05T18:10:31.686Z",
+    "lastActivityAt": "2025-07-05T18:10:31.686Z",
+    "messageCount": 0,
+    "title": "Test Chat Title",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751739031705_7026bvrch": {
+    "file": "session_session_1751739031705_7026bvrch.jsonl",
+    "toolsFile": "session_session_1751739031705_7026bvrch_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:10:31.705Z",
+    "startedAt": "2025-07-05T18:10:31.705Z",
+    "lastActivityAt": "2025-07-05T18:10:31.705Z",
+    "messageCount": 0,
+    "title": "Chat with @#$% symbols!",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751739031715_dh701k4co": {
+    "file": "session_session_1751739031715_dh701k4co.jsonl",
+    "toolsFile": "session_session_1751739031715_dh701k4co_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:10:31.715Z",
+    "startedAt": "2025-07-05T18:10:31.715Z",
+    "lastActivityAt": "2025-07-05T18:10:31.715Z",
+    "messageCount": 0,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751739031722_h4mkykfuv": {
+    "file": "session_session_1751739031722_h4mkykfuv.jsonl",
+    "toolsFile": "session_session_1751739031722_h4mkykfuv_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:10:31.722Z",
+    "startedAt": "2025-07-05T18:10:31.722Z",
+    "lastActivityAt": "2025-07-05T18:10:31.722Z",
+    "messageCount": 0,
+    "title": "Trimmed Title",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751739175156_n0kqnodid": {
+    "file": "session_session_1751739175156_n0kqnodid.jsonl",
+    "toolsFile": "session_session_1751739175156_n0kqnodid_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:12:55.156Z",
+    "startedAt": "2025-07-05T18:12:55.156Z",
+    "lastActivityAt": "2025-07-05T18:12:55.156Z",
+    "messageCount": 0,
+    "title": "Test Chat Title",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751739175172_ggvkk8m6d": {
+    "file": "session_session_1751739175172_ggvkk8m6d.jsonl",
+    "toolsFile": "session_session_1751739175172_ggvkk8m6d_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:12:55.172Z",
+    "startedAt": "2025-07-05T18:12:55.172Z",
+    "lastActivityAt": "2025-07-05T18:12:55.172Z",
+    "messageCount": 0,
+    "title": "Chat with @#$% symbols!",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751739175180_89wjftbgx": {
+    "file": "session_session_1751739175180_89wjftbgx.jsonl",
+    "toolsFile": "session_session_1751739175180_89wjftbgx_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:12:55.180Z",
+    "startedAt": "2025-07-05T18:12:55.180Z",
+    "lastActivityAt": "2025-07-05T18:12:55.180Z",
+    "messageCount": 0,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751739175189_k1sntjzzl": {
+    "file": "session_session_1751739175189_k1sntjzzl.jsonl",
+    "toolsFile": "session_session_1751739175189_k1sntjzzl_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T18:12:55.189Z",
+    "startedAt": "2025-07-05T18:12:55.189Z",
+    "lastActivityAt": "2025-07-05T18:12:55.189Z",
+    "messageCount": 0,
+    "title": "Trimmed Title",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
   }
 }

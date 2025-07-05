@@ -29,7 +29,8 @@ const securityTests = [
     'security/rate-limit-burst.test.js',
     'security/rate-limit-proof.test.js',
     'test-sse-done.js',
-    'test-csrf-only.js'
+    'test-csrf-only.js',
+    'auth/test-chat-title.js'
 ];
 
 // Track test results

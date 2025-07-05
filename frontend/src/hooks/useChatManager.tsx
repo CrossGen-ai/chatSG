@@ -9,6 +9,7 @@ import {
   markChatAsRead,
   createChat as createChatAPI
 } from '../api/chat';
+import { useAuth } from '../hooks/useAuth';
 
 // Chat interface definition - enhanced for remote storage
 export interface Chat {
@@ -112,6 +113,7 @@ const convertMetadataToChat = (metadata: ChatMetadata): Chat => {
 
 // ChatManager Provider component
 export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChatId, setActiveChatId] = useState<string>('');
   const [isLoadingChats, setIsLoadingChats] = useState(true);
@@ -381,7 +383,6 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
       // Call backend API to create chat
       const response = await createChatAPI({
         title: title || 'New Chat',
-        userId: 'default', // TODO: Get from user context
         metadata: {}
       });
       
@@ -413,7 +414,7 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
     } finally {
       setIsCreatingChat(false);
     }
-  }, []);
+  }, [user]);
 
   // Delete a chat with optimistic update and rollback
   const deleteChat = useCallback(async (id: string): Promise<void> => {
