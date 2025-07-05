@@ -9,11 +9,11 @@ ChatSG is a sophisticated multi-agent conversational AI platform that I'm helpin
 - **Agent System**: Modular architecture with specialized agents (Analytical, Creative, Technical)
 - **Storage**: JSONL file-based persistence with comprehensive index for fast lookups
 
-## Current Status (2025-07-04)
+## Current Status (2025-07-05)
 - ✅ Dependencies installed (frontend needs --legacy-peer-deps)
 - ✅ TypeScript compiled (npm run build in backend)
-- ❌ Backend needs .env configuration for LLM provider
-- ❌ Orchestrator not initialized (waiting for LLM credentials)
+- ✅ Backend configured with LLM provider
+- ✅ Orchestrator initialized and working
 - ✅ Removed localStorage for chat data (now using remote storage)
 - ✅ Added skeleton loading animations for better UX
 - ✅ Implemented optimistic updates with rollback
@@ -111,6 +111,7 @@ cd backend/tests && node run-tests.js
 npm run test:security            # Run all security tests
 npm run test:security:sse        # Test SSE security
 npm run test:security:middleware # Test security middleware
+npm run test:security:regression # Run regression test suite
 ```
 
 ## Server Management Details

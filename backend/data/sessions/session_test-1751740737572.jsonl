@@ -1,0 +1,2 @@
+{"timestamp":"2025-07-05T18:38:57.580Z","type":"user","content":"Quick test","metadata":{"sessionId":"test-1751740737572","userId":"2"}}
+{"timestamp":"2025-07-05T18:39:05.604Z","type":"assistant","content":"Certainly! Please provide the specific problem or dataset you'd like me to analyze, along with any relevant details or context. I'll be happy to assist with a thorough analysis.","metadata":{"sessionId":"test-1751740737572","agent":"AnalyticalAgent","agentType":"analytical","confidence":1,"streaming":true}}

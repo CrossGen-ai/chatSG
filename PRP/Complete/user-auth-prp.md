@@ -813,3 +813,70 @@ This implementation provides:
 **Confidence Score: 9/10**
 
 The implementation is comprehensive with clear patterns from the existing codebase. The only uncertainty is specific GCC High environment configurations which may require minor adjustments during testing.
+
+---
+
+## Lessons Learned
+
+### Security Implementation Journey (2025-07-05)
+
+During the implementation of user authentication and security features, we encountered and resolved several critical issues:
+
+#### 1. POST Request Body Parsing Timeout
+**Issue**: POST requests were timing out after 2 minutes with no response.
+**Root Cause**: Double parsing of request bodies - middleware already parsed the body, but handlers were trying to read the raw stream again with `req.on('data')`.
+**Fix**: Use `req.body` directly instead of manually reading the request stream.
+**Prevention**: Always check if body parsing middleware is already in place before implementing manual stream reading.
+
+#### 2. DOMPurify Title Corruption
+**Issue**: Chat titles showing as "root => createDOMPurify(root)" instead of actual titles.
+**Root Cause**: Incorrect DOMPurify usage - calling `DOMPurify()` instead of `DOMPurify.sanitize()`.
+**Fix**: Changed from `DOMPurify(title)` to `DOMPurify.sanitize(title, options)`.
+**Prevention**: Always refer to library documentation for correct API usage.
+
+#### 3. CSRF Token Mismatch for SSE
+**Issue**: SSE streaming requests failing with CSRF token validation errors.
+**Root Cause**: CSRF tokens were regenerated on every GET request, causing token mismatch between initial page load and SSE POST.
+**Fix**: Implemented token reuse - check for existing valid token before generating new one.
+**Prevention**: Consider token lifecycle when implementing CSRF protection, especially for multi-request flows.
+
+#### 4. SSE Special Handling Breaking Security
+**Issue**: Attempts to handle SSE differently bypassed security middleware.
+**Root Cause**: SSE endpoint was registered before security middleware in an attempt to avoid conflicts.
+**Fix**: Removed special handling - let SSE go through normal middleware chain like any other endpoint.
+**Prevention**: Maintain consistent security posture - all endpoints should go through the same security checks.
+
+### Key Takeaways
+
+1. **Middleware Order Matters**: Always ensure security middleware runs before route handlers.
+2. **Don't Double-Parse**: Express middleware often handles common tasks - check before implementing.
+3. **Test Multi-Step Flows**: SSE and other multi-request flows need special attention for token handling.
+4. **Consistency Over Convenience**: Avoid special cases that bypass security for "easier" implementation.
+5. **Mock Implementation is Critical**: Mock auth allowed rapid testing without complex Azure setup.
+
+### Comprehensive Documentation Created
+
+1. **USER-AUTH-IMPLEMENTATION.md**: Complete history and fixes
+2. **AZURE-AD-GCC-HIGH-SETUP.md**: Step-by-step GCC High configuration  
+3. **SECURITY-REGRESSION-TESTS.md**: Test suite documentation
+4. **TROUBLESHOOTING-GUIDE.md**: Common issues and solutions
+5. **Regression Test Suite**: Actual test implementation to prevent regressions
+
+### Testing Commands
+
+```bash
+# Run full security test suite
+npm run test:security
+
+# Run regression tests specifically  
+npm run test:security:regression
+
+# Test individual components
+cd backend/tests/security
+node test-auth-regression.js
+node test-csrf-regression.js
+node test-body-parsing.js
+node test-sse-regression.js
+node test-sanitization.js
+node test-rate-limiting.js
+```

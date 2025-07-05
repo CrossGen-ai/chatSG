@@ -200,10 +200,15 @@ async function runSecurityTests() {
   
   // Check if server is running
   try {
-    const healthCheck = await axios.get(`${BASE_URL}/health`);
-    if (healthCheck.status !== 200) {
-      throw new Error('Server health check failed');
+    // Try to fetch CSRF token as a health check
+    const healthCheck = await axios.get(`${BASE_URL}/api/config/security`, {
+      validateStatus: () => true,
+      timeout: 5000
+    });
+    if (healthCheck.status === 0 || !healthCheck.data) {
+      throw new Error('Server not responding');
     }
+    console.log('✅ Server is running and responding\n');
   } catch (error) {
     console.error('❌ Server is not running! Please start the server first.');
     console.error('Run: cd /Users/crossgenai/sg/chatSG/backend && npm run dev');

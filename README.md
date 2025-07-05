@@ -13,6 +13,17 @@ ChatSG is a sophisticated multi-agent conversational AI platform featuring speci
 - **Persistent Storage**: JSONL-based append-only storage with fast indexing
 - **Modern UI**: React 18 + TypeScript with glassmorphism design
 
+## Security Features
+
+- **CSRF Protection**: Header-based token implementation (X-CSRF-Token)
+- **Rate Limiting**: IP-based (100 req/15min) and connection-based limits for SSE
+- **XSS Prevention**: Multiple layers of input sanitization using DOMPurify
+- **Input Validation**: Message length, session ID format, and content validation
+- **Security Headers**: Comprehensive headers via Helmet.js (CSP, HSTS, X-Frame-Options)
+- **SSE Security**: Special security handling for Server-Sent Events streaming
+- **Authentication Ready**: Extensible auth middleware (mock in dev, Azure AD ready for production)
+- **Defense in Depth**: Multiple security layers from network to application level
+
 ## Architecture
 
 ```

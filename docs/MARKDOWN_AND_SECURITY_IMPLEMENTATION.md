@@ -23,7 +23,7 @@ This document summarizes the implementation of real-time markdown rendering with
 - **CSRF Protection**: Header-based token implementation (X-CSRF-Token)
 - **SSE Security**: Special security handling for Server-Sent Events
 - **XSS Prevention**: Multiple validation layers blocking script injection
-- **Auth Middleware Stub**: Extensible authentication framework for future implementation
+- **Auth Middleware**: Extensible authentication framework (mock in dev mode, Azure AD ready for production)
 
 ## Architecture
 

@@ -27,7 +27,8 @@
     "test:customer-support": "cd src/agents/agencies/customer-support && npm run test:isolated",
     "test:security": "cd tests && node test-all-security.js",
     "test:security:sse": "cd tests && node test-sse-security.js",
-    "test:security:middleware": "cd tests && node test-security-middleware.js"
+    "test:security:middleware": "cd tests && node test-security-middleware.js",
+    "test:security:regression": "cd tests/security && node regression-test-suite.js"
   },
   "keywords": [
     "chatsg",
