@@ -69,7 +69,7 @@ async function testLLMHelper() {
         // Test 6: Environment-specific settings
         console.log('\n🧪 Test 6: Environment-Specific Settings');
         console.log('🔧 Current Environment Settings:');
-        console.log(`   ENVIRONMENT: ${process.env.ENVIRONMENT || 'not set'}`);
+        console.log(`   CHATSG_ENVIRONMENT: ${process.env.CHATSG_ENVIRONMENT || 'not set'}`);
         console.log(`   NODE_ENV: ${process.env.NODE_ENV || 'not set'}`);
         console.log(`   LLM_TEMPERATURE: ${process.env.LLM_TEMPERATURE || 'not set (using default)'}`);
         console.log(`   LLM_MAX_TOKENS: ${process.env.LLM_MAX_TOKENS || 'not set (using default)'}`);

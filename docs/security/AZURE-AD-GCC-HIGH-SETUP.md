@@ -137,8 +137,9 @@ SESSION_MAX_AGE=86400000
 DATABASE_URL=postgresql://postgres:password@localhost:5432/chatsg
 
 # Development
-NODE_ENV=development
-USE_MOCK_AUTH=false  # Set to true for mock auth
+CHATSG_ENVIRONMENT=dev  # Application environment
+NODE_ENV=development    # Node.js ecosystem standard
+USE_MOCK_AUTH=false     # Set to true for mock auth
 ```
 
 ### 2.2 MSAL Configuration

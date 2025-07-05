@@ -8,7 +8,7 @@ require('dotenv').config();
 console.log('=== ENVIRONMENT DEBUG ===');
 console.log('Current working directory:', process.cwd());
 console.log('__dirname:', __dirname);
-console.log('process.env.ENVIRONMENT:', process.env.ENVIRONMENT);
+console.log('process.env.CHATSG_ENVIRONMENT:', process.env.CHATSG_ENVIRONMENT);
 console.log('process.env.BACKEND:', process.env.BACKEND);
 console.log('========================');
 
@@ -91,7 +91,7 @@ try {
 const PORT = process.env.PORT || 3000;
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3000';
 const WEBHOOK_URL = process.env.WEBHOOK_URL || 'http://localhost:5678/webhook/chat';
-const ENVIRONMENT = process.env.ENVIRONMENT || 'production'; // Legacy support
+const ENVIRONMENT = process.env.CHATSG_ENVIRONMENT || 'production'; // Application environment
 const BACKEND = process.env.BACKEND || 'Orch'; // New backend routing: 'Orch', 'n8n', 'Generic'
 
 // Initialize storage manager
@@ -555,7 +555,7 @@ const server = http.createServer(async (req, res) => {
             status: 'healthy',
             timestamp: new Date().toISOString(),
             uptime: process.uptime(),
-            environment: process.env.ENVIRONMENT || 'unknown',
+            environment: process.env.CHATSG_ENVIRONMENT || 'unknown',
             backend: process.env.BACKEND || 'unknown',
             orchestrator: orchestrationSetup ? 'initialized' : 'not initialized',
             storage: getStorageManager ? 'available' : 'not available',

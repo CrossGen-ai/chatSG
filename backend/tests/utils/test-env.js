@@ -1,13 +1,13 @@
 // Test dotenv loading
 console.log('=== Testing dotenv loading ===');
 console.log('Before dotenv:');
-console.log('ENVIRONMENT:', process.env.ENVIRONMENT);
+console.log('CHATSG_ENVIRONMENT:', process.env.CHATSG_ENVIRONMENT);
 console.log('BACKEND:', process.env.BACKEND);
 
 require('dotenv').config({ path: '../.env' });
 
 console.log('\nAfter dotenv:');
-console.log('ENVIRONMENT:', process.env.ENVIRONMENT);
+console.log('CHATSG_ENVIRONMENT:', process.env.CHATSG_ENVIRONMENT);
 console.log('BACKEND:', process.env.BACKEND);
 
 console.log('\nCurrent working directory:', process.cwd());

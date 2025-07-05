@@ -65,6 +65,10 @@ chatSG/
 
 ## Environment Configuration Needed
 ```bash
+# Application environment
+CHATSG_ENVIRONMENT=dev  # Application-specific environment
+NODE_ENV=development    # Node.js ecosystem standard
+
 # Backend routing mode
 BACKEND=Orch  # Recommended
 

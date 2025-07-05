@@ -41,7 +41,7 @@ class LLMHelper {
      * Build configuration object based on detected provider
      */
     buildConfiguration() {
-        const environment = process.env.ENVIRONMENT || process.env.NODE_ENV || 'development';
+        const environment = process.env.CHATSG_ENVIRONMENT || process.env.NODE_ENV || 'development';
         
         switch (this.provider) {
             case 'azure':

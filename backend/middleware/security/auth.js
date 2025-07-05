@@ -17,7 +17,7 @@ const authProvider = createAuthProvider(authConfig);
 const authenticate = async (req, res, next) => {
   try {
     // Development mode bypass
-    if (process.env.ENVIRONMENT === 'dev' && process.env.USE_MOCK_AUTH === 'true') {
+    if (process.env.CHATSG_ENVIRONMENT === 'dev' && process.env.USE_MOCK_AUTH === 'true') {
       // Just get the existing dev user from database
       const dbUser = await getUserByAzureId('mock-azure-id');
       
@@ -127,7 +127,7 @@ const requireRole = (role) => {
 const login = async (req, res) => {
   try {
     // Development mode bypass
-    if (process.env.ENVIRONMENT === 'dev' && process.env.USE_MOCK_AUTH === 'true') {
+    if (process.env.CHATSG_ENVIRONMENT === 'dev' && process.env.USE_MOCK_AUTH === 'true') {
       // Just get the existing dev user from database
       const dbUser = await getUserByAzureId('mock-azure-id');
       

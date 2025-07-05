@@ -73,6 +73,10 @@ cp backend/.env.example backend/.env
 ### Environment Configuration
 
 ```bash
+# Application environment
+CHATSG_ENVIRONMENT=dev  # Application-specific environment (dev/production)
+NODE_ENV=development    # Node.js ecosystem standard (development/production)
+
 # Backend routing mode
 BACKEND=Orch  # Recommended for multi-agent orchestration
 

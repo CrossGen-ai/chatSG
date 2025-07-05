@@ -101,7 +101,7 @@ class MockAuthProvider {
 
 // Factory function to create auth provider based on environment
 function createAuthProvider(config) {
-  const isDevelopment = process.env.ENVIRONMENT === 'dev' || process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env.CHATSG_ENVIRONMENT === 'dev' || process.env.NODE_ENV === 'development';
   const useMockAuth = process.env.USE_MOCK_AUTH === 'true';
   
   if (isDevelopment && useMockAuth) {
