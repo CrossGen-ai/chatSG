@@ -84,7 +84,7 @@ export const MessageItem = React.memo<MessageItemProps>(({
             'px-4 py-3 rounded-2xl shadow-lg backdrop-blur-md border transition-all duration-200 hover:shadow-xl',
             message.sender === 'user'
               ? 'theme-accent text-white rounded-br-md border-blue-400/30 inline-block'
-              : 'bg-white/60 dark:bg-black/40 theme-text-primary rounded-bl-md border-white/20'
+              : 'bg-white/60 dark:bg-black/40 theme-text-primary rounded-bl-md border-white/20 w-full'
           )}
         >
           {message.content && !message.isStreaming ? (
@@ -92,7 +92,7 @@ export const MessageItem = React.memo<MessageItemProps>(({
             <MarkdownRenderer 
               content={message.content} 
               isStreaming={false}
-              className="text-sm leading-relaxed"
+              className="text-sm leading-relaxed w-full"
               darkMode={document.documentElement.classList.contains('dark')}
             />
           ) : message.isStreaming && message.content && message.content.trim() ? (
@@ -100,7 +100,7 @@ export const MessageItem = React.memo<MessageItemProps>(({
             <MarkdownRenderer 
               content={message.content} 
               isStreaming={true}
-              className="text-sm leading-relaxed"
+              className="text-sm leading-relaxed w-full"
               darkMode={document.documentElement.classList.contains('dark')}
             />
           ) : (

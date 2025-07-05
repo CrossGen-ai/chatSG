@@ -748,8 +748,8 @@
     "status": "active",
     "createdAt": "2025-07-04T01:34:47.202Z",
     "startedAt": "2025-07-04T01:34:47.202Z",
-    "lastActivityAt": "2025-07-04T01:35:14.613Z",
-    "messageCount": 2,
+    "lastActivityAt": "2025-07-05T20:00:14.759Z",
+    "messageCount": 4,
     "title": "What is 2+2?",
     "metadata": {
       "unreadCount": 0,
@@ -844,7 +844,7 @@
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-05T19:09:57.716Z",
+      "lastReadAt": "2025-07-05T19:10:05.166Z",
       "lastAgent": "AnalyticalAgent"
     }
   },
@@ -1358,6 +1358,83 @@
       "unreadCount": 0,
       "lastReadAt": null,
       "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-csrf": {
+    "file": "session_test-csrf.jsonl",
+    "toolsFile": "session_test-csrf_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T19:59:52.168Z",
+    "startedAt": "2025-07-05T19:59:52.168Z",
+    "lastActivityAt": "2025-07-05T21:35:12.336Z",
+    "messageCount": 55,
+    "title": "hello with CSRF",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-05T21:35:13.941Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "session_1751745602299_17qloaakq": {
+    "file": "session_session_1751745602299_17qloaakq.jsonl",
+    "toolsFile": "session_session_1751745602299_17qloaakq_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-05T20:00:02.299Z",
+    "startedAt": "2025-07-05T20:00:02.299Z",
+    "lastActivityAt": "2025-07-05T20:30:02.299Z",
+    "messageCount": 0,
+    "title": "Test Chat Title",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751745602310_7rbsexdn5": {
+    "file": "session_session_1751745602310_7rbsexdn5.jsonl",
+    "toolsFile": "session_session_1751745602310_7rbsexdn5_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-05T20:00:02.310Z",
+    "startedAt": "2025-07-05T20:00:02.310Z",
+    "lastActivityAt": "2025-07-05T20:30:02.310Z",
+    "messageCount": 0,
+    "title": "Chat with @#$% symbols!",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-05T21:09:17.738Z"
+    }
+  },
+  "session_1751745602315_4u1jtrwpe": {
+    "file": "session_session_1751745602315_4u1jtrwpe.jsonl",
+    "toolsFile": "session_session_1751745602315_4u1jtrwpe_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-05T20:00:02.315Z",
+    "startedAt": "2025-07-05T20:00:02.315Z",
+    "lastActivityAt": "2025-07-05T20:30:02.316Z",
+    "messageCount": 0,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "session_1751745602322_ns2i36d92": {
+    "file": "session_session_1751745602322_ns2i36d92.jsonl",
+    "toolsFile": "session_session_1751745602322_ns2i36d92_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-05T20:00:02.322Z",
+    "startedAt": "2025-07-05T20:00:02.322Z",
+    "lastActivityAt": "2025-07-05T21:15:33.453Z",
+    "messageCount": 6,
+    "title": "Trimmed Title",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-05T21:15:28.024Z",
+      "lastAgent": "CreativeAgent"
     }
   }
 }

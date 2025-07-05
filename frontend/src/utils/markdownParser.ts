@@ -31,6 +31,7 @@ export function parseMarkdownProgressive(
   // PATTERN: Only parse new content since last position
   const newContent = content.slice(lastPosition);
   
+  
   // CRITICAL: Identify complete markdown elements
   const completeElements = findCompleteMarkdownElements(newContent);
   
@@ -39,11 +40,23 @@ export function parseMarkdownProgressive(
   let currentPos = lastPosition;
   
   for (const element of completeElements) {
-    // Parse markdown to HTML
-    const rawHtml = marked.parse(element.text);
+    let cleanHtml;
     
-    // SECURITY: Sanitize the HTML
-    const cleanHtml = sanitizeMarkdown(rawHtml);
+    // Check if this is plain text (no markdown formatting)
+    if (isPlainText(element.text)) {
+      // For plain text, don't wrap in <p> tags - just escape and use as-is
+      cleanHtml = escapeHtml(element.text);
+    } else {
+      // Parse markdown to HTML
+      const rawHtml = marked.parse(element.text);
+      
+      // SECURITY: Sanitize the HTML
+      cleanHtml = sanitizeMarkdown(rawHtml);
+      
+      // For streaming, convert block elements to inline where appropriate
+      cleanHtml = convertBlockToInlineForStreaming(cleanHtml);
+    }
+    
     
     parsedHtml += cleanHtml;
     currentPos += element.length;
@@ -51,6 +64,7 @@ export function parseMarkdownProgressive(
   
   // Return pending markdown that's incomplete
   const pendingMarkdown = content.slice(currentPos);
+  
   
   return {
     html: parsedHtml,
@@ -226,4 +240,51 @@ export function hasIncompleteMarkdown(text: string): boolean {
   }
   
   return false;
+}
+
+/**
+ * Check if text is plain text with no markdown formatting
+ */
+function isPlainText(text: string): boolean {
+  // Check for markdown indicators
+  const markdownPattern = /[*_`#\[\]>-]|^\d+\./;
+  return !markdownPattern.test(text);
+}
+
+/**
+ * Convert block elements to inline for better streaming flow
+ */
+function convertBlockToInlineForStreaming(html: string): string {
+  // Convert <p> tags to just the content (inline)
+  html = html.replace(/<p>(.*?)<\/p>/g, '$1');
+  
+  // Normalize whitespace - convert multiple spaces/line breaks to single spaces
+  html = html.replace(/\s+/g, ' ');
+  
+  // Remove leading/trailing whitespace
+  html = html.trim();
+  
+  // If we have content, ensure it ends with a space for natural flow
+  if (html.length > 0 && !html.endsWith(' ')) {
+    html += ' ';
+  }
+  
+  return html;
+}
+
+/**
+ * Escape HTML entities for plain text and normalize whitespace
+ */
+function escapeHtml(text: string): string {
+  // First normalize whitespace like we do for parsed content
+  text = text.replace(/\s+/g, ' ').trim();
+  
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;'
+  };
+  return text.replace(/[&<>"']/g, char => map[char]);
 }

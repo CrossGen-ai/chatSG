@@ -180,11 +180,166 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   const [streamingMessageId, setStreamingMessageId] = useState<number | null>(null); // Track which message is streaming
   const [streamingAgent, setStreamingAgent] = useState<string | undefined>(); // Track which agent is streaming
   const [statusMessages, setStatusMessages] = useState<StatusMessageProps[]>([]); // Track status messages during streaming
+  
+  // 2025 Best Practices: User scroll state management
+  const [userHasScrolled, setUserHasScrolled] = useState(false); // Track if user manually scrolled
+  const [isAtBottom, setIsAtBottom] = useState(true); // Track if user is at/near bottom
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true); // Control auto-scroll behavior
+  const lastScrollTopRef = useRef(0); // Track scroll direction
+  const scrollTimeoutRef = useRef<NodeJS.Timeout>(); // Debounce scroll events
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [pendingRequests, setPendingRequests] = useState<Map<string, AbortController>>(new Map());
   const streamControllerRef = useRef<{ abort: () => void } | null>(null);
   const accumulatedContentRef = useRef<string>(''); // Use ref to track accumulated content during streaming
+  
+  // Simple debug function to scroll to user message  
+  const positionForBotResponse = useCallback(() => {
+    console.log('[DEBUG] positionForBotResponse called');
+    
+    if (!messagesContainerRef.current) {
+      console.log('[DEBUG] No container ref');
+      return;
+    }
+    
+    // Try multiple times with increasing delays to ensure DOM is ready
+    const attemptScroll = (attempt = 1) => {
+      console.log(`[DEBUG] Scroll attempt ${attempt}`);
+      
+      if (!messagesContainerRef.current) return;
+      
+      const container = messagesContainerRef.current;
+      const messageElements = container.querySelectorAll('[data-message-id]');
+      console.log(`[DEBUG] Found ${messageElements.length} message elements`);
+      
+      // Find the second-to-last element (user message, since bot placeholder was just added)
+      if (messageElements.length >= 2) {
+        const userMessageElement = messageElements[messageElements.length - 2];
+        console.log('[DEBUG] Found user message element, scrolling to it');
+        
+        userMessageElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+        return; // Success, stop retrying
+      }
+      
+      // Retry if we don't have enough elements yet
+      if (attempt < 5) {
+        setTimeout(() => attemptScroll(attempt + 1), attempt * 200);
+      } else {
+        console.log('[DEBUG] Failed to find user message after 5 attempts');
+      }
+    };
+    
+    // Start with immediate attempt, then delayed retries
+    setTimeout(() => attemptScroll(), 50);
+  }, []);
+  
+  // 2025 Best Practices: Smart streaming scroll that respects user intent
+  const handleStreamingScroll = useCallback(() => {
+    if (!messagesContainerRef.current || !isStreaming || !autoScrollEnabled) {
+      console.log('[SmartScroll] Streaming scroll skipped:', { 
+        hasRef: !!messagesContainerRef.current, 
+        isStreaming,
+        autoScrollEnabled
+      });
+      return;
+    }
+    
+    const container = messagesContainerRef.current;
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+    
+    // Only auto-scroll if content is growing and user hasn't scrolled away
+    if (distanceFromBottom > 100 && !userHasScrolled) {
+      console.log('[SmartScroll] Progressive scroll to follow streaming content');
+      
+      container.scrollTo({
+        top: scrollHeight - clientHeight,
+        behavior: 'smooth'
+      });
+    }
+  }, [isStreaming, autoScrollEnabled, userHasScrolled]);
+  
+  // 2025 Best Practices: Smart scroll detection with throttling
+  const handleUserScroll = useCallback(() => {
+    if (!messagesContainerRef.current) return;
+    
+    const container = messagesContainerRef.current;
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const scrollDirection = scrollTop > lastScrollTopRef.current ? 'down' : 'up';
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+    const currentIsAtBottom = distanceFromBottom < 50; // 50px threshold
+    
+    // Clear any pending scroll timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    
+    // Update scroll direction reference
+    lastScrollTopRef.current = scrollTop;
+    
+    // Update bottom state immediately
+    setIsAtBottom(currentIsAtBottom);
+    
+    // Detect if this is user-initiated scrolling (not during auto-scroll operations)
+    if (!isStreaming || scrollDirection === 'up') {
+      setUserHasScrolled(true);
+      setAutoScrollEnabled(currentIsAtBottom); // Re-enable auto-scroll only when at bottom
+    }
+    
+    // Debounce the user scroll detection to avoid excessive state updates  
+    scrollTimeoutRef.current = setTimeout(() => {
+      // Only log significant scroll changes (direction changes or reaching bottom)
+      if (scrollDirection === 'up' || currentIsAtBottom) {
+        console.log('[SmartScroll] Significant scroll:', scrollDirection, currentIsAtBottom ? 'at bottom' : 'not at bottom');
+      }
+    }, 100);
+  }, [isStreaming]);
+  
+  // Set up scroll event listener
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    
+    // Throttled scroll handler for performance
+    let ticking = false;
+    const throttledScrollHandler = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleUserScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    container.addEventListener('scroll', throttledScrollHandler, { passive: true });
+    
+    return () => {
+      container.removeEventListener('scroll', throttledScrollHandler);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, [handleUserScroll]);
+  
+  // 2025 Best Practices: Reset scroll states when switching chats
+  useEffect(() => {
+    console.log('[SmartScroll] Chat changed, resetting scroll states');
+    setUserHasScrolled(false);
+    setIsAtBottom(true);
+    setAutoScrollEnabled(true);
+    lastScrollTopRef.current = 0;
+    
+    // Clear any pending scroll timeouts
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+  }, [effectiveActiveChatId]);
   
   // Per-session streaming state management
   interface StreamingState {
@@ -275,7 +430,10 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   useEffect(() => {
     if (currentChat) {
       setIsLoadingRemoteMessages(currentChat.isLoadingMessages);
-      console.log(`[ChatUI] Updated loading state for session ${effectiveActiveChatId}: ${currentChat.isLoadingMessages}`);
+      // Only log when loading state actually changes
+      if (currentChat.isLoadingMessages) {
+        console.log(`[ChatUI] Loading messages for session ${effectiveActiveChatId}`);
+      }
     }
   }, [currentChat?.isLoadingMessages, effectiveActiveChatId]);
 
@@ -380,6 +538,16 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     }
   }, [effectiveActiveChatId, streamingSessionId, streamingMessageId, streamingMessage, streamingAgent, statusMessages, isStreaming]);
 
+  // ChatGPT-style streaming scroll: Handle scroll updates during streaming
+  useEffect(() => {
+    if (isStreaming && streamingMessage.length > 0) {
+      // Use requestAnimationFrame for smooth scrolling
+      requestAnimationFrame(() => {
+        handleStreamingScroll();
+      });
+    }
+  }, [streamingMessage, isStreaming, handleStreamingScroll]);
+
   // REMOVED: Request cancellation useEffect for background processing
 
   // Cleanup streaming on unmount only (not on chat change)
@@ -459,6 +627,9 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     setStreamingMessageId(botMessageId); // Track which message is streaming
     console.log('[ChatUI] Set streamingMessageId to:', botMessageId);
     
+    // 2025 Best Practices: Smart positioning with proper timing
+    positionForBotResponse();
+    
     try {
       // Check for pending slash command metadata
       const pendingSlashCommand = (window as any).__pendingSlashCommand;
@@ -518,6 +689,11 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             // Only update UI state if this is the active session
             if (originatingSessionId === activeChatIdRef.current) {
               setStreamingMessage(currentContent);
+              
+              // ChatGPT-style streaming scroll: Handle auto-scroll during streaming
+              setTimeout(() => {
+                handleStreamingScroll();
+              }, 50); // Small delay to ensure DOM has updated with new content
             }
             
             // Always update the message content in the array
@@ -605,6 +781,9 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
               setStreamingMessageId(null); // Clear streaming message
               setStreamingMessage('');
               setStatusMessages([]); // Clear status messages after streaming
+              
+              // 2025 Best Practices: Maintain scroll position where streaming ended
+              console.log('[SmartScroll] Streaming finished, maintaining current position');
             } else {
               console.log('[ChatUI] onDone - NOT clearing UI state - session mismatch');
             }
@@ -879,11 +1058,14 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   useEffect(() => {
     // CRITICAL: Don't sync during streaming - it will wipe out the placeholder!
     if (isStreaming) {
-      console.log('[ChatUI] Skipping displayedMessages sync - streaming in progress');
+      // Skip sync during streaming (logged only once per streaming session)
       return;
     }
     
-    console.log('[ChatUI] Syncing displayedMessages, messages.length:', messages.length, 'isStreaming:', isStreaming);
+    // Only log when there's a significant change in message count
+    if (messages.length % 10 === 0 || messages.length < 5) {
+      console.log('[ChatUI] Syncing displayedMessages, count:', messages.length);
+    }
     // Always show all messages after load more
     if (hasLoadedMore) {
       setDisplayedMessages(messages);
@@ -986,32 +1168,30 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     }
   }, [effectiveActiveChatId, currentChat, displayedMessages.length, loadMoreChatMessages, isLoadingMore]);
 
-  // Ensure scroll stays at bottom when displayed messages change
+  // 2025 Best Practices: Smart auto-scroll that respects user intent
   useEffect(() => {
-    if (isLoadingMore || hasLoadedMore) {
-      console.log('[ChatUI] Skipping bottom auto-scroll - load more operation');
-      return;
+    if (isLoadingMore || hasLoadedMore || isStreaming || !isScrollReady || isInitialLoad) {
+      return; // Skip during operations that manage their own scrolling
     }
     
-    if (isScrollReady && !isInitialLoad && displayedMessages.length > 0) {
-      // Use requestAnimationFrame for smoother scrolling
-      requestAnimationFrame(() => {
-        if (messagesContainerRef.current) {
-          const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-          const isNearBottom = scrollHeight - scrollTop - clientHeight < 200;
-          
-          // Auto-scroll if near bottom or if the last message is from the user
-          const lastMessage = displayedMessages[displayedMessages.length - 1];
-          if (isNearBottom || lastMessage?.sender === 'user') {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-          }
-        }
-      });
+    if (displayedMessages.length > 0 && autoScrollEnabled && isAtBottom) {
+      // Only auto-scroll when user is at bottom and hasn't manually scrolled away
+      const lastMessage = displayedMessages[displayedMessages.length - 1];
+      
+      if (lastMessage?.sender === 'user' || !userHasScrolled) {
+        console.log('[SmartScroll] Auto-scrolling to bottom for new message');
+        
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 0);
+      }
     }
-  }, [displayedMessages, isScrollReady, isInitialLoad, isLoadingMore, hasLoadedMore]);
+  }, [displayedMessages, isScrollReady, isInitialLoad, isLoadingMore, hasLoadedMore, isStreaming, autoScrollEnabled, isAtBottom, userHasScrolled]);
 
-  // DEBUG: Log render
-  console.log('[RENDER] ChatUI rendering, streamingMessage length:', streamingMessage.length, 'isStreaming:', isStreaming);
+  // DEBUG: Only log render when streaming starts/stops
+  if (isStreaming && streamingMessage.length < 50) {
+    console.log('[RENDER] Streaming started, message length:', streamingMessage.length);
+  }
   
   return (
     <ChatSettingsProvider sessionId={effectiveActiveChatId || 'default'}>
@@ -1113,15 +1293,11 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
                                       streamingMessageId === msg.id) ||
                                      isMessageStreaming;
             
-            // DEBUG: Log streaming detection
-            if (msg.sender === 'bot' && (isStreaming || isMessageStreaming)) {
-              console.log('[RENDER] Streaming check for bot msg:', {
+            // DEBUG: Only log when we find the actual streaming message
+            if (msg.sender === 'bot' && isStreamingMessage && msg.id === streamingMessageId) {
+              console.log('[RENDER] Found streaming message:', {
                 msgId: msg.id,
-                streamingMessageId,
-                isMatch: msg.id === streamingMessageId,
-                isStreamingMessage,
-                hasStreamingState: !!streamingState,
-                streamingContent: (streamingMessage || streamingState?.content || '').substring(0, 30) + '...'
+                contentLength: (streamingMessage || streamingState?.content || '').length
               });
             }
             
@@ -1222,64 +1398,64 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       </div>
     </div>
     
-    {/* DEBUG PANEL - TEMPORARY */}
+    {/* DEBUG PANEL - FLOATING GLASS OVERLAY */}
     {isStreaming && streamingSessionId === effectiveActiveChatId && (
-      <div className="w-96 ml-4 flex flex-col backdrop-blur-xl bg-red-500/10 dark:bg-red-900/10 rounded-2xl border-2 border-red-500/50 shadow-xl overflow-hidden">
-        <div className="p-4 border-b border-red-500/30 bg-red-500/20">
-          <h3 className="font-bold text-red-700 dark:text-red-300">🔴 DEBUG: Stream Monitor</h3>
-          <p className="text-xs text-red-600 dark:text-red-400 mt-1">TEMPORARY - Remove before production</p>
+      <div className="fixed top-4 right-4 w-80 max-h-96 z-50 flex flex-col backdrop-blur-3xl bg-red-500/5 dark:bg-red-900/5 rounded-2xl border border-red-500/20 shadow-2xl overflow-hidden">
+        <div className="p-3 border-b border-red-500/15 bg-red-500/10">
+          <h3 className="font-bold text-red-600 dark:text-red-400 text-sm">🔴 DEBUG: Stream Monitor</h3>
+          <p className="text-xs text-red-500 dark:text-red-500 mt-1 opacity-75">TEMPORARY - Remove before production</p>
         </div>
         
-        <div className="flex-1 overflow-auto p-4 space-y-4">
+        <div className="flex-1 overflow-auto p-3 space-y-3">
           {/* Raw accumulated content */}
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-red-700 dark:text-red-300">Raw Stream Output:</h4>
-            <div className="p-3 bg-black/20 rounded-lg font-mono text-xs text-green-400 whitespace-pre-wrap break-all">
+            <h4 className="text-xs font-semibold text-red-600 dark:text-red-400">Raw Stream Output:</h4>
+            <div className="p-2 bg-black/10 rounded-lg font-mono text-xs text-green-500 dark:text-green-400 whitespace-pre-wrap break-all max-h-24 overflow-y-auto">
               {debugStreamData.raw || '[No data yet...]'}
             </div>
-            <p className="text-xs text-red-600 dark:text-red-400">
+            <p className="text-xs text-red-500 dark:text-red-400 opacity-75">
               Total chars: {debugStreamData.raw.length}
             </p>
           </div>
           
           {/* Token list */}
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-red-700 dark:text-red-300">Tokens ({debugStreamData.tokens.length}):</h4>
-            <div className="max-h-40 overflow-y-auto p-3 bg-black/20 rounded-lg space-y-1">
+            <h4 className="text-xs font-semibold text-red-600 dark:text-red-400">Tokens ({debugStreamData.tokens.length}):</h4>
+            <div className="max-h-24 overflow-y-auto p-2 bg-black/10 rounded-lg space-y-1">
               {debugStreamData.tokens.map((token, i) => (
-                <div key={i} className="font-mono text-xs text-blue-400">
+                <div key={i} className="font-mono text-xs text-blue-500 dark:text-blue-400">
                   [{i}] "{token}" ({token.length} chars)
                 </div>
               ))}
               {debugStreamData.tokens.length === 0 && (
-                <p className="text-xs text-gray-500">[No tokens received yet]</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">[No tokens received yet]</p>
               )}
             </div>
           </div>
           
           {/* Events */}
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-red-700 dark:text-red-300">Events:</h4>
-            <div className="max-h-32 overflow-y-auto p-3 bg-black/20 rounded-lg space-y-1">
+            <h4 className="text-xs font-semibold text-red-600 dark:text-red-400">Events:</h4>
+            <div className="max-h-20 overflow-y-auto p-2 bg-black/10 rounded-lg space-y-1">
               {debugStreamData.events.map((event, i) => (
-                <div key={i} className="font-mono text-xs text-yellow-400">
+                <div key={i} className="font-mono text-xs text-yellow-600 dark:text-yellow-400">
                   {event}
                 </div>
               ))}
               {debugStreamData.events.length === 0 && (
-                <p className="text-xs text-gray-500">[No events yet]</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">[No events yet]</p>
               )}
             </div>
           </div>
           
           {/* State info */}
           <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-red-700 dark:text-red-300">Stream State:</h4>
-            <div className="p-3 bg-black/20 rounded-lg text-xs space-y-1">
-              <p className="text-orange-400">isStreaming: {isStreaming ? 'true' : 'false'}</p>
-              <p className="text-orange-400">streamingAgent: {streamingAgent || 'none'}</p>
-              <p className="text-orange-400">accumulatedContentRef: {accumulatedContentRef.current.length} chars</p>
-              <p className="text-orange-400">streamingMessage length: {streamingMessage.length}</p>
+            <h4 className="text-xs font-semibold text-red-600 dark:text-red-400">Stream State:</h4>
+            <div className="p-2 bg-black/10 rounded-lg text-xs space-y-1">
+              <p className="text-orange-600 dark:text-orange-400">isStreaming: {isStreaming ? 'true' : 'false'}</p>
+              <p className="text-orange-600 dark:text-orange-400">streamingAgent: {streamingAgent || 'none'}</p>
+              <p className="text-orange-600 dark:text-orange-400">accumulatedContentRef: {accumulatedContentRef.current.length} chars</p>
+              <p className="text-orange-600 dark:text-orange-400">streamingMessage length: {streamingMessage.length}</p>
             </div>
           </div>
         </div>

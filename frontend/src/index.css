@@ -514,3 +514,50 @@ code {
 .markdown-rendered > *:last-child {
   margin-bottom: 0;
 }
+
+/* Streaming markdown fixes */
+.markdown-content.streaming {
+  width: 100%;
+  min-width: 0; /* Allow flex shrinking */
+  flex: 1; /* Take full available width */
+}
+
+.markdown-rendered.streaming-content {
+  width: 100%;
+  min-width: 0; /* Allow flex shrinking */
+  white-space: pre-wrap; /* Preserve whitespace but allow wrapping */
+  word-break: break-word; /* Break long words properly */
+  overflow-wrap: break-word; /* Additional word breaking support */
+  max-width: 100%; /* Ensure it doesn't overflow */
+}
+
+.streaming-content .pending-markdown {
+  display: inline;
+  white-space: normal; /* Change from pre-wrap to normal */
+  word-break: break-word;
+  max-width: 100%;
+  /* Ensure it flows inline with previous content */
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+}
+
+/* Ensure all markdown content respects parent width */
+.markdown-content {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Streaming wrapper to ensure proper layout */
+.streaming-wrapper {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  white-space: normal; /* Change from pre-wrap to normal for better spacing */
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0; /* Allow flex shrinking */
+  flex: 1;
+  line-height: 1.6; /* Match markdown-rendered line height */
+}

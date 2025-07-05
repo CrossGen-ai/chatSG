@@ -483,7 +483,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
                                 </div>
                               )}
                               
-                              {console.log(`[ChatSidebar] Chat ${chat.id}: hasNewMessages=${chat.hasNewMessages}, unreadCount=${chat.unreadCount}, isLoading=${chat.isLoading}`)}
+                              {/* Debug logs removed for performance */}
                               
                               {/* Sync status indicator */}
                               {!chat.isSynced && isDeletingChat !== chat.id && (

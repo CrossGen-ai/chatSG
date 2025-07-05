@@ -63,8 +63,13 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = React.memo(({
       pendingContentRef.current = result.pendingMarkdown;
       
       // Return accumulated parsed content + pending plain text
-      return parsedContentRef.current + 
-        (pendingContentRef.current ? `<span class="pending-markdown">${escapeHtml(pendingContentRef.current)}</span>` : '');
+      // Normalize pending content to avoid double spaces
+      const normalizedPending = pendingContentRef.current ? pendingContentRef.current.replace(/\s+/g, ' ').trim() : '';
+      const pendingHtml = normalizedPending ? 
+        `<span class="pending-markdown">${escapeHtml(normalizedPending)}</span>` : '';
+      
+      // Wrap everything in a container to ensure proper layout
+      return `<div class="streaming-wrapper">${parsedContentRef.current}${pendingHtml}</div>`;
     } else {
       // Complete parsing for static content
       return parseMarkdownComplete(content, config);
@@ -104,12 +109,12 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = React.memo(({
   
   return (
     <div 
-      className={`markdown-content ${className} ${darkMode ? 'dark' : 'light'}`}
+      className={`markdown-content ${className} ${darkMode ? 'dark' : 'light'} ${isStreaming ? 'streaming' : ''}`}
       style={themeStyles}
     >
       <div 
         dangerouslySetInnerHTML={{ __html: parsedHtml }}
-        className="markdown-rendered"
+        className={`markdown-rendered ${isStreaming ? 'streaming-content' : ''}`}
       />
       {showPendingIndicator && (
         <span className="markdown-pending-indicator" aria-label="Processing markdown...">

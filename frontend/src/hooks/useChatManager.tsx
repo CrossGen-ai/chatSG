@@ -175,7 +175,10 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
       prevChats.map(chat => {
         if (chat.id === id) {
           const updatedChat = { ...chat, ...updates };
-          console.log(`[updateChatMetadata] Chat ${id} updated - hasNewMessages: ${chat.hasNewMessages} -> ${updatedChat.hasNewMessages}, unreadCount: ${chat.unreadCount} -> ${updatedChat.unreadCount}`);
+          // Only log significant changes (when values actually change)
+          if (chat.hasNewMessages !== updatedChat.hasNewMessages || chat.unreadCount !== updatedChat.unreadCount) {
+            console.log(`[updateChatMetadata] Chat ${id} updated - hasNewMessages: ${chat.hasNewMessages} -> ${updatedChat.hasNewMessages}, unreadCount: ${chat.unreadCount} -> ${updatedChat.unreadCount}`);
+          }
           return updatedChat;
         }
         return chat;
