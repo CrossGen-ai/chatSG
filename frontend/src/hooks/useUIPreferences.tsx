@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 interface UIPreferences {
   theme: string;
   sidebarOpen: boolean;
+  sidebarPinned: boolean;
   // Future preferences can be added here:
   // fontSize?: 'small' | 'medium' | 'large';
   // compactMode?: boolean;
@@ -14,6 +15,7 @@ const STORAGE_KEY = 'chatsg-ui-preferences';
 const defaultPreferences: UIPreferences = {
   theme: 'light',
   sidebarOpen: false,
+  sidebarPinned: false,
 };
 
 export function useUIPreferences() {

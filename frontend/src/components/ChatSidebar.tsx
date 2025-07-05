@@ -5,9 +5,11 @@ import { ChatListSkeleton } from './SkeletonLoader';
 interface ChatSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  isPinned: boolean;
+  onTogglePin: () => void;
 }
 
-export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => {
+export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPinned, onTogglePin }) => {
   const { 
     chats, 
     activeChatId, 
@@ -159,7 +161,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
     try {
       const newChatId = await createChat();
       switchChat(newChatId);
-      onClose(); // Close sidebar on mobile after creating chat
+      // Only close sidebar if not pinned
+      if (!isPinned) {
+        onClose();
+      }
     } catch (error) {
       console.error('Failed to create chat:', error);
       // Show error message
@@ -170,7 +175,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
   // Handle chat selection
   const handleChatSelect = (chatId: string) => {
     switchChat(chatId);
-    onClose(); // Close sidebar on mobile after selecting chat
+    // Only close sidebar if not pinned
+    if (!isPinned) {
+      onClose();
+    }
   };
 
   // Handle rename start
@@ -249,8 +257,16 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
 
       {/* Sidebar */}
       <div 
-        className={`fixed left-0 top-0 h-full w-80 z-30 transform transition-transform duration-300 ${
-          isOpen ? 'translate-x-[60px]' : '-translate-x-[260px]'
+        className={`${
+          isPinned 
+            ? 'relative' 
+            : 'fixed left-0 top-0'
+        } h-full w-80 z-30 transition-transform duration-300 ease-in-out ${
+          isPinned 
+            ? '' 
+            : isOpen 
+              ? 'translate-x-[60px]' 
+              : '-translate-x-full'
         }`}
       >
         <div className="h-full backdrop-blur-xl bg-white/10 dark:bg-black/10 border-r border-white/20 dark:border-white/10 flex flex-col">
@@ -268,6 +284,26 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
                   <svg className="w-5 h-5 theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
+                </button>
+                
+                {/* Pin/Unpin button */}
+                <button
+                  onClick={onTogglePin}
+                  className="p-2 rounded-lg hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
+                  aria-label={isPinned ? "Unpin sidebar" : "Pin sidebar"}
+                  title={isPinned ? "Unpin sidebar" : "Pin sidebar"}
+                >
+  {isPinned ? (
+                    // Pinned thumbtack (solid/filled)
+                    <svg className="w-5 h-5 theme-text-primary" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" />
+                    </svg>
+                  ) : (
+                    // Unpinned thumbtack (outline)
+                    <svg className="w-5 h-5 theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" />
+                    </svg>
+                  )}
                 </button>
                 
                 {/* Title */}

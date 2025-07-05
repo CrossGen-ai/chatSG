@@ -51,7 +51,11 @@ function AppContent() {
       <IconSidebar onOpenSidebar={() => updatePreference('sidebarOpen', true)} />
       
       {/* Main content */}
-      <div className="relative z-10 h-screen flex flex-col ml-[60px]">
+      <div className={`relative z-10 h-screen flex flex-col ${
+        preferences.sidebarOpen && preferences.sidebarPinned 
+          ? 'ml-[440px]' 
+          : 'ml-[60px]'
+      }`}>
           {/* Header */}
           <header className="backdrop-blur-xl bg-white/10 dark:bg-black/10 border-b border-white/20 dark:border-white/10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
@@ -142,11 +146,15 @@ function AppContent() {
         </div>
       </div>
       
-      {/* Chat Sidebar Overlay */}
-      <ChatSidebar 
-        isOpen={preferences.sidebarOpen} 
-        onClose={() => updatePreference('sidebarOpen', false)} 
-      />
+      {/* Chat Sidebar */}
+      <div className={`${preferences.sidebarPinned ? 'fixed left-[60px] top-0' : ''}`}>
+        <ChatSidebar 
+          isOpen={preferences.sidebarOpen} 
+          onClose={() => updatePreference('sidebarOpen', false)}
+          isPinned={preferences.sidebarPinned}
+          onTogglePin={() => updatePreference('sidebarPinned', !preferences.sidebarPinned)}
+        />
+      </div>
     </ChatSettingsProvider>
   );
 }
