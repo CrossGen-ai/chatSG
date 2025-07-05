@@ -1,20 +1,18 @@
 import React from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { UserDropdown } from './UserDropdown';
 
 export const LoginButton: React.FC = () => {
   const { user, login, logout, isAuthenticated } = useAuth();
 
   if (isAuthenticated && user) {
     return (
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-white/70">{user.name || user.email}</span>
-        <button
-          onClick={logout}
-          className="px-3 py-1 text-sm bg-white/10 hover:bg-white/20 rounded-lg transition-colors backdrop-blur-sm border border-white/10"
-        >
-          Logout
-        </button>
-      </div>
+      <UserDropdown
+        username={user.name || 'User'}
+        email={user.email || 'user@example.com'}
+        avatarUrl={user.picture}
+        onLogout={logout}
+      />
     );
   }
 

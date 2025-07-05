@@ -1015,9 +1015,9 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
   
   return (
     <ChatSettingsProvider sessionId={effectiveActiveChatId || 'default'}>
-      <div className="h-full flex">
+      <div className="h-full flex flex-1">
         {/* Main chat container */}
-        <div className="flex-1 flex flex-col backdrop-blur-xl bg-white/10 dark:bg-black/10 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl overflow-hidden">
+        <div className="h-full flex flex-col flex-1 backdrop-blur-xl bg-white/10 dark:bg-black/10 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl overflow-hidden">
         {/* Chat header */}
         <div className="px-6 py-4 border-b border-white/20 dark:border-white/10 backdrop-blur-md bg-white/20 dark:bg-black/20">
           <div className="flex items-center justify-between">

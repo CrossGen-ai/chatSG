@@ -75,14 +75,15 @@ export const MessageItem = React.memo<MessageItemProps>(({
     >
       {message.sender === 'user' ? <UserAvatar /> : <BotAvatar agentType={message.agent || currentChatAgentType} />}
       <div className={clsx(
-        'max-w-xs lg:max-w-md xl:max-w-lg',
-        message.sender === 'user' ? 'order-1' : 'order-2'
+        message.sender === 'user' 
+          ? 'max-w-xs lg:max-w-md xl:max-w-lg order-1' 
+          : 'flex-1 order-2'
       )}>
         <div
           className={clsx(
             'px-4 py-3 rounded-2xl shadow-lg backdrop-blur-md border transition-all duration-200 hover:shadow-xl',
             message.sender === 'user'
-              ? 'theme-accent text-white rounded-br-md border-blue-400/30'
+              ? 'theme-accent text-white rounded-br-md border-blue-400/30 inline-block'
               : 'bg-white/60 dark:bg-black/40 theme-text-primary rounded-bl-md border-white/20'
           )}
         >

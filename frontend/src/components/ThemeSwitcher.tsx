@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useUIPreferences } from '../hooks/useUIPreferences';
 
 const themes = [
   { 
@@ -34,7 +35,7 @@ const themes = [
 ];
 
 export const ThemeSwitcher: React.FC = () => {
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  const { preferences, updatePreference } = useUIPreferences();
   const [isOpen, setIsOpen] = useState(false);
   const [buttonRect, setButtonRect] = useState<DOMRect | null>(null);
   const buttonRef = React.useRef<HTMLButtonElement>(null);
@@ -44,25 +45,22 @@ export const ThemeSwitcher: React.FC = () => {
     document.documentElement.className = '';
     
     // Add the theme class
-    document.documentElement.classList.add(`theme-${theme}`);
+    document.documentElement.classList.add(`theme-${preferences.theme}`);
     
     // Handle dark mode specifically
-    if (theme === 'dark') {
+    if (preferences.theme === 'dark') {
       document.documentElement.classList.add('dark');
     }
     
-    // Save to localStorage
-    localStorage.setItem('theme', theme);
-    
     // Debug log to verify theme is being applied
-    console.log('Theme applied:', theme, 'Classes:', document.documentElement.className);
-  }, [theme]);
+    console.log('Theme applied:', preferences.theme, 'Classes:', document.documentElement.className);
+  }, [preferences.theme]);
 
-  const currentTheme = themes.find(t => t.value === theme) || themes[0];
+  const currentTheme = themes.find(t => t.value === preferences.theme) || themes[0];
 
   const handleThemeChange = (newTheme: string) => {
     console.log('Changing theme to:', newTheme);
-    setTheme(newTheme);
+    updatePreference('theme', newTheme);
     setIsOpen(false);
   };
 
@@ -112,7 +110,7 @@ export const ThemeSwitcher: React.FC = () => {
                 key={t.value}
                 onClick={() => handleThemeChange(t.value)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/50 dark:hover:bg-white/10 transition-all duration-150 ${
-                  theme === t.value ? 'bg-white/60 dark:bg-white/20' : ''
+                  preferences.theme === t.value ? 'bg-white/60 dark:bg-white/20' : ''
                 }`}
               >
                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${t.gradient} flex items-center justify-center shadow-md`}>
@@ -126,7 +124,7 @@ export const ThemeSwitcher: React.FC = () => {
                     {t.name} theme
                   </div>
                 </div>
-                {theme === t.value && (
+                {preferences.theme === t.value && (
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
                 )}
               </button>

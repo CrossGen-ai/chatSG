@@ -246,27 +246,36 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
 
   return (
     <>
-      {/* Mobile overlay */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
 
       {/* Sidebar */}
       <div 
-        className={`fixed left-0 top-0 h-full w-80 z-50 transform transition-transform duration-300 lg:relative lg:translate-x-0 lg:z-auto ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed left-0 top-0 h-full w-80 z-30 transform transition-transform duration-300 ${
+          isOpen ? 'translate-x-[60px]' : '-translate-x-[260px]'
         }`}
       >
         <div className="h-full backdrop-blur-xl bg-white/10 dark:bg-black/10 border-r border-white/20 dark:border-white/10 flex flex-col">
           {/* Header */}
           <div className="p-4 border-b border-white/20 dark:border-white/10">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold theme-text-primary">
-                {isSelectionMode ? `${selectedChatIds.size} Selected` : 'Chats'}
-              </h2>
+              <div className="flex items-center space-x-3">
+                {/* Collapse button */}
+                <button
+                  onClick={onClose}
+                  className="p-2 rounded-lg hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
+                  aria-label="Collapse sidebar"
+                  title="Collapse sidebar"
+                >
+                  <svg className="w-5 h-5 theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                
+                {/* Title */}
+                <h2 className="text-lg font-semibold theme-text-primary">
+                  {isSelectionMode ? `${selectedChatIds.size} Selected` : 'Chats'}
+                </h2>
+              </div>
+              
               <div className="flex items-center space-x-2">
                 {/* Selection Mode Toggle */}
                 {chats.length > 0 && (
@@ -285,15 +294,6 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose }) => 
                     </svg>
                   </button>
                 )}
-                <button
-                  onClick={onClose}
-                  className="lg:hidden p-2 rounded-lg hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
-                  aria-label="Close sidebar"
-                >
-                  <svg className="w-5 h-5 theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
               </div>
             </div>
             
