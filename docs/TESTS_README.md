@@ -141,7 +141,8 @@ If environment tests show `undefined` values:
 3. Recreate .env file if needed:
    ```bash
    cd backend
-   echo "ENVIRONMENT=dev" > .env
+   echo "CHATSG_ENVIRONMENT=dev" > .env
+   echo "NODE_ENV=development" >> .env
    echo "BACKEND=Generic" >> .env
    ```
 
@@ -156,11 +157,11 @@ If LLM helper or AgentRouter tests fail:
 
 The LLM helper adjusts settings based on environment:
 
-- **Production** (`ENVIRONMENT=production`):
+- **Production** (`CHATSG_ENVIRONMENT=production`):
   - Temperature: 0.3 (more conservative)
   - Max Tokens: 2000 (cost-effective)
   
-- **Development** (`ENVIRONMENT=dev`):
+- **Development** (`CHATSG_ENVIRONMENT=dev`):
   - Temperature: 0.7 (more creative)
   - Max Tokens: 4000 (generous for testing)
 

@@ -29,7 +29,7 @@ npm install
 
 ## 5. Check Environment Configuration
 ```bash
-cat .env  # Should show ENVIRONMENT=dev
+cat .env  # Should show CHATSG_ENVIRONMENT=dev
 ```
 
 ## 6. Start the Application
@@ -51,7 +51,7 @@ If you want to switch to production mode:
 ```bash
 # Edit the .env file
 nano .env
-# Change ENVIRONMENT=dev to ENVIRONMENT=production
+# Change CHATSG_ENVIRONMENT=dev to CHATSG_ENVIRONMENT=production
 # Save and restart the server
 ```
 

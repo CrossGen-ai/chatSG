@@ -5,7 +5,8 @@
 # ===========================================
 # Choose your backend mode: Orch (recommended), n8n, or Generic
 BACKEND=Orch
-ENVIRONMENT=dev
+CHATSG_ENVIRONMENT=dev
+NODE_ENV=development
 
 # ===========================================
 # LLM PROVIDER CONFIGURATION

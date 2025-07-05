@@ -550,8 +550,8 @@ LLM_TEMPERATURE=0.7        # 0.0 to 1.0
 LLM_MAX_TOKENS=4000        # Maximum tokens
 
 # Environment
-ENVIRONMENT=development    # development, production, etc.
-NODE_ENV=development
+CHATSG_ENVIRONMENT=dev     # Application environment: dev, production, etc.
+NODE_ENV=development       # Node.js ecosystem standard
 ```
 
 #### Environment-Specific Defaults
