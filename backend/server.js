@@ -471,45 +471,7 @@ const server = http.createServer(async (req, res) => {
         return;
     }
     
-    // Handle SSE endpoint specially to avoid body parsing issues
-    if (req.url === '/api/chat/stream' && req.method === 'POST') {
-        // For SSE, manually parse body first
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', async () => {
-            try {
-                const data = JSON.parse(body);
-                
-                // Apply enhancements first, then set body
-                enhanceRequest(req);
-                enhanceResponse(res);
-                
-                // Set parsed body AFTER enhancement (which sets body to null)
-                req.body = data;
-                
-                // Simple CSRF check
-                const csrfToken = req.headers['x-csrf-token'];
-                if (!csrfToken) {
-                    res.statusCode = 403;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify({ 
-                        error: 'CSRF token required',
-                        message: 'Missing X-CSRF-Token header'
-                    }));
-                    return;
-                }
-                
-                // Process SSE request
-                handleSSERequest(req, res);
-            } catch (error) {
-                res.statusCode = 400;
-                res.end(JSON.stringify({ error: 'Invalid request' }));
-            }
-        });
-        return; // Exit early for SSE
-    }
+    // SSE endpoint will be handled after middleware, just like other endpoints
     
     // Apply security middleware for all other endpoints
     try {
@@ -663,6 +625,10 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(200, { 'Content-Type': contentType });
             res.end(content);
         });
+    } else if (req.url === '/api/chat/stream' && req.method === 'POST') {
+        // SSE streaming endpoint
+        console.log('[Server] SSE streaming endpoint hit');
+        handleSSERequest(req, res);
     } else if (req.url === '/api/chat' && req.method === 'POST') {
         console.log('[Server] Regular chat endpoint hit - THIS SHOULD NOT BE CALLED, USE STREAMING!');
         try {

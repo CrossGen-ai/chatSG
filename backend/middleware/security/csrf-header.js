@@ -16,27 +16,43 @@ function initialize(options = {}) {
   return (req, res, next) => {
     // For GET requests, generate and send token in response header
     if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-      const token = generateToken();
       const sessionId = req.ip || 'anonymous';
       
-      // Store token
-      tokens.set(sessionId, {
-        token,
-        created: Date.now(),
-        expires: Date.now() + (60 * 60 * 1000) // 1 hour
-      });
+      // Check if a valid token already exists
+      const existingToken = tokens.get(sessionId);
+      let token;
       
-      console.log('[CSRF-Header] Token created:', {
-        sessionId,
+      if (existingToken && existingToken.expires > Date.now()) {
+        // Use existing valid token
+        token = existingToken.token;
+        console.log('[CSRF-Header] Using existing token:', {
+          sessionId,
+          token: token.substring(0, 20) + '...',
+          expiresIn: Math.floor((existingToken.expires - Date.now()) / 1000) + 's'
+        });
+      } else {
+        // Generate new token only if needed
+        token = generateToken();
+        
+        // Store token
+        tokens.set(sessionId, {
+          token,
+          created: Date.now(),
+          expires: Date.now() + (60 * 60 * 1000) // 1 hour
+        });
+        
+        console.log('[CSRF-Header] Token created:', {
+          sessionId,
         token: token.substring(0, 20) + '...',
         ip: req.ip,
         connectionRemoteAddress: req.connection?.remoteAddress,
         socketRemoteAddress: req.socket?.remoteAddress,
-        headers: {
-          'x-forwarded-for': req.headers['x-forwarded-for'],
-          'x-real-ip': req.headers['x-real-ip']
-        }
-      });
+          headers: {
+            'x-forwarded-for': req.headers['x-forwarded-for'],
+            'x-real-ip': req.headers['x-real-ip']
+          }
+        });
+      }
       
       // Send token in response header (accessible to JavaScript)
       res.setHeader('X-CSRF-Token', token);
