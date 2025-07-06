@@ -1781,8 +1781,8 @@
     "title": "What is compound interest?",
     "metadata": {
       "userId": "2",
-      "unreadCount": 1,
-      "lastReadAt": null,
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T19:21:27.020Z",
       "lastAgent": "AnalyticalAgent"
     }
   },
@@ -1798,7 +1798,7 @@
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-06T19:18:10.390Z",
+      "lastReadAt": "2025-07-06T19:22:01.103Z",
       "lastAgent": "CRMAgent"
     }
   },
@@ -1808,13 +1808,14 @@
     "status": "active",
     "createdAt": "2025-07-06T19:15:36.133Z",
     "startedAt": "2025-07-06T19:15:36.133Z",
-    "lastActivityAt": "2025-07-06T19:15:49.081Z",
-    "messageCount": 1,
+    "lastActivityAt": "2025-07-06T19:22:02.350Z",
+    "messageCount": 5,
     "title": "New Chat",
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-06T19:18:11.595Z"
+      "lastReadAt": "2025-07-06T19:22:02.046Z",
+      "lastAgent": "AnalyticalAgent"
     }
   }
 }

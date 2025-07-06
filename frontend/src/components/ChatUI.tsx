@@ -947,23 +947,24 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
                 } : msg
               ));
             
-            // Also update streaming message state to final content
-            if (String(originatingSessionId) === String(activeChatIdRef.current)) {
-              setStreamingMessage(finalContent);
-            }
-            
-            // Save to hybrid storage
-            try {
-              await saveChatMessage(originatingSessionId, finalMessage);
-              markChatNewMessage(originatingSessionId, true, activeChatIdRef.current);
+              // Also update streaming message state to final content
+              if (String(originatingSessionId) === String(activeChatIdRef.current)) {
+                setStreamingMessage(finalContent);
+              }
+              
+              // Save to hybrid storage
+              try {
+                await saveChatMessage(originatingSessionId, finalMessage);
+                markChatNewMessage(originatingSessionId, true, activeChatIdRef.current);
               
               // Mark as read immediately (non-blocking)
               if (String(originatingSessionId) === String(activeChatIdRef.current)) {
                 markChatAsRead(originatingSessionId)
                   .catch(err => console.error('[ChatUI] Failed to mark as read:', err));
               }
-            } catch (error) {
-              console.error('[ChatUI] Error saving message:', error);
+              } catch (error) {
+                console.error('[ChatUI] Error saving message:', error);
+              }
             }
             
             // Clean up streaming state map for this session
