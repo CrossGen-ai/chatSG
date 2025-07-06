@@ -361,11 +361,15 @@ export class ContactManagerTool extends BaseTool {
     try {
       const { action, query, options = {} } = params;
       console.log(`[ContactManagerTool] Executing ${action} with query: ${query}`);
+      
+      // Send tool start event
+      this.sendToolStart(params, context);
 
       let result: any;
       
       switch (action) {
         case 'search': {
+          this.sendToolProgress(`Searching for "${query}"...`, { action, query }, context);
           const contacts = await this.intelligentContactSearch(query, options);
           
           result = {
@@ -481,6 +485,9 @@ export class ContactManagerTool extends BaseTool {
           throw new Error(`Unknown action: ${action}`);
       }
 
+      // Send tool result
+      this.sendToolResult(result, context);
+      
       return this.createSuccessResult(
         result,
         `Successfully executed ${action}`,
@@ -494,6 +501,9 @@ export class ContactManagerTool extends BaseTool {
 
     } catch (error) {
       console.error('[ContactManagerTool] Execution error:', error);
+      
+      // Send tool error
+      this.sendToolError(error instanceof Error ? error.message : 'Unknown error', context);
       
       return this.createErrorResult(
         error instanceof Error ? error.message : 'Unknown error',

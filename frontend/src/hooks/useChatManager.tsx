@@ -34,7 +34,7 @@ export interface Chat {
 export interface HybridMessage {
   id: number;
   content: string;
-  sender: 'user' | 'bot';
+  sender: 'user' | 'bot' | 'tool';
   timestamp: Date;
   agent?: string;
   synced: boolean;        // tracks if message is synced with backend
@@ -47,6 +47,19 @@ export interface HybridMessage {
     status: 'loaded' | 'timeout' | 'empty' | 'error';
     retrievalTime?: number;
     errorMessage?: string;
+  };
+  toolExecution?: {       // for tool status messages
+    id: string;
+    toolName: string;
+    status: 'starting' | 'running' | 'completed' | 'error';
+    parameters?: any;
+    result?: any;
+    error?: string;
+    startTime: Date;
+    endTime?: Date;
+    duration?: number;
+    agentName?: string;
+    isExpanded?: boolean;
   };
 }
 

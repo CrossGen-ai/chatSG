@@ -5,6 +5,7 @@
 
 import { Annotation } from '@langchain/langgraph';
 import { QueryIntent, QueryAnalysis } from '../../../tools/crm/types';
+import { StreamingCallback } from '../../../types';
 
 /**
  * CRM Workflow State Definition
@@ -14,6 +15,7 @@ export interface CRMWorkflowState {
   // Core state
   messages: any[];
   sessionId: string;
+  streamCallback?: StreamingCallback;
   
   // Workflow stages - LLM-driven flow
   currentStage: 'intake' | 'llm_understanding' | 'tool_orchestration' | 'result_processing' | 'complete';

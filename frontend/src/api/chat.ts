@@ -433,6 +433,10 @@ export interface StreamingChatCallbacks {
   onStart?: (data: { agent?: string; sessionId: string }) => void;
   onToken?: (token: string) => void;
   onStatus?: (data: { type: string; message: string; metadata?: any }) => void;
+  onToolStart?: (data: { toolId: string; toolName: string; parameters?: any; agentName?: string }) => void;
+  onToolProgress?: (data: { toolId: string; progress: string; metadata?: any }) => void;
+  onToolResult?: (data: { toolId: string; result: any }) => void;
+  onToolError?: (data: { toolId: string; error: string }) => void;
   onDone?: (data: { agent?: string; orchestration?: any }) => void;
   onError?: (error: Error) => void;
 }
@@ -552,6 +556,18 @@ export function sendChatMessageStream(
                     break;
                   case 'status':
                     options?.callbacks.onStatus?.(data);
+                    break;
+                  case 'tool_start':
+                    options?.callbacks.onToolStart?.(data);
+                    break;
+                  case 'tool_progress':
+                    options?.callbacks.onToolProgress?.(data);
+                    break;
+                  case 'tool_result':
+                    options?.callbacks.onToolResult?.(data);
+                    break;
+                  case 'tool_error':
+                    options?.callbacks.onToolError?.(data);
                     break;
                   case 'done':
                     console.log('[Streaming] DONE EVENT RECEIVED:', data);

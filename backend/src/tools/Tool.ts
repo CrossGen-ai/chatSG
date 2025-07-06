@@ -5,7 +5,7 @@
  * reusable tools. Builds on existing LLMHelper template system for parameter handling.
  */
 
-import { ValidationResult } from '../types';
+import { ValidationResult, StreamingCallback } from '../types';
 
 /**
  * Tool parameter definition
@@ -78,6 +78,7 @@ export interface ToolContext {
     requestId?: string;
     timestamp?: string;
     environment?: string;
+    streamCallback?: StreamingCallback;
     [key: string]: any;
 }
 
@@ -170,6 +171,7 @@ export abstract class BaseTool implements Tool {
 
     protected config: ToolConfig;
     protected initialized: boolean = false;
+    protected currentToolId?: string;
 
     constructor(
         name: string,
@@ -363,6 +365,126 @@ export abstract class BaseTool implements Tool {
                 ...metadata
             }
         };
+    }
+
+    /**
+     * Send tool start event via streaming callback
+     */
+    protected sendToolStart(parameters: any, context?: ToolContext): string {
+        const toolId = `tool-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        this.currentToolId = toolId;
+        
+        if (context?.streamCallback && typeof context.streamCallback === 'function') {
+            context.streamCallback({
+                type: 'status',
+                statusType: 'tool_start',
+                message: `Starting ${this.name}`,
+                metadata: {
+                    toolId,
+                    toolName: this.name,
+                    parameters,
+                    agentName: context.agentName
+                }
+            });
+        }
+        
+        return toolId;
+    }
+
+    /**
+     * Send tool progress event via streaming callback
+     */
+    protected sendToolProgress(progress: string, metadata?: any, context?: ToolContext): void {
+        if (!this.currentToolId) return;
+        
+        if (context?.streamCallback && typeof context.streamCallback === 'function') {
+            context.streamCallback({
+                type: 'status',
+                statusType: 'tool_progress',
+                message: progress,
+                metadata: {
+                    toolId: this.currentToolId,
+                    ...metadata
+                }
+            });
+        }
+    }
+
+    /**
+     * Send tool result event via streaming callback
+     */
+    protected sendToolResult(result: any, context?: ToolContext): void {
+        if (!this.currentToolId) return;
+        
+        if (context?.streamCallback && typeof context.streamCallback === 'function') {
+            context.streamCallback({
+                type: 'status',
+                statusType: 'tool_result',
+                message: `Completed ${this.name}`,
+                metadata: {
+                    toolId: this.currentToolId,
+                    result
+                }
+            });
+        }
+        
+        this.currentToolId = undefined;
+    }
+
+    /**
+     * Send tool error event via streaming callback
+     */
+    protected sendToolError(error: string, context?: ToolContext): void {
+        if (!this.currentToolId) return;
+        
+        if (context?.streamCallback && typeof context.streamCallback === 'function') {
+            context.streamCallback({
+                type: 'status',
+                statusType: 'tool_error',
+                message: `Error in ${this.name}`,
+                metadata: {
+                    toolId: this.currentToolId,
+                    error
+                }
+            });
+        }
+        
+        this.currentToolId = undefined;
+    }
+
+    /**
+     * Wrapper for execute that includes streaming events
+     */
+    async executeWithStreaming(params: ToolParams, context?: ToolContext): Promise<ToolResult> {
+        const startTime = Date.now();
+        
+        // Send tool start event
+        this.sendToolStart(params, context);
+        
+        try {
+            // Execute the actual tool
+            const result = await this.execute(params, context);
+            
+            // Send result event
+            this.sendToolResult(result.data, context);
+            
+            // Add execution time to metadata
+            if (result.metadata) {
+                result.metadata.executionTime = Date.now() - startTime;
+            }
+            
+            return result;
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            
+            // Send error event
+            this.sendToolError(errorMessage, context);
+            
+            // Return error result
+            return this.createErrorResult(errorMessage, {
+                executionTime: Date.now() - startTime
+            });
+        }
     }
 }
 

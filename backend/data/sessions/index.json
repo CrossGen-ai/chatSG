@@ -1792,13 +1792,13 @@
     "status": "active",
     "createdAt": "2025-07-06T17:54:54.463Z",
     "startedAt": "2025-07-06T17:54:54.463Z",
-    "lastActivityAt": "2025-07-06T18:15:40.491Z",
-    "messageCount": 16,
+    "lastActivityAt": "2025-07-06T19:08:11.575Z",
+    "messageCount": 30,
     "title": "investment analysis",
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-06T18:15:22.143Z",
+      "lastReadAt": "2025-07-06T19:07:53.776Z",
       "lastAgent": "CRMAgent"
     }
   }

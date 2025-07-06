@@ -208,6 +208,13 @@ export class CRMAgent extends AbstractBaseAgent {
         
         try {
           if (toolCall.toolName === 'searchContacts') {
+            // Create context with streaming callback
+            const toolContext = {
+              sessionId: state.sessionId,
+              agentName: 'CRMAgent',
+              streamCallback: state.streamCallback
+            };
+            
             const result = await this.contactTool.execute({
               action: 'search',
               query: toolCall.parameters.field_value,
@@ -215,7 +222,7 @@ export class CRMAgent extends AbstractBaseAgent {
                 limit: toolCall.parameters.limit || 20,
                 sortBy: toolCall.parameters.sortBy
               }
-            });
+            }, toolContext);
             
             if (result.success && result.data) {
               retrievedData.contacts = result.data.contacts;
@@ -228,7 +235,7 @@ export class CRMAgent extends AbstractBaseAgent {
                 const detailsResult = await this.contactTool.execute({
                   action: 'getDetails',
                   query: contact.id.toString()
-                });
+                }, toolContext);
                 
                 if (detailsResult.success && detailsResult.data) {
                   retrievedData.contacts = [detailsResult.data.contact];
@@ -238,7 +245,7 @@ export class CRMAgent extends AbstractBaseAgent {
                   const oppResult = await this.contactTool.execute({
                     action: 'getOpportunities',
                     query: contact.id.toString()
-                  });
+                  }, toolContext);
                   
                   if (oppResult.success && oppResult.data) {
                     retrievedData.contacts[0].opportunities = oppResult.data.opportunities;
@@ -347,13 +354,19 @@ export class CRMAgent extends AbstractBaseAgent {
         await this.initialize();
       }
 
-      // Build context messages
-      const contextMessages = [
-        new SystemMessage(
-          'You are a CRM specialist assistant. Help users find customer information, ' +
-          'analyze sales pipelines, and manage opportunities. Be concise and data-focused.'
-        )
-      ];
+      // Build context messages with memory loading
+      const systemPrompt = 'You are a CRM specialist assistant. Help users find customer information, ' +
+        'analyze sales pipelines, and manage opportunities. Be concise and data-focused.';
+      
+      // Use buildContextMessages to load memories
+      const contextMessagesRaw = await this.buildContextMessages(sessionId, input, systemPrompt);
+      
+      // Convert to LangChain message format
+      const contextMessages = contextMessagesRaw.map(msg => {
+        if (msg.role === 'system') return new SystemMessage(msg.content);
+        if (msg.role === 'user') return new HumanMessage(msg.content);
+        return new AIMessage(msg.content);
+      });
 
       // Stream status message if callback available
       if (streamCallback) {
@@ -362,8 +375,9 @@ export class CRMAgent extends AbstractBaseAgent {
 
       // Create initial state
       const initialState: CRMWorkflowState = {
-        messages: [...contextMessages, new HumanMessage(input)],
+        messages: contextMessages, // Already includes the user message
         sessionId,
+        streamCallback, // Pass the streaming callback
         currentStage: 'intake',
         confidenceScore: 0,
         toolsUsed: [],

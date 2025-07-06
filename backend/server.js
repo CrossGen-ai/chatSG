@@ -344,11 +344,38 @@ async function handleSSERequest(req, res) {
         let fullResponse = '';
         const streamCallback = (token) => {
             if (typeof token === 'object' && token.type === 'status') {
-                sendEvent('status', {
-                    type: token.statusType,
-                    message: token.message,
-                    metadata: token.metadata
-                });
+                // Handle tool-specific status events
+                if (token.statusType === 'tool_start') {
+                    sendEvent('tool_start', {
+                        toolId: token.metadata.toolId,
+                        toolName: token.metadata.toolName,
+                        parameters: token.metadata.parameters,
+                        agentName: token.metadata.agentName
+                    });
+                } else if (token.statusType === 'tool_progress') {
+                    sendEvent('tool_progress', {
+                        toolId: token.metadata.toolId,
+                        progress: token.message,
+                        metadata: token.metadata
+                    });
+                } else if (token.statusType === 'tool_result') {
+                    sendEvent('tool_result', {
+                        toolId: token.metadata.toolId,
+                        result: token.metadata.result
+                    });
+                } else if (token.statusType === 'tool_error') {
+                    sendEvent('tool_error', {
+                        toolId: token.metadata.toolId,
+                        error: token.metadata.error
+                    });
+                } else {
+                    // Regular status event
+                    sendEvent('status', {
+                        type: token.statusType,
+                        message: token.message,
+                        metadata: token.metadata
+                    });
+                }
             } else {
                 sendEvent('token', { content: token });
                 fullResponse += token;

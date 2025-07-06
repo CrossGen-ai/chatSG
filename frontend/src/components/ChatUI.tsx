@@ -11,6 +11,7 @@ import { SlashCommand } from '../hooks/useSlashCommands';
 import { MessageSkeleton } from './SkeletonLoader';
 import { MessageItem } from './MessageItem';
 import { StatusMessage, StatusMessageProps } from './StatusMessage';
+import { ToolStatusMessage } from './ToolStatusMessage';
 
 interface ChatUIProps {
   sessionId?: string;
@@ -688,6 +689,138 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
               timestamp: new Date()
             }]);
           },
+          onToolStart: (data: { toolId: string; toolName: string; parameters?: any; agentName?: string }) => {
+            console.log('[ChatUI] Tool started:', data);
+            
+            // Add tool start message to the stream
+            const toolMessage: HybridMessage = {
+              id: Date.now() + Math.random(),
+              content: '', // Tool messages don't need content
+              sender: 'tool',
+              timestamp: new Date(),
+              synced: false,
+              toolExecution: {
+                id: data.toolId,
+                toolName: data.toolName,
+                status: 'starting',
+                parameters: data.parameters,
+                startTime: new Date(),
+                agentName: data.agentName || currentStreamingAgent,
+                isExpanded: false
+              }
+            };
+            
+            setMessages(prev => [...prev, toolMessage]);
+            setDisplayedMessages(prev => [...prev, toolMessage]);
+          },
+          onToolProgress: (data: { toolId: string; progress: string; metadata?: any }) => {
+            console.log('[ChatUI] Tool progress:', data);
+            
+            // Update existing tool message status
+            setMessages(prev => prev.map(msg => {
+              if (msg.toolExecution?.id === data.toolId) {
+                return {
+                  ...msg,
+                  toolExecution: {
+                    ...msg.toolExecution,
+                    status: 'running'
+                  }
+                };
+              }
+              return msg;
+            }));
+            
+            setDisplayedMessages(prev => prev.map(msg => {
+              if (msg.toolExecution?.id === data.toolId) {
+                return {
+                  ...msg,
+                  toolExecution: {
+                    ...msg.toolExecution,
+                    status: 'running'
+                  }
+                };
+              }
+              return msg;
+            }));
+          },
+          onToolResult: (data: { toolId: string; result: any }) => {
+            console.log('[ChatUI] Tool completed:', data);
+            
+            // Update tool message with result
+            const endTime = new Date();
+            setMessages(prev => prev.map(msg => {
+              if (msg.toolExecution?.id === data.toolId) {
+                const startTime = msg.toolExecution.startTime;
+                return {
+                  ...msg,
+                  toolExecution: {
+                    ...msg.toolExecution,
+                    status: 'completed',
+                    result: data.result,
+                    endTime,
+                    duration: endTime.getTime() - new Date(startTime).getTime()
+                  }
+                };
+              }
+              return msg;
+            }));
+            
+            setDisplayedMessages(prev => prev.map(msg => {
+              if (msg.toolExecution?.id === data.toolId) {
+                const startTime = msg.toolExecution.startTime;
+                return {
+                  ...msg,
+                  toolExecution: {
+                    ...msg.toolExecution,
+                    status: 'completed',
+                    result: data.result,
+                    endTime,
+                    duration: endTime.getTime() - new Date(startTime).getTime()
+                  }
+                };
+              }
+              return msg;
+            }));
+          },
+          onToolError: (data: { toolId: string; error: string }) => {
+            console.log('[ChatUI] Tool error:', data);
+            
+            // Update tool message with error
+            const endTime = new Date();
+            setMessages(prev => prev.map(msg => {
+              if (msg.toolExecution?.id === data.toolId) {
+                const startTime = msg.toolExecution.startTime;
+                return {
+                  ...msg,
+                  toolExecution: {
+                    ...msg.toolExecution,
+                    status: 'error',
+                    error: data.error,
+                    endTime,
+                    duration: endTime.getTime() - new Date(startTime).getTime()
+                  }
+                };
+              }
+              return msg;
+            }));
+            
+            setDisplayedMessages(prev => prev.map(msg => {
+              if (msg.toolExecution?.id === data.toolId) {
+                const startTime = msg.toolExecution.startTime;
+                return {
+                  ...msg,
+                  toolExecution: {
+                    ...msg.toolExecution,
+                    status: 'error',
+                    error: data.error,
+                    endTime,
+                    duration: endTime.getTime() - new Date(startTime).getTime()
+                  }
+                };
+              }
+              return msg;
+            }));
+          },
           onDone: async (data: { agent?: string; orchestration?: any; memoryStatus?: any }) => {
             // Clear any pending batch updates to ensure final content is preserved
             if (streamingBatchRef.current) {
@@ -1270,6 +1403,26 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             } : msg;
             
             
+            // Handle tool messages differently
+            if (msg.sender === 'tool' && msg.toolExecution) {
+              return (
+                <div key={msg.id} data-message-id={msg.id}>
+                  <ToolStatusMessage
+                    tool={msg.toolExecution}
+                    isExpanded={msg.toolExecution.isExpanded || false}
+                    onToggleExpanded={() => {
+                      // Toggle expansion by updating the message
+                      setDisplayedMessages(prev => prev.map(m => 
+                        m.id === msg.id 
+                          ? { ...m, toolExecution: { ...m.toolExecution!, isExpanded: !m.toolExecution?.isExpanded } }
+                          : m
+                      ));
+                    }}
+                  />
+                </div>
+              );
+            }
+            
             return (
               <div key={msg.id} data-message-id={msg.id}>
                 <MessageItem
@@ -1302,6 +1455,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         )}
         <div ref={messagesEndRef} className="h-4" />
       </div>
+
 
       {/* Input area */}
       <div className="p-4 border-t border-white/20 dark:border-white/10 backdrop-blur-md bg-white/20 dark:bg-black/20">

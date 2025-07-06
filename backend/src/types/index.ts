@@ -84,7 +84,7 @@ export interface AgentConfiguration {
 // ============================================================================
 
 export interface StreamingCallback {
-  (token: string): void;
+  (token: string | { type: 'status'; statusType: string; message: string; metadata?: any }): void;
 }
 
 export interface BaseAgent {
