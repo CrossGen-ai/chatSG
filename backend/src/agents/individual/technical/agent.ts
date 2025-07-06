@@ -86,7 +86,8 @@ export class TechnicalAgent extends AbstractBaseAgent {
                         agentName: this.name,
                         agentType: this.type,
                         llmUsed: false,
-                        fallbackMode: true
+                        fallbackMode: true,
+                        memoryStatus: this.getMemoryStatus()
                     }
                 };
             }
@@ -131,7 +132,8 @@ export class TechnicalAgent extends AbstractBaseAgent {
                     agentName: this.name,
                     agentType: this.type,
                     llmUsed: true,
-                    responseLength: responseContent.length
+                    responseLength: responseContent.length,
+                    memoryStatus: this.getMemoryStatus()
                 }
             };
         } catch (error) {
