@@ -870,7 +870,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
               return msg;
             }));
           },
-          onDone: async (data: { agent?: string; orchestration?: any; memoryStatus?: any }) => {
+          onDone: async (data: { agent?: string; orchestration?: any; memoryStatus?: any; toolOnlyResponse?: boolean }) => {
             // Clear any pending batch updates to ensure final content is preserved
             if (streamingBatchRef.current) {
               clearTimeout(streamingBatchRef.current);
@@ -885,28 +885,67 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             
             const finalContent = accumulatedContentRef.current;
             
-            // Create final message object without streaming flag
-            const finalMessage: HybridMessage = {
-              id: botMessageId,
-              content: finalContent || 'I apologize, but I was unable to generate a response.',
-              sender: 'bot',
-              timestamp: new Date(),
-              agent: data.agent || currentStreamingAgent,
-              synced: false,
-              isStreaming: false, // Remove streaming flag
-              memoryStatus: data.memoryStatus
-            };
+            // Check if the response is already shown in a tool message
+            let isToolResponseDuplicate = false;
             
-            // Force immediate final content update to prevent disappearing text
-            setMessages(msgs => msgs.map(msg => 
-              msg.id === botMessageId ? { 
-                ...msg, 
-                content: finalContent, 
-                agent: finalMessage.agent, 
-                isStreaming: false,
-                memoryStatus: finalMessage.memoryStatus
-              } : msg
-            ));
+            // Find recent tool messages and check if content matches
+            const recentToolMessages = messages.filter(msg => 
+              msg.sender === 'tool' && 
+              msg.toolExecution?.status === 'completed' &&
+              msg.toolExecution?.responseContent
+            ).slice(-3); // Check last 3 tool messages
+            
+            for (const toolMsg of recentToolMessages) {
+              if (toolMsg.toolExecution?.responseContent && finalContent) {
+                // Simple check: if the tool response contains most of the key information
+                const toolResponse = toolMsg.toolExecution.responseContent.toLowerCase();
+                const botResponse = finalContent.toLowerCase();
+                
+                // Check if key parts of the response are already in the tool message
+                const keyPhrases = botResponse.match(/\b\w{4,}\b/g) || [];
+                const matchingPhrases = keyPhrases.filter(phrase => 
+                  toolResponse.includes(phrase)
+                );
+                
+                // If more than 70% of key phrases match, consider it a duplicate
+                if (keyPhrases.length > 0 && matchingPhrases.length / keyPhrases.length > 0.7) {
+                  isToolResponseDuplicate = true;
+                  console.log('[ChatUI] Detected duplicate response in tool message');
+                  break;
+                }
+              }
+            }
+            
+            // Check if this is a tool-only response or duplicate
+            if (data.toolOnlyResponse || (isToolResponseDuplicate && (!finalContent || finalContent.trim().length < 100))) {
+              console.log('[ChatUI] Tool-only or duplicate response detected, removing placeholder bot message');
+              
+              // Remove the placeholder bot message
+              setMessages(msgs => msgs.filter(msg => msg.id !== botMessageId));
+              setDisplayedMessages(msgs => msgs.filter(msg => msg.id !== botMessageId));
+            } else {
+              // Create final message object without streaming flag
+              const finalMessage: HybridMessage = {
+                id: botMessageId,
+                content: finalContent || 'I apologize, but I was unable to generate a response.',
+                sender: 'bot',
+                timestamp: new Date(),
+                agent: data.agent || currentStreamingAgent,
+                synced: false,
+                isStreaming: false, // Remove streaming flag
+                memoryStatus: data.memoryStatus
+              };
+              
+              // Force immediate final content update to prevent disappearing text
+              setMessages(msgs => msgs.map(msg => 
+                msg.id === botMessageId ? { 
+                  ...msg, 
+                  content: finalContent, 
+                  agent: finalMessage.agent, 
+                  isStreaming: false,
+                  memoryStatus: finalMessage.memoryStatus
+                } : msg
+              ));
             
             // Also update streaming message state to final content
             if (String(originatingSessionId) === String(activeChatIdRef.current)) {
