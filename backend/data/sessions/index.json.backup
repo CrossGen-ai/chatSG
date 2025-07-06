@@ -1798,7 +1798,7 @@
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-06T19:22:01.103Z",
+      "lastReadAt": "2025-07-06T19:22:27.964Z",
       "lastAgent": "CRMAgent"
     }
   },
@@ -1808,14 +1808,29 @@
     "status": "active",
     "createdAt": "2025-07-06T19:15:36.133Z",
     "startedAt": "2025-07-06T19:15:36.133Z",
-    "lastActivityAt": "2025-07-06T19:21:50.354Z",
-    "messageCount": 4,
+    "lastActivityAt": "2025-07-06T19:22:50.493Z",
+    "messageCount": 6,
     "title": "New Chat",
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-06T19:22:02.046Z",
+      "lastReadAt": "2025-07-06T19:23:02.028Z",
       "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "session_1751829740436_qkmq17tgx": {
+    "file": "session_session_1751829740436_qkmq17tgx.jsonl",
+    "toolsFile": "session_session_1751829740436_qkmq17tgx_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T19:22:20.436Z",
+    "startedAt": "2025-07-06T19:22:20.436Z",
+    "lastActivityAt": "2025-07-06T19:22:20.436Z",
+    "messageCount": 0,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T19:22:20.444Z"
     }
   }
 }

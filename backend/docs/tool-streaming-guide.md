@@ -4,11 +4,12 @@ This guide explains how to implement and use real-time tool status streaming in 
 
 ## Overview
 
-The tool streaming feature provides real-time visibility into tool execution, showing users:
+The tool streaming feature provides real-time visibility into tool execution with inline results display:
 - When tools start executing
 - Progress updates during execution
-- Results when tools complete
+- **Formatted results displayed inline within tool messages**
 - Errors if tools fail
+- **Unified tool-response messages prevent duplicate content**
 
 ## Architecture
 
@@ -97,21 +98,51 @@ const streamCallback = (token) => {
 
 ### 5. Frontend Display
 
-The frontend receives these events and displays them in the ToolStatusWidget:
+The frontend receives these events and displays them inline with chat messages:
 
 ```typescript
 // In ChatUI component
 onToolStart: (data) => {
-  toolStatus.startTool(data.toolName, data.parameters, data.agentName);
-},
-onToolProgress: (data) => {
-  toolStatus.updateTool(data.toolId, { status: 'running' });
+  // Creates a tool message in the chat stream
+  const toolMessage = {
+    sender: 'tool',
+    toolExecution: {
+      id: data.toolId,
+      toolName: data.toolName,
+      status: 'starting',
+      parameters: data.parameters
+    }
+  };
+  addMessage(toolMessage);
 },
 onToolResult: (data) => {
-  toolStatus.completeTool(data.toolId, data.result);
-},
-onToolError: (data) => {
-  toolStatus.errorTool(data.toolId, data.error);
+  // Formats results for display
+  const responseContent = formatToolResponse(data.result);
+  updateToolMessage(data.toolId, {
+    status: 'completed',
+    result: data.result,
+    responseContent  // Formatted markdown for display
+  });
+}
+```
+
+### 6. Unified Tool-Response Messages
+
+Tool results can be displayed directly in the tool message, preventing duplicate bot responses:
+
+```typescript
+// Tool message with inline results
+{
+  sender: 'tool',
+  toolExecution: {
+    toolName: 'ContactManagerTool',
+    status: 'completed',
+    responseContent: `Found **Peter Kelly**
+    - Email: peter.kelly@nzdf.mil.nz
+    - Lead Score: 100/100
+    - Opportunities: 50
+    - Total Value: $5,521,492.46`
+  }
 }
 ```
 
@@ -121,12 +152,15 @@ onToolError: (data) => {
 2. **Progress Tracking**: Long-running tools can show progress
 3. **Debugging**: Developers can see tool parameters and results
 4. **Trust**: Users understand the AI's process
+5. **Clean UI**: Tool results appear inline, preventing duplicate messages
+6. **Better UX**: Expandable tool messages keep the chat concise
 
 ## Example Tools
 
 - `DataAnalysisTool`: Shows multi-step analysis with progress updates
-- `ContactManagerTool`: Can show search progress and result counts
+- `ContactManagerTool`: Displays formatted contact information with lead scores and opportunities
 - `WebSearchTool`: Can show search query and result processing
+- `InsightlyAPITool`: Raw API access with request/response visibility
 
 ## Best Practices
 

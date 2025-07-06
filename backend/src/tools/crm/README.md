@@ -1,11 +1,11 @@
 # CRM Integration Documentation
 
-This directory contains our Insightly CRM integration with built-in API compliance validation.
+This directory contains our Insightly CRM integration with built-in API compliance validation and real-time streaming capabilities.
 
 ## Files Overview
 
 - **`InsightlyApiTool.ts`** - Low-level API client with rate limiting and compliance validation
-- **`ContactManagerTool.ts`** - High-level contact management operations  
+- **`ContactManagerTool.ts`** - High-level contact management with real-time streaming and formatted results display
 - **`OpportunityTool.ts`** - Opportunity and pipeline management
 - **`api-compliance.ts`** - API compliance validator and field mappings
 - **`config.ts`** - Configuration management
@@ -31,38 +31,63 @@ The system will throw errors if you try to:
 - Use incorrect authentication format
 - Call search endpoints without required parameters
 
+## Real-Time Streaming Features
+
+### 🚀 Live Tool Status
+The ContactManagerTool provides real-time status updates during execution:
+- **Starting**: Shows when search begins
+- **Progress**: Updates as contacts are retrieved
+- **Results**: Formatted contact information displayed inline
+- **Errors**: Clear error messages if search fails
+
+### 📊 Formatted Results Display
+Contact results are automatically formatted with:
+- Lead scores (0-100)
+- Opportunity counts and values
+- Last interaction dates
+- Contact information (email, phone, company)
+
 ## Usage Examples
 
-### Search Contact by Email
+### Search Contact by Email with Streaming
 ```typescript
-const contacts = await insightlyApi.execute({
-  operation: 'searchContacts',
-  params: {
-    email: 'john@example.com'
-  }
-});
+// Pass streamCallback through context
+const toolContext = {
+  sessionId: 'user-session',
+  agentName: 'CRMAgent',
+  streamCallback: (token) => { /* handle stream */ }
+};
+
+const result = await contactTool.execute({
+  action: 'search',
+  query: 'john@example.com'
+}, toolContext);
 ```
 
 ### Get Contact's Opportunities
 ```typescript
-const opportunities = await insightlyApi.execute({
-  operation: 'getContactOpportunities', 
-  params: {
-    contactId: 12345
-  }
-});
+const opportunities = await contactTool.execute({
+  action: 'getOpportunities',
+  query: '12345'  // Contact ID
+}, toolContext);
 ```
 
 ## Architecture
 
 ```
-CRM Agent
+CRM Agent (with streaming callback)
     ↓
-ContactManagerTool / OpportunityTool
+ContactManagerTool / OpportunityTool (streaming-enabled)
     ↓  
 InsightlyApiTool + API Compliance Validator
     ↓
 Insightly API (v3.1)
+    
+Frontend receives:
+- tool_start events
+- tool_progress updates  
+- tool_result with formatted data
+- Inline display in chat UI
 ```
 
 ## API Requirements Checklist

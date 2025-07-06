@@ -9,7 +9,7 @@ ChatSG is a sophisticated multi-agent conversational AI platform that I'm helpin
 - **Agent System**: Modular architecture with specialized agents (Analytical, Creative, Technical)
 - **Storage**: JSONL file-based persistence with comprehensive index for fast lookups
 
-## Current Status (2025-07-05)
+## Current Status (2025-07-06)
 - ✅ Dependencies installed (frontend needs --legacy-peer-deps)
 - ✅ TypeScript compiled (npm run build in backend)
 - ✅ Backend configured with LLM provider
@@ -27,6 +27,8 @@ ChatSG is a sophisticated multi-agent conversational AI platform that I'm helpin
 - ✅ Comprehensive security middleware implementation
 - ✅ SSE streaming with security (CSRF, rate limiting)
 - ✅ Markdown formatting with XSS protection
+- ✅ Real-time tool status streaming with inline results display
+- ✅ Unified tool-response messages (no duplicate content)
 
 ## Key Features Implemented
 1. **JSONL Storage**: Append-only chat messages in `./data/sessions`
@@ -35,7 +37,7 @@ ChatSG is a sophisticated multi-agent conversational AI platform that I'm helpin
 4. **Context Management**: Configurable message limits for LLM context
 5. **Session Lifecycle**: Active → Inactive → Archived → Deleted states
 6. **Agent Tracking**: Records which agent responded to each message
-7. **Dynamic Avatars**: 📊 Analytical, 🎨 Creative, ⚙️ Technical, 🎧 Support
+7. **Dynamic Avatars**: 📊 Analytical, 🎨 Creative, ⚙️ Technical, 🎧 Support, 💼 CRM
 8. **Security Layer**: Comprehensive security middleware with:
    - Header-based CSRF protection (X-CSRF-Token)
    - Rate limiting (IP-based and connection-based)
@@ -44,6 +46,11 @@ ChatSG is a sophisticated multi-agent conversational AI platform that I'm helpin
    - Security headers via Helmet.js
 9. **SSE Security**: Special security handling for streaming endpoints
 10. **Markdown Support**: Real-time markdown rendering with security
+11. **Tool Status Streaming**: Real-time visibility of tool execution with:
+    - Live status updates (starting, running, completed, error)
+    - Inline expandable tool messages in chat UI
+    - Formatted results display (e.g., CRM contacts with lead scores)
+    - Unified tool-response messages to prevent duplication
 
 ## Project Structure
 ```
@@ -152,6 +159,9 @@ The project includes tmux-mcp integration for server management:
 - `/backend/middleware/security/sse.js` - SSE-specific security
 - `/backend/tests/test-all-security.js` - Comprehensive security test runner
 - `/frontend/src/hooks/useChatManager.tsx` - Chat state management
+- `/frontend/src/components/ToolStatusMessage.tsx` - Tool execution display component
+- `/backend/src/tools/Tool.ts` - Base tool class with streaming support
+- `/backend/src/tools/crm/ContactManagerTool.ts` - CRM tool with formatted results
 - `/backend/.env` - Environment configuration (needs setup)
 
 ## Shrimp-data MCP Notes

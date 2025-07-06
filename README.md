@@ -9,6 +9,7 @@ ChatSG is a sophisticated multi-agent conversational AI platform featuring speci
 - **Multi-Agent System**: Specialized agents (Analytical, Creative, Technical, CRM) with automatic routing
 - **CRM Integration**: Deep Insightly CRM integration with LLM-driven query understanding
 - **Real-Time Streaming**: Token-by-token response streaming with Server-Sent Events (SSE)
+- **Real-Time Tool Status**: Live tool execution status with inline expandable results
 - **Intelligent Memory**: Mem0 integration with Neo4j graph database for context-aware conversations
 - **Cross-Session Memory**: Optional feature to maintain context across conversations
 - **Persistent Storage**: JSONL-based append-only storage with fast indexing
@@ -124,11 +125,13 @@ The application will be available at:
 
 ## Core Features
 
-### 1. Real-Time Streaming
+### 1. Real-Time Streaming & Tool Status
 
-The platform implements true token-by-token streaming using Server-Sent Events:
+The platform implements true token-by-token streaming using Server-Sent Events with live tool execution status:
 
 - **Instant feedback**: Users see responses as they're generated
+- **Tool execution visibility**: Real-time status updates for tool calls
+- **Inline results**: Tool outputs appear directly in expandable UI components
 - **Smooth transitions**: No UI flicker or re-renders
 - **Optimized performance**: Asynchronous storage operations
 
