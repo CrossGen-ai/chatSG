@@ -107,21 +107,22 @@ export function ToolStatusMessage({ tool, isExpanded, onToggleExpanded }: ToolSt
             </div>
           </button>
           
-          {/* Response Content - Show when completed and has content */}
-          {tool.status === 'completed' && tool.responseContent && (
-            <div className="px-4 py-3 border-t border-gray-700/50">
-              <MarkdownRenderer 
-                content={tool.responseContent} 
-                isStreaming={false}
-                className="text-sm leading-relaxed"
-                darkMode={true}
-              />
-            </div>
-          )}
-          
           {/* Expanded Details */}
           {isExpanded && (
-            <div className="border-t border-gray-700/50 p-4 space-y-3">
+            <div className="border-t border-gray-700/50">
+              {/* Response Content - Show when completed and has content */}
+              {tool.status === 'completed' && tool.responseContent && (
+                <div className="px-4 py-3">
+                  <MarkdownRenderer 
+                    content={tool.responseContent} 
+                    isStreaming={false}
+                    className="text-sm leading-relaxed"
+                    darkMode={true}
+                  />
+                </div>
+              )}
+              
+              <div className="p-4 space-y-3">
               {/* Parameters */}
               {tool.parameters && (
                 <div>
@@ -161,6 +162,7 @@ export function ToolStatusMessage({ tool, isExpanded, onToggleExpanded }: ToolSt
                   )}
                 </div>
               )}
+              </div>
             </div>
           )}
         </div>

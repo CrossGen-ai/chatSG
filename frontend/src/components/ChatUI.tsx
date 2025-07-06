@@ -1500,12 +1500,16 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
                     tool={msg.toolExecution}
                     isExpanded={msg.toolExecution.isExpanded || false}
                     onToggleExpanded={() => {
-                      // Toggle expansion by updating the message
-                      setDisplayedMessages(prev => prev.map(m => 
-                        m.id === msg.id 
-                          ? { ...m, toolExecution: { ...m.toolExecution!, isExpanded: !m.toolExecution?.isExpanded } }
-                          : m
-                      ));
+                      // Toggle expansion by updating both message arrays
+                      const toggleExpansion = (msgs: HybridMessage[]) => 
+                        msgs.map(m => 
+                          m.id === msg.id 
+                            ? { ...m, toolExecution: { ...m.toolExecution!, isExpanded: !m.toolExecution?.isExpanded } }
+                            : m
+                        );
+                      
+                      setMessages(toggleExpansion);
+                      setDisplayedMessages(toggleExpansion);
                     }}
                   />
                 </div>

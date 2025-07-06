@@ -1808,13 +1808,13 @@
     "status": "active",
     "createdAt": "2025-07-06T19:15:36.133Z",
     "startedAt": "2025-07-06T19:15:36.133Z",
-    "lastActivityAt": "2025-07-06T19:23:11.735Z",
-    "messageCount": 7,
+    "lastActivityAt": "2025-07-06T19:32:13.692Z",
+    "messageCount": 9,
     "title": "New Chat",
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-06T19:23:02.028Z",
+      "lastReadAt": "2025-07-06T19:32:02.498Z",
       "lastAgent": "CRMAgent"
     }
   },
