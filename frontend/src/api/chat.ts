@@ -510,17 +510,17 @@ export function sendChatMessageStream(
         }
         
         const chunk = decoder.decode(value, { stream: true });
-        console.log('[Streaming] Chunk received:', chunk.length, 'bytes');
+        // Chunk received
         buffer += chunk;
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
         
-        console.log('[Streaming] Processing', lines.length, 'lines');
+        // Processing lines
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
           
-          console.log('[Streaming] Line:', line);
+          // Processing line
           if (line.startsWith('event: ')) {
             const event = line.slice(7);
             // Look for the next data line

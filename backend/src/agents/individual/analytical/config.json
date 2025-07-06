@@ -3,6 +3,19 @@
   "version": "1.0.0",
   "description": "Specialized agent for data analysis, statistical processing, and mathematical computations",
   "type": "analytical",
+  "visual": {
+    "emoji": "📊",
+    "icon": "chart-bar",
+    "iconPath": "M3 13l4-4 4 4 4-4 4 4v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM3 13l4-4 4 4 4-4 4 4",
+    "gradient": "from-blue-500 to-blue-700",
+    "color": "bg-blue-600",
+    "theme": {
+      "primary": "#3b82f6",
+      "secondary": "#1d4ed8",
+      "background": "rgba(59, 130, 246, 0.1)",
+      "text": "#1e40af"
+    }
+  },
   "memory": {
     "maxSize": 1000,
     "embeddingModel": "text-embedding-ada-002",

@@ -31,14 +31,32 @@
       "priority": 3
     },
     {
+      "name": "crm",
+      "description": "Force route to CRM Agent for customer queries, pipeline analysis, and Insightly operations",
+      "agentType": "CRMAgent",
+      "category": "agents",
+      "aliases": ["customer", "insightly", "pipeline", "contact", "opportunity"],
+      "enabled": true,
+      "priority": 4
+    },
+    {
       "name": "check-email",
       "description": "Check email status via n8n workflow",
       "agentType": "n8n",
       "category": "webhook",
       "aliases": ["email", "check-mail"],
       "enabled": true,
-      "priority": 4,
+      "priority": 5,
       "path": "http://localhost:5678/webhook/check-email"
+    },
+    {
+      "name": "financial",
+      "description": "Force route to Financial Agent for financial analysis, investment research, and economic insights",
+      "agentType": "FinancialAgent",
+      "category": "agents",
+      "aliases": ["finance", "fin", "invest", "fa", "money"],
+      "enabled": true,
+      "priority": 5
     }
   ],
   "settings": {

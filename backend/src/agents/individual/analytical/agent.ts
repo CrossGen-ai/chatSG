@@ -152,7 +152,8 @@ export class AnalyticalAgent extends AbstractBaseAgent {
                         agentType: this.type,
                         llmUsed: true,
                         streaming: true,
-                        responseLength: fullResponse.length || (response.content || response).length
+                        responseLength: fullResponse.length || (response.content || response).length,
+                        memoryStatus: this.getMemoryStatus()
                     }
                 };
             } else {
@@ -172,7 +173,8 @@ export class AnalyticalAgent extends AbstractBaseAgent {
                         agentName: this.name,
                         agentType: this.type,
                         llmUsed: true,
-                        responseLength: responseContent.length
+                        responseLength: responseContent.length,
+                        memoryStatus: this.getMemoryStatus()
                     }
                 };
             }

@@ -1,0 +1,106 @@
+{
+  "name": "CRMAgent",
+  "version": "1.0.0",
+  "description": "Specialized agent for CRM operations, customer queries, and pipeline management",
+  "type": "crm",
+  "enabled": true,
+  "visual": {
+    "emoji": "🤝",
+    "icon": "user-group",
+    "iconPath": "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+    "gradient": "from-teal-500 to-cyan-600",
+    "color": "bg-teal-600",
+    "theme": {
+      "primary": "#14b8a6",
+      "secondary": "#0891b2",
+      "background": "rgba(20, 184, 166, 0.1)",
+      "text": "#0d9488"
+    }
+  },
+  "configuration": {
+    "llm": {
+      "model": "default",
+      "temperature": 0.3,
+      "maxTokens": 2000
+    },
+    "tools": [
+      "insightly-api",
+      "contact-manager",
+      "opportunity-manager"
+    ],
+    "memory": {
+      "type": "conversation",
+      "maxMessages": 50
+    },
+    "routing": {
+      "priority": 0.8,
+      "keywords": [
+        "crm",
+        "customer",
+        "contact",
+        "lead",
+        "opportunity",
+        "deal",
+        "pipeline",
+        "sales",
+        "prospect",
+        "account",
+        "client",
+        "insightly"
+      ],
+      "patterns": [
+        "find.*customer",
+        "search.*contact",
+        "pipeline.*status",
+        "opportunity.*details",
+        "lead.*information",
+        "customer.*lookup",
+        "deal.*status"
+      ]
+    }
+  },
+  "capabilities": {
+    "supportedModes": ["crm", "customer_management", "sales", "pipeline"],
+    "features": [
+      "contact_management",
+      "lead_tracking",
+      "opportunity_management",
+      "pipeline_analysis",
+      "customer_search",
+      "deal_tracking",
+      "account_management",
+      "sales_reporting",
+      "customer_insights",
+      "relationship_mapping"
+    ],
+    "inputTypes": ["text", "customer_query", "crm_command"],
+    "outputTypes": ["text", "customer_data", "pipeline_report", "sales_metrics"],
+    "supportsTools": true,
+    "supportsSessions": true,
+    "supportsStreaming": false
+  },
+  "settings": {
+    "maxSessionMemory": 2000,
+    "responseStyle": "professional",
+    "includeMetrics": true,
+    "structuredOutput": true
+  },
+  "tools": [
+    "InsightlyAPITool",
+    "ContactManagerTool",
+    "OpportunityManagerTool",
+    "PipelineAnalysisTool"
+  ],
+  "memory": {
+    "conversationHistory": true,
+    "customerContext": true,
+    "dealHistory": true,
+    "userPreferences": true
+  },
+  "metadata": {
+    "author": "ChatSG CRM Integration",
+    "created": "2024-01-07",
+    "tags": ["crm", "sales", "customer-management"],
+    "documentation": "https://docs.chatsg.com/agents/crm"
+  }
+}

@@ -677,17 +677,41 @@ export class AgentOrchestrator implements IAgentOrchestrator {
             'architecture', 'optimization', 'performance', 'testing', 'deployment', 'git'
         ];
 
+        // CRM agent patterns
+        const crmPatterns = [
+            'crm', 'customer', 'contact', 'lead', 'opportunity', 'deal', 'pipeline',
+            'sales', 'prospect', 'account', 'client', 'insightly', 'customer status',
+            'pipeline status', 'deal status', 'opportunity status', 'lead status',
+            'find customer', 'search contact', 'customer lookup', 'sales pipeline',
+            'revenue', 'forecast', 'close date', 'win rate', 'conversion', 'qualification'
+        ];
+
+        // Financial agent patterns
+        const financialPatterns = [
+            'financial', 'finance', 'investment', 'invest', 'money', 'stock', 'portfolio',
+            'trading', 'market', 'economic', 'economy', 'wealth', 'asset', 'bond',
+            'mutual fund', 'etf', 'dividend', 'earnings', 'profit', 'loss',
+            'financial analysis', 'investment advice', 'market analysis', 'risk assessment',
+            'valuation', 'dcf', 'pe ratio', 'financial planning', 'retirement',
+            'bull market', 'bear market', 'volatility', 'return', 'yield', 'capital',
+            'shares', 'equity', 'debt', 'credit', 'loan', 'mortgage', 'inflation'
+        ];
+
         // Count pattern matches for each category
         const analyticalScore = this.countPatternMatches(inputLower, analyticalPatterns);
         const creativeScore = this.countPatternMatches(inputLower, creativePatterns);
         const technicalScore = this.countPatternMatches(inputLower, technicalPatterns);
+        const crmScore = this.countPatternMatches(inputLower, crmPatterns);
+        const financialScore = this.countPatternMatches(inputLower, financialPatterns);
 
         // Determine the highest scoring category with minimum threshold
         const minThreshold = 1; // At least one keyword match required
         const scores = [
             { type: 'AnalyticalAgent', score: analyticalScore, patterns: analyticalPatterns },
             { type: 'CreativeAgent', score: creativeScore, patterns: creativePatterns },
-            { type: 'TechnicalAgent', score: technicalScore, patterns: technicalPatterns }
+            { type: 'TechnicalAgent', score: technicalScore, patterns: technicalPatterns },
+            { type: 'CRMAgent', score: crmScore, patterns: crmPatterns },
+            { type: 'FinancialAgent', score: financialScore, patterns: financialPatterns }
         ];
 
         // Sort by score (descending)

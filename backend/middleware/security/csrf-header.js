@@ -77,6 +77,12 @@ function verify(req, res, next) {
     return next();
   }
   
+  // Skip CSRF validation in development mode unless running tests
+  if (process.env.CHATSG_ENVIRONMENT === 'dev' && process.env.NODE_ENV !== 'test') {
+    console.log('[CSRF-Header] Bypassing CSRF validation in development mode');
+    return next();
+  }
+  
   const headerToken = req.headers['x-csrf-token'];
   const sessionId = req.ip || 'anonymous';
   

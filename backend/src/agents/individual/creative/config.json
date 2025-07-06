@@ -3,6 +3,19 @@
   "version": "1.0.0",
   "type": "creative",
   "description": "Specialized agent for creative writing, brainstorming, storytelling, and innovative thinking",
+  "visual": {
+    "emoji": "🎨",
+    "icon": "color-swatch",
+    "iconPath": "M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 3H5v12a2 2 0 002 2 2 2 0 002-2V3zM19 3h-2v12a4 4 0 01-4 4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4z",
+    "gradient": "from-purple-500 to-pink-600",
+    "color": "bg-purple-600",
+    "theme": {
+      "primary": "#8b5cf6",
+      "secondary": "#db2777",
+      "background": "rgba(139, 92, 246, 0.1)",
+      "text": "#7c3aed"
+    }
+  },
   "capabilities": {
     "supportedModes": ["creative", "writing", "brainstorming", "storytelling", "ideation"],
     "features": [

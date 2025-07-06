@@ -244,34 +244,13 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
     }, 300); // Increased delay for better DOM update reliability
   }, []);
   
-  // Smart streaming scroll that follows content growth - simplified approach
-  const handleStreamingScroll = useCallback(() => {
-    if (!messagesContainerRef.current) return;
-    
-    // Clear any pending scroll
-    if (streamingScrollThrottleRef.current) {
-      clearTimeout(streamingScrollThrottleRef.current);
+  // Industry standard: Always scroll during streaming, smart detection for other times
+  useEffect(() => {
+    if (streamingMessage && isStreaming) {
+      // During active streaming, always scroll to bottom - ignore user scroll detection
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-    
-    // Throttle scroll calls to prevent too many updates
-    streamingScrollThrottleRef.current = setTimeout(() => {
-      if (!messagesContainerRef.current) return;
-      
-      const container = messagesContainerRef.current;
-      const scrollBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-      
-      // Only auto-scroll if user is near the bottom (within 100px)
-      if (scrollBottom < 100) {
-        // Use scrollIntoView on the last message for smooth scrolling
-        const messages = container.querySelectorAll('[data-message-id]');
-        const lastMessage = messages[messages.length - 1];
-        
-        if (lastMessage) {
-          lastMessage.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-      }
-    }, 50); // Small delay to batch multiple calls
-  }, []);
+  }, [streamingMessage, isStreaming]);
   
   // 2025 Best Practices: Smart scroll detection with throttling
   const handleUserScroll = useCallback(() => {
@@ -692,29 +671,15 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
               statusMessages: []
             });
             
-            // Batch UI updates to reduce re-renders (10/sec instead of 50/sec)
-            if (streamingBatchRef.current) {
-              clearTimeout(streamingBatchRef.current);
+            // Update UI immediately for real-time streaming effect
+            if (String(originatingSessionId) === String(activeChatIdRef.current)) {
+              setStreamingMessage(currentContent);
             }
             
-            streamingBatchRef.current = setTimeout(() => {
-              const currentContent = accumulatedContentRef.current;
-              
-              // Only update UI state if this is the active session
-              if (originatingSessionId === activeChatIdRef.current) {
-                setStreamingMessage(currentContent);
-                
-                // Call scroll directly instead of relying on useEffect
-                requestAnimationFrame(() => {
-                  handleStreamingScroll();
-                });
-              }
-              
-              // Update message content in the array
-              setMessages(msgs => msgs.map(msg => 
-                msg.id === botMessageId ? { ...msg, content: currentContent } : msg
-              ));
-            }, 100); // 10 updates per second instead of 50+
+            // Update message content in the array immediately
+            setMessages(msgs => msgs.map(msg => 
+              msg.id === botMessageId ? { ...msg, content: currentContent } : msg
+            ));
           },
           onStatus: (data: { type: string; message: string; metadata?: any }) => {
             console.log('[ChatUI] Status received:', data);
@@ -723,7 +688,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
               timestamp: new Date()
             }]);
           },
-          onDone: async (data: { agent?: string; orchestration?: any }) => {
+          onDone: async (data: { agent?: string; orchestration?: any; memoryStatus?: any }) => {
             // Clear any pending batch updates to ensure final content is preserved
             if (streamingBatchRef.current) {
               clearTimeout(streamingBatchRef.current);
@@ -746,7 +711,8 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
               timestamp: new Date(),
               agent: data.agent || currentStreamingAgent,
               synced: false,
-              isStreaming: false // Remove streaming flag
+              isStreaming: false, // Remove streaming flag
+              memoryStatus: data.memoryStatus
             };
             
             // Force immediate final content update to prevent disappearing text
@@ -755,12 +721,13 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
                 ...msg, 
                 content: finalContent, 
                 agent: finalMessage.agent, 
-                isStreaming: false 
+                isStreaming: false,
+                memoryStatus: finalMessage.memoryStatus
               } : msg
             ));
             
             // Also update streaming message state to final content
-            if (originatingSessionId === activeChatIdRef.current) {
+            if (String(originatingSessionId) === String(activeChatIdRef.current)) {
               setStreamingMessage(finalContent);
             }
             
@@ -770,7 +737,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
               markChatNewMessage(originatingSessionId, true, activeChatIdRef.current);
               
               // Mark as read immediately (non-blocking)
-              if (originatingSessionId === activeChatIdRef.current) {
+              if (String(originatingSessionId) === String(activeChatIdRef.current)) {
                 markChatAsRead(originatingSessionId)
                   .catch(err => console.error('[ChatUI] Failed to mark as read:', err));
               }
@@ -787,7 +754,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             }
             
             // Only clear UI state if this is the active session
-            if (originatingSessionId === activeChatIdRef.current) {
+            if (String(originatingSessionId) === String(activeChatIdRef.current)) {
               setIsStreaming(false);
               setStreamingSessionId(null);
               setStreamingMessageId(null);
@@ -831,7 +798,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
             streamingStatesRef.current.delete(originatingSessionId);
             
             // Only clear UI state if this is the active session
-            if (originatingSessionId === activeChatIdRef.current) {
+            if (String(originatingSessionId) === String(activeChatIdRef.current)) {
               setIsStreaming(false);
               setStreamingSessionId(null); // Clear streaming session
               setStreamingMessageId(null); // Clear streaming message
@@ -851,7 +818,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       
       // Start streaming (include activeSessionId for background message tracking)
       options.activeSessionId = activeChatIdRef.current;
-      console.log(`[ChatUI] Starting stream - sessionId: ${originatingSessionId}, activeSessionId: ${activeChatIdRef.current}`);
+      // Starting stream with session validation
       
       // Abort any existing stream for this session
       const existingController = streamControllersRef.current.get(originatingSessionId);
@@ -946,7 +913,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       // Using effectiveActiveChatId here will cause race condition to return
       // See: frontend/RACE_CONDITION_FIX_DOCUMENTATION.md
       console.log(`[ChatUI] 📥 RESPONSE RECEIVED - originatingSessionId: ${originatingSessionId}, activeChatId at response time: ${activeChatIdRef.current}`);
-      console.log(`[ChatUI] 🔍 Session validation: ${originatingSessionId} === ${activeChatIdRef.current} ? ${originatingSessionId === activeChatIdRef.current}`);
+      console.log(`[ChatUI] 🔍 Session validation: ${originatingSessionId} === ${activeChatIdRef.current} ? ${String(originatingSessionId) === String(activeChatIdRef.current)}`);
       console.log(`[ChatUI] 🔍 DETAILED COMPARISON:`);
       console.log(`[ChatUI] 🔍   - originatingSessionId: "${originatingSessionId}" (length: ${originatingSessionId.length}, type: ${typeof originatingSessionId})`);
       console.log(`[ChatUI] 🔍   - activeChatIdRef.current: "${activeChatIdRef.current}" (length: ${String(activeChatIdRef.current).length}, type: ${typeof activeChatIdRef.current})`);
@@ -959,7 +926,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       }
       
       // Session validation before UI update
-      if (originatingSessionId === activeChatIdRef.current) {
+      if (String(originatingSessionId) === String(activeChatIdRef.current)) {
         console.log(`[ChatUI] ✅ ACTIVE CHAT PATH - Adding response to current UI`);
         // Response for currently active chat
         const botMessage: HybridMessage = {
@@ -1024,7 +991,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
       }
       
       // Handle errors for both active and background chats
-      if (originatingSessionId === activeChatIdRef.current) {
+      if (String(originatingSessionId) === String(activeChatIdRef.current)) {
         const errorMessage: HybridMessage = {
           id: Date.now() + 1,
           content: 'Sorry, I encountered an error. Please try again.',
@@ -1236,8 +1203,8 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
         ref={messagesContainerRef} 
         className={clsx(
           "flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent transition-opacity duration-150",
-          // Don't hide during load more operations
-          (isScrollReady || isLoadingMore) ? "opacity-100" : "opacity-0 pointer-events-none"
+          // Don't hide during load more operations or streaming
+          (isScrollReady || isLoadingMore || isStreaming) ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         style={{ scrollBehavior: isInitialLoad ? 'auto' : 'smooth' }}
       >

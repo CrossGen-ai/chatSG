@@ -116,6 +116,9 @@ export const SlashCommandDropdown: React.FC<SlashCommandDropdownProps> = ({
       case 'technicaltoolsagent':
       case 'technical':
         return '🔧';
+      case 'financialagent':
+      case 'financial':
+        return '💲';
       default:
         return '🤖';
     }

@@ -123,6 +123,31 @@ export const MessageItem = React.memo<MessageItemProps>(({
           {!message.synced && (
             <span className="ml-2 text-orange-500">•</span>
           )}
+          {/* Show memory status for bot messages */}
+          {message.sender === 'bot' && message.memoryStatus && (
+            <span className="ml-2">
+              {message.memoryStatus.status === 'loaded' && message.memoryStatus.memoryCount > 0 && (
+                <span className="text-blue-500" title={`${message.memoryStatus.memoryCount} memories loaded in ${message.memoryStatus.retrievalTime}ms`}>
+                  🧠{message.memoryStatus.memoryCount}
+                </span>
+              )}
+              {message.memoryStatus.status === 'timeout' && (
+                <span className="text-orange-500" title={`Memory retrieval timed out after ${message.memoryStatus.retrievalTime}ms`}>
+                  🧠⏱️
+                </span>
+              )}
+              {message.memoryStatus.status === 'empty' && message.memoryStatus.enabled && (
+                <span className="text-gray-500" title="No relevant memories found">
+                  🧠∅
+                </span>
+              )}
+              {message.memoryStatus.status === 'error' && (
+                <span className="text-red-500" title={`Memory error: ${message.memoryStatus.errorMessage || 'Unknown error'}`}>
+                  🧠❌
+                </span>
+              )}
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -135,6 +160,7 @@ export const MessageItem = React.memo<MessageItemProps>(({
     prevProps.message.content === nextProps.message.content &&
     prevProps.message.synced === nextProps.message.synced &&
     prevProps.message.isStreaming === nextProps.message.isStreaming &&
+    JSON.stringify(prevProps.message.memoryStatus) === JSON.stringify(nextProps.message.memoryStatus) &&
     prevProps.currentChatAgentType === nextProps.currentChatAgentType &&
     prevProps.showAnimation === nextProps.showAnimation
   );

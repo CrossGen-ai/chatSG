@@ -41,6 +41,13 @@ export interface HybridMessage {
   compressed?: boolean;   // tracks if message content is compressed
   batchId?: string;      // for message batching
   isStreaming?: boolean;  // tracks if message is currently streaming
+  memoryStatus?: {        // memory retrieval status for bot messages
+    enabled: boolean;
+    memoryCount: number;
+    status: 'loaded' | 'timeout' | 'empty' | 'error';
+    retrievalTime?: number;
+    errorMessage?: string;
+  };
 }
 
 // ChatManager context interface - enhanced

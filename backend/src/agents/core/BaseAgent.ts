@@ -6,6 +6,15 @@
  */
 
 import { AgentResponse, AgentCapabilities, ValidationResult, StreamingCallback } from '../../types';
+
+export interface MemoryStatus {
+    enabled: boolean;
+    memoryCount: number;
+    status: 'loaded' | 'timeout' | 'empty' | 'error';
+    retrievalTime?: number;
+    errorMessage?: string;
+}
+
 import { getStorageManager } from '../../storage/StorageManager';
 import { ContextManager, ContextMessage } from '../../storage/ContextManager';
 import { getStateManager } from '../../state/StateManager';
@@ -84,6 +93,7 @@ export abstract class AbstractBaseAgent implements BaseAgent {
     protected version: string;
     protected description: string;
     protected type: string;
+    protected lastMemoryStatus: MemoryStatus | null = null;
 
     constructor(name: string, version: string = '1.0.0', description: string = '', type: string = 'generic') {
         this.name = name;
@@ -103,6 +113,18 @@ export abstract class AbstractBaseAgent implements BaseAgent {
             description: this.description,
             type: this.type
         };
+    }
+
+    /**
+     * Get the last memory status from context retrieval
+     */
+    protected getMemoryStatus(): MemoryStatus | null {
+        try {
+            return this.lastMemoryStatus;
+        } catch (error) {
+            console.error(`[${this.name}] Error getting memory status:`, error);
+            return null;
+        }
     }
 
     async initialize(config?: any): Promise<void> {
@@ -157,20 +179,54 @@ export abstract class AbstractBaseAgent implements BaseAgent {
                 );
                 
                 // Create a timeout promise that resolves with minimal context
+                let timedOut = false;
                 const timeoutPromise = new Promise<any[]>((resolve) => 
                     setTimeout(() => {
+                        timedOut = true;
                         const timeoutElapsed = Date.now() - startTime;
-                        console.log(`[${this.name}] Mem0 context retrieval timed out after ${timeoutElapsed}ms (2s limit), using minimal context`);
+                        console.log(`[${this.name}] Mem0 context retrieval timed out after ${timeoutElapsed}ms (10s limit), using minimal context`);
                         resolve([
                             { role: 'system', content: enhancedSystemPrompt }
                         ]);
-                    }, 2000) // 2 second timeout for faster streaming start
+                    }, 10000) // 10 second timeout to allow memory retrieval
                 );
                 
                 // Race between actual context and timeout
                 const contextMessages = await Promise.race([contextPromise, timeoutPromise]);
                 const elapsed = Date.now() - startTime;
                 console.log(`[${this.name}] Context retrieval completed in ${elapsed}ms`);
+                
+                // Track memory status
+                try {
+                    if (timedOut) {
+                        this.lastMemoryStatus = {
+                            enabled: true,
+                            memoryCount: 0,
+                            status: 'timeout',
+                            retrievalTime: elapsed
+                        };
+                    } else {
+                        // Count memory messages (exclude system prompt and user input)
+                        const memoryMessages = contextMessages.filter(msg => 
+                            msg.role === 'system' && msg.content.includes('[Relevant Context:')
+                        );
+                        this.lastMemoryStatus = {
+                            enabled: true,
+                            memoryCount: memoryMessages.length,
+                            status: memoryMessages.length > 0 ? 'loaded' : 'empty',
+                            retrievalTime: elapsed
+                        };
+                    }
+                    console.log(`[${this.name}] Memory status set:`, this.lastMemoryStatus);
+                } catch (error) {
+                    console.error(`[${this.name}] Error setting memory status:`, error);
+                    this.lastMemoryStatus = {
+                        enabled: true,
+                        memoryCount: 0,
+                        status: 'error',
+                        errorMessage: 'Failed to track memory status'
+                    };
+                }
                 
                 // Add the current user input
                 contextMessages.push({
@@ -183,7 +239,28 @@ export abstract class AbstractBaseAgent implements BaseAgent {
                 
             } catch (error) {
                 console.error(`[${this.name}] Failed to use Mem0, falling back to traditional context:`, error);
+                try {
+                    this.lastMemoryStatus = {
+                        enabled: true,
+                        memoryCount: 0,
+                        status: 'error',
+                        errorMessage: error instanceof Error ? error.message : 'Unknown error'
+                    };
+                } catch (statusError) {
+                    console.error(`[${this.name}] Error setting memory status in catch block:`, statusError);
+                }
                 // Fall through to traditional method
+            }
+        } else {
+            // Mem0 is disabled
+            try {
+                this.lastMemoryStatus = {
+                    enabled: false,
+                    memoryCount: 0,
+                    status: 'empty'
+                };
+            } catch (statusError) {
+                console.error(`[${this.name}] Error setting memory status for disabled mem0:`, statusError);
             }
         }
         

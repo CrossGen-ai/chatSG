@@ -23,3 +23,4 @@ export { TechnicalAgent } from './technical/agent';
 export { IndividualAgentFactory } from './IndividualAgentFactory';
 export { LazyAgentManager } from './LazyAgentManager';
 export type { AgentSelectionResult, CacheStats } from './LazyAgentManager';
+export { FinancialAgent } from './financial/agent';

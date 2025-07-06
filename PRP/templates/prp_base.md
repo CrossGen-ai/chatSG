@@ -396,6 +396,10 @@ Issue: "Cannot use import outside module"
 Solution: Backend uses CommonJS, frontend uses ES modules
 ```
 
+## Reminders
+Our markdown files have lot sof good info in them
+
+
 ---
 
 ## Anti-Patterns to Avoid

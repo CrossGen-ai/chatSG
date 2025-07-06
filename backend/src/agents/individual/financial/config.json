@@ -1,0 +1,97 @@
+{
+  "name": "FinancialAgent",
+  "version": "1.0.0",
+  "description": "Specialized agent for financial analysis, investment research, and economic insights",
+  "type": "financial",
+  "enabled": true,
+  "visual": {
+    "emoji": "💲",
+    "icon": "dollar-sign",
+    "iconPath": "M12 2v2m0 16v2m-4-8H6a2 2 0 010-4h4m4 0h2a2 2 0 100 4h-4m-2-6v12",
+    "gradient": "from-yellow-500 to-amber-600",
+    "color": "bg-yellow-600",
+    "theme": {
+      "primary": "#eab308",
+      "secondary": "#d97706",
+      "background": "rgba(234, 179, 8, 0.1)",
+      "text": "#ca8a04"
+    }
+  },
+  "configuration": {
+    "llm": {
+      "model": "default",
+      "temperature": 0.7,
+      "maxTokens": 2000
+    },
+    "memory": {
+      "type": "conversation",
+      "maxMessages": 50
+    },
+    "routing": {
+      "priority": 0.8,
+      "keywords": [
+        "financial",
+        "finance",
+        "investment",
+        "invest",
+        "money",
+        "stock",
+        "portfolio",
+        "trading",
+        "market",
+        "economic",
+        "economy",
+        "wealth",
+        "asset",
+        "bond",
+        "mutual fund",
+        "etf",
+        "dividend",
+        "earnings",
+        "profit",
+        "loss",
+        "valuation",
+        "retirement"
+      ],
+      "patterns": [
+        "financial.*analysis",
+        "investment.*advice",
+        "market.*analysis",
+        "risk.*assessment",
+        "portfolio.*management",
+        "stock.*evaluation",
+        "economic.*outlook"
+      ]
+    }
+  },
+  "capabilities": {
+    "supportedModes": ["financial_analysis", "investment_research", "economic_insights"],
+    "features": [
+      "financial_analysis",
+      "investment_research",
+      "macroeconomic_insights",
+      "company_analysis",
+      "risk_assessment",
+      "portfolio_theory",
+      "llm_integration"
+    ],
+    "inputTypes": ["text", "financial_questions", "company_data"],
+    "outputTypes": ["financial_reports", "explanations", "insights"],
+    "supportsTools": false,
+    "supportsSessions": true,
+    "supportsStreaming": true,
+    "supportsStateSharing": true
+  },
+  "settings": {
+    "maxSessionMemory": 1000,
+    "responseStyle": "professional",
+    "includeDisclaimer": true,
+    "structuredOutput": true
+  },
+  "metadata": {
+    "author": "ChatSG Financial Integration",
+    "created": "2025-07-06",
+    "tags": ["finance", "investment", "economics", "analysis"],
+    "documentation": "https://docs.chatsg.com/agents/financial"
+  }
+}

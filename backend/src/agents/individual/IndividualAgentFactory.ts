@@ -11,6 +11,8 @@ import { BaseAgent } from '../core/BaseAgent';
 import { AnalyticalAgent } from './analytical/agent';
 import { CreativeAgent } from './creative/agent';
 import { TechnicalAgent } from './technical/agent';
+import { CRMAgent } from './crm/agent';
+import { FinancialAgent } from './financial/agent';
 
 /**
  * Factory for creating individual agents
@@ -65,6 +67,28 @@ export class IndividualAgentFactory {
                 console.error('[IndividualAgentFactory]', errorMsg);
             }
 
+            // Create CRM Agent
+            try {
+                const crmAgent = new CRMAgent();
+                agents.push(crmAgent);
+                console.log('[IndividualAgentFactory] Created CRMAgent successfully');
+            } catch (error) {
+                const errorMsg = `Failed to create CRMAgent: ${(error as Error).message}`;
+                errors.push(errorMsg);
+                console.error('[IndividualAgentFactory]', errorMsg);
+            }
+
+            // Create Financial Agent
+            try {
+                const financialAgent = new FinancialAgent();
+                agents.push(financialAgent);
+                console.log('[IndividualAgentFactory] Created FinancialAgent successfully');
+            } catch (error) {
+                const errorMsg = `Failed to create FinancialAgent: ${(error as Error).message}`;
+                errors.push(errorMsg);
+                console.error('[IndividualAgentFactory]', errorMsg);
+            }
+
             // Determine success
             if (agents.length > 0) {
                 success = true;
@@ -74,8 +98,8 @@ export class IndividualAgentFactory {
             }
 
             // Add warnings for any missing agents
-            if (agents.length < 3) {
-                warnings.push(`Only ${agents.length} out of 3 expected agents were created`);
+            if (agents.length < 5) {
+                warnings.push(`Only ${agents.length} out of 5 expected agents were created`);
             }
 
         } catch (error) {
@@ -110,6 +134,14 @@ export class IndividualAgentFactory {
                 case 'technicalagent':
                     return new TechnicalAgent();
                 
+                case 'crm':
+                case 'crmagent':
+                    return new CRMAgent();
+                
+                case 'financial':
+                case 'financialagent':
+                    return new FinancialAgent();
+                
                 default:
                     console.warn(`[IndividualAgentFactory] Unknown agent name: ${agentName}`);
                     return null;
@@ -124,7 +156,7 @@ export class IndividualAgentFactory {
      * Get list of available agent types
      */
     static getAvailableAgents(): string[] {
-        return ['AnalyticalAgent', 'CreativeAgent', 'TechnicalAgent'];
+        return ['AnalyticalAgent', 'CreativeAgent', 'TechnicalAgent', 'CRMAgent', 'FinancialAgent'];
     }
 
     /**
@@ -165,6 +197,18 @@ export class IndividualAgentFactory {
                 type: 'technical', 
                 description: 'Specialized agent for coding, debugging, technical problem-solving, and software development',
                 capabilities: ['code_generation', 'debugging_assistance', 'architecture_design', 'performance_optimization', 'code_review']
+            },
+            {
+                name: 'CRMAgent',
+                type: 'crm',
+                description: 'Specialized agent for CRM operations, customer queries, and pipeline management',
+                capabilities: ['customer_lookup', 'contact_search', 'pipeline_analysis', 'opportunity_tracking', 'lead_management', 'sales_forecasting']
+            },
+            {
+                name: 'FinancialAgent',
+                type: 'financial',
+                description: 'Specialized agent for financial analysis, investment research, and economic insights',
+                capabilities: ['financial_analysis', 'investment_research', 'macroeconomic_insights', 'company_analysis', 'risk_assessment', 'portfolio_theory', 'llm_integration']
             }
         ];
     }

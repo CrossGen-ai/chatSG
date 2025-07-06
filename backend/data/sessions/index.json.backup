@@ -1366,13 +1366,13 @@
     "status": "active",
     "createdAt": "2025-07-05T19:59:52.168Z",
     "startedAt": "2025-07-05T19:59:52.168Z",
-    "lastActivityAt": "2025-07-05T21:35:12.336Z",
-    "messageCount": 55,
+    "lastActivityAt": "2025-07-06T06:36:11.919Z",
+    "messageCount": 105,
     "title": "hello with CSRF",
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-05T21:35:13.941Z",
+      "lastReadAt": "2025-07-06T06:35:25.383Z",
       "lastAgent": "AnalyticalAgent"
     }
   },
@@ -1427,13 +1427,378 @@
     "status": "active",
     "createdAt": "2025-07-05T20:00:02.322Z",
     "startedAt": "2025-07-05T20:00:02.322Z",
-    "lastActivityAt": "2025-07-05T21:15:33.453Z",
-    "messageCount": 6,
+    "lastActivityAt": "2025-07-05T22:03:40.264Z",
+    "messageCount": 26,
     "title": "Trimmed Title",
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-05T21:15:28.024Z",
+      "lastReadAt": "2025-07-06T06:04:02.616Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-newest-lead": {
+    "file": "session_test-newest-lead.jsonl",
+    "toolsFile": "session_test-newest-lead_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T06:42:10.057Z",
+    "startedAt": "2025-07-06T06:42:10.057Z",
+    "lastActivityAt": "2025-07-06T06:45:31.723Z",
+    "messageCount": 2,
+    "title": "/crm who was our newest lead?",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-most-recent-lead": {
+    "file": "session_test-most-recent-lead.jsonl",
+    "toolsFile": "session_test-most-recent-lead_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T06:44:31.133Z",
+    "startedAt": "2025-07-06T06:44:31.133Z",
+    "lastActivityAt": "2025-07-06T06:44:35.936Z",
+    "messageCount": 1,
+    "title": "/crm show me the most recent lead",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "test-newest-final": {
+    "file": "session_test-newest-final.jsonl",
+    "toolsFile": "session_test-newest-final_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T06:45:53.180Z",
+    "startedAt": "2025-07-06T06:45:53.180Z",
+    "lastActivityAt": "2025-07-06T06:45:57.831Z",
+    "messageCount": 1,
+    "title": "/crm who was our newest lead?",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T06:51:12.076Z"
+    }
+  },
+  "test-debug-newest": {
+    "file": "session_test-debug-newest.jsonl",
+    "toolsFile": "session_test-debug-newest_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T06:47:07.286Z",
+    "startedAt": "2025-07-06T06:47:07.286Z",
+    "lastActivityAt": "2025-07-06T06:47:11.763Z",
+    "messageCount": 1,
+    "title": "/crm who was our newest lead?",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T06:51:09.975Z"
+    }
+  },
+  "test-fixed-api": {
+    "file": "session_test-fixed-api.jsonl",
+    "toolsFile": "session_test-fixed-api_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T06:50:18.733Z",
+    "startedAt": "2025-07-06T06:50:18.733Z",
+    "lastActivityAt": "2025-07-06T07:03:05.551Z",
+    "messageCount": 14,
+    "title": "/crm who was our newest lead?",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T07:02:35.788Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-crm-details-1751785305269-Full-details-with-exact-name": {
+    "file": "session_test-crm-details-1751785305269-Full-details-with-exact-name.jsonl",
+    "toolsFile": "session_test-crm-details-1751785305269-Full-details-with-exact-name_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:01:45.300Z",
+    "startedAt": "2025-07-06T07:01:45.300Z",
+    "lastActivityAt": "2025-07-06T07:02:06.305Z",
+    "messageCount": 2,
+    "title": "/crm give full details of peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-crm-details-1751785305269-Details-request-variation": {
+    "file": "session_test-crm-details-1751785305269-Details-request-variation.jsonl",
+    "toolsFile": "session_test-crm-details-1751785305269-Details-request-variation_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:02:06.326Z",
+    "startedAt": "2025-07-06T07:02:06.326Z",
+    "lastActivityAt": "2025-07-06T07:02:29.746Z",
+    "messageCount": 2,
+    "title": "/crm show me detailed information about peter kell...",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-crm-details-1751785305269-Complete-info-request": {
+    "file": "session_test-crm-details-1751785305269-Complete-info-request.jsonl",
+    "toolsFile": "session_test-crm-details-1751785305269-Complete-info-request_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:02:29.754Z",
+    "startedAt": "2025-07-06T07:02:29.754Z",
+    "lastActivityAt": "2025-07-06T07:02:52.655Z",
+    "messageCount": 2,
+    "title": "/crm I need complete info on peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-details-1751785405626": {
+    "file": "session_test-details-1751785405626.jsonl",
+    "toolsFile": "session_test-details-1751785405626_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:03:25.645Z",
+    "startedAt": "2025-07-06T07:03:25.645Z",
+    "lastActivityAt": "2025-07-06T07:03:51.818Z",
+    "messageCount": 2,
+    "title": "/crm give full details of peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-details-1751785431826": {
+    "file": "session_test-details-1751785431826.jsonl",
+    "toolsFile": "session_test-details-1751785431826_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:03:51.844Z",
+    "startedAt": "2025-07-06T07:03:51.844Z",
+    "lastActivityAt": "2025-07-06T07:04:16.755Z",
+    "messageCount": 2,
+    "title": "/crm show me detailed information about peter kell...",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-details-1751785456757": {
+    "file": "session_test-details-1751785456757.jsonl",
+    "toolsFile": "session_test-details-1751785456757_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:04:16.769Z",
+    "startedAt": "2025-07-06T07:04:16.769Z",
+    "lastActivityAt": "2025-07-06T07:04:37.658Z",
+    "messageCount": 2,
+    "title": "/crm I need complete info on peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-details-1751785477659": {
+    "file": "session_test-details-1751785477659.jsonl",
+    "toolsFile": "session_test-details-1751785477659_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:04:37.672Z",
+    "startedAt": "2025-07-06T07:04:37.672Z",
+    "lastActivityAt": "2025-07-06T07:06:32.385Z",
+    "messageCount": 4,
+    "title": "/crm find peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T07:05:55.419Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-details-curl": {
+    "file": "session_test-details-curl.jsonl",
+    "toolsFile": "session_test-details-curl_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:06:26.574Z",
+    "startedAt": "2025-07-06T07:06:26.574Z",
+    "lastActivityAt": "2025-07-06T07:06:53.031Z",
+    "messageCount": 2,
+    "title": "/crm give full details of peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-final-details": {
+    "file": "session_test-final-details.jsonl",
+    "toolsFile": "session_test-final-details_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:07:40.638Z",
+    "startedAt": "2025-07-06T07:07:40.638Z",
+    "lastActivityAt": "2025-07-06T07:08:04.207Z",
+    "messageCount": 2,
+    "title": "/crm give full details of peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-details-v2": {
+    "file": "session_test-details-v2.jsonl",
+    "toolsFile": "session_test-details-v2_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:08:10.893Z",
+    "startedAt": "2025-07-06T07:08:10.893Z",
+    "lastActivityAt": "2025-07-06T07:09:31.816Z",
+    "messageCount": 4,
+    "title": "/crm give full details of peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T07:09:02.126Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-details-working": {
+    "file": "session_test-details-working.jsonl",
+    "toolsFile": "session_test-details-working_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:09:22.538Z",
+    "startedAt": "2025-07-06T07:09:22.538Z",
+    "lastActivityAt": "2025-07-06T07:10:23.534Z",
+    "messageCount": 4,
+    "title": "/crm give full details of peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T07:10:02.105Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-debug-details": {
+    "file": "session_test-debug-details.jsonl",
+    "toolsFile": "session_test-debug-details_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:11:11.823Z",
+    "startedAt": "2025-07-06T07:11:11.823Z",
+    "lastActivityAt": "2025-07-06T07:12:14.857Z",
+    "messageCount": 4,
+    "title": "/crm give full details of peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T07:11:45.150Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-state-debug": {
+    "file": "session_test-state-debug.jsonl",
+    "toolsFile": "session_test-state-debug_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:13:12.806Z",
+    "startedAt": "2025-07-06T07:13:12.806Z",
+    "lastActivityAt": "2025-07-06T07:20:13.511Z",
+    "messageCount": 3,
+    "title": "/crm give full details of peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T07:20:19.428Z",
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-corrected-api": {
+    "file": "session_test-corrected-api.jsonl",
+    "toolsFile": "session_test-corrected-api_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:21:24.259Z",
+    "startedAt": "2025-07-06T07:21:24.259Z",
+    "lastActivityAt": "2025-07-06T07:21:48.517Z",
+    "messageCount": 2,
+    "title": "/crm give full details of peter kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T07:31:36.535Z",
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-newest-corrected": {
+    "file": "session_test-newest-corrected.jsonl",
+    "toolsFile": "session_test-newest-corrected_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T07:21:52.120Z",
+    "startedAt": "2025-07-06T07:21:52.120Z",
+    "lastActivityAt": "2025-07-06T08:10:57.549Z",
+    "messageCount": 43,
+    "title": "/crm who was our newest lead?",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T08:10:46.518Z",
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "session_1751789612683_s8zt80esk": {
+    "file": "session_session_1751789612683_s8zt80esk.jsonl",
+    "toolsFile": "session_session_1751789612683_s8zt80esk_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-06T08:13:32.683Z",
+    "startedAt": "2025-07-06T08:13:32.683Z",
+    "lastActivityAt": "2025-07-06T09:32:50.391Z",
+    "messageCount": 12,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T08:48:49.691Z",
+      "lastAgent": "CreativeAgent"
+    }
+  },
+  "test-financial-1": {
+    "file": "session_test-financial-1.jsonl",
+    "toolsFile": "session_test-financial-1_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T17:51:11.417Z",
+    "startedAt": "2025-07-06T17:51:11.417Z",
+    "lastActivityAt": "2025-07-06T17:52:05.955Z",
+    "messageCount": 2,
+    "title": "What is compound interest?",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 1,
+      "lastReadAt": null,
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-financial-2": {
+    "file": "session_test-financial-2.jsonl",
+    "toolsFile": "session_test-financial-2_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T17:54:54.463Z",
+    "startedAt": "2025-07-06T17:54:54.463Z",
+    "lastActivityAt": "2025-07-06T18:15:12.145Z",
+    "messageCount": 15,
+    "title": "investment analysis",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T18:15:22.143Z",
       "lastAgent": "CreativeAgent"
     }
   }

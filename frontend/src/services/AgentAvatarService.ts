@@ -90,6 +90,30 @@ export const AGENT_AVATAR_CONFIGS: Record<string, AgentAvatarConfig> = {
     name: 'Customer Support Agent',
     description: 'Customer service and support specialist'
   },
+  'financial-agent': {
+    icon: 'dollar-sign',
+    emoji: '💲',
+    gradient: 'from-yellow-500 to-amber-600',
+    color: 'bg-yellow-600',
+    name: 'Financial Agent',
+    description: 'Financial analysis and investment specialist'
+  },
+  'financial': {
+    icon: 'dollar-sign',
+    emoji: '💲',
+    gradient: 'from-yellow-500 to-amber-600',
+    color: 'bg-yellow-600',
+    name: 'Financial Agent',
+    description: 'Financial analysis and investment specialist'
+  },
+  'financialagent': {
+    icon: 'dollar-sign',
+    emoji: '💲',
+    gradient: 'from-yellow-500 to-amber-600',
+    color: 'bg-yellow-600',
+    name: 'Financial Agent',
+    description: 'Financial analysis and investment specialist'
+  },
   'default': {
     icon: 'cpu-chip',
     emoji: '🤖',
@@ -108,6 +132,7 @@ export const AGENT_ICON_PATHS: Record<string, string> = {
   'color-swatch': 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 3H5v12a2 2 0 002 2 2 2 0 002-2V3zM19 3h-2v12a4 4 0 01-4 4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4z',
   'cog': 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
   'headphones': 'M4 13h2a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2zM16 13h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4a2 2 0 012-2zM12 2a6 6 0 016 6v3h-2V8a4 4 0 00-8 0v3H6V8a6 6 0 016-6z',
+  'dollar-sign': 'M12 2v2m0 16v2m-4-8H6a2 2 0 010-4h4m4 0h2a2 2 0 100 4h-4m-2-6v12',
   'cpu-chip': 'M9 3v1H8a1 1 0 00-1 1v1H6V4a3 3 0 013-3h1zM15 3h1a3 3 0 013 3v2h-1V6a1 1 0 00-1-1h-1V3zM6 9H5V8a1 1 0 011-1h1v2zM18 9h1v1a1 1 0 01-1 1h-1V9zM6 15H5v-1a1 1 0 011-1h1v2zM18 15h1v1a1 1 0 01-1 1h-1v-2zM9 21v-1H8a1 1 0 01-1-1v-1H6v2a3 3 0 003 3h1zM15 21h1a3 3 0 003-3v-2h-1v1a1 1 0 01-1 1h-1v1z'
 };
 
@@ -222,6 +247,13 @@ export class AgentAvatarService {
           secondary: '#ef4444',
           background: 'rgba(249, 115, 22, 0.1)',
           text: '#ea580c'
+        };
+      case 'from-yellow-500 to-amber-600':
+        return {
+          primary: '#eab308',
+          secondary: '#d97706',
+          background: 'rgba(234, 179, 8, 0.1)',
+          text: '#ca8a04'
         };
       default:
         return {

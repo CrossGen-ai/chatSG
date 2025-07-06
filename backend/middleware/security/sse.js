@@ -99,13 +99,21 @@ async function secureSSE(req, res) {
     return false;
   }
   
-  // 2. CSRF verification - temporarily simplified for SSE
-  // TODO: Implement proper CSRF for SSE without interfering with stream
-  const headerToken = req.headers['x-csrf-token'];
-  if (!headerToken) {
-    console.log('[SSE Security] Missing CSRF token - temporarily allowing for SSE');
-    // Temporarily allow SSE without CSRF while we fix the implementation
-    // Other security measures still apply
+  // 2. CSRF verification - bypass in dev mode unless testing
+  if (process.env.CHATSG_ENVIRONMENT === 'dev' && process.env.NODE_ENV !== 'test') {
+    console.log('[SSE Security] Bypassing CSRF validation in development mode');
+  } else {
+    const headerToken = req.headers['x-csrf-token'];
+    if (!headerToken) {
+      console.log('[SSE Security] Missing CSRF token');
+      res.statusCode = 403;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({
+        error: 'CSRF token validation failed',
+        message: 'Missing X-CSRF-Token header'
+      }));
+      return false;
+    }
   }
   
   // 3. Validate request body (already parsed)

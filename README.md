@@ -6,7 +6,8 @@ ChatSG is a sophisticated multi-agent conversational AI platform featuring speci
 
 ## Key Features
 
-- **Multi-Agent System**: Specialized agents (Analytical, Creative, Technical) with automatic routing
+- **Multi-Agent System**: Specialized agents (Analytical, Creative, Technical, CRM) with automatic routing
+- **CRM Integration**: Deep Insightly CRM integration with LLM-driven query understanding
 - **Real-Time Streaming**: Token-by-token response streaming with Server-Sent Events (SSE)
 - **Intelligent Memory**: Mem0 integration with Neo4j graph database for context-aware conversations
 - **Cross-Session Memory**: Optional feature to maintain context across conversations
@@ -90,6 +91,10 @@ AZURE_OPENAI_API_KEY=your_key
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
 AZURE_OPENAI_DEPLOYMENT=gpt-4o-001
 
+# CRM Configuration (optional)
+INSIGHTLY_API_KEY=your_insightly_api_key
+INSIGHTLY_API_URL=https://api.insightly.com/v3.1  # Optional, defaults to NA region
+
 # Optional: Mem0 Configuration
 MEM0_ENABLED=true  # Set to false to disable
 NEO4J_URL=neo4j://localhost:7687
@@ -129,11 +134,12 @@ The platform implements true token-by-token streaming using Server-Sent Events:
 
 ### 2. Multi-Agent Architecture
 
-Three specialized agents handle different types of queries:
+Four specialized agents handle different types of queries:
 
 - **Analytical Agent**: Data analysis, research, statistics
 - **Creative Agent**: Writing, brainstorming, creative tasks  
 - **Technical Agent**: Programming, debugging, technical support
+- **CRM Agent**: Customer relationship management, contact search, sales pipeline analysis
 
 The orchestrator automatically routes queries to the most appropriate agent.
 
@@ -154,6 +160,25 @@ Efficient JSONL-based storage with indexing:
 - **Fast lookups**: JSON index for quick session access
 - **Tool logging**: Separate logs for agent tool usage
 - **Automatic cleanup**: Configurable retention policies
+
+### 5. CRM Integration
+
+Advanced Customer Relationship Management with Insightly integration:
+
+- **LLM-Driven Query Understanding**: Natural language CRM queries
+- **Contact Management**: Search, lookup, and detailed contact information
+- **Pipeline Analysis**: Sales funnel tracking and conversion insights
+- **Opportunity Management**: Deal tracking and forecasting
+- **Lead Scoring**: Automated lead qualification and scoring
+- **Slash Command Support**: Force CRM routing with `/crm`, `/customer`, `/sales`
+
+**Example Queries:**
+- "Find contacts at Microsoft"
+- "Give me full details of Peter Kelly"
+- "Show pipeline status for Q4"
+- "What deals are close to closing?"
+
+See [CRM Integration Documentation](docs/crm-integration.md) for detailed setup and usage.
 
 ## Recent Improvements
 

@@ -285,6 +285,23 @@ async function handleSSERequest(req, res) {
         // Process with real orchestrator
         const message = data.message || '';
         
+        // Check for slash command metadata
+        let routingMetadata = null;
+        if (data.slashCommand) {
+            console.log(`[Server] SSE: Frontend slash command metadata received:`, data.slashCommand);
+            
+            // Create routing metadata from frontend data
+            routingMetadata = {
+                forceAgent: true,
+                agentType: data.slashCommand.agentType,
+                commandName: data.slashCommand.command,
+                confidence: 1.0,
+                reason: `Frontend slash command: /${data.slashCommand.command}`
+            };
+            
+            console.log(`[Server] SSE: Using frontend slash command: /${data.slashCommand.command} → ${data.slashCommand.agentType}`);
+        }
+        
         // Auto-create session if needed
         if (storageManager && message) {
             try {
@@ -300,12 +317,23 @@ async function handleSSERequest(req, res) {
                     console.log(`[Server] Auto-created session: ${sessionId} for user: ${userId}`);
                 }
                 
-                // Save user message
+                // Save user message with slash command metadata
+                const userMessageMetadata = { userId: userId };
+                
+                // Add slash command metadata if present
+                if (data.slashCommand && routingMetadata) {
+                    userMessageMetadata.slashCommand = {
+                        command: data.slashCommand.command,
+                        agentType: data.slashCommand.agentType
+                    };
+                    userMessageMetadata.forcedRouting = routingMetadata;
+                }
+                
                 await storageManager.saveMessage({
                     sessionId: sessionId,
                     type: 'user',
                     content: message,
-                    metadata: { userId: userId }
+                    metadata: userMessageMetadata
                 });
             } catch (storageError) {
                 console.error('[Server] Failed to save user message:', storageError);
@@ -332,17 +360,60 @@ async function handleSSERequest(req, res) {
             console.log(`[ORCHESTRATOR] Processing with streaming: "${message}"`);
             
             try {
-                // Select agent
-                const context = {
-                    sessionId: sessionId,
-                    userInput: message,
-                    availableAgents: orchestrationSetup.orchestrator.listAgents().map(a => a.name),
-                    userPreferences: {}
-                };
+                let targetAgent;
+                let selectedAgentName;
                 
-                const selection = await orchestrationSetup.orchestrator.selectAgent(message, context);
-                const targetAgent = orchestrationSetup.orchestrator.getAgent(selection.selectedAgent);
-                console.log(`[ORCHESTRATOR] Selected ${selection.selectedAgent} for streaming`);
+                // Check if we have forced routing from slash command
+                if (routingMetadata && routingMetadata.forceAgent) {
+                    console.log(`[ORCHESTRATOR] SSE: Forced routing to ${routingMetadata.agentType} via slash command /${routingMetadata.commandName}`);
+                    
+                    // Force route directly to specified agent, bypass orchestrator selection
+                    const forcedAgentName = routingMetadata.agentType;
+                    const availableAgents = orchestrationSetup.orchestrator.listAgents();
+                    const targetAgentCapabilities = availableAgents.find(agentCap => 
+                        agentCap.name === forcedAgentName || 
+                        agentCap.type === forcedAgentName ||
+                        agentCap.name.includes(forcedAgentName.replace('Agent', ''))
+                    );
+                    
+                    targetAgent = targetAgentCapabilities ? 
+                        orchestrationSetup.orchestrator.getAgent(targetAgentCapabilities.name) : null;
+                    
+                    if (targetAgent) {
+                        selectedAgentName = targetAgentCapabilities.name;
+                        console.log(`[ORCHESTRATOR] SSE: Found target agent: ${selectedAgentName} for forced routing`);
+                    } else {
+                        console.warn(`[ORCHESTRATOR] SSE: Could not find agent for type: ${forcedAgentName}, falling back to normal selection`);
+                        
+                        // Send user notification about fallback
+                        res.write(`data: {"type": "error", "message": "⚠️ The /${routingMetadata.commandName} command isn't working (agent failed to load). I'll route your message to another agent instead.", "isSystemMessage": true}\n\n`);
+                        
+                        // Fall back to normal selection
+                        const context = {
+                            sessionId: sessionId,
+                            userInput: message,
+                            availableAgents: orchestrationSetup.orchestrator.listAgents().map(a => a.name),
+                            userPreferences: {}
+                        };
+                        
+                        const selection = await orchestrationSetup.orchestrator.selectAgent(message, context);
+                        targetAgent = orchestrationSetup.orchestrator.getAgent(selection.selectedAgent);
+                        selectedAgentName = selection.selectedAgent;
+                    }
+                } else {
+                    // Normal agent selection
+                    const context = {
+                        sessionId: sessionId,
+                        userInput: message,
+                        availableAgents: orchestrationSetup.orchestrator.listAgents().map(a => a.name),
+                        userPreferences: {}
+                    };
+                    
+                    const selection = await orchestrationSetup.orchestrator.selectAgent(message, context);
+                    targetAgent = orchestrationSetup.orchestrator.getAgent(selection.selectedAgent);
+                    selectedAgentName = selection.selectedAgent;
+                    console.log(`[ORCHESTRATOR] Selected ${selectedAgentName} for streaming`);
+                }
                 
                 if (!targetAgent) {
                     throw new Error('No agent available');
@@ -370,13 +441,26 @@ async function handleSSERequest(req, res) {
                     }
                 }
                 
+                // Debug memory status
+                if (result.metadata?.memoryStatus) {
+                    try {
+                        console.log('[DEBUG] Memory status type:', typeof result.metadata.memoryStatus);
+                        console.log('[DEBUG] Memory status:', JSON.stringify(result.metadata.memoryStatus, null, 2));
+                    } catch (debugError) {
+                        console.error('[DEBUG] Error serializing memory status:', debugError);
+                    }
+                }
+                
                 sendEvent('done', { 
                     agent: agentInfo.name,
                     agentType: agentInfo.type,
                     sessionId: sessionId,
+                    memoryStatus: result.metadata?.memoryStatus,
                     orchestration: {
-                        confidence: result.metadata?.confidence || 1.0,
-                        streaming: true
+                        confidence: routingMetadata ? 1.0 : (result.metadata?.confidence || 1.0),
+                        streaming: true,
+                        forcedBySlashCommand: !!routingMetadata,
+                        commandUsed: routingMetadata?.commandName
                     }
                 });
                 
@@ -714,6 +798,7 @@ const server = http.createServer(async (req, res) => {
                         console.log(`[ORCHESTRATOR] Processing with enhanced orchestration: "${processedMessage}"`);
                         
                         // Check if we have forced routing from slash command
+                        let slashCommandFallback = false;
                         if (routingMetadata && routingMetadata.forceAgent) {
                             console.log(`[ORCHESTRATOR] Forced routing to ${routingMetadata.agentType} via slash command /${routingMetadata.commandName}`);
                             
@@ -813,11 +898,17 @@ const server = http.createServer(async (req, res) => {
                                     break; // Exit the switch statement
                                 } else {
                                     console.warn(`[ORCHESTRATOR] Forced agent task failed: ${forcedResult.error}, falling back to normal orchestration`);
-                                    // Fall through to normal orchestration
+                                    slashCommandFallback = true;
+                                    
+                                    // Fall through to normal orchestration with user notification
+                                    // We'll add the notification to the response when normal orchestration completes
                                 }
                             } else {
                                 console.warn(`[ORCHESTRATOR] Forced agent ${forcedAgentName} not found in available agents: [${availableAgents.map(a => a.name).join(', ')}], falling back to normal orchestration`);
-                                // Fall through to normal orchestration
+                                slashCommandFallback = true;
+                                
+                                // Fall through to normal orchestration with user notification
+                                // We'll add the notification to the response when normal orchestration completes
                             }
                         }
                         
@@ -888,6 +979,17 @@ const server = http.createServer(async (req, res) => {
                                 command: routingMetadata.commandName,
                                 agentType: routingMetadata.agentType,
                                 processedMessage: processedMessage
+                            };
+                        }
+                        
+                        // Add fallback notification if slash command failed
+                        if (slashCommandFallback && routingMetadata) {
+                            const fallbackMessage = `⚠️ The /${routingMetadata.commandName} command isn't working (agent failed to load). I routed your message to another agent instead.\n\n`;
+                            orchResponse.message = fallbackMessage + (orchResponse.message || '');
+                            orchResponse._fallbackNotification = {
+                                occurred: true,
+                                originalCommand: routingMetadata.commandName,
+                                originalAgentType: routingMetadata.agentType
                             };
                         }
                         
