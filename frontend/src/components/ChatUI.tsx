@@ -746,7 +746,54 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
           onToolResult: (data: { toolId: string; result: any }) => {
             console.log('[ChatUI] Tool completed:', data);
             
-            // Update tool message with result
+            // Format the tool result for display
+            let responseContent = '';
+            
+            // Check if this is a CRM tool result and format accordingly
+            if (data.result && typeof data.result === 'object') {
+              if (data.result.contacts && Array.isArray(data.result.contacts)) {
+                // Format contact results
+                const contacts = data.result.contacts;
+                if (contacts.length === 0) {
+                  responseContent = 'No contacts found matching your criteria.';
+                } else if (contacts.length === 1) {
+                  const contact = contacts[0];
+                  responseContent = `Found **${contact.name}**\n`;
+                  if (contact.email) responseContent += `- Email: ${contact.email}\n`;
+                  if (contact.title) responseContent += `- Title: ${contact.title}\n`;
+                  if (contact.company) responseContent += `- Company: ${contact.company}\n`;
+                  if (contact.leadScore !== undefined) responseContent += `- Lead Score: ${contact.leadScore}/100\n`;
+                  if (contact.opportunities) responseContent += `- Opportunities: ${contact.opportunities}\n`;
+                  if (contact.totalOpportunityValue) responseContent += `- Total Opportunity Value: $${contact.totalOpportunityValue.toLocaleString()}\n`;
+                  if (contact.lastInteraction) responseContent += `- Last Interaction: ${new Date(contact.lastInteraction).toLocaleDateString()}\n`;
+                } else {
+                  responseContent = `Found ${contacts.length} contacts:\n\n`;
+                  contacts.forEach((contact, index) => {
+                    responseContent += `**${index + 1}. ${contact.name}**\n`;
+                    if (contact.email) responseContent += `   - Email: ${contact.email}\n`;
+                    if (contact.title) responseContent += `   - Title: ${contact.title}\n`;
+                    if (contact.company) responseContent += `   - Company: ${contact.company}\n`;
+                    if (contact.leadScore !== undefined) responseContent += `   - Lead Score: ${contact.leadScore}/100\n`;
+                    responseContent += '\n';
+                  });
+                }
+              } else if (data.result.message) {
+                // Generic message response
+                responseContent = data.result.message;
+              } else if (data.result.error) {
+                // Error response
+                responseContent = `Error: ${data.result.error}`;
+              } else {
+                // Fallback to stringified result
+                responseContent = JSON.stringify(data.result, null, 2);
+              }
+            } else if (typeof data.result === 'string') {
+              responseContent = data.result;
+            } else {
+              responseContent = 'Tool completed successfully.';
+            }
+            
+            // Update tool message with result and formatted response
             const endTime = new Date();
             setMessages(prev => prev.map(msg => {
               if (msg.toolExecution?.id === data.toolId) {
@@ -757,6 +804,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
                     ...msg.toolExecution,
                     status: 'completed',
                     result: data.result,
+                    responseContent,  // Add formatted response
                     endTime,
                     duration: endTime.getTime() - new Date(startTime).getTime()
                   }
@@ -774,6 +822,7 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
                     ...msg.toolExecution,
                     status: 'completed',
                     result: data.result,
+                    responseContent,  // Add formatted response
                     endTime,
                     duration: endTime.getTime() - new Date(startTime).getTime()
                   }

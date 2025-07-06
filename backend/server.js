@@ -503,7 +503,8 @@ async function handleSSERequest(req, res) {
                                     agent: agentInfo.name,
                                     agentType: agentInfo.type,
                                     confidence: result.metadata?.confidence || 1.0,
-                                    streaming: true
+                                    streaming: true,
+                                    memoryStatus: result.metadata?.memoryStatus
                                 }
                             });
                         } catch (error) {
@@ -887,6 +888,7 @@ const server = http.createServer(async (req, res) => {
                                                 confidence: orchResult.response._orchestration?.confidence,
                                                 processingTime: orchResult.response._orchestration?.executionTime,
                                                 toolsUsed: orchResult.response._toolsUsed || [],
+                                                memoryStatus: forcedResult.result?.metadata?.memoryStatus,
                                                 slashCommandContext: {
                                                     forcedAgent: routingMetadata.forceAgent,
                                                     commandUsed: routingMetadata.commandName,
@@ -967,7 +969,8 @@ const server = http.createServer(async (req, res) => {
                                     agent: orchResult.response._agent || 'orchestrator',
                                     confidence: orchResult.response._orchestration?.confidence,
                                     processingTime: orchResult.response._orchestration?.executionTime,
-                                    toolsUsed: orchResult.response._toolsUsed || []
+                                    toolsUsed: orchResult.response._toolsUsed || [],
+                                    memoryStatus: orchResult.response._memoryStatus
                                 };
                                 
                                 // Add slash command context if present
@@ -2312,7 +2315,8 @@ const server = http.createServer(async (req, res) => {
                     type: msg.type,
                     timestamp: msg.timestamp,
                     agent: msg.metadata?.agent,
-                    sender: msg.type === 'user' ? 'user' : 'bot'
+                    sender: msg.type === 'user' ? 'user' : 'bot',
+                    memoryStatus: msg.metadata?.memoryStatus
                 }));
                 
                 const sessionInfo = storageManager.sessionIndex.getSession(sessionId);

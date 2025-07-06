@@ -60,6 +60,8 @@ export interface HybridMessage {
     duration?: number;
     agentName?: string;
     isExpanded?: boolean;
+    responseContent?: string;  // Formatted response to show in the tool message
+    formattedResult?: any;     // Structured data for rich display
   };
 }
 
@@ -103,6 +105,7 @@ const convertToHybridMessage = (apiMessage: ChatMessage): HybridMessage => ({
   timestamp: new Date(apiMessage.timestamp),
   agent: apiMessage.agent,
   synced: true, // Messages from API are considered synced
+  memoryStatus: apiMessage.memoryStatus
 });
 
 // Helper function to convert HybridMessage to ChatMessage format

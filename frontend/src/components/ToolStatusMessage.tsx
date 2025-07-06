@@ -1,6 +1,21 @@
 import React from 'react';
-import { Loader2, CheckCircle2, XCircle, Wrench, ChevronDown, ChevronUp } from 'lucide-react';
-import { ToolExecution, ToolStatus } from '../hooks/useToolStatus';
+import { Loader2, CheckCircle2, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import MarkdownRenderer from './MarkdownRenderer';
+
+interface ToolExecution {
+  id: string;
+  toolName: string;
+  status: 'starting' | 'running' | 'completed' | 'error';
+  parameters?: any;
+  result?: any;
+  error?: string;
+  startTime: Date;
+  endTime?: Date;
+  duration?: number;
+  agentName?: string;
+  responseContent?: string;
+  formattedResult?: any;
+}
 
 interface ToolStatusMessageProps {
   tool: ToolExecution;
@@ -9,7 +24,7 @@ interface ToolStatusMessageProps {
 }
 
 export function ToolStatusMessage({ tool, isExpanded, onToggleExpanded }: ToolStatusMessageProps) {
-  const getStatusIcon = (status: ToolStatus) => {
+  const getStatusIcon = (status: ToolExecution['status']) => {
     switch (status) {
       case 'starting':
       case 'running':
@@ -91,6 +106,18 @@ export function ToolStatusMessage({ tool, isExpanded, onToggleExpanded }: ToolSt
               )}
             </div>
           </button>
+          
+          {/* Response Content - Show when completed and has content */}
+          {tool.status === 'completed' && tool.responseContent && (
+            <div className="px-4 py-3 border-t border-gray-700/50">
+              <MarkdownRenderer 
+                content={tool.responseContent} 
+                isStreaming={false}
+                className="text-sm leading-relaxed"
+                darkMode={true}
+              />
+            </div>
+          )}
           
           {/* Expanded Details */}
           {isExpanded && (

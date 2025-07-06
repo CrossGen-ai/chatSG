@@ -114,6 +114,13 @@ export interface ChatMessage {
   timestamp: string;
   agent?: string;
   sender?: 'user' | 'bot'; // Added to match backend response
+  memoryStatus?: {
+    enabled: boolean;
+    memoryCount: number;
+    status: 'loaded' | 'timeout' | 'empty' | 'error';
+    retrievalTime?: number;
+    errorMessage?: string;
+  };
 }
 
 export interface AgentInteraction {

@@ -1766,7 +1766,7 @@
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-06T08:48:49.691Z",
+      "lastReadAt": "2025-07-06T19:16:10.604Z",
       "lastAgent": "CreativeAgent"
     }
   },
@@ -1792,14 +1792,29 @@
     "status": "active",
     "createdAt": "2025-07-06T17:54:54.463Z",
     "startedAt": "2025-07-06T17:54:54.463Z",
-    "lastActivityAt": "2025-07-06T19:07:39.315Z",
-    "messageCount": 29,
+    "lastActivityAt": "2025-07-06T19:08:11.575Z",
+    "messageCount": 30,
     "title": "investment analysis",
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-06T19:07:53.776Z",
+      "lastReadAt": "2025-07-06T19:18:10.390Z",
       "lastAgent": "CRMAgent"
+    }
+  },
+  "session_1751829336132_efvc3gkev": {
+    "file": "session_session_1751829336132_efvc3gkev.jsonl",
+    "toolsFile": "session_session_1751829336132_efvc3gkev_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-06T19:15:36.133Z",
+    "startedAt": "2025-07-06T19:15:36.133Z",
+    "lastActivityAt": "2025-07-06T19:15:49.081Z",
+    "messageCount": 1,
+    "title": "New Chat",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-06T19:16:12.934Z"
     }
   }
 }
