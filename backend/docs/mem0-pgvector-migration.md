@@ -1,36 +1,39 @@
-# Mem0 PostgreSQL/pgvector Migration Guide
+# Mem0 Memory System Architecture Guide
 
 ## Overview
 
-This guide documents the migration of Mem0 from SQLite to PostgreSQL with pgvector for the ChatSG application. The migration provides:
+This guide documents the current memory system architecture using Mem0 with Qdrant vector storage for the ChatSG application. The system provides:
 
-- **Scalable vector storage** using PostgreSQL's pgvector extension
-- **User isolation** - memories are properly segregated by user ID
-- **Better performance** for large-scale deployments
-- **Integration with existing user system** - uses the same PostgreSQL database
+- **Intelligent Memory Extraction** - Mem0 automatically creates semantic memories from conversations
+- **Scalable Vector Storage** - Qdrant provides fast, production-ready vector search
+- **User Isolation** - Complete separation of user memories for privacy and security
+- **Graph Relationships** - Optional Neo4j integration for understanding entity connections
+- **PostgreSQL Integration** - Seamless integration with existing chat storage
 
-## What Changed
+## What's Implemented
 
-### 1. Database Schema
+### 1. Current Architecture
 
-Created new tables in PostgreSQL:
-- `mem0_memories` - Stores memory embeddings with user association
-- `mem0_history` - Tracks memory changes over time
-- `mem0_metadata` - Collection-level statistics per user
+The system now uses:
+- **PostgreSQL** - Chat message storage and user management
+- **Qdrant** - Vector embeddings storage for semantic search
+- **Mem0** - Intelligent memory extraction and management
+- **Neo4j** - Optional graph relationships for entity connections
 
-### 2. Code Updates
+### 2. Code Implementation
 
-- **Mem0Service.ts** - Updated to support pgvector provider with user awareness
-- **storage.config.ts** - Added PostgreSQL configuration for Mem0
-- **StorageManager.ts** - Enhanced to pass user database IDs to Mem0
-- **server.js** - Updated to include user database ID in metadata
+- **Mem0Service.ts** - Full Qdrant integration with proper metadata handling
+- **storage.config.ts** - Complete memory system configuration
+- **StorageManager.ts** - Automatic memory creation from chat messages
+- **server.js** - Integrated user context passing for memory isolation
 
 ### 3. Key Features
 
-- All memories are associated with the authenticated user's database ID
-- Vector similarity search using IVFFlat index
-- Automatic pgvector extension installation
-- Fallback to SQLite if pgvector is unavailable
+- **Automatic Memory Creation** - Memories generated from every conversation
+- **Semantic Search** - Find relevant context regardless of exact wording
+- **Complete User Isolation** - Each user's memories are completely private
+- **Fast Performance** - Sub-second search across thousands of memories
+- **Intelligent Context** - Agents receive relevant memory context automatically
 
 ## Setup Instructions
 
@@ -39,30 +42,48 @@ Created new tables in PostgreSQL:
 Add to your `backend/.env` file:
 
 ```bash
-# Enable Mem0 with pgvector
+# Enable Mem0 with Qdrant
 MEM0_ENABLED=true
-MEM0_PROVIDER=pgvector
+MEM0_PROVIDER=qdrant
+MEM0_EMBEDDING_MODEL=text-embedding-3-small
+MEM0_LLM_MODEL=gpt-4o-mini
 
-# PostgreSQL settings (uses same as main database by default)
-# Override only if using a different database:
-# POSTGRES_HOST=localhost
-# POSTGRES_PORT=5432
-# POSTGRES_USER=postgres
-# POSTGRES_PASSWORD=your_password
-# POSTGRES_DB=chatsg
+# Qdrant vector database
+QDRANT_URL=http://localhost:6333
+# Optional: QDRANT_API_KEY=your_api_key
+
+# Neo4j graph database (optional)
+MEM0_GRAPH_ENABLED=true
+NEO4J_URL=neo4j://localhost:7687
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=your_password
+
+# OpenAI for embeddings (required)
+OPENAI_API_KEY=your_openai_api_key
+
+# PostgreSQL (main database)
+DATABASE_URL=postgresql://user:password@localhost:5432/chatsg
 ```
 
-### 2. Run Database Migration
+### 2. Start Required Services
 
 ```bash
-cd backend/src/database
-node run-migration.js 002_create_mem0_tables.sql
-```
+# Start Qdrant (Docker)
+docker run -d -p 6333:6333 -p 6334:6334 \
+    -v qdrant_storage:/qdrant/storage:z \
+    --name chatsg-qdrant \
+    qdrant/qdrant:latest
 
-This will:
-- Install pgvector extension
-- Create Mem0 tables with proper indexes
-- Set up triggers for metadata tracking
+# Start Neo4j (Docker, Optional)
+docker run -d -p 7474:7474 -p 7687:7687 \
+    -e NEO4J_AUTH=neo4j/your_password \
+    -v neo4j_data:/data \
+    --name chatsg-neo4j \
+    neo4j:latest
+
+# Ensure PostgreSQL is running
+sudo systemctl start postgresql
+```
 
 ### 3. Restart Backend Server
 
@@ -73,19 +94,32 @@ npm run dev
 
 ### 4. Verify Installation
 
-Run the test script:
+Run the memory test scripts:
 
 ```bash
-cd backend/tests/memory
-node test-mem0-pgvector.js
+cd backend
+
+# Quick verification
+node tests/test-memory-quick.js
+
+# Comprehensive test
+node tests/test-memory-pipeline.js
+
+# Real usage simulation
+node tests/test-mem0-final.js
 ```
 
-### 5. Clean Up Old SQLite Files (After Verification)
+### 5. Check Service Status
 
 ```bash
-rm backend/memory.db
-rm backend/vector_store.db
-rm backend/data/sessions/memory.db
+# Verify Qdrant is running
+curl http://localhost:6333/health
+
+# Verify Neo4j is running (if enabled)
+curl http://localhost:7474
+
+# Check backend logs for memory system initialization
+tail -f /var/log/chatsg/backend.log
 ```
 
 ## How It Works

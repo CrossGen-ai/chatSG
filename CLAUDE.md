@@ -7,7 +7,7 @@ ChatSG is a sophisticated multi-agent conversational AI platform that I'm helpin
 - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS (glassmorphism UI)
 - **Backend**: Node.js + Express + LangGraph/LangChain orchestration
 - **Agent System**: Modular architecture with specialized agents (Analytical, Creative, Technical)
-- **Storage**: JSONL file-based persistence with comprehensive index for fast lookups
+- **Storage**: PostgreSQL database with intelligent memory layer (Mem0 + Qdrant + Neo4j)
 
 ## Current Status (2025-07-06)
 - ✅ Dependencies installed (frontend needs --legacy-peer-deps)
@@ -19,9 +19,11 @@ ChatSG is a sophisticated multi-agent conversational AI platform that I'm helpin
 - ✅ Implemented optimistic updates with rollback
 - ✅ Simplified backend API (removed redundant endpoints)
 - ✅ Auto-session creation on first message
-- ✅ Implemented JSONL-based storage system with index
-- ✅ Separate tool execution logging
-- ✅ Context management with configurable limits
+- ✅ Implemented PostgreSQL-based storage system with intelligent memory
+- ✅ Mem0 semantic memory extraction with Qdrant vector storage  
+- ✅ Neo4j graph relationships for contextual understanding
+- ✅ Separate tool execution logging in PostgreSQL
+- ✅ Context management with configurable limits and memory-aware retrieval
 - ✅ Session status tracking (active/inactive/archived/deleted)
 - ✅ tmux-mcp integration for server management via Claude Code
 - ✅ Comprehensive security middleware implementation
@@ -31,22 +33,24 @@ ChatSG is a sophisticated multi-agent conversational AI platform that I'm helpin
 - ✅ Unified tool-response messages (no duplicate content)
 
 ## Key Features Implemented
-1. **JSONL Storage**: Append-only chat messages in `./data/sessions`
-2. **Fast Index**: `index.json` for quick session lookups and metadata
-3. **Tool Logging**: Separate JSONL files for tool execution tracking
-4. **Context Management**: Configurable message limits for LLM context
-5. **Session Lifecycle**: Active → Inactive → Archived → Deleted states
-6. **Agent Tracking**: Records which agent responded to each message
-7. **Dynamic Avatars**: 📊 Analytical, 🎨 Creative, ⚙️ Technical, 🎧 Support, 💼 CRM
-8. **Security Layer**: Comprehensive security middleware with:
+1. **PostgreSQL Storage**: Scalable chat message storage with full ACID compliance
+2. **Intelligent Memory**: Mem0-powered semantic memory extraction and storage
+3. **Vector Search**: Qdrant-based similarity search for contextual memory retrieval
+4. **Graph Relationships**: Neo4j for understanding entity relationships and connections
+5. **Tool Logging**: Comprehensive tool execution tracking in PostgreSQL
+6. **Context Management**: Memory-aware context building with configurable limits
+7. **Session Lifecycle**: Active → Inactive → Archived → Deleted states with proper cleanup
+8. **Agent Tracking**: Records which agent responded to each message with memory integration
+9. **Dynamic Avatars**: 📊 Analytical, 🎨 Creative, ⚙️ Technical, 🎧 Support, 💼 CRM
+10. **Security Layer**: Comprehensive security middleware with:
    - Header-based CSRF protection (X-CSRF-Token)
    - Rate limiting (IP-based and connection-based)
    - Input validation and sanitization
    - XSS prevention with DOMPurify
    - Security headers via Helmet.js
-9. **SSE Security**: Special security handling for streaming endpoints
-10. **Markdown Support**: Real-time markdown rendering with security
-11. **Tool Status Streaming**: Real-time visibility of tool execution with:
+11. **SSE Security**: Special security handling for streaming endpoints
+12. **Markdown Support**: Real-time markdown rendering with security
+13. **Tool Status Streaming**: Real-time visibility of tool execution with:
     - Live status updates (starting, running, completed, error)
     - Inline expandable tool messages in chat UI
     - Formatted results display (e.g., CRM contacts with lead scores)
@@ -62,9 +66,9 @@ chatSG/
 │   │   ├── agents/   # Agent implementations
 │   │   ├── routing/  # Orchestration system
 │   │   ├── state/    # State management
-│   │   └── storage/  # New storage system (JSONL + Index)
-│   ├── data/         # Data storage
-│   │   └── sessions/ # JSONL chat files + index.json
+│   │   └── storage/  # PostgreSQL storage system + Mem0 integration
+│   ├── data/         # Legacy data storage (migrated to PostgreSQL)
+│   │   └── sessions/ # Legacy JSONL files (now PostgreSQL)
 │   └── server.js     # Main server file (updated with storage)
 ├── docs/             # Comprehensive documentation
 └── shrimp-data/      # MCP integration with task history
@@ -88,6 +92,30 @@ OPENAI_MODEL=gpt-4o-mini
 AZURE_OPENAI_API_KEY=your_key
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
 AZURE_OPENAI_DEPLOYMENT=gpt-4o-001
+
+# PostgreSQL Database
+DATABASE_URL=postgresql://user:password@localhost:5432/chatsg
+# OR individual settings:
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=chatsg
+
+# Memory System (Mem0 + Qdrant + Neo4j)
+MEM0_ENABLED=true
+MEM0_PROVIDER=qdrant
+MEM0_EMBEDDING_MODEL=text-embedding-3-small
+MEM0_LLM_MODEL=gpt-4o-mini
+
+# Qdrant Vector Database
+QDRANT_URL=http://localhost:6333
+
+# Neo4j Graph Database (optional)
+MEM0_GRAPH_ENABLED=true
+NEO4J_URL=neo4j://localhost:7687
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=your_password
 ```
 
 ## Claude Integration Opportunities
@@ -95,7 +123,7 @@ AZURE_OPENAI_DEPLOYMENT=gpt-4o-001
 2. **Specialized Agent**: Create Claude-powered agent for specific tasks
 3. **Enhanced Orchestration**: Use Claude for intelligent agent routing
 4. **Tool Integration**: Leverage Claude's function calling capabilities
-5. **Memory System**: Use Claude's large context for cross-session features
+5. **Memory System**: Integrate Claude with Mem0 for enhanced semantic understanding
 
 ## Commands to Run
 ```bash
@@ -117,6 +145,10 @@ tmux attach -t chatsg-frontend   # Attach to frontend
 
 # Tests
 cd backend/tests && node run-tests.js
+
+# Memory system tests
+cd backend && node tests/test-memory-quick.js    # Quick memory pipeline test
+cd backend && node tests/test-memory-pipeline.js # Comprehensive memory test
 
 # Security tests
 npm run test:security            # Run all security tests
@@ -150,9 +182,10 @@ The project includes tmux-mcp integration for server management:
 - `/backend/utils/llm-helper.js` - LLM provider abstraction
 - `/backend/src/routing/AgentOrchestrator.ts` - Agent selection logic
 - `/backend/server.js` - Main API server (now with storage integration and security)
-- `/backend/src/storage/StorageManager.ts` - Unified storage interface
-- `/backend/src/storage/SessionStorage.ts` - JSONL message storage
-- `/backend/src/storage/SessionIndex.ts` - Fast session index
+- `/backend/src/storage/StorageManager.ts` - Unified storage interface with Mem0 integration
+- `/backend/src/storage/PostgresSessionStorage.ts` - PostgreSQL message storage
+- `/backend/src/storage/PostgresSessionIndex.ts` - PostgreSQL session index
+- `/backend/src/memory/Mem0Service.ts` - Intelligent memory service with Qdrant/Neo4j
 - `/backend/src/config/storage.config.ts` - Storage configuration
 - `/backend/middleware/security/` - Security middleware components
 - `/backend/middleware/security/csrf-header.js` - Header-based CSRF protection

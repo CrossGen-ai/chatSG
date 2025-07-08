@@ -1,15 +1,16 @@
-# Chat Persistence and Agent Tracking Guide
+# Chat Persistence and Intelligent Memory Guide
 
 ## Overview
 
-This guide covers the comprehensive chat persistence and agent tracking system implemented in ChatSG. The system transforms the previous localStorage-only approach into a hybrid file-based persistence system with enhanced agent tracking, cross-session memory access, and user preference toggles.
+This guide covers the comprehensive chat persistence and intelligent memory system implemented in ChatSG. The system uses PostgreSQL for reliable storage, Mem0 for intelligent memory extraction, Qdrant for vector search, and optionally Neo4j for graph relationships. This provides agents with rich contextual understanding and semantic memory capabilities.
 
 ## Table of Contents
 
 1. [Architecture Overview](#architecture-overview)
-2. [Chat Persistence System](#chat-persistence-system)
-3. [Agent Tracking Features](#agent-tracking-features)
-4. [Cross-Session Memory](#cross-session-memory)
+2. [Chat Storage System](#chat-storage-system)
+3. [Intelligent Memory System](#intelligent-memory-system)
+4. [Agent Tracking Features](#agent-tracking-features)
+5. [Semantic Memory and Context](#semantic-memory-and-context)
 5. [User Preferences and Toggles](#user-preferences-and-toggles)
 6. [API Endpoints](#api-endpoints)
 7. [Frontend Integration](#frontend-integration)
@@ -18,36 +19,43 @@ This guide covers the comprehensive chat persistence and agent tracking system i
 
 ## Architecture Overview
 
-### Hybrid Storage Architecture
+### Modern Storage Architecture
 
-The system implements a hybrid storage approach combining:
+The system implements a modern, scalable architecture combining:
 
-- **Frontend**: localStorage for immediate access and offline capability
-- **Backend**: File-based persistence for long-term storage and cross-session access
-- **State Management**: Centralized state management with session isolation
-- **Memory Factory**: Enhanced memory system with cross-session capabilities
+- **Frontend**: React with optimistic updates and real-time synchronization
+- **Backend**: PostgreSQL for reliable, ACID-compliant data storage
+- **Memory Layer**: Mem0 for intelligent semantic memory extraction
+- **Vector Search**: Qdrant for fast similarity search and contextual retrieval
+- **Graph Relations**: Neo4j for understanding entity relationships (optional)
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend       │    │   File System   │
-│   localStorage  │◄──►│   StateManager  │◄──►│   JSON Files    │
-│   ChatManager   │    │   MemoryFactory │    │   Data Storage  │
+│   Frontend      │    │   PostgreSQL    │    │     Qdrant      │
+│   React Chat    │◄──►│  Chat Storage   │◄──►│  Vector Store   │
+│   Manager       │    │                 │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
+                               │                        │
+                    ┌─────────────────┐    ┌─────────────────┐
+                    │   Mem0 Service  │    │     Neo4j       │
+                    │ Memory Manager  │◄──►│ Graph Relations │
+                    └─────────────────┘    └─────────────────┘
 ```
 
 ### Key Components
 
-- **StateManager**: Centralized state management with persistence
-- **FilePersistence**: File-based storage implementation
-- **ChatManager**: Frontend chat management with hybrid storage
-- **AgentOrchestrator**: Enhanced agent selection with tracking
-- **MemoryFactory**: Cross-session memory access
+- **StorageManager**: Unified interface for all storage operations with Mem0 integration
+- **PostgresSessionStorage**: Reliable chat message storage in PostgreSQL
+- **PostgresSessionIndex**: Fast session lookups and metadata management
+- **Mem0Service**: Intelligent memory extraction and semantic understanding
+- **AgentOrchestrator**: Enhanced agent selection with memory-aware context
+- **ChatManager**: Frontend chat management with real-time updates
 
-## Chat Persistence System
+## Chat Storage System
 
-### File-Based Storage
+### PostgreSQL Storage
 
-The backend stores chat data in JSON files with the following structure:
+The backend stores chat data in PostgreSQL tables with the following structure:
 
 ```json
 {
@@ -94,14 +102,48 @@ The backend stores chat data in JSON files with the following structure:
 }
 ```
 
-### Hybrid Synchronization
+### Database Schema
 
-The system maintains synchronization between frontend and backend:
+The system uses several PostgreSQL tables:
 
-1. **Immediate Storage**: Messages are immediately stored in localStorage
-2. **Background Sync**: Periodic synchronization with backend file storage
-3. **Conflict Resolution**: Last-write-wins with timestamp comparison
-4. **Offline Support**: Full functionality when backend is unavailable
+1. **chat_sessions**: Session metadata and status tracking
+2. **chat_messages**: Individual chat messages with full content
+3. **tool_executions**: Tool execution logs with performance metrics
+4. **users**: User management and authentication
+
+Real-time synchronization ensures frontend and backend stay in sync with optimistic updates and rollback capabilities.
+
+## Intelligent Memory System
+
+### Mem0 Integration
+
+The system automatically extracts and stores semantic memories from conversations:
+
+```typescript
+// Example: 3 simple messages become 14+ intelligent memories
+Input: "My name is Sean and I work at OpenAI"
+Memories Created:
+- "Name is Sean"
+- "Works at OpenAI"
+- "Professional background in AI/technology"
+- ... (and more contextual inferences)
+```
+
+### Memory Flow
+
+1. **Message Capture**: User sends message → stored in PostgreSQL
+2. **Memory Extraction**: Mem0 analyzes message for key information
+3. **Vector Storage**: Semantic embeddings stored in Qdrant with metadata
+4. **Context Building**: Relevant memories retrieved for agent context
+5. **Response Generation**: Agent responds with full memory context
+
+### Vector Search
+
+Qdrant provides fast semantic search across all memories:
+- **Sub-second search** across thousands of memories
+- **Metadata filtering** by user, session, or custom attributes
+- **Semantic similarity** finds relevant content regardless of exact wording
+- **Scalable storage** handles enterprise-level memory volumes
 
 ## Agent Tracking Features
 
@@ -144,33 +186,40 @@ Enhanced agent selection with:
 - **Continuity Logic**: Maintain agent continuity for related tasks
 - **Confidence Scoring**: Agent selection based on capability matching
 
-## Cross-Session Memory
+## Semantic Memory and Context
 
-### Memory Context Injection
+### Intelligent Context Retrieval
 
-When cross-session memory is enabled:
+The system provides agents with intelligent context from all user interactions:
 
-1. **Memory Query**: System queries previous sessions for relevant context
-2. **Relevance Scoring**: Context is scored for relevance (0-1)
-3. **Context Injection**: Relevant memories are injected into agent prompts
-4. **Privacy Control**: User can disable cross-session memory
+1. **Semantic Search**: Finds relevant memories regardless of exact wording
+2. **Session Awareness**: Memories are properly isolated by user and session
+3. **Relevance Scoring**: Memories are ranked by semantic similarity (0-1)
+4. **Context Assembly**: Most relevant memories assembled into LLM context
+5. **Privacy Control**: Complete user isolation ensures data security
 
 ### Memory Storage Structure
 
 ```typescript
-interface CrossSessionMemory {
-  sessionId: string;
-  agentId: string;
-  userId: string;
-  data: {
-    type: 'conversation' | 'tool_result' | 'user_preference';
-    content: string;
-    context: string;
-  };
+interface QdrantMemory {
+  id: string;
+  memory: string;              // Extracted semantic memory
+  hash: string;               // Content hash for deduplication
+  createdAt: string;          // Timestamp
+  score?: number;             // Relevance score (search results)
   metadata: {
-    timestamp: Date;
-    relevance: number;
+    sessionId: string;        // Session context
+    timestamp: string;        // Original timestamp
+    userDatabaseId?: number;  // User isolation
   };
+  userId: string;             // User identifier
+}
+
+interface Mem0SearchOptions {
+  userId?: string;
+  sessionId?: string;
+  limit?: number;
+  filters?: Record<string, any>;
 }
 ```
 
@@ -286,9 +335,13 @@ const displayName = AgentAvatarService.getAgentDisplayName('analytical');
 cd backend
 npm test
 
-# Specific test suites
-node tests/test-chat-persistence.js
-node tests/test-agent-tracking.js
+# Memory system tests
+node tests/test-memory-quick.js          # Quick memory pipeline test
+node tests/test-memory-pipeline.js      # Comprehensive memory test
+node tests/test-mem0-final.js           # Real usage simulation
+
+# Storage tests
+node tests/test-postgres-storage.js     # PostgreSQL storage test
 
 # Frontend tests
 cd frontend
@@ -317,13 +370,24 @@ npm test -- useChatManager.test.tsx
 2. Check agent interactions are being logged
 3. Verify session context is correctly passed
 
-#### Cross-Session Memory Not Loading
+#### Memory Not Being Created
 
-**Problem**: Previous conversation context not available
+**Problem**: Memories not being generated from conversations
 **Solution**:
-1. Ensure cross-session memory toggle is enabled
-2. Check user ID consistency across sessions
-3. Verify memory storage permissions
+1. Check `MEM0_ENABLED=true` in environment variables
+2. Verify Qdrant is running: `curl http://localhost:6333`
+3. Check OpenAI API key is valid for embeddings
+4. Run memory test: `node tests/test-memory-quick.js`
+
+#### Search Returning No Results
+
+**Problem**: Memory search not finding relevant information
+**Solution**:
+1. Verify sessionId metadata is being stored correctly
+2. Check user isolation is working (userDatabaseId)
+3. Allow 1-2 seconds for Qdrant indexing
+4. Test with broader search terms
+5. Check memory creation logs in backend
 
 ### Debug Mode
 
@@ -345,28 +409,57 @@ localStorage.setItem('debug_chat_manager', 'true');
 Required environment variables:
 
 ```bash
-# Backend
-CHAT_PERSISTENCE_PATH=/path/to/chat/data
-CHAT_CLEANUP_INTERVAL=300000
-MEMORY_RETENTION_DAYS=30
-ENABLE_CROSS_SESSION_MEMORY=true
+# PostgreSQL Database (Required)
+DATABASE_URL=postgresql://user:password@localhost:5432/chatsg
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=chatsg
 
-# Database (optional)
-DATABASE_URL=postgresql://...
-ENABLE_DATABASE_PERSISTENCE=false
+# Memory System (Required)
+MEM0_ENABLED=true
+MEM0_PROVIDER=qdrant
+MEM0_EMBEDDING_MODEL=text-embedding-3-small
+MEM0_LLM_MODEL=gpt-4o-mini
+
+# Qdrant Vector Database (Required)
+QDRANT_URL=http://localhost:6333
+
+# Neo4j Graph Database (Optional)
+MEM0_GRAPH_ENABLED=true
+NEO4J_URL=neo4j://localhost:7687
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=your_password
+
+# OpenAI (Required for embeddings)
+OPENAI_API_KEY=your_openai_api_key
 ```
 
-### File System Requirements
+### Infrastructure Requirements
 
 ```bash
-# Create data directories
-mkdir -p /var/chatsg/data/chats
-mkdir -p /var/chatsg/data/memory
-mkdir -p /var/chatsg/data/state
+# PostgreSQL Setup
+# Ensure PostgreSQL is running with proper configuration
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
 
-# Set permissions
-chown -R chatsg:chatsg /var/chatsg/data
-chmod -R 755 /var/chatsg/data
+# Qdrant Setup (Docker)
+docker run -d -p 6333:6333 -p 6334:6334 \
+    -v qdrant_storage:/qdrant/storage:z \
+    --name chatsg-qdrant \
+    qdrant/qdrant:latest
+
+# Neo4j Setup (Docker, Optional)
+docker run -d -p 7474:7474 -p 7687:7687 \
+    -e NEO4J_AUTH=neo4j/your_password \
+    -v neo4j_data:/data \
+    --name chatsg-neo4j \
+    neo4j:latest
+
+# Create log directories
+mkdir -p /var/log/chatsg
+chown -R chatsg:chatsg /var/log/chatsg
 ```
 
 ### Production Deployment
