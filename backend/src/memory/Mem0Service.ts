@@ -204,10 +204,10 @@ export class Mem0Service {
                 metadata.userDatabaseId = userDatabaseId;
             }
             
-            // Add to memory with metadata
+            // Add to memory with metadata - mem0 expects metadata in a metadata field
             const result = await this.memory.add(mem0Messages, {
                 userId: userId || 'default',
-                metadata
+                metadata: metadata  // Pass metadata as a nested object
             });
             
             // If using pgvector, also update our custom tables
@@ -270,17 +270,18 @@ export class Mem0Service {
                 limit: options.limit || 10
             };
             
-            // Add filters based on provider
-            if (this.config.provider === 'pgvector' && userDatabaseId) {
-                // For pgvector, filter by user database ID
-                searchOptions.filters = {
-                    ...(options.sessionId && { sessionId: options.sessionId }),
-                    userDatabaseId: userDatabaseId
-                };
-            } else if (options.sessionId) {
-                // For other providers, just filter by session
+            // Add filters for session if provided
+            if (options.sessionId) {
                 searchOptions.filters = {
                     sessionId: options.sessionId
+                };
+            }
+            
+            // Add userDatabaseId filter for pgvector
+            if (this.config.provider === 'pgvector' && userDatabaseId) {
+                searchOptions.filters = {
+                    ...searchOptions.filters,
+                    userDatabaseId: userDatabaseId
                 };
             }
             
@@ -314,26 +315,21 @@ export class Mem0Service {
         try {
             const options: any = {
                 userId: userId || 'default',
-                limit: limit || 100
+                limit: limit || 100,
+                filters: {
+                    sessionId: sessionId
+                }
             };
             
-            // For pgvector, we need to filter by userDatabaseId
+            // Add userDatabaseId filter for pgvector
             if (this.config.provider === 'pgvector' && userDatabaseId) {
-                options.filters = {
-                    sessionId,
-                    userDatabaseId
-                };
+                options.filters.userDatabaseId = userDatabaseId;
             }
             
             const result = await this.memory.getAll(options);
             
-            // Filter by sessionId for non-pgvector providers
+            // No need to filter manually since we're using filters in the query
             let memories = result.results;
-            if (this.config.provider !== 'pgvector') {
-                memories = memories.filter((mem: any) => 
-                    mem.metadata?.sessionId === sessionId
-                );
-            }
             
             console.log(`[Mem0Service] Retrieved ${memories.length} memories for session ${sessionId}`);
             return memories;
