@@ -5,9 +5,9 @@
  * Coordinates between SessionStorage, SessionIndex, and ToolLogger.
  */
 
-import { Message } from './SessionStorage';
-import { SessionIndexEntry, SessionStatus, ListSessionsOptions } from './SessionIndex';
-import { ToolExecution } from './ToolLogger';
+import { Message } from './PostgresSessionStorage';
+import { SessionIndexEntry, SessionStatus, ListSessionsOptions } from './PostgresSessionIndex';
+import { ToolExecution } from './PostgresToolLogger';
 import { PostgresSessionStorage } from './PostgresSessionStorage';
 import { PostgresSessionIndex } from './PostgresSessionIndex';
 import { PostgresToolLogger } from './PostgresToolLogger';
@@ -150,11 +150,12 @@ export class StorageManager {
             content,
             metadata: {
                 sessionId,
+                sender: type === 'user' ? 'user' : type === 'assistant' ? 'bot' : 'system',
                 ...metadata
             }
         };
         
-        // Append to JSONL file
+        // Save to PostgreSQL
         await this.sessionStorage.appendMessage(sessionId, message);
         
         // Add to Mem0 if enabled
@@ -178,14 +179,18 @@ export class StorageManager {
             await this.sessionIndex.updateSession(sessionId, {
                 metadata: {
                     ...session?.metadata,
-                    lastAgent: metadata.agent
+                    lastAgent: metadata.agent,
+                    createdAt: session?.metadata?.createdAt || new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    messageCount: session?.metadata?.messageCount || 0,
+                    status: session?.metadata?.status || 'active'
                 }
             });
         }
         
         // Reactivate session if it was inactive
         const session = await this.sessionIndex.getSession(sessionId);
-        if (session && session.status === 'inactive') {
+        if (session && session.metadata?.status === 'inactive') {
             await this.updateSessionStatus(sessionId, 'active');
             console.log(`[StorageManager] Reactivated session ${sessionId} due to new message`);
         }
@@ -243,7 +248,11 @@ export class StorageManager {
             await this.sessionIndex.updateSession(sessionId, {
                 metadata: {
                     ...session?.metadata,
-                    lastAgent: lastAssistantMessage.metadata.agent
+                    lastAgent: lastAssistantMessage.metadata.agent,
+                    createdAt: session?.metadata?.createdAt || new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    messageCount: session?.metadata?.messageCount || 0,
+                    status: session?.metadata?.status || 'active'
                 }
             });
         }
@@ -521,7 +530,7 @@ export class StorageManager {
         const allSessions = await this.listSessions({
             status: 'active',
             userId: userId,
-            sortBy: 'lastActivityAt',
+            sortBy: 'activity',
             sortOrder: 'desc'
         });
         
@@ -534,19 +543,19 @@ export class StorageManager {
         const otherSessions = allSessions
             .filter(session => session.sessionId !== currentSessionId)
             .filter(session => {
-                const pass = session.messageCount >= config.minMessagesThreshold;
+                const pass = (session.messageCount || 0) >= config.minMessagesThreshold;
                 if (!pass) {
-                    console.log(`[StorageManager] Session ${session.sessionId} filtered out: only ${session.messageCount} messages (min: ${config.minMessagesThreshold})`);
+                    console.log(`[StorageManager] Session ${session.sessionId} filtered out: only ${session.messageCount || 0} messages (min: ${config.minMessagesThreshold})`);
                 }
                 return pass;
             })
             .filter(session => {
                 // Check if session was active within the time window
-                const lastActivity = new Date(session.lastActivityAt).getTime();
+                const lastActivity = new Date(session.lastActivityAt || new Date()).getTime();
                 const cutoff = Date.now() - config.activeSessionWindow;
                 const pass = lastActivity > cutoff;
                 if (!pass) {
-                    console.log(`[StorageManager] Session ${session.sessionId} filtered out: last active ${session.lastActivityAt} is too old`);
+                    console.log(`[StorageManager] Session ${session.sessionId} filtered out: last active ${session.lastActivityAt || 'unknown'} is too old`);
                 }
                 return pass;
             })
@@ -593,7 +602,7 @@ export class StorageManager {
                     result.push({
                         sessionId: session.sessionId,
                         title: session.title,
-                        lastActive: session.lastActivityAt,
+                        lastActive: session.lastActivityAt || session.metadata?.updatedAt || new Date().toISOString(),
                         messages: filteredMessages
                     });
                     totalMessages += filteredMessages.length;
@@ -721,7 +730,7 @@ export class StorageManager {
      */
     private resetActivityTimer(sessionId: string): void {
         this.sessionIndex.getSession(sessionId).then(session => {
-            if (session && session.status === 'active') {
+            if (session && session.metadata?.status === 'active') {
                 this.startActivityTimer(sessionId);
             }
         }).catch(error => {

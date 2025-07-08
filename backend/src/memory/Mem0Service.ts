@@ -7,7 +7,7 @@
  */
 
 import { Memory } from 'mem0ai/oss';
-import { Message } from '../storage/SessionStorage';
+import { Message } from '../storage/PostgresSessionStorage';
 import { STORAGE_CONFIG } from '../config/storage.config';
 import { getPool } from '../database/pool';
 import * as path from 'path';

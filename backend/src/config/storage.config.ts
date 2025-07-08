@@ -9,14 +9,8 @@ import * as path from 'path';
 import { CROSS_SESSION_CONFIG } from './cross-session.config';
 
 export const STORAGE_CONFIG = {
-    // Storage backend selection ('jsonl' or 'postgres')
-    backend: (process.env.STORAGE_BACKEND || 'jsonl') as 'jsonl' | 'postgres',
-    
     // Maximum number of messages to load for context (user + assistant combined)
     maxContextMessages: 100,
-    
-    // Path to store session data
-    sessionPath: path.resolve('./data/sessions'),
     
     // Index update debounce time in milliseconds
     indexUpdateDebounce: 100,
@@ -63,17 +57,6 @@ export const STORAGE_CONFIG = {
         deletedCleanupMs: 30 * 24 * 60 * 60 * 1000 // 30 days
     },
     
-    // File naming configuration
-    fileNaming: {
-        // Session file prefix
-        sessionPrefix: 'session_',
-        
-        // Tools file suffix
-        toolsSuffix: '_tools',
-        
-        // File extension
-        extension: '.jsonl'
-    },
     
     // Performance optimizations
     performance: {
@@ -174,10 +157,6 @@ export const STORAGE_CONFIG = {
 };
 
 // Environment variable overrides
-if (process.env.CHAT_STORAGE_PATH) {
-    STORAGE_CONFIG.sessionPath = path.resolve(process.env.CHAT_STORAGE_PATH);
-}
-
 if (process.env.CHAT_MAX_CONTEXT_MESSAGES) {
     STORAGE_CONFIG.maxContextMessages = parseInt(process.env.CHAT_MAX_CONTEXT_MESSAGES, 10);
 }

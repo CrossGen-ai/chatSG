@@ -7,7 +7,24 @@
 
 import { Pool, PoolClient } from 'pg';
 import { getPool } from '../database/pool';
-import { Message, MessageMetadata, SessionStorageConfig } from './SessionStorage';
+
+export interface MessageMetadata {
+    sessionId: string;
+    sender: 'user' | 'bot' | 'system';
+    agent?: string;
+    timestamp?: string;
+    userId?: string;
+    userDatabaseId?: number;
+    [key: string]: any;
+}
+
+export interface Message {
+    id?: number;
+    type: 'user' | 'assistant' | 'system';
+    content: string;
+    timestamp: string;
+    metadata: MessageMetadata;
+}
 
 export interface PostgresSessionStorageConfig {
     // Connection pool will be obtained from getPool()

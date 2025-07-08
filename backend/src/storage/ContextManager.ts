@@ -5,7 +5,7 @@
  * Handles context window limits and overflow strategies.
  */
 
-import { Message } from './SessionStorage';
+import { Message } from './PostgresSessionStorage';
 import { STORAGE_CONFIG } from '../config/storage.config';
 
 export interface ContextMessage {

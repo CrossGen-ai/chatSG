@@ -1,2 +1,0 @@
-{"timestamp":"2025-06-27T03:38:58.789Z","type":"user","content":"Tell me a joke","metadata":{"sessionId":"session_1750995533428_o8grjov01"}}
-{"timestamp":"2025-06-27T03:38:59.292Z","type":"assistant","content":"Why don't skeletons fight each other?\n\nThey don't have the guts!","metadata":{"sessionId":"session_1750995533428_o8grjov01","agent":"CreativeAgent","confidence":0.85,"processingTime":501,"toolsUsed":[]}}

@@ -2,16 +2,9 @@
  * Storage Module Exports
  * 
  * Central export point for all storage-related classes and utilities.
+ * Uses PostgreSQL for all storage operations.
  */
 
-export { SessionStorage, Message, MessageMetadata } from './SessionStorage';
-export { 
-    SessionIndex, 
-    SessionIndexEntry, 
-    SessionStatus, 
-    ListSessionsOptions 
-} from './SessionIndex';
-export { ToolLogger, ToolExecution, ToolExecutionQuery } from './ToolLogger';
 export { 
     StorageManager, 
     getStorageManager,
@@ -27,3 +20,21 @@ export {
     ContextResult 
 } from './ContextManager';
 export { STORAGE_CONFIG } from '../config/storage.config';
+
+// Export PostgreSQL storage types
+export { 
+    PostgresSessionStorage,
+    Message,
+    MessageMetadata
+} from './PostgresSessionStorage';
+export {
+    PostgresSessionIndex,
+    SessionIndexEntry,
+    SessionStatus,
+    ListSessionsOptions
+} from './PostgresSessionIndex';
+export {
+    PostgresToolLogger,
+    ToolExecution,
+    ToolExecutionQuery
+} from './PostgresToolLogger';

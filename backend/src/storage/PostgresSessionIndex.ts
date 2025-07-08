@@ -7,12 +7,40 @@
 
 import { Pool } from 'pg';
 import { getPool } from '../database/pool';
-import { 
-    SessionIndexEntry, 
-    SessionStatus, 
-    ListSessionsOptions,
-    SessionIndexConfig 
-} from './SessionIndex';
+
+export type SessionStatus = 'active' | 'inactive' | 'archived' | 'deleted';
+
+export interface SessionIndexEntry {
+    sessionId: string;
+    title: string;
+    status?: SessionStatus; // For backward compatibility
+    messageCount?: number; // For backward compatibility
+    lastActivityAt?: string; // For backward compatibility
+    metadata: {
+        createdAt: string;
+        updatedAt: string;
+        messageCount: number;
+        status: SessionStatus;
+        userId?: string;
+        userDatabaseId?: number;
+        lastAgent?: string;
+        agentHistory?: string[];
+        lastActivity?: string;
+        userPreferences?: any;
+        toolsUsed?: any[];
+        analytics?: any;
+    };
+}
+
+export interface ListSessionsOptions {
+    userId?: string;
+    userDatabaseId?: number;
+    status?: SessionStatus | SessionStatus[];
+    limit?: number;
+    offset?: number;
+    sortBy?: 'created' | 'updated' | 'activity';
+    sortOrder?: 'asc' | 'desc';
+}
 
 export interface PostgresSessionIndexConfig {
     // Connection pool will be obtained from getPool()
@@ -359,17 +387,25 @@ export class PostgresSessionIndex {
      */
     private rowToSessionEntry(sessionId: string, row: any): SessionIndexEntry {
         return {
-            file: `session_${sessionId}.jsonl`, // For compatibility
-            toolsFile: `session_${sessionId}_tools.jsonl`, // For compatibility
+            sessionId: sessionId,
+            title: row.title || 'Untitled Chat',
             status: row.status as SessionStatus,
-            createdAt: row.created_at?.toISOString() || new Date().toISOString(),
-            startedAt: row.started_at?.toISOString() || row.created_at?.toISOString() || new Date().toISOString(),
-            lastActivityAt: row.last_activity_at?.toISOString() || row.created_at?.toISOString() || new Date().toISOString(),
             messageCount: row.message_count || 0,
-            title: row.title,
+            lastActivityAt: row.updated_at?.toISOString() || row.created_at?.toISOString() || new Date().toISOString(),
             metadata: {
-                ...row.metadata,
+                createdAt: row.created_at?.toISOString() || new Date().toISOString(),
+                updatedAt: row.updated_at?.toISOString() || new Date().toISOString(),
+                messageCount: row.message_count || 0,
+                status: row.status as SessionStatus,
                 userId: row.user_id?.toString(),
+                userDatabaseId: row.user_database_id,
+                lastAgent: row.last_agent,
+                agentHistory: row.agent_history || [],
+                lastActivity: row.updated_at?.toISOString() || new Date().toISOString(),
+                userPreferences: row.user_preferences || {},
+                toolsUsed: row.tools_used || [],
+                analytics: row.analytics || {},
+                ...row.metadata,
                 unreadCount: row.unread_count || 0,
                 lastReadAt: row.last_read_at?.toISOString() || null,
                 // Add last message info if available

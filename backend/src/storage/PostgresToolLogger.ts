@@ -7,8 +7,34 @@
 
 import { Pool } from 'pg';
 import { getPool } from '../database/pool';
-import { ToolExecution, ToolLoggerConfig } from './ToolLogger';
 import { performance } from 'perf_hooks';
+
+export interface ToolExecution {
+    id?: string;
+    sessionId: string;
+    toolName: string;
+    timestamp: string;
+    parameters: any;
+    result?: any;
+    error?: any;
+    success: boolean;
+    executionTime: number;
+    agentName: string;
+    userId?: string;
+    userDatabaseId?: number;
+    metadata?: any; // For backward compatibility
+}
+
+export interface ToolExecutionQuery {
+    sessionId?: string;
+    toolName?: string;
+    agentName?: string;
+    success?: boolean;
+    startTime?: Date;
+    endTime?: Date;
+    limit?: number;
+    offset?: number;
+}
 
 export interface PostgresToolLoggerConfig {
     // Connection pool will be obtained from getPool()
@@ -185,6 +211,7 @@ export class PostgresToolLogger {
                 timestamp: row.started_at.toISOString(),
                 executionTime: row.duration_ms || 0,
                 error: row.error_message,
+                agentName: row.metadata?.agentName || 'unknown',
                 metadata: row.metadata
             }));
         } catch (error) {
@@ -303,6 +330,7 @@ export class PostgresToolLogger {
                 result,
                 success: true,
                 executionTime,
+                agentName: metadata?.agentName || 'unknown',
                 metadata
             });
             
@@ -318,6 +346,7 @@ export class PostgresToolLogger {
                 success: false,
                 executionTime,
                 error: error instanceof Error ? error.message : String(error),
+                agentName: metadata?.agentName || 'unknown',
                 metadata
             });
             
@@ -360,6 +389,7 @@ export class PostgresToolLogger {
                 timestamp: row.started_at.toISOString(),
                 executionTime: row.duration_ms || 0,
                 error: row.error_message,
+                agentName: row.metadata?.agentName || 'unknown',
                 metadata: {
                     ...row.metadata,
                     sessionTitle: row.session_title

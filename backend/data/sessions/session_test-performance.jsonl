@@ -1,2 +1,0 @@
-{"timestamp":"2025-07-08T16:07:46.335Z","type":"user","content":"hello","metadata":{"sessionId":"test-performance","userId":"2"}}
-{"timestamp":"2025-07-08T16:07:54.037Z","type":"assistant","content":"Hello! How can I assist you with your analytical needs today? Please feel free to provide any specific questions or tasks you have in mind.","metadata":{"sessionId":"test-performance","agent":"AnalyticalAgent","agentType":"analytical","confidence":1,"streaming":true,"memoryStatus":{"enabled":true,"memoryCount":0,"status":"empty","retrievalTime":962}}}
