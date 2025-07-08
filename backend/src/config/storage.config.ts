@@ -9,6 +9,9 @@ import * as path from 'path';
 import { CROSS_SESSION_CONFIG } from './cross-session.config';
 
 export const STORAGE_CONFIG = {
+    // Storage backend selection ('jsonl' or 'postgres')
+    backend: (process.env.STORAGE_BACKEND || 'jsonl') as 'jsonl' | 'postgres',
+    
     // Maximum number of messages to load for context (user + assistant combined)
     maxContextMessages: 100,
     

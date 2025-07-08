@@ -5,9 +5,12 @@
  * Coordinates between SessionStorage, SessionIndex, and ToolLogger.
  */
 
-import { SessionStorage, Message } from './SessionStorage';
-import { SessionIndex, SessionIndexEntry, SessionStatus, ListSessionsOptions } from './SessionIndex';
-import { ToolLogger, ToolExecution } from './ToolLogger';
+import { Message } from './SessionStorage';
+import { SessionIndexEntry, SessionStatus, ListSessionsOptions } from './SessionIndex';
+import { ToolExecution } from './ToolLogger';
+import { PostgresSessionStorage } from './PostgresSessionStorage';
+import { PostgresSessionIndex } from './PostgresSessionIndex';
+import { PostgresToolLogger } from './PostgresToolLogger';
 import { STORAGE_CONFIG } from '../config/storage.config';
 import { getMem0Service, Mem0Service } from '../memory/Mem0Service';
 import * as crypto from 'crypto';
@@ -39,26 +42,23 @@ export interface SessionWithMessages extends SessionIndexEntry {
 }
 
 export class StorageManager {
-    private sessionStorage: SessionStorage;
-    private sessionIndex: SessionIndex;
-    private toolLogger: ToolLogger;
+    private sessionStorage: PostgresSessionStorage;
+    private sessionIndex: PostgresSessionIndex;
+    private toolLogger: PostgresToolLogger;
     private mem0Service: Mem0Service | null = null;
     private initialized = false;
     private sessionActivityTimers: Map<string, NodeJS.Timeout> = new Map();
     
     constructor() {
-        this.sessionStorage = new SessionStorage({
-            basePath: STORAGE_CONFIG.sessionPath,
+        console.log('[StorageManager] Initializing with PostgreSQL backend');
+        
+        this.sessionStorage = new PostgresSessionStorage({
             maxMessagesPerRead: STORAGE_CONFIG.maxMessagesPerRead
         });
         
-        this.sessionIndex = new SessionIndex({
-            basePath: STORAGE_CONFIG.sessionPath,
-            backupEnabled: STORAGE_CONFIG.enableIndexBackup
-        });
+        this.sessionIndex = new PostgresSessionIndex();
         
-        this.toolLogger = new ToolLogger({
-            basePath: STORAGE_CONFIG.sessionPath,
+        this.toolLogger = new PostgresToolLogger({
             retentionDays: STORAGE_CONFIG.toolLogRetention
         });
         
@@ -95,10 +95,12 @@ export class StorageManager {
         
         // Start cleanup job for tool logs
         if (STORAGE_CONFIG.toolLogRetention > 0) {
-            setInterval(() => {
-                this.toolLogger.cleanupOldLogs().catch(error => {
+            setInterval(async () => {
+                try {
+                    await this.toolLogger.cleanupOldLogs();
+                } catch (error) {
                     console.error('[StorageManager] Tool log cleanup failed:', error);
-                });
+                }
             }, 24 * 60 * 60 * 1000); // Run daily
         }
         
@@ -136,7 +138,8 @@ export class StorageManager {
         const { sessionId, type, content, metadata = {} } = options;
         
         // Ensure session exists
-        if (!this.sessionIndex.sessionExists(sessionId)) {
+        const sessionExists = await this.sessionIndex.sessionExists(sessionId);
+        if (!sessionExists) {
             await this.createSession({ sessionId });
         }
         
@@ -157,7 +160,8 @@ export class StorageManager {
         // Add to Mem0 if enabled
         if (this.mem0Service) {
             try {
-                const userId = metadata.userId || this.sessionIndex.getSession(sessionId)?.metadata?.userId || 'default';
+                const session = await this.sessionIndex.getSession(sessionId);
+                const userId = metadata.userId || session?.metadata?.userId || 'default';
                 await this.mem0Service.addMessage(message, sessionId, userId);
             } catch (error) {
                 console.error('[StorageManager] Failed to add message to Mem0:', error);
@@ -170,16 +174,17 @@ export class StorageManager {
         
         // Update last agent if assistant message
         if (type === 'assistant' && metadata.agent) {
+            const session = await this.sessionIndex.getSession(sessionId);
             await this.sessionIndex.updateSession(sessionId, {
                 metadata: {
-                    ...this.sessionIndex.getSession(sessionId)?.metadata,
+                    ...session?.metadata,
                     lastAgent: metadata.agent
                 }
             });
         }
         
         // Reactivate session if it was inactive
-        const session = this.sessionIndex.getSession(sessionId);
+        const session = await this.sessionIndex.getSession(sessionId);
         if (session && session.status === 'inactive') {
             await this.updateSessionStatus(sessionId, 'active');
             console.log(`[StorageManager] Reactivated session ${sessionId} due to new message`);
@@ -196,7 +201,8 @@ export class StorageManager {
      */
     async saveMessages(sessionId: string, messages: Message[]): Promise<void> {
         // Ensure session exists
-        if (!this.sessionIndex.sessionExists(sessionId)) {
+        const sessionExists = await this.sessionIndex.sessionExists(sessionId);
+        if (!sessionExists) {
             await this.createSession({ sessionId });
         }
         
@@ -208,13 +214,14 @@ export class StorageManager {
         // Add to Mem0 if enabled
         if (this.mem0Service && messages.length > 0) {
             try {
+                const session = await this.sessionIndex.getSession(sessionId);
                 const userId = messages[0].metadata?.userId || 
-                              this.sessionIndex.getSession(sessionId)?.metadata?.userId || 
+                              session?.metadata?.userId || 
                               'default';
                 
                 // Extract user database ID if available
                 const userDatabaseId = messages[0].metadata?.userDatabaseId ||
-                                      this.sessionIndex.getSession(sessionId)?.metadata?.userDatabaseId;
+                                      session?.metadata?.userDatabaseId;
                 
                 await this.mem0Service.addMessages(messages, sessionId, userId, userDatabaseId);
             } catch (error) {
@@ -232,9 +239,10 @@ export class StorageManager {
             .pop();
             
         if (lastAssistantMessage) {
+            const session = await this.sessionIndex.getSession(sessionId);
             await this.sessionIndex.updateSession(sessionId, {
                 metadata: {
-                    ...this.sessionIndex.getSession(sessionId)?.metadata,
+                    ...session?.metadata,
                     lastAgent: lastAssistantMessage.metadata.agent
                 }
             });
@@ -285,7 +293,8 @@ export class StorageManager {
         
         // Use Mem0 for context retrieval - it handles intelligent compression
         try {
-            const userId = this.sessionIndex.getSession(sessionId)?.metadata?.userId || 'default';
+            const session = await this.sessionIndex.getSession(sessionId);
+            const userId = session?.metadata?.userId || 'default';
             const memories = await this.mem0Service.getSessionMemories(
                 sessionId, 
                 userId,
@@ -325,7 +334,7 @@ export class StorageManager {
      * Get session info with messages
      */
     async getSessionWithMessages(sessionId: string): Promise<SessionWithMessages | null> {
-        const session = this.sessionIndex.getSession(sessionId);
+        const session = await this.sessionIndex.getSession(sessionId);
         if (!session) {
             return null;
         }
@@ -342,27 +351,27 @@ export class StorageManager {
     /**
      * Check if a session exists
      */
-    sessionExists(sessionId: string): boolean {
-        return this.sessionIndex.sessionExists(sessionId);
+    async sessionExists(sessionId: string): Promise<boolean> {
+        return await this.sessionIndex.sessionExists(sessionId);
     }
     
     /**
      * List sessions
      */
-    listSessions(options?: ListSessionsOptions): (SessionIndexEntry & { sessionId: string })[] {
+    async listSessions(options?: ListSessionsOptions): Promise<(SessionIndexEntry & { sessionId: string })[]> {
         // Default to exclude deleted sessions unless explicitly requested
         if (!options?.status || (Array.isArray(options.status) && !options.status.includes('deleted'))) {
             const statusFilter: SessionStatus[] = options?.status 
                 ? (Array.isArray(options.status) ? options.status : [options.status])
                 : ['active', 'inactive', 'archived'] as SessionStatus[];
                 
-            return this.sessionIndex.listSessions({
+            return await this.sessionIndex.listSessions({
                 ...options,
                 status: statusFilter
             }) as (SessionIndexEntry & { sessionId: string })[];
         }
         
-        return this.sessionIndex.listSessions(options) as (SessionIndexEntry & { sessionId: string })[];
+        return await this.sessionIndex.listSessions(options) as (SessionIndexEntry & { sessionId: string })[];
     }
     
     /**
@@ -394,15 +403,15 @@ export class StorageManager {
         // Delete from index
         await this.sessionIndex.deleteSession(sessionId);
         
-        // Delete files
-        await this.sessionStorage.deleteSession(sessionId);
-        await this.toolLogger.deleteSessionLogs(sessionId);
+        // Delete session data (CASCADE will handle messages and tools)
+        await this.sessionStorage.deleteSessionMessages(sessionId);
         
         // Delete from Mem0 if enabled
         if (this.mem0Service) {
             try {
-                const userId = this.sessionIndex.getSession(sessionId)?.metadata?.userId || 'default';
-                const userDatabaseId = this.sessionIndex.getSession(sessionId)?.metadata?.userDatabaseId;
+                const session = await this.sessionIndex.getSession(sessionId);
+                const userId = session?.metadata?.userId || 'default';
+                const userDatabaseId = session?.metadata?.userDatabaseId;
                 await this.mem0Service.deleteSessionMemories(sessionId, userId, userDatabaseId);
             } catch (error) {
                 console.error('[StorageManager] Failed to delete session from Mem0:', error);
@@ -426,7 +435,7 @@ export class StorageManager {
      * Log tool execution
      */
     async logToolExecution(execution: ToolExecution): Promise<void> {
-        await this.toolLogger.logToolExecution(execution);
+        await this.toolLogger.logToolExecution(execution.sessionId, execution);
     }
     
     /**
@@ -452,15 +461,15 @@ export class StorageManager {
      * Get tool execution statistics
      */
     async getToolStats(sessionId: string) {
-        return this.toolLogger.getSessionToolStats(sessionId);
+        return this.toolLogger.getToolStats(undefined, undefined);
     }
     
     /**
      * Get storage statistics
      */
-    getStatistics() {
+    async getStatistics() {
         return {
-            sessions: this.sessionIndex.getStatistics(),
+            sessions: await this.sessionIndex.getStatistics(),
             activeStreams: this.sessionActivityTimers.size
         };
     }
@@ -477,7 +486,7 @@ export class StorageManager {
      * Get message count for a session
      */
     async getMessageCount(sessionId: string): Promise<number> {
-        return this.sessionStorage.getMessageCount(sessionId);
+        return await this.sessionStorage.getMessageCount(sessionId);
     }
     
     /**
@@ -509,7 +518,7 @@ export class StorageManager {
         }
         
         // Get all active sessions for the user
-        const allSessions = this.listSessions({
+        const allSessions = await this.listSessions({
             status: 'active',
             userId: userId,
             sortBy: 'lastActivityAt',
@@ -631,8 +640,9 @@ export class StorageManager {
         }
         
         try {
-            const userId = this.sessionIndex.getSession(sessionId)?.metadata?.userId || 'default';
-            const userDatabaseId = this.sessionIndex.getSession(sessionId)?.metadata?.userDatabaseId;
+            const session = await this.sessionIndex.getSession(sessionId);
+            const userId = session?.metadata?.userId || 'default';
+            const userDatabaseId = session?.metadata?.userDatabaseId;
             
             // Get context from Mem0 based on the query
             const contextMessages = await this.mem0Service.getContextForQuery(
@@ -666,9 +676,13 @@ export class StorageManager {
         }
         this.sessionActivityTimers.clear();
         
-        // Close all streams
-        await this.sessionStorage.closeAllStreams();
-        await this.toolLogger.closeAllStreams();
+        // PostgreSQL doesn't have streams to close, but keep for compatibility
+        if ('closeAllStreams' in this.sessionStorage) {
+            await (this.sessionStorage as any).closeAllStreams();
+        }
+        if ('closeAllStreams' in this.toolLogger) {
+            await (this.toolLogger as any).closeAllStreams();
+        }
         
         // Flush index
         await this.sessionIndex.flush();
@@ -706,10 +720,13 @@ export class StorageManager {
      * Reset activity timer for a session
      */
     private resetActivityTimer(sessionId: string): void {
-        const session = this.sessionIndex.getSession(sessionId);
-        if (session && session.status === 'active') {
-            this.startActivityTimer(sessionId);
-        }
+        this.sessionIndex.getSession(sessionId).then(session => {
+            if (session && session.status === 'active') {
+                this.startActivityTimer(sessionId);
+            }
+        }).catch(error => {
+            console.error(`[StorageManager] Failed to reset activity timer for session ${sessionId}:`, error);
+        });
     }
     
     /**

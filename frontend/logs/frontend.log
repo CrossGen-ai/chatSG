@@ -1,0 +1,86 @@
+
+> frontend@0.1.0 dev
+> vite
+
+
+  VITE v6.3.5  ready in 86 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+3:05:51 PM [vite] (client) hmr update /src/components/ChatSidebar.tsx, /src/index.css
+3:06:24 PM [vite] (client) hmr update /src/components/MemoryVisualization/MemorySidebar.tsx, /src/index.css
+3:06:31 PM [vite] (client) page reload logs/post_tool_use.json
+3:06:46 PM [vite] (client) page reload logs/pre_tool_use.json
+3:06:46 PM [vite] (client) page reload logs/post_tool_use.json
+3:06:59 PM [vite] (client) page reload logs/post_tool_use.json
+3:06:59 PM [vite] (client) page reload logs/post_tool_use.json
+3:07:06 PM [vite] (client) page reload logs/stop.json
+3:10:06 PM [vite] (client) page reload logs/pre_tool_use.json
+3:10:06 PM [vite] (client) page reload logs/post_tool_use.json
+3:10:11 PM [vite] (client) page reload logs/pre_tool_use.json
+3:10:12 PM [vite] (client) page reload logs/post_tool_use.json
+3:10:17 PM [vite] (client) page reload logs/pre_tool_use.json
+3:10:17 PM [vite] (client) page reload logs/post_tool_use.json
+3:10:26 PM [vite] (client) page reload logs/pre_tool_use.json
+3:10:26 PM [vite] (client) page reload logs/post_tool_use.json
+3:10:32 PM [vite] (client) page reload logs/pre_tool_use.json
+3:10:32 PM [vite] (client) page reload logs/post_tool_use.json
+3:10:40 PM [vite] (client) page reload logs/pre_tool_use.json
+3:10:40 PM [vite] (client) page reload logs/post_tool_use.json
+3:10:49 PM [vite] (client) page reload logs/pre_tool_use.json
+3:10:49 PM [vite] (client) page reload logs/post_tool_use.json
+3:10:54 PM [vite] (client) page reload logs/pre_tool_use.json
+3:10:54 PM [vite] (client) page reload logs/post_tool_use.json
+3:11:09 PM [vite] (client) page reload logs/pre_tool_use.json
+3:11:09 PM [vite] (client) hmr update /src/components/IconSidebar.tsx, /src/index.css
+3:11:09 PM [vite] (client) page reload logs/post_tool_use.json
+3:11:18 PM [vite] (client) page reload logs/pre_tool_use.json
+3:11:18 PM [vite] (client) hmr update /src/App.tsx, /src/index.css
+3:11:18 PM [vite] (client) page reload logs/post_tool_use.json
+3:11:24 PM [vite] (client) page reload logs/pre_tool_use.json
+3:11:24 PM [vite] (client) page reload logs/post_tool_use.json
+3:11:31 PM [vite] (client) page reload logs/stop.json
+3:12:38 PM [vite] (client) page reload logs/pre_tool_use.json
+3:12:38 PM [vite] (client) page reload logs/post_tool_use.json
+3:12:44 PM [vite] (client) page reload logs/pre_tool_use.json
+3:12:44 PM [vite] (client) page reload logs/post_tool_use.json
+3:12:51 PM [vite] (client) page reload logs/pre_tool_use.json
+3:13:25 PM [vite] (client) page reload logs/pre_tool_use.json
+3:13:37 PM [vite] (client) page reload logs/pre_tool_use.json
+3:13:40 PM [vite] (client) page reload logs/post_tool_use.json
+3:13:40 PM [vite] (client) page reload logs/post_tool_use.json
+3:13:50 PM [vite] (client) page reload logs/pre_tool_use.json
+3:13:50 PM [vite] (client) hmr update /src/App.tsx, /src/index.css
+3:13:51 PM [vite] (client) page reload logs/post_tool_use.json
+3:14:04 PM [vite] (client) page reload logs/pre_tool_use.json
+3:14:04 PM [vite] (client) hmr update /src/components/IconSidebar.tsx, /src/index.css
+3:14:04 PM [vite] (client) page reload logs/post_tool_use.json
+3:14:13 PM [vite] (client) page reload logs/pre_tool_use.json
+3:14:13 PM [vite] (client) hmr update /src/components/IconSidebar.tsx, /src/index.css
+3:14:13 PM [vite] (client) page reload logs/post_tool_use.json
+3:14:18 PM [vite] (client) page reload logs/pre_tool_use.json
+3:14:18 PM [vite] (client) page reload logs/post_tool_use.json
+3:14:26 PM [vite] (client) page reload logs/stop.json
+3:14:59 PM [vite] (client) page reload logs/pre_tool_use.json
+3:14:59 PM [vite] (client) page reload logs/post_tool_use.json
+3:15:09 PM [vite] (client) page reload logs/pre_tool_use.json
+3:15:09 PM [vite] (client) page reload logs/post_tool_use.json
+3:15:14 PM [vite] (client) page reload logs/pre_tool_use.json
+3:15:14 PM [vite] (client) page reload logs/post_tool_use.json
+3:15:23 PM [vite] (client) page reload logs/pre_tool_use.json
+3:15:23 PM [vite] (client) page reload logs/post_tool_use.json
+3:15:33 PM [vite] (client) page reload logs/pre_tool_use.json
+3:15:33 PM [vite] (client) page reload logs/post_tool_use.json
+3:15:33 PM [vite] (client) page reload logs/post_tool_use.json
+3:15:37 PM [vite] (client) page reload logs/pre_tool_use.json
+3:15:46 PM [vite] (client) page reload logs/notification.json
+3:16:39 PM [vite] (client) hmr update /src/App.tsx, /src/index.css
+3:16:39 PM [vite] (client) page reload frontend/logs/post_tool_use.json
+3:16:44 PM [vite] (client) page reload frontend/logs/pre_tool_use.json
+3:16:44 PM [vite] (client) page reload frontend/logs/post_tool_use.json
+3:16:49 PM [vite] (client) page reload frontend/logs/pre_tool_use.json
+3:16:53 PM [vite] (client) page reload frontend/logs/post_tool_use.json
+3:16:58 PM [vite] (client) page reload frontend/logs/pre_tool_use.json
+3:17:06 PM [vite] (client) page reload frontend/logs/post_tool_use.json
+3:19:43 PM [vite] (client) page reload frontend/logs/pre_tool_use.json

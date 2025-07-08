@@ -92,11 +92,25 @@ async function deleteUser(azureId) {
   }
 }
 
+async function getAllUsers() {
+  const pool = getPool();
+  try {
+    const result = await pool.query(
+      'SELECT * FROM users ORDER BY name ASC, email ASC'
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('[UserRepository] Error getting all users:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   getUserByAzureId,
   getUserByEmail,
   createUser,
   updateUser,
   updateLastLogin,
-  deleteUser
+  deleteUser,
+  getAllUsers
 };

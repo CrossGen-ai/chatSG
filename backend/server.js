@@ -34,7 +34,7 @@ const markdownConfig = require('./config/markdown.config.json');
 const securityConfig = require('./config/security.config');
 
 // Import performance monitoring
-let performanceMonitoringMiddleware, performanceDashboardHandler, clearPerformanceStats;
+let performanceMonitoringMiddleware, performanceDashboardHandler, clearPerformanceStats, diagnosticsHandler;
 try {
     const perfMonitor = require('./src/monitoring/performance-monitor');
     performanceMonitoringMiddleware = perfMonitor.performanceMonitoringMiddleware;
@@ -44,6 +44,15 @@ try {
     console.log('[Server] Performance monitoring loaded');
 } catch (error) {
     console.warn('[Server] Could not load performance monitoring:', error.message);
+}
+
+// Import connection diagnostics
+try {
+    const diagnostics = require('./src/monitoring/connection-diagnostics');
+    diagnosticsHandler = diagnostics.diagnosticsHandler;
+    console.log('[Server] Connection diagnostics loaded');
+} catch (error) {
+    console.warn('[Server] Could not load connection diagnostics:', error.message);
 }
 
 // Import slash commands service
@@ -70,6 +79,15 @@ try {
     console.log('[Server] Loaded new storage system');
 } catch (error) {
     console.warn('[Server] Could not load storage modules:', error.message);
+}
+
+// Import memory visualization handlers
+let memoryVisualizationHandlers;
+try {
+    memoryVisualizationHandlers = require('./dist/src/api/memory/visualization');
+    console.log('[Server] Loaded memory visualization handlers');
+} catch (error) {
+    console.warn('[Server] Could not load memory visualization handlers:', error.message);
 }
 
 try {
@@ -346,69 +364,79 @@ async function handleSSERequest(req, res) {
             console.log(`[Server] SSE: Using frontend slash command: /${data.slashCommand.command} → ${data.slashCommand.agentType}`);
         }
         
-        // Auto-create session if needed
-        if (storageManager && message) {
-            try {
-                // Time database operation for session check
-                const sessionCheckFn = async () => {
-                    return storageManager.sessionExists(sessionId);
-                };
-                
-                const sessionExists = timers.database ? 
-                    await timers.database.timeQuery('check-session', sessionCheckFn) :
-                    await sessionCheckFn();
+        // Defer session operations until after agent selection
+        const deferredSessionOps = async () => {
+            if (storageManager && message) {
+                try {
+                    console.log(`[Server] Starting deferred session operations for: ${sessionId}`);
+                    const sessionOpsStart = performance.now();
                     
-                const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
-                
-                if (!sessionExists) {
-                    // Time session creation
-                    const createSessionFn = async () => {
-                        return await storageManager.createSession({
+                    // Time database operation for session check
+                    const sessionCheckFn = async () => {
+                        return storageManager.sessionExists(sessionId);
+                    };
+                    
+                    const checkStart = performance.now();
+                    const sessionExists = timers.database ? 
+                        await timers.database.timeQuery('check-session', sessionCheckFn) :
+                        await sessionCheckFn();
+                    console.log(`[Server] Session check took: ${(performance.now() - checkStart).toFixed(2)}ms`);
+                        
+                    const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
+                    
+                    if (!sessionExists) {
+                        // Time session creation
+                        const createSessionFn = async () => {
+                            return await storageManager.createSession({
+                                sessionId: sessionId,
+                                title: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
+                                userId: userId
+                            });
+                        };
+                        
+                        if (timers.database) {
+                            await timers.database.timeQuery('create-session', createSessionFn);
+                        } else {
+                            await createSessionFn();
+                        }
+                        console.log(`[Server] Auto-created session: ${sessionId} for user: ${userId}`);
+                    }
+                    
+                    // Save user message with slash command metadata
+                    const userMessageMetadata = { userId: userId };
+                    
+                    // Add slash command metadata if present
+                    if (data.slashCommand && routingMetadata) {
+                        userMessageMetadata.slashCommand = {
+                            command: data.slashCommand.command,
+                            agentType: data.slashCommand.agentType
+                        };
+                        userMessageMetadata.forcedRouting = routingMetadata;
+                    }
+                    
+                    // Time message save
+                    const saveMessageFn = async () => {
+                        return await storageManager.saveMessage({
                             sessionId: sessionId,
-                            title: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
-                            userId: userId
+                            type: 'user',
+                            content: message,
+                            metadata: userMessageMetadata
                         });
                     };
                     
+                    const saveStart = performance.now();
                     if (timers.database) {
-                        await timers.database.timeQuery('create-session', createSessionFn);
+                        await timers.database.timeQuery('save-user-message', saveMessageFn);
                     } else {
-                        await createSessionFn();
+                        await saveMessageFn();
                     }
-                    console.log(`[Server] Auto-created session: ${sessionId} for user: ${userId}`);
+                    console.log(`[Server] Message save took: ${(performance.now() - saveStart).toFixed(2)}ms`);
+                    console.log(`[Server] Total session operations took: ${(performance.now() - sessionOpsStart).toFixed(2)}ms`);
+                } catch (storageError) {
+                    console.error('[Server] Failed to save user message:', storageError);
                 }
-                
-                // Save user message with slash command metadata
-                const userMessageMetadata = { userId: userId };
-                
-                // Add slash command metadata if present
-                if (data.slashCommand && routingMetadata) {
-                    userMessageMetadata.slashCommand = {
-                        command: data.slashCommand.command,
-                        agentType: data.slashCommand.agentType
-                    };
-                    userMessageMetadata.forcedRouting = routingMetadata;
-                }
-                
-                // Time message save
-                const saveMessageFn = async () => {
-                    return await storageManager.saveMessage({
-                        sessionId: sessionId,
-                        type: 'user',
-                        content: message,
-                        metadata: userMessageMetadata
-                    });
-                };
-                
-                if (timers.database) {
-                    await timers.database.timeQuery('save-user-message', saveMessageFn);
-                } else {
-                    await saveMessageFn();
-                }
-            } catch (storageError) {
-                console.error('[Server] Failed to save user message:', storageError);
             }
-        }
+        };
         
         // Create streaming callback
         let fullResponse = '';
@@ -528,6 +556,13 @@ async function handleSSERequest(req, res) {
                 sendEvent('start', { 
                     agent: agentInfo.name,
                     sessionId: sessionId
+                });
+                
+                // Now that agent is selected and user knows, do the session operations
+                setImmediate(() => {
+                    deferredSessionOps().catch(err => {
+                        console.error('[Server] Deferred session operations failed:', err);
+                    });
                 });
                 
                 // Create LLM timer if available
@@ -650,8 +685,17 @@ async function handleSSERequest(req, res) {
                             ttft: performanceData.llm.ttft
                         });
                     }
-                    if (performanceData.database?.totalTime) {
-                        recordOperation('database', 'queries', performanceData.database.totalTime);
+                    // Record individual database operations, not the total
+                    if (performanceData.database?.operations) {
+                        let totalDbTime = 0;
+                        for (const [opName, opData] of Object.entries(performanceData.database.operations)) {
+                            const duration = parseFloat(opData.duration) || 0;
+                            if (duration > 0) {
+                                recordOperation('database', 'queries', duration);
+                                totalDbTime += duration;
+                            }
+                        }
+                        console.log(`[Server] Recorded ${Object.keys(performanceData.database.operations).length} database operations, total: ${totalDbTime.toFixed(2)}ms`);
                     }
                 }
                 
@@ -945,7 +989,7 @@ const server = http.createServer(async (req, res) => {
                 if (storageManager && data.message) {
                     try {
                         // Check if session exists, create if not
-                        const sessionExists = storageManager.sessionExists(sessionId);
+                        const sessionExists = await storageManager.sessionExists(sessionId);
                         
                         if (!sessionExists) {
                             // Auto-create session on first message
@@ -1411,6 +1455,102 @@ const server = http.createServer(async (req, res) => {
     } else if (req.url === '/api/performance/clear' && req.method === 'POST' && clearPerformanceStats) {
         // Clear performance stats
         clearPerformanceStats(req, res);
+    } else if (req.url === '/api/diagnostics' && req.method === 'GET' && diagnosticsHandler) {
+        // Connection diagnostics
+        diagnosticsHandler(req, res);
+    } else if (req.url === '/api/chats' && req.method === 'POST') {
+        // Create a new chat session
+        console.log('[Server] POST /api/chats endpoint hit');
+        try {
+            // Check if body is already parsed by middleware
+            if (req.body) {
+                console.log('[Server] Body already parsed:', req.body);
+                const data = req.body;
+                    
+                    // Use storage manager to create session
+                    if (storageManager) {
+                        const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
+                        const userDatabaseId = req.isAuthenticated && req.user ? req.user.id : null;
+                        
+                        const sessionData = await storageManager.createSession({
+                            title: data.title || 'New Chat',
+                            userId: userId,
+                            metadata: {
+                                ...data.metadata,
+                                userId: userId,
+                                userDatabaseId: userDatabaseId
+                            }
+                        });
+                        
+                        // Return in the expected format
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({
+                            success: true,
+                            sessionId: sessionData.sessionId,
+                            session: {
+                                id: sessionData.sessionId,
+                                title: sessionData.title,
+                                createdAt: sessionData.createdAt,
+                                status: sessionData.status,
+                                messageCount: sessionData.messageCount || 0
+                            }
+                        }));
+                    } else {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Storage manager not initialized' }));
+                    }
+            } else {
+                // Body not parsed, parse it
+                let body = '';
+                req.on('data', chunk => { body += chunk.toString(); });
+                req.on('end', async () => {
+                    try {
+                        const data = JSON.parse(body);
+                        
+                        // Use storage manager to create session
+                        if (storageManager) {
+                            const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
+                            const userDatabaseId = req.isAuthenticated && req.user ? req.user.id : null;
+                            
+                            const sessionData = await storageManager.createSession({
+                                title: data.title || 'New Chat',
+                                userId: userId,
+                                metadata: {
+                                    ...data.metadata,
+                                    userId: userId,
+                                    userDatabaseId: userDatabaseId
+                                }
+                            });
+                            
+                            // Return in the expected format
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({
+                                success: true,
+                                sessionId: sessionData.sessionId,
+                                session: {
+                                    id: sessionData.sessionId,
+                                    title: sessionData.title,
+                                    createdAt: sessionData.createdAt,
+                                    status: sessionData.status,
+                                    messageCount: sessionData.messageCount || 0
+                                }
+                            }));
+                        } else {
+                            res.writeHead(500, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ error: 'Storage manager not initialized' }));
+                        }
+                    } catch (error) {
+                        console.error('Failed to create chat:', error);
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'Failed to create chat session' }));
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Chat creation API error:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Failed to create chat session' }));
+        }
     } else if (req.url === '/api/chats' && req.method === 'GET') {
         // List all chat sessions
         try {
@@ -1432,7 +1572,7 @@ const server = http.createServer(async (req, res) => {
                 }
                 
                 console.log(`[Server] Listing chats for user: ${listOptions.userId}`);
-                const sessions = storageManager.listSessions(listOptions);
+                const sessions = await storageManager.listSessions(listOptions);
                 
                 // Convert to frontend format
                 const formattedSessions = sessions.map(session => ({
@@ -2289,6 +2429,109 @@ const server = http.createServer(async (req, res) => {
                 }));
             }
         });
+        
+    // Memory visualization routes - require authentication
+    } else if (req.url.match(/^\/api\/memory\/qdrant\/([^/]+)$/) && req.method === 'GET') {
+        if (!req.isAuthenticated) {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Authentication required' }));
+            return;
+        }
+        
+        if (memoryVisualizationHandlers) {
+            const match = req.url.match(/^\/api\/memory\/qdrant\/([^/]+)$/);
+            req.params = { userId: match[1] };
+            memoryVisualizationHandlers.getQdrantVisualization(req, res);
+        } else {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Memory visualization not available' }));
+        }
+        
+    } else if (req.url.match(/^\/api\/memory\/neo4j\/([^/]+)$/) && req.method === 'GET') {
+        if (!req.isAuthenticated) {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Authentication required' }));
+            return;
+        }
+        
+        if (memoryVisualizationHandlers) {
+            const match = req.url.match(/^\/api\/memory\/neo4j\/([^/]+)$/);
+            req.params = { userId: match[1] };
+            memoryVisualizationHandlers.getNeo4jVisualization(req, res);
+        } else {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Memory visualization not available' }));
+        }
+        
+    } else if (req.url.match(/^\/api\/memory\/postgres\/([^/]+)$/) && req.method === 'GET') {
+        if (!req.isAuthenticated) {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Authentication required' }));
+            return;
+        }
+        
+        if (memoryVisualizationHandlers) {
+            const match = req.url.match(/^\/api\/memory\/postgres\/([^/]+)$/);
+            req.params = { userId: match[1] };
+            memoryVisualizationHandlers.getPostgresVisualization(req, res);
+        } else {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Memory visualization not available' }));
+        }
+        
+    } else if (req.url.match(/^\/api\/memory\/postgres\/sessions\/([^/]+)$/) && req.method === 'GET') {
+        if (!req.isAuthenticated) {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Authentication required' }));
+            return;
+        }
+        
+        if (memoryVisualizationHandlers) {
+            const match = req.url.match(/^\/api\/memory\/postgres\/sessions\/([^/]+)$/);
+            req.params = { userId: match[1] };
+            memoryVisualizationHandlers.getPostgresSessionVisualization(req, res);
+        } else {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Memory visualization not available' }));
+        }
+        
+    } else if (req.url === '/api/memory/users' && req.method === 'GET') {
+        if (!req.isAuthenticated) {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Authentication required' }));
+            return;
+        }
+        
+        // Check admin role for user list
+        if (!req.user.groups || !req.user.groups.includes('admin')) {
+            res.writeHead(403, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Admin access required' }));
+            return;
+        }
+        
+        if (memoryVisualizationHandlers) {
+            memoryVisualizationHandlers.getUsersForAdmin(req, res);
+        } else {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Memory visualization not available' }));
+        }
+        
+    } else if (req.url.match(/^\/api\/memory\/stats\/([^/]+)$/) && req.method === 'GET') {
+        if (!req.isAuthenticated) {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Authentication required' }));
+            return;
+        }
+        
+        if (memoryVisualizationHandlers) {
+            const match = req.url.match(/^\/api\/memory\/stats\/([^/]+)$/);
+            req.params = { userId: match[1] };
+            memoryVisualizationHandlers.getMemoryStatsForUser(req, res);
+        } else {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Memory visualization not available' }));
+        }
+        
     } else if (req.url === '/api/chats' && req.method === 'GET') {
         // Get all chats with metadata
         try {
@@ -2678,7 +2921,7 @@ const server = http.createServer(async (req, res) => {
                 // Use new storage manager if available
                 if (storageManager) {
                     // Check if session exists
-                    if (!storageManager.sessionIndex.sessionExists(sessionId)) {
+                    if (!(await storageManager.sessionExists(sessionId))) {
                         res.writeHead(404, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ 
                             error: 'Session not found',

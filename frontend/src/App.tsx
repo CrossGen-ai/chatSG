@@ -4,6 +4,8 @@ import { ChatUI } from './components/ChatUI';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { ChatSidebar } from './components/ChatSidebar';
 import { IconSidebar } from './components/IconSidebar';
+import { MemorySidebar, MemoryType } from './components/MemoryVisualization/MemorySidebar';
+import { MemoryVisualizationView } from './components/MemoryVisualization/MemoryVisualizationView';
 import { useUIPreferences } from './hooks/useUIPreferences';
 import { ChatManagerProvider, useChatManager } from './hooks/useChatManager';
 import { ChatSettingsProvider } from './hooks/useChatSettings';
@@ -17,7 +19,17 @@ import { useAuth } from './hooks/useAuth';
 // Inner component that has access to ChatManager context
 function AppContent() {
   const { activeChatId } = useChatManager();
-  const { preferences, updatePreference } = useUIPreferences();
+  const { preferences, updatePreference, updatePreferences } = useUIPreferences();
+  const { user, isAuthenticated } = useAuth();
+  const [activeMemoryType, setActiveMemoryType] = useState<MemoryType>('short-term');
+  const [selectedMemoryUserId, setSelectedMemoryUserId] = useState<string>(user?.id || '');
+
+  // Update selectedMemoryUserId when user changes
+  useEffect(() => {
+    if (user?.id && !selectedMemoryUserId) {
+      setSelectedMemoryUserId(user.id);
+    }
+  }, [user, selectedMemoryUserId]);
 
   // Ensure contentValidator is initialized (happens automatically on first use)
   useEffect(() => {
@@ -48,11 +60,29 @@ function AppContent() {
       </div>
 
       {/* Icon Sidebar */}
-      <IconSidebar onOpenSidebar={() => updatePreference('sidebarOpen', true)} />
+      <IconSidebar 
+        onOpenSidebar={() => {
+          updatePreferences({
+            sidebarOpen: true,
+            memoryPanelOpen: false,
+            currentView: 'chat'
+          });
+        }} 
+        onOpenMemoryPanel={() => {
+          updatePreferences({
+            memoryPanelOpen: true,
+            sidebarOpen: false,
+            currentView: 'memory'
+          });
+        }}
+        currentView={preferences.currentView}
+        onViewChange={(view) => updatePreference('currentView', view)}
+      />
       
       {/* Main content */}
       <div className={`relative z-10 h-screen flex flex-col ${
-        preferences.sidebarOpen && preferences.sidebarPinned 
+        (preferences.currentView === 'chat' && preferences.sidebarOpen && preferences.sidebarPinned) ||
+        (preferences.currentView === 'memory' && preferences.memoryPanelOpen && preferences.memoryPanelPinned)
           ? 'ml-[440px]' 
           : 'ml-[60px]'
       }`}>
@@ -88,20 +118,27 @@ function AppContent() {
           <main className="flex-1 flex overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full h-full">
               <div className="h-full flex flex-col">
-                {activeChatId ? (
-                  <ChatUI />
-              ) : (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="backdrop-blur-xl bg-white/10 dark:bg-black/10 rounded-2xl p-8 border border-white/20 dark:border-white/10">
-                    <svg className="w-16 h-16 mx-auto mb-4 theme-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                    <h2 className="text-xl font-semibold theme-text-primary mb-2">No Chat Selected</h2>
-                    <p className="theme-text-secondary mb-4">Click "New Chat" to start a conversation</p>
+                {preferences.currentView === 'chat' ? (
+                  activeChatId ? (
+                    <ChatUI />
+                  ) : (
+                    <div className="flex-1 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="backdrop-blur-xl bg-white/10 dark:bg-black/10 rounded-2xl p-8 border border-white/20 dark:border-white/10">
+                        <svg className="w-16 h-16 mx-auto mb-4 theme-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        <h2 className="text-xl font-semibold theme-text-primary mb-2">No Chat Selected</h2>
+                        <p className="theme-text-secondary mb-4">Click "New Chat" to start a conversation</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  )
+                ) : (
+                  <MemoryVisualizationView 
+                    activeMemoryType={activeMemoryType}
+                    selectedUserId={selectedMemoryUserId || user?.id || ''}
+                  />
                 )}
               </div>
             </div>
@@ -146,15 +183,35 @@ function AppContent() {
         </div>
       </div>
       
-      {/* Chat Sidebar */}
-      <div className={`${preferences.sidebarPinned ? 'fixed left-[60px] top-0' : ''}`}>
-        <ChatSidebar 
-          isOpen={preferences.sidebarOpen} 
-          onClose={() => updatePreference('sidebarOpen', false)}
-          isPinned={preferences.sidebarPinned}
-          onTogglePin={() => updatePreference('sidebarPinned', !preferences.sidebarPinned)}
-        />
-      </div>
+      {/* Chat Sidebar - only show when in chat view */}
+      {preferences.currentView === 'chat' && (
+        <div className={`${preferences.sidebarPinned ? 'fixed left-[60px] top-0' : ''}`}>
+          <ChatSidebar 
+            isOpen={preferences.sidebarOpen} 
+            onClose={() => updatePreference('sidebarOpen', false)}
+            isPinned={preferences.sidebarPinned}
+            onTogglePin={() => updatePreference('sidebarPinned', !preferences.sidebarPinned)}
+          />
+        </div>
+      )}
+      
+      {/* Memory Sidebar - only show when in memory view */}
+      {preferences.currentView === 'memory' && (
+        <div className={`${preferences.memoryPanelPinned ? 'fixed left-[60px] top-0' : ''}`}>
+          <MemorySidebar 
+            isOpen={preferences.memoryPanelOpen} 
+            onClose={() => updatePreference('memoryPanelOpen', false)}
+            isPinned={preferences.memoryPanelPinned}
+            onTogglePin={() => updatePreference('memoryPanelPinned', !preferences.memoryPanelPinned)}
+            userRole={user?.groups?.includes('admin') ? 'admin' : 'user'}
+            currentUserId={user?.id || ''}
+            activeMemoryType={activeMemoryType}
+            onMemoryTypeChange={setActiveMemoryType}
+            selectedUserId={selectedMemoryUserId || user?.id || ''}
+            onUserSelect={setSelectedMemoryUserId}
+          />
+        </div>
+      )}
     </ChatSettingsProvider>
   );
 }

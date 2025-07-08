@@ -284,7 +284,7 @@ export abstract class AbstractBaseAgent implements BaseAgent {
                 console.log(`[${this.name}] Cross-session memory is enabled for session ${sessionId}`);
                 
                 // Get user ID from session metadata
-                const sessions = storageManager.listSessions();
+                const sessions = await storageManager.listSessions();
                 const sessionInfo = sessions.find(s => s.sessionId === sessionId);
                 const userId = sessionInfo?.metadata?.userId;
                 

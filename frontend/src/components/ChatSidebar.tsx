@@ -276,10 +276,15 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
               <div className="flex items-center space-x-3">
                 {/* Collapse button */}
                 <button
-                  onClick={onClose}
-                  className="p-2 rounded-lg hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
-                  aria-label="Collapse sidebar"
-                  title="Collapse sidebar"
+                  onClick={isPinned ? undefined : onClose}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isPinned 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : 'hover:bg-white/20 dark:hover:bg-white/10'
+                  }`}
+                  aria-label={isPinned ? "Unpin sidebar to collapse" : "Collapse sidebar"}
+                  title={isPinned ? "Unpin sidebar to collapse" : "Collapse sidebar"}
+                  disabled={isPinned}
                 >
                   <svg className="w-5 h-5 theme-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

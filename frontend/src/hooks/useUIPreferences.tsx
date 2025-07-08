@@ -4,6 +4,9 @@ interface UIPreferences {
   theme: string;
   sidebarOpen: boolean;
   sidebarPinned: boolean;
+  memoryPanelOpen: boolean;
+  memoryPanelPinned: boolean;
+  currentView: 'chat' | 'memory';
   // Future preferences can be added here:
   // fontSize?: 'small' | 'medium' | 'large';
   // compactMode?: boolean;
@@ -16,6 +19,9 @@ const defaultPreferences: UIPreferences = {
   theme: 'light',
   sidebarOpen: false,
   sidebarPinned: false,
+  memoryPanelOpen: false,
+  memoryPanelPinned: false,
+  currentView: 'chat',
 };
 
 export function useUIPreferences() {

@@ -625,15 +625,16 @@
   "test-123": {
     "file": "session_test-123.jsonl",
     "toolsFile": "session_test-123_tools.jsonl",
-    "status": "deleted",
-    "createdAt": "2025-07-03T05:11:32.024Z",
-    "startedAt": "2025-07-03T05:11:32.024Z",
-    "lastActivityAt": "2025-07-03T18:42:55.227Z",
+    "status": "active",
+    "createdAt": "2025-07-08T15:29:08.313Z",
+    "startedAt": "2025-07-08T15:29:08.313Z",
+    "lastActivityAt": "2025-07-08T16:00:41.714Z",
     "messageCount": 2,
-    "title": "test",
+    "title": "Test",
     "metadata": {
+      "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": null,
+      "lastReadAt": "2025-07-08T16:00:32.062Z",
       "lastAgent": "AnalyticalAgent"
     }
   },
@@ -1808,29 +1809,170 @@
     "status": "active",
     "createdAt": "2025-07-06T19:15:36.133Z",
     "startedAt": "2025-07-06T19:15:36.133Z",
-    "lastActivityAt": "2025-07-06T19:31:51.378Z",
-    "messageCount": 8,
+    "lastActivityAt": "2025-07-06T22:14:25.572Z",
+    "messageCount": 15,
     "title": "New Chat",
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
-      "lastReadAt": "2025-07-06T19:32:02.498Z",
-      "lastAgent": "CRMAgent"
+      "lastReadAt": "2025-07-06T22:14:03.535Z",
+      "lastAgent": "CreativeAgent"
     }
   },
   "session_1751829740436_qkmq17tgx": {
     "file": "session_session_1751829740436_qkmq17tgx.jsonl",
     "toolsFile": "session_session_1751829740436_qkmq17tgx_tools.jsonl",
-    "status": "active",
+    "status": "inactive",
     "createdAt": "2025-07-06T19:22:20.436Z",
     "startedAt": "2025-07-06T19:22:20.436Z",
-    "lastActivityAt": "2025-07-06T19:22:20.436Z",
+    "lastActivityAt": "2025-07-06T19:52:20.457Z",
     "messageCount": 0,
     "title": "New Chat",
     "metadata": {
       "userId": "2",
       "unreadCount": 0,
       "lastReadAt": "2025-07-06T19:22:20.444Z"
+    }
+  },
+  "test-crm-routing-1751840298": {
+    "file": "session_test-crm-routing-1751840298.jsonl",
+    "toolsFile": "session_test-crm-routing-1751840298_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-06T22:18:18.533Z",
+    "startedAt": "2025-07-06T22:18:18.533Z",
+    "lastActivityAt": "2025-07-06T22:48:37.597Z",
+    "messageCount": 2,
+    "title": "tell me about Peter Kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-crm-routing-1751840327": {
+    "file": "session_test-crm-routing-1751840327.jsonl",
+    "toolsFile": "session_test-crm-routing-1751840327_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-06T22:18:47.987Z",
+    "startedAt": "2025-07-06T22:18:47.987Z",
+    "lastActivityAt": "2025-07-06T22:49:38.723Z",
+    "messageCount": 2,
+    "title": "tell me about Peter Kelly",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null,
+      "lastAgent": "CRMAgent"
+    }
+  },
+  "test-slash-1751840512208": {
+    "file": "session_test-slash-1751840512208.jsonl",
+    "toolsFile": "session_test-slash-1751840512208_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-06T22:21:52.234Z",
+    "startedAt": "2025-07-06T22:21:52.234Z",
+    "lastActivityAt": "2025-07-06T22:53:26.383Z",
+    "messageCount": 6,
+    "title": "who is peter kelly?",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-07T23:48:59.689Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "test-slash-stream-1751840628623": {
+    "file": "session_test-slash-stream-1751840628623.jsonl",
+    "toolsFile": "session_test-slash-stream-1751840628623_tools.jsonl",
+    "status": "inactive",
+    "createdAt": "2025-07-06T22:23:48.638Z",
+    "startedAt": "2025-07-06T22:23:48.638Z",
+    "lastActivityAt": "2025-07-08T03:29:31.488Z",
+    "messageCount": 22,
+    "title": "who is peter kelly?",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-08T02:59:25.619Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "perf-test-1751988494927": {
+    "file": "session_perf-test-1751988494927.jsonl",
+    "toolsFile": "session_perf-test-1751988494927_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-08T15:28:14.962Z",
+    "startedAt": "2025-07-08T15:28:14.962Z",
+    "lastActivityAt": "2025-07-08T15:28:14.962Z",
+    "messageCount": 0,
+    "title": "Performance Test",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "perf-test-1751990764675": {
+    "file": "session_perf-test-1751990764675.jsonl",
+    "toolsFile": "session_perf-test-1751990764675_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-08T16:06:04.718Z",
+    "startedAt": "2025-07-08T16:06:04.718Z",
+    "lastActivityAt": "2025-07-08T16:06:04.718Z",
+    "messageCount": 0,
+    "title": "Performance Test",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "test-performance": {
+    "file": "session_test-performance.jsonl",
+    "toolsFile": "session_test-performance_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-08T16:07:46.335Z",
+    "startedAt": "2025-07-08T16:07:46.335Z",
+    "lastActivityAt": "2025-07-08T16:07:51.419Z",
+    "messageCount": 1,
+    "title": "hello",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": null
+    }
+  },
+  "test-performance-2": {
+    "file": "session_test-performance-2.jsonl",
+    "toolsFile": "session_test-performance-2_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-08T16:09:21.387Z",
+    "startedAt": "2025-07-08T16:09:21.387Z",
+    "lastActivityAt": "2025-07-08T16:14:14.101Z",
+    "messageCount": 3,
+    "title": "What is 2 + 2?",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-08T16:13:55.496Z",
+      "lastAgent": "AnalyticalAgent"
+    }
+  },
+  "perf-test-fixed": {
+    "file": "session_perf-test-fixed.jsonl",
+    "toolsFile": "session_perf-test-fixed_tools.jsonl",
+    "status": "active",
+    "createdAt": "2025-07-08T16:35:47.952Z",
+    "startedAt": "2025-07-08T16:35:47.952Z",
+    "lastActivityAt": "2025-07-08T16:51:24.910Z",
+    "messageCount": 4,
+    "title": "What is 2 + 2?",
+    "metadata": {
+      "userId": "2",
+      "unreadCount": 0,
+      "lastReadAt": "2025-07-08T16:51:29.353Z",
+      "lastAgent": "AnalyticalAgent"
     }
   }
 }

@@ -80,14 +80,31 @@ class PerformanceTracker {
      * Generate timing report
      */
     getReport() {
-        const totalDuration = this.getTotalDuration();
+        // Calculate total duration based on actual operation measurements
+        let actualStartTime = Infinity;
+        let actualEndTime = 0;
+        
+        // Find the earliest and latest marks, excluding the initial 'start' mark
+        for (const [label, time] of this.marks) {
+            // Skip the initial 'start' mark that's created on instantiation
+            if (label === 'start') continue;
+            
+            actualStartTime = Math.min(actualStartTime, time);
+            actualEndTime = Math.max(actualEndTime, time);
+        }
+        
+        // If no operation marks exist, use 0 duration
+        const totalDuration = (actualStartTime === Infinity || actualEndTime === 0) 
+            ? 0 
+            : actualEndTime - actualStartTime;
+        
         const measurements = {};
         
         // Calculate all measurements
         for (const [label, data] of this.measurements) {
             measurements[label] = {
                 duration: data.duration.toFixed(2),
-                percentage: ((data.duration / totalDuration) * 100).toFixed(1)
+                percentage: totalDuration > 0 ? ((data.duration / totalDuration) * 100).toFixed(1) : '0.0'
             };
         }
         
