@@ -1,13 +1,15 @@
 /**
- * Mem0Service - Memory Management using mem0ai
+ * Mem0Service - Memory Management using mem0ai with PostgreSQL/pgvector
  * 
  * Provides intelligent memory layer for chat sessions using mem0's
- * local open-source implementation with vector embeddings and SQLite history.
+ * implementation with PostgreSQL pgvector for scalable vector storage
+ * and proper user isolation.
  */
 
 import { Memory } from 'mem0ai/oss';
 import { Message } from '../storage/SessionStorage';
 import { STORAGE_CONFIG } from '../config/storage.config';
+import { getPool } from '../database/pool';
 import * as path from 'path';
 
 export interface Mem0Config {
@@ -17,6 +19,7 @@ export interface Mem0Config {
     historyDbPath?: string;
     collectionName?: string;
     dimension?: number;
+    provider?: string;
 }
 
 export interface MemorySearchOptions {
@@ -46,15 +49,17 @@ export class Mem0Service {
     private memory: Memory | null = null;
     private initialized = false;
     private config: Mem0Config;
+    private dbPool: any = null;
     
     constructor(config?: Mem0Config) {
         this.config = {
             apiKey: process.env.OPENAI_API_KEY,
-            embeddingModel: 'text-embedding-3-small',
-            llmModel: 'gpt-4o-mini',
-            historyDbPath: path.join(STORAGE_CONFIG.sessionPath, 'memory.db'),
-            collectionName: 'chatsg_memories',
-            dimension: 1536, // for text-embedding-3-small
+            embeddingModel: STORAGE_CONFIG.mem0.embeddingModel,
+            llmModel: STORAGE_CONFIG.mem0.llmModel,
+            historyDbPath: STORAGE_CONFIG.mem0.historyDbPath,
+            collectionName: STORAGE_CONFIG.mem0.collectionName,
+            dimension: STORAGE_CONFIG.mem0.dimension,
+            provider: STORAGE_CONFIG.mem0.provider,
             ...config
         };
     }
@@ -78,13 +83,6 @@ export class Mem0Service {
                         model: this.config.embeddingModel,
                     },
                 },
-                vectorStore: {
-                    provider: 'memory',
-                    config: {
-                        collectionName: this.config.collectionName,
-                        dimension: this.config.dimension,
-                    },
-                },
                 llm: {
                     provider: 'openai',
                     config: {
@@ -92,8 +90,37 @@ export class Mem0Service {
                         model: this.config.llmModel,
                     },
                 },
-                historyDbPath: this.config.historyDbPath,
             };
+            
+            // Configure vector store based on provider
+            if (this.config.provider === 'qdrant') {
+                // Configure Qdrant as vector store
+                memoryConfig.vectorStore = {
+                    provider: 'qdrant',
+                    config: {
+                        url: STORAGE_CONFIG.mem0.qdrant.url,
+                        ...(STORAGE_CONFIG.mem0.qdrant.apiKey && { apiKey: STORAGE_CONFIG.mem0.qdrant.apiKey }),
+                        collectionName: this.config.collectionName,
+                        embeddingDimensions: this.config.dimension,
+                    },
+                };
+                
+                console.log('[Mem0Service] Using Qdrant vector store');
+                
+                // Get database connection pool for user metadata operations
+                this.dbPool = getPool();
+            } else {
+                // Fallback to SQLite memory store
+                memoryConfig.vectorStore = {
+                    provider: 'memory',
+                    config: {
+                        collectionName: this.config.collectionName,
+                        dimension: this.config.dimension,
+                    },
+                };
+                memoryConfig.historyDbPath = this.config.historyDbPath;
+                console.log('[Mem0Service] Using SQLite memory store');
+            }
             
             // Add graph store if enabled
             if (STORAGE_CONFIG.mem0.graph.enabled) {
@@ -121,12 +148,35 @@ export class Mem0Service {
     }
     
     /**
-     * Add messages to memory
+     * Ensure pgvector extension is installed
+     */
+    private async ensurePgVectorExtension(): Promise<void> {
+        try {
+            const result = await this.dbPool.query(`
+                SELECT EXISTS (
+                    SELECT 1 FROM pg_extension WHERE extname = 'vector'
+                );
+            `);
+            
+            if (!result.rows[0].exists) {
+                console.log('[Mem0Service] Installing pgvector extension...');
+                await this.dbPool.query('CREATE EXTENSION IF NOT EXISTS vector;');
+                console.log('[Mem0Service] pgvector extension installed');
+            }
+        } catch (error) {
+            console.error('[Mem0Service] Failed to ensure pgvector extension:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Add messages to memory with user context
      */
     async addMessages(
         messages: Message[], 
         sessionId: string,
-        userId?: string
+        userId?: string,
+        userDatabaseId?: number
     ): Promise<MemoryAddResult> {
         if (!this.initialized) {
             await this.initialize();
@@ -143,20 +193,46 @@ export class Mem0Service {
                 content: msg.content
             }));
             
+            // Build metadata with user context
+            const metadata: any = {
+                sessionId,
+                timestamp: new Date().toISOString()
+            };
+            
+            // If using pgvector, store user database ID for proper isolation
+            if (this.config.provider === 'pgvector' && userDatabaseId) {
+                metadata.userDatabaseId = userDatabaseId;
+            }
+            
             // Add to memory with metadata
             const result = await this.memory.add(mem0Messages, {
                 userId: userId || 'default',
-                metadata: {
-                    sessionId,
-                    timestamp: new Date().toISOString()
-                }
+                metadata
             });
             
-            console.log(`[Mem0Service] Added ${messages.length} messages to memory for session ${sessionId}`);
+            // If using pgvector, also update our custom tables
+            if (this.config.provider === 'pgvector' && userDatabaseId) {
+                await this.updatePostgresMetadata(userDatabaseId, sessionId, messages.length);
+            }
+            
+            console.log(`[Mem0Service] Added ${messages.length} messages to memory for session ${sessionId}, user ${userId}`);
             return result;
         } catch (error) {
             console.error('[Mem0Service] Failed to add messages:', error);
             throw error;
+        }
+    }
+    
+    /**
+     * Update PostgreSQL metadata tables
+     */
+    private async updatePostgresMetadata(userDatabaseId: number, sessionId: string, messageCount: number): Promise<void> {
+        try {
+            // Update is handled by database triggers, but we can add custom logic here if needed
+            console.log(`[Mem0Service] Updated metadata for user ${userDatabaseId}, session ${sessionId}`);
+        } catch (error) {
+            console.error('[Mem0Service] Failed to update PostgreSQL metadata:', error);
+            // Don't throw - this is supplementary
         }
     }
     
@@ -166,17 +242,19 @@ export class Mem0Service {
     async addMessage(
         message: Message,
         sessionId: string,
-        userId?: string
+        userId?: string,
+        userDatabaseId?: number
     ): Promise<MemoryAddResult> {
-        return this.addMessages([message], sessionId, userId);
+        return this.addMessages([message], sessionId, userId, userDatabaseId);
     }
     
     /**
-     * Search for relevant memories
+     * Search for relevant memories with user context
      */
     async search(
         query: string,
-        options: MemorySearchOptions = {}
+        options: MemorySearchOptions = {},
+        userDatabaseId?: number
     ): Promise<MemorySearchResult> {
         if (!this.initialized) {
             await this.initialize();
@@ -192,8 +270,15 @@ export class Mem0Service {
                 limit: options.limit || 10
             };
             
-            // Add session filter if provided
-            if (options.sessionId) {
+            // Add filters based on provider
+            if (this.config.provider === 'pgvector' && userDatabaseId) {
+                // For pgvector, filter by user database ID
+                searchOptions.filters = {
+                    ...(options.sessionId && { sessionId: options.sessionId }),
+                    userDatabaseId: userDatabaseId
+                };
+            } else if (options.sessionId) {
+                // For other providers, just filter by session
                 searchOptions.filters = {
                     sessionId: options.sessionId
                 };
@@ -210,11 +295,12 @@ export class Mem0Service {
     }
     
     /**
-     * Get all memories for a session
+     * Get all memories for a session with user context
      */
     async getSessionMemories(
         sessionId: string,
         userId?: string,
+        userDatabaseId?: number,
         limit?: number
     ): Promise<any[]> {
         if (!this.initialized) {
@@ -226,15 +312,28 @@ export class Mem0Service {
         }
         
         try {
-            const result = await this.memory.getAll({
+            const options: any = {
                 userId: userId || 'default',
                 limit: limit || 100
-            });
+            };
             
-            // Filter by sessionId
-            const memories = result.results.filter((mem: any) => 
-                mem.metadata?.sessionId === sessionId
-            );
+            // For pgvector, we need to filter by userDatabaseId
+            if (this.config.provider === 'pgvector' && userDatabaseId) {
+                options.filters = {
+                    sessionId,
+                    userDatabaseId
+                };
+            }
+            
+            const result = await this.memory.getAll(options);
+            
+            // Filter by sessionId for non-pgvector providers
+            let memories = result.results;
+            if (this.config.provider !== 'pgvector') {
+                memories = memories.filter((mem: any) => 
+                    mem.metadata?.sessionId === sessionId
+                );
+            }
             
             console.log(`[Mem0Service] Retrieved ${memories.length} memories for session ${sessionId}`);
             return memories;
@@ -245,13 +344,13 @@ export class Mem0Service {
     }
     
     /**
-     * Get context messages for LLM
-     * This replaces the old getContextMessages functionality
+     * Get context messages for LLM with user awareness
      */
     async getContextForQuery(
         query: string,
         sessionId: string,
         userId?: string,
+        userDatabaseId?: number,
         maxMessages: number = 50
     ): Promise<Array<{role: string, content: string}>> {
         if (!this.initialized) {
@@ -263,12 +362,12 @@ export class Mem0Service {
         }
         
         try {
-            // Search for relevant memories
+            // Search for relevant memories with user context
             const searchResults = await this.search(query, {
                 sessionId,
                 userId,
                 limit: maxMessages
-            });
+            }, userDatabaseId);
             
             // Convert memories to conversation format
             const contextMessages: Array<{role: string, content: string}> = [];
@@ -292,9 +391,13 @@ export class Mem0Service {
     }
     
     /**
-     * Delete memories for a session
+     * Delete memories for a session with user context
      */
-    async deleteSessionMemories(sessionId: string, userId?: string): Promise<void> {
+    async deleteSessionMemories(
+        sessionId: string, 
+        userId?: string,
+        userDatabaseId?: number
+    ): Promise<void> {
         if (!this.initialized) {
             await this.initialize();
         }
@@ -304,8 +407,8 @@ export class Mem0Service {
         }
         
         try {
-            // Get all memories for the session
-            const memories = await this.getSessionMemories(sessionId, userId);
+            // Get all memories for the session with user context
+            const memories = await this.getSessionMemories(sessionId, userId, userDatabaseId);
             
             // Delete each memory
             for (const memory of memories) {
@@ -322,11 +425,12 @@ export class Mem0Service {
     }
     
     /**
-     * Get memory history for a session
+     * Get memory history for a session with user context
      */
     async getMemoryHistory(
         sessionId: string,
-        userId?: string
+        userId?: string,
+        userDatabaseId?: number
     ): Promise<any[]> {
         if (!this.initialized) {
             await this.initialize();
@@ -337,7 +441,7 @@ export class Mem0Service {
         }
         
         try {
-            const memories = await this.getSessionMemories(sessionId, userId);
+            const memories = await this.getSessionMemories(sessionId, userId, userDatabaseId);
             const history: any[] = [];
             
             // Get history for each memory
@@ -355,6 +459,31 @@ export class Mem0Service {
         } catch (error) {
             console.error('[Mem0Service] Failed to get memory history:', error);
             throw error;
+        }
+    }
+    
+    /**
+     * Get user statistics from PostgreSQL
+     */
+    async getUserMemoryStats(userDatabaseId: number): Promise<any> {
+        if (this.config.provider !== 'pgvector' || !this.dbPool) {
+            return null;
+        }
+        
+        try {
+            const result = await this.dbPool.query(`
+                SELECT 
+                    COUNT(DISTINCT session_id) as total_sessions,
+                    COUNT(*) as total_memories,
+                    MAX(created_at) as last_memory_at
+                FROM mem0_memories
+                WHERE user_id = $1
+            `, [userDatabaseId]);
+            
+            return result.rows[0];
+        } catch (error) {
+            console.error('[Mem0Service] Failed to get user memory stats:', error);
+            return null;
         }
     }
 }

@@ -179,6 +179,8 @@ def main():
         with open(log_path, 'w') as f:
             json.dump(log_data, f, indent=2)
         
+        print("here")
+
         # Handle --chat switch
         if args.chat and 'transcript_path' in input_data:
             transcript_path = input_data['transcript_path']
@@ -212,6 +214,7 @@ def main():
         sys.exit(0)
     except Exception:
         # Handle any other errors gracefully
+        print(f"Error: {sys.exc_info()[1]}")
         sys.exit(0)
 
 

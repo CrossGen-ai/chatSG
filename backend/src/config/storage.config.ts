@@ -110,13 +110,16 @@ export const STORAGE_CONFIG = {
         // Enable mem0 memory service
         enabled: process.env.MEM0_ENABLED !== 'false',
         
+        // Vector store provider: 'memory' (SQLite), 'qdrant', 'redis'
+        provider: process.env.MEM0_PROVIDER || 'qdrant',
+        
         // Embedding model for vector store
         embeddingModel: process.env.MEM0_EMBEDDING_MODEL || 'text-embedding-3-small',
         
         // LLM model for memory generation
         llmModel: process.env.MEM0_LLM_MODEL || 'gpt-4o-mini',
         
-        // Path to SQLite history database
+        // Path to SQLite history database (only used when provider is 'memory')
         historyDbPath: process.env.MEM0_HISTORY_DB_PATH || path.join(path.resolve('./data/sessions'), 'memory.db'),
         
         // Collection name for vector store
@@ -130,6 +133,29 @@ export const STORAGE_CONFIG = {
         
         // Maximum memories to store per session
         maxMemoriesPerSession: parseInt(process.env.MEM0_MAX_MEMORIES_PER_SESSION || '1000', 10),
+        
+        // Qdrant configuration (when provider is 'qdrant')
+        qdrant: {
+            url: process.env.QDRANT_URL || 'http://localhost:6333',
+            apiKey: process.env.QDRANT_API_KEY || null,
+        },
+        
+        // PostgreSQL configuration (for user data, not vector storage)
+        postgres: {
+            // Use DATABASE_URL if available, otherwise use individual settings
+            connectionString: process.env.DATABASE_URL || null,
+            
+            // Individual connection settings (used if connectionString is not provided)
+            host: process.env.POSTGRES_HOST || 'localhost',
+            port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
+            user: process.env.POSTGRES_USER || 'postgres',
+            password: process.env.POSTGRES_PASSWORD || '',
+            database: process.env.POSTGRES_DB || 'chatsg',
+            
+            // pgvector specific settings
+            enableDiskANN: true, // Enable DiskANN for efficient similarity search
+            enableHNSW: false    // Use HNSW index (alternative to IVFFlat)
+        },
         
         // Graph store configuration
         graph: {

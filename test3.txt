@@ -1,2 +1,0 @@
-This is test3.txt file in the project root.
-This is a new line added to the file.

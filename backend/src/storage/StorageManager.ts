@@ -69,7 +69,8 @@ export class StorageManager {
                 llmModel: STORAGE_CONFIG.mem0.llmModel,
                 historyDbPath: STORAGE_CONFIG.mem0.historyDbPath,
                 collectionName: STORAGE_CONFIG.mem0.collectionName,
-                dimension: STORAGE_CONFIG.mem0.dimension
+                dimension: STORAGE_CONFIG.mem0.dimension,
+                provider: STORAGE_CONFIG.mem0.provider
             });
         }
     }
@@ -210,7 +211,12 @@ export class StorageManager {
                 const userId = messages[0].metadata?.userId || 
                               this.sessionIndex.getSession(sessionId)?.metadata?.userId || 
                               'default';
-                await this.mem0Service.addMessages(messages, sessionId, userId);
+                
+                // Extract user database ID if available
+                const userDatabaseId = messages[0].metadata?.userDatabaseId ||
+                                      this.sessionIndex.getSession(sessionId)?.metadata?.userDatabaseId;
+                
+                await this.mem0Service.addMessages(messages, sessionId, userId, userDatabaseId);
             } catch (error) {
                 console.error('[StorageManager] Failed to add messages to Mem0:', error);
                 // Continue without Mem0 - don't fail the entire operation
@@ -396,7 +402,8 @@ export class StorageManager {
         if (this.mem0Service) {
             try {
                 const userId = this.sessionIndex.getSession(sessionId)?.metadata?.userId || 'default';
-                await this.mem0Service.deleteSessionMemories(sessionId, userId);
+                const userDatabaseId = this.sessionIndex.getSession(sessionId)?.metadata?.userDatabaseId;
+                await this.mem0Service.deleteSessionMemories(sessionId, userId, userDatabaseId);
             } catch (error) {
                 console.error('[StorageManager] Failed to delete session from Mem0:', error);
             }
@@ -625,12 +632,14 @@ export class StorageManager {
         
         try {
             const userId = this.sessionIndex.getSession(sessionId)?.metadata?.userId || 'default';
+            const userDatabaseId = this.sessionIndex.getSession(sessionId)?.metadata?.userDatabaseId;
             
             // Get context from Mem0 based on the query
             const contextMessages = await this.mem0Service.getContextForQuery(
                 query,
                 sessionId,
                 userId,
+                userDatabaseId,
                 STORAGE_CONFIG.maxContextMessages
             );
             

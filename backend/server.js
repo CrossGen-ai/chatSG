@@ -33,6 +33,19 @@ const sseSecure = require('./middleware/security/sse');
 const markdownConfig = require('./config/markdown.config.json');
 const securityConfig = require('./config/security.config');
 
+// Import performance monitoring
+let performanceMonitoringMiddleware, performanceDashboardHandler, clearPerformanceStats;
+try {
+    const perfMonitor = require('./src/monitoring/performance-monitor');
+    performanceMonitoringMiddleware = perfMonitor.performanceMonitoringMiddleware;
+    const perfDashboard = require('./src/monitoring/performance-dashboard');
+    performanceDashboardHandler = perfDashboard.performanceDashboardHandler;
+    clearPerformanceStats = perfDashboard.clearPerformanceStats;
+    console.log('[Server] Performance monitoring loaded');
+} catch (error) {
+    console.warn('[Server] Could not load performance monitoring:', error.message);
+}
+
 // Import slash commands service
 let SlashCommandsRouter, getSlashCommandProcessor;
 try {
@@ -208,14 +221,19 @@ function isNetworkAccessError(error) {
 // Function to get IP addresses
 function getIPAddresses() {
     return new Promise((resolve, reject) => {
-        exec('hostname -I', (error, stdout, stderr) => {
+        // Use different command for macOS
+        const command = process.platform === 'darwin' 
+            ? "ifconfig | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | head -1"
+            : 'hostname -I';
+            
+        exec(command, (error, stdout, stderr) => {
             if (error) {
                 console.error('Error getting IP addresses:', error);
                 resolve({ private: 'unknown' });
                 return;
             }
             const privateIP = stdout.trim().split(' ')[0];
-            resolve({ private: privateIP });
+            resolve({ private: privateIP || 'unknown' });
         });
     });
 }
@@ -253,6 +271,32 @@ async function handleSSERequest(req, res) {
     const origin = req.headers.origin || 'http://localhost:5173';
     console.log('[Server] Processing SSE request');
     console.log('[Server] req.body:', req.body);
+    
+    // Import performance tools at the top if available
+    let MemoryOperationTimer, LLMOperationTimer, DatabaseOperationTimer, AgentRoutingTimer, recordOperation;
+    if (process.env.ENABLE_PERFORMANCE_MONITORING === 'true') {
+        try {
+            const opTimers = require('./src/monitoring/operation-timers');
+            MemoryOperationTimer = opTimers.MemoryOperationTimer;
+            LLMOperationTimer = opTimers.LLMOperationTimer;
+            DatabaseOperationTimer = opTimers.DatabaseOperationTimer;
+            AgentRoutingTimer = opTimers.AgentRoutingTimer;
+            const perfDash = require('./src/monitoring/performance-dashboard');
+            recordOperation = perfDash.recordOperation;
+        } catch (err) {
+            console.warn('[Server] Performance monitoring modules not available');
+        }
+    }
+    
+    // Create performance timers
+    const timers = {};
+    if (process.env.ENABLE_PERFORMANCE_MONITORING === 'true' && MemoryOperationTimer) {
+        const requestId = req.requestId || `sse-${Date.now()}`;
+        timers.memory = new MemoryOperationTimer(requestId);
+        timers.database = new DatabaseOperationTimer(requestId);
+        timers.agent = new AgentRoutingTimer(requestId);
+        console.log('[Server] Performance monitoring enabled for SSE request');
+    }
     
     try {
         // Extract data from already-parsed body
@@ -305,15 +349,32 @@ async function handleSSERequest(req, res) {
         // Auto-create session if needed
         if (storageManager && message) {
             try {
-                const sessionExists = storageManager.sessionExists(sessionId);
+                // Time database operation for session check
+                const sessionCheckFn = async () => {
+                    return storageManager.sessionExists(sessionId);
+                };
+                
+                const sessionExists = timers.database ? 
+                    await timers.database.timeQuery('check-session', sessionCheckFn) :
+                    await sessionCheckFn();
+                    
                 const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
                 
                 if (!sessionExists) {
-                    await storageManager.createSession({
-                        sessionId: sessionId,
-                        title: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
-                        userId: userId
-                    });
+                    // Time session creation
+                    const createSessionFn = async () => {
+                        return await storageManager.createSession({
+                            sessionId: sessionId,
+                            title: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
+                            userId: userId
+                        });
+                    };
+                    
+                    if (timers.database) {
+                        await timers.database.timeQuery('create-session', createSessionFn);
+                    } else {
+                        await createSessionFn();
+                    }
                     console.log(`[Server] Auto-created session: ${sessionId} for user: ${userId}`);
                 }
                 
@@ -329,12 +390,21 @@ async function handleSSERequest(req, res) {
                     userMessageMetadata.forcedRouting = routingMetadata;
                 }
                 
-                await storageManager.saveMessage({
-                    sessionId: sessionId,
-                    type: 'user',
-                    content: message,
-                    metadata: userMessageMetadata
-                });
+                // Time message save
+                const saveMessageFn = async () => {
+                    return await storageManager.saveMessage({
+                        sessionId: sessionId,
+                        type: 'user',
+                        content: message,
+                        metadata: userMessageMetadata
+                    });
+                };
+                
+                if (timers.database) {
+                    await timers.database.timeQuery('save-user-message', saveMessageFn);
+                } else {
+                    await saveMessageFn();
+                }
             } catch (storageError) {
                 console.error('[Server] Failed to save user message:', storageError);
             }
@@ -429,6 +499,10 @@ async function handleSSERequest(req, res) {
                     }
                 } else {
                     // Normal agent selection
+                    if (timers.agent) {
+                        timers.agent.markRoutingStart();
+                    }
+                    
                     const context = {
                         sessionId: sessionId,
                         userInput: message,
@@ -439,6 +513,10 @@ async function handleSSERequest(req, res) {
                     const selection = await orchestrationSetup.orchestrator.selectAgent(message, context);
                     targetAgent = orchestrationSetup.orchestrator.getAgent(selection.selectedAgent);
                     selectedAgentName = selection.selectedAgent;
+                    
+                    if (timers.agent) {
+                        timers.agent.markAgentSelected(selectedAgentName);
+                    }
                     console.log(`[ORCHESTRATOR] Selected ${selectedAgentName} for streaming`);
                 }
                 
@@ -452,8 +530,41 @@ async function handleSSERequest(req, res) {
                     sessionId: sessionId
                 });
                 
+                // Create LLM timer if available
+                if (timers.agent && LLMOperationTimer) {
+                    timers.llm = new LLMOperationTimer(req.requestId || `sse-${Date.now()}`, agentInfo.model || 'unknown');
+                    timers.llm.markRequestStart(message.length); // Approximate input tokens
+                }
+                
+                // Mark agent execution start
+                if (timers.agent) {
+                    timers.agent.markAgentExecutionStart();
+                }
+                
+                // Wrap the stream callback to track first token
+                let firstTokenReceived = false;
+                let tokenCount = 0;
+                const wrappedStreamCallback = (token) => {
+                    if (timers.llm && !firstTokenReceived && typeof token === 'string') {
+                        timers.llm.markFirstTokenReceived();
+                        firstTokenReceived = true;
+                    }
+                    if (typeof token === 'string') {
+                        tokenCount++;
+                    }
+                    streamCallback(token);
+                };
+                
                 // Process with streaming
-                const result = await targetAgent.processMessage(message, sessionId, streamCallback);
+                const result = await targetAgent.processMessage(message, sessionId, wrappedStreamCallback);
+                
+                // Mark execution end
+                if (timers.agent) {
+                    timers.agent.markAgentExecutionEnd();
+                }
+                if (timers.llm) {
+                    timers.llm.markStreamingComplete(tokenCount);
+                }
                 
                 // If no streaming happened, simulate it
                 if (fullResponse === '') {
@@ -478,6 +589,40 @@ async function handleSSERequest(req, res) {
                     }
                 }
                 
+                // Collect performance data if available
+                let performanceData = null;
+                if (timers.agent || timers.llm || timers.database) {
+                    performanceData = {};
+                    
+                    if (timers.database && timers.database.getReport) {
+                        const dbReport = timers.database.getReport();
+                        performanceData.database = {
+                            totalTime: parseFloat(dbReport?.totalDuration) || 0,
+                            operations: dbReport?.measurements || {}
+                        };
+                    }
+                    
+                    if (timers.agent && timers.agent.getReport) {
+                        const agentReport = timers.agent.getReport();
+                        performanceData.agent = {
+                            totalTime: parseFloat(agentReport?.totalDuration) || 0,
+                            selection: parseFloat(agentReport?.measurements?.['agent-selection']?.duration) || 0,
+                            execution: parseFloat(agentReport?.measurements?.['agent-execution']?.duration) || 0
+                        };
+                    }
+                    
+                    if (timers.llm && timers.llm.getReport) {
+                        const llmReport = timers.llm.getReport();
+                        performanceData.llm = {
+                            totalTime: parseFloat(llmReport?.measurements?.['total-llm-time']?.duration) || 0,
+                            ttft: parseFloat(llmReport?.measurements?.['time-to-first-token']?.duration) || 0,
+                            tokens: tokenCount
+                        };
+                    }
+                    
+                    console.log('[Server] Performance data collected:', performanceData);
+                }
+                
                 sendEvent('done', { 
                     agent: agentInfo.name,
                     agentType: agentInfo.type,
@@ -488,8 +633,27 @@ async function handleSSERequest(req, res) {
                         streaming: true,
                         forcedBySlashCommand: !!routingMetadata,
                         commandUsed: routingMetadata?.commandName
-                    }
+                    },
+                    performance: performanceData
                 });
+                
+                // Record operations to dashboard
+                if (recordOperation && performanceData) {
+                    if (performanceData.agent?.selection) {
+                        recordOperation('routing', 'selection', performanceData.agent.selection);
+                    }
+                    if (performanceData.agent?.execution) {
+                        recordOperation('routing', 'execution', performanceData.agent.execution);
+                    }
+                    if (performanceData.llm?.totalTime) {
+                        recordOperation('llm', 'streaming', performanceData.llm.totalTime, {
+                            ttft: performanceData.llm.ttft
+                        });
+                    }
+                    if (performanceData.database?.totalTime) {
+                        recordOperation('database', 'queries', performanceData.database.totalTime);
+                    }
+                }
                 
                 // Save response asynchronously
                 setImmediate(async () => {
@@ -572,6 +736,11 @@ const sessionConfig = {
 const sessionMiddleware = session(sessionConfig);
 
 const server = http.createServer(async (req, res) => {
+    // Apply performance monitoring if enabled
+    if (process.env.ENABLE_PERFORMANCE_MONITORING === 'true' && performanceMonitoringMiddleware) {
+        performanceMonitoringMiddleware(req, res, () => {});
+    }
+    
     // Apply session middleware to all requests
     try {
         await applyMiddleware(sessionMiddleware, req, res);
@@ -781,18 +950,24 @@ const server = http.createServer(async (req, res) => {
                         if (!sessionExists) {
                             // Auto-create session on first message
                             const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
+                            const userDatabaseId = req.isAuthenticated && req.user ? req.user.id : null;
                             await storageManager.createSession({
                                 sessionId: sessionId,
                                 title: data.message.substring(0, 50) + (data.message.length > 50 ? '...' : ''),
-                                userId: userId
+                                userId: userId,
+                                metadata: {
+                                    userDatabaseId: userDatabaseId
+                                }
                             });
                             console.log(`[Server] Auto-created session: ${sessionId} for user: ${userId}`);
                         }
                         
                         // Save user message with slash command metadata
                         const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
+                        const userDatabaseId = req.isAuthenticated && req.user ? req.user.id : null;
                         const userMessageMetadata = {
-                            userId: userId
+                            userId: userId,
+                            userDatabaseId: userDatabaseId
                         };
                         
                         // Add slash command metadata if present
@@ -1230,6 +1405,12 @@ const server = http.createServer(async (req, res) => {
                 res.end(JSON.stringify({ error: 'Invalid request' }));
             }
         });
+    } else if (req.url === '/api/performance/dashboard' && req.method === 'GET' && performanceDashboardHandler) {
+        // Performance dashboard
+        performanceDashboardHandler(req, res);
+    } else if (req.url === '/api/performance/clear' && req.method === 'POST' && clearPerformanceStats) {
+        // Clear performance stats
+        clearPerformanceStats(req, res);
     } else if (req.url === '/api/chats' && req.method === 'GET') {
         // List all chat sessions
         try {
