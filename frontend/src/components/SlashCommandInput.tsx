@@ -153,9 +153,36 @@ export const SlashCommandInput = forwardRef<HTMLInputElement, SlashCommandInputP
       }
     } else if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      
+      // Check if the input starts with a slash command
+      if (value.startsWith('/')) {
+        const spaceIndex = value.indexOf(' ');
+        if (spaceIndex > 0) {
+          const commandName = value.slice(1, spaceIndex);
+          const message = value.slice(spaceIndex + 1).trim();
+          
+          // Find the command in the available commands
+          const command = commands.find(cmd => 
+            cmd.name === commandName || cmd.aliases.includes(commandName)
+          );
+          
+          if (command && message) {
+            // Valid slash command with message - process it
+            console.log('[SlashCommandInput] Parsed slash command on Enter:', commandName, 'Message:', message);
+            onChange(message);
+            if (onSlashCommand) {
+              onSlashCommand(command, message);
+            }
+            setTimeout(() => onSubmit(), 0);
+            return;
+          }
+        }
+      }
+      
+      // No valid slash command found, submit as is
       onSubmit();
     }
-  }, [showDropdown, filteredCommands, selectedCommandIndex, onSubmit]);
+  }, [showDropdown, filteredCommands, selectedCommandIndex, onSubmit, value, commands, onChange, onSlashCommand]);
 
   // Handle tab completion
   const handleTabCompletion = useCallback(() => {

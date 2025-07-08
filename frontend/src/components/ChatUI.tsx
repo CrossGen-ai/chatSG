@@ -924,46 +924,87 @@ export const ChatUI: React.FC<ChatUIProps> = ({ sessionId }) => {
               setMessages(msgs => msgs.filter(msg => msg.id !== botMessageId));
               setDisplayedMessages(msgs => msgs.filter(msg => msg.id !== botMessageId));
             } else {
-              // Create final message object without streaming flag
-              const finalMessage: HybridMessage = {
-                id: botMessageId,
-                content: finalContent || 'I apologize, but I was unable to generate a response.',
-                sender: 'bot',
-                timestamp: new Date(),
-                agent: data.agent || currentStreamingAgent,
-                synced: false,
-                isStreaming: false, // Remove streaming flag
-                memoryStatus: data.memoryStatus
-              };
+              // Check if we should create a new message instead of updating
+              // This happens when we have tool messages after the initial status message
+              const currentBotMessage = messages.find(msg => msg.id === botMessageId);
+              const hasToolsAfterBot = messages.some((msg, index) => {
+                const botIndex = messages.findIndex(m => m.id === botMessageId);
+                return msg.sender === 'tool' && index > botIndex;
+              });
               
-              // Force immediate final content update to prevent disappearing text
-              setMessages(msgs => msgs.map(msg => 
-                msg.id === botMessageId ? { 
-                  ...msg, 
-                  content: finalContent, 
-                  agent: finalMessage.agent, 
+              if (hasToolsAfterBot && currentBotMessage?.content?.includes('Analyzing query')) {
+                // Keep the status message as is and create a new response message
+                const newResponseId = Date.now() + Math.random();
+                const responseMessage: HybridMessage = {
+                  id: newResponseId,
+                  content: finalContent || 'I apologize, but I was unable to generate a response.',
+                  sender: 'bot',
+                  timestamp: new Date(),
+                  agent: data.agent || currentStreamingAgent,
+                  synced: false,
                   isStreaming: false,
-                  memoryStatus: finalMessage.memoryStatus
-                } : msg
-              ));
-            
-              // Also update streaming message state to final content
-              if (String(originatingSessionId) === String(activeChatIdRef.current)) {
-                setStreamingMessage(finalContent);
-              }
+                  memoryStatus: data.memoryStatus
+                };
+                
+                // Add the new response message
+                setMessages(msgs => [...msgs, responseMessage]);
+                setDisplayedMessages(msgs => [...msgs, responseMessage]);
+                
+                // Save the new message
+                try {
+                  await saveChatMessage(originatingSessionId, responseMessage);
+                  markChatNewMessage(originatingSessionId, true, activeChatIdRef.current);
+                
+                  // Mark as read immediately (non-blocking)
+                  if (String(originatingSessionId) === String(activeChatIdRef.current)) {
+                    markChatAsRead(originatingSessionId)
+                      .catch(err => console.error('[ChatUI] Failed to mark as read:', err));
+                  }
+                } catch (error) {
+                  console.error('[ChatUI] Error saving message:', error);
+                }
+              } else {
+                // Original behavior: update the existing message
+                const finalMessage: HybridMessage = {
+                  id: botMessageId,
+                  content: finalContent || 'I apologize, but I was unable to generate a response.',
+                  sender: 'bot',
+                  timestamp: new Date(),
+                  agent: data.agent || currentStreamingAgent,
+                  synced: false,
+                  isStreaming: false,
+                  memoryStatus: data.memoryStatus
+                };
+                
+                // Force immediate final content update to prevent disappearing text
+                setMessages(msgs => msgs.map(msg => 
+                  msg.id === botMessageId ? { 
+                    ...msg, 
+                    content: finalContent, 
+                    agent: finalMessage.agent, 
+                    isStreaming: false,
+                    memoryStatus: finalMessage.memoryStatus
+                  } : msg
+                ));
               
-              // Save to hybrid storage
-              try {
-                await saveChatMessage(originatingSessionId, finalMessage);
-                markChatNewMessage(originatingSessionId, true, activeChatIdRef.current);
-              
-              // Mark as read immediately (non-blocking)
-              if (String(originatingSessionId) === String(activeChatIdRef.current)) {
-                markChatAsRead(originatingSessionId)
-                  .catch(err => console.error('[ChatUI] Failed to mark as read:', err));
-              }
-              } catch (error) {
-                console.error('[ChatUI] Error saving message:', error);
+                // Also update streaming message state to final content
+                if (String(originatingSessionId) === String(activeChatIdRef.current)) {
+                  setStreamingMessage(finalContent);
+                }
+                
+                // Save to hybrid storage
+                try {
+                  await saveChatMessage(originatingSessionId, finalMessage);
+                  markChatNewMessage(originatingSessionId, true, activeChatIdRef.current);
+                
+                  // Mark as read immediately (non-blocking)
+                  if (String(originatingSessionId) === String(activeChatIdRef.current)) {
+                    markChatAsRead(originatingSessionId)
+                      .catch(err => console.error('[ChatUI] Failed to mark as read:', err));
+                  }
+                } catch (error) {
+                  console.error('[ChatUI] Error saving message:', error);
+                }
               }
             }
             
