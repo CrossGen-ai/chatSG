@@ -16,6 +16,7 @@ import {
   CRMWorkflowHelper
 } from './workflow';
 import { InsightlyApiTool, ContactManagerTool, OpportunityTool } from '../../../tools/crm';
+import { LeadManagerTool } from '../../../tools/crm/LeadManagerTool';
 import { StateGraph, END } from '@langchain/langgraph';
 import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
 
@@ -27,6 +28,7 @@ export class CRMAgent extends AbstractBaseAgent {
   private apiTool: InsightlyApiTool;
   private contactTool: ContactManagerTool;
   private opportunityTool: OpportunityTool;
+  private leadTool: LeadManagerTool;
   private llm: any; // LLM for intelligent query analysis
   private isInitialized = false;
 
@@ -42,6 +44,7 @@ export class CRMAgent extends AbstractBaseAgent {
     this.apiTool = new InsightlyApiTool();
     this.contactTool = new ContactManagerTool();
     this.opportunityTool = new OpportunityTool();
+    this.leadTool = new LeadManagerTool();
   }
 
   /**
@@ -71,6 +74,7 @@ export class CRMAgent extends AbstractBaseAgent {
       await this.apiTool.initialize();
       await this.contactTool.initialize();
       await this.opportunityTool.initialize();
+      await this.leadTool.initialize();
 
       // Create workflow
       this.workflow = await this.createWorkflowGraph();
@@ -215,14 +219,14 @@ export class CRMAgent extends AbstractBaseAgent {
               streamCallback: state.streamCallback
             };
             
-            const result = await this.contactTool.execute({
+            // Use the parameters directly from the tool orchestration plan
+            const params = {
               action: 'search',
-              query: toolCall.parameters.field_value,
-              options: { 
-                limit: toolCall.parameters.limit || 20,
-                sortBy: toolCall.parameters.sortBy
-              }
-            }, toolContext);
+              query: toolCall.parameters.query || '*',
+              options: toolCall.parameters.options || {}
+            };
+            
+            const result = await this.contactTool.execute(params, toolContext);
             
             if (result.success && result.data) {
               retrievedData.contacts = result.data.contacts;
@@ -254,6 +258,43 @@ export class CRMAgent extends AbstractBaseAgent {
               }
             }
             toolsUsed.push('contact-manager');
+          } else if (toolCall.toolName === 'searchLeads') {
+            // Create context with streaming callback
+            const toolContext = {
+              sessionId: state.sessionId,
+              agentName: 'CRMAgent',
+              streamCallback: state.streamCallback
+            };
+            
+            // Use the parameters directly from the tool orchestration plan
+            const params = {
+              action: 'search',
+              query: toolCall.parameters.query || '*',
+              options: toolCall.parameters.options || {}
+            };
+            
+            const result = await this.leadTool.execute(params, toolContext);
+            
+            if (result.success && result.data) {
+              retrievedData.leads = result.data.leads;
+              // If this is a detailed view and we found leads, get details
+              if (state.queryUnderstanding.searchStrategy.needsDetailedView && 
+                  retrievedData.leads && retrievedData.leads.length > 0) {
+                const lead = retrievedData.leads[0];
+                
+                // Get detailed lead info
+                const detailsResult = await this.leadTool.execute({
+                  action: 'getDetails',
+                  query: lead.id.toString()
+                }, toolContext);
+                
+                if (detailsResult.success && detailsResult.data) {
+                  retrievedData.leads = [detailsResult.data.lead];
+                  retrievedData.isDetailedView = true;
+                }
+              }
+            }
+            toolsUsed.push('lead-manager');
           }
         } catch (toolError) {
           console.error(`[CRMAgent] Tool execution failed for ${toolCall.toolName}:`, toolError);
@@ -294,24 +335,19 @@ export class CRMAgent extends AbstractBaseAgent {
     try {
       let response: string;
       
-      if (state.retrievedData && Object.keys(state.retrievedData).length > 0) {
-        // Use LLM to format results
-        response = await CRMWorkflowHelper.formatResultsWithLLM(
-          originalQuery,
-          state.queryUnderstanding,
-          state.retrievedData,
-          this.llm
-        );
-      } else if (state.errors.length > 0) {
+      if (state.errors.length > 0) {
         response = 'I encountered some issues while searching the CRM:\n' +
           state.errors.map(e => `• ${e}`).join('\n') +
           '\n\nPlease try rephrasing your query or check your search criteria.';
       } else {
-        response = 'I couldn\'t find any matching records in the CRM. ' +
-          'Please try:\n' +
-          '• Using different search terms\n' +
-          '• Checking the spelling of names or email addresses\n' +
-          '• Being more specific about what you\'re looking for';
+        // Always use LLM to format results, even for empty results
+        // This ensures we get context-aware messages for "latest", "yesterday", etc.
+        response = await CRMWorkflowHelper.formatResultsWithLLM(
+          originalQuery,
+          state.queryUnderstanding,
+          state.retrievedData || { contacts: [] },
+          this.llm
+        );
       }
       
       const responseMetadata = {
@@ -399,8 +435,11 @@ export class CRMAgent extends AbstractBaseAgent {
         timestamp: new Date().toISOString(),
         metadata: {
           agent: 'CRMAgent',
-          queryIntent: 'customer_lookup',
+          queryIntent: result.queryUnderstanding?.userIntent || 'customer_lookup',
+          queryUnderstanding: result.queryUnderstanding,
+          toolOrchestrationPlan: result.toolOrchestrationPlan,
           confidence: result.confidenceScore,
+          confidenceScore: result.confidenceScore,
           recordCount: result.responseMetadata?.recordCount || 0,
           toolsUsed: result.toolsUsed,
           processingTime: result.processingTime,
@@ -488,6 +527,7 @@ export class CRMAgent extends AbstractBaseAgent {
     await this.apiTool.cleanup?.();
     await this.contactTool.cleanup?.();
     await this.opportunityTool.cleanup?.();
+    await this.leadTool.cleanup?.();
     this.isInitialized = false;
     console.log('[CRMAgent] Cleanup complete');
   }

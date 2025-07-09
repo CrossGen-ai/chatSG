@@ -244,7 +244,18 @@ export class InsightlyApiTool extends BaseTool {
       queryParams.append('field_name', 'PHONE');
       queryParams.append('field_value', params.phone);
     }
-    // If no specific search criteria, get all contacts
+    // If no specific search criteria, get all contacts with optional date filtering
+
+    // Apply date filtering (only works on base /Contacts endpoint, not /Search)
+    if (endpoint === '/Contacts') {
+      if (params.updatedAfter) {
+        queryParams.append('updated_after_utc', params.updatedAfter);
+      }
+      if (params.createdAfter) {
+        // Note: API may not support created_after_utc, but let's try
+        queryParams.append('created_after_utc', params.createdAfter);
+      }
+    }
 
     // Apply pagination
     const limit = Math.min(params.limit || this.crmConfig.maxPageSize, this.crmConfig.maxPageSize);
@@ -273,11 +284,60 @@ export class InsightlyApiTool extends BaseTool {
     // Execute request
     const response = await this.client.get<InsightlyContact[]>(`${endpoint}?${queryParams}`);
     
+    let items = response.data;
+    
+    // Apply client-side sorting if requested (since API doesn't support orderBy)
+    if (params.orderBy && items.length > 0) {
+      const [field, direction] = params.orderBy.split(' ');
+      const isDesc = direction?.toLowerCase() === 'desc';
+      
+      console.log(`[InsightlyApiTool] Sorting ${items.length} contacts by ${field} ${direction}`);
+      
+      items = [...items].sort((a, b) => {
+        let aVal: any;
+        let bVal: any;
+        
+        // Map common sort fields
+        switch (field.toUpperCase()) {
+          case 'DATE_CREATED_UTC':
+            // Handle Insightly date format: "2016-10-10 20:33:00" -> ISO format
+            aVal = a.DATE_CREATED_UTC ? new Date(a.DATE_CREATED_UTC.replace(' ', 'T') + 'Z').getTime() : 0;
+            bVal = b.DATE_CREATED_UTC ? new Date(b.DATE_CREATED_UTC.replace(' ', 'T') + 'Z').getTime() : 0;
+            break;
+          case 'DATE_UPDATED_UTC':
+            aVal = a.DATE_UPDATED_UTC ? new Date(a.DATE_UPDATED_UTC.replace(' ', 'T') + 'Z').getTime() : 0;
+            bVal = b.DATE_UPDATED_UTC ? new Date(b.DATE_UPDATED_UTC.replace(' ', 'T') + 'Z').getTime() : 0;
+            break;
+          case 'FIRST_NAME':
+            aVal = a.FIRST_NAME || '';
+            bVal = b.FIRST_NAME || '';
+            break;
+          case 'LAST_NAME':
+            aVal = a.LAST_NAME || '';
+            bVal = b.LAST_NAME || '';
+            break;
+          default:
+            aVal = (a as any)[field] || '';
+            bVal = (b as any)[field] || '';
+        }
+        
+        if (aVal < bVal) return isDesc ? 1 : -1;
+        if (aVal > bVal) return isDesc ? -1 : 1;
+        return 0;
+      });
+      
+      // Log the first few sorted results for debugging
+      console.log(`[InsightlyApiTool] Top 3 sorted results:`);
+      items.slice(0, 3).forEach((item, idx) => {
+        console.log(`  ${idx + 1}. ${item.FIRST_NAME} ${item.LAST_NAME} - Created: ${item.DATE_CREATED_UTC}`);
+      });
+    }
+    
     return {
-      items: response.data,
-      total: response.data.length,
-      hasMore: response.data.length === limit,
-      nextSkip: params.skip ? params.skip + response.data.length : response.data.length
+      items,
+      total: items.length,
+      hasMore: items.length === limit,
+      nextSkip: params.skip ? params.skip + items.length : items.length
     };
   }
 
@@ -342,32 +402,27 @@ export class InsightlyApiTool extends BaseTool {
    */
   async searchLeads(params: LeadSearchParams): Promise<CRMSearchResult<InsightlyLead>> {
     const queryParams = new URLSearchParams();
-    const filters: string[] = [];
-
-    // Build filter conditions
-    if (params.name) {
-      filters.push(`(contains(FIRST_NAME,'${params.name}') or contains(LAST_NAME,'${params.name}'))`);
-    }
+    
+    // Use Insightly's search endpoint with field_name/field_value pattern
+    let endpoint = '/Leads';
+    
     if (params.email) {
-      filters.push(`EMAIL eq '${params.email}'`);
+      // Search by email using the search endpoint
+      endpoint = '/Leads/Search';
+      queryParams.append('field_name', 'EMAIL');
+      queryParams.append('field_value', params.email);
+    } else if (params.name) {
+      // For name search, try FIRST_NAME first
+      endpoint = '/Leads/Search';
+      queryParams.append('field_name', 'FIRST_NAME');
+      queryParams.append('field_value', params.name);
+    } else if (params.company) {
+      // Search by organization name
+      endpoint = '/Leads/Search';
+      queryParams.append('field_name', 'ORGANISATION_NAME');
+      queryParams.append('field_value', params.company);
     }
-    if (params.company) {
-      filters.push(`contains(ORGANISATION_NAME,'${params.company}')`);
-    }
-    if (params.statusId) {
-      filters.push(`LEAD_STATUS_ID eq ${params.statusId}`);
-    }
-    if (params.sourceId) {
-      filters.push(`LEAD_SOURCE_ID eq ${params.sourceId}`);
-    }
-    if (params.ratingRange) {
-      filters.push(`(LEAD_RATING ge ${params.ratingRange.min} and LEAD_RATING le ${params.ratingRange.max})`);
-    }
-
-    // Apply filters
-    if (filters.length > 0) {
-      queryParams.append('$filter', filters.join(' and '));
-    }
+    // If no specific search criteria, get all leads
 
     // Apply pagination
     const limit = Math.min(params.limit || this.crmConfig.maxPageSize, this.crmConfig.maxPageSize);
@@ -376,15 +431,82 @@ export class InsightlyApiTool extends BaseTool {
       queryParams.append('skip', params.skip.toString());
     }
 
+    console.log('[InsightlyApiTool] Searching leads with params:', {
+      endpoint,
+      limit,
+      searchField: queryParams.get('field_name'),
+      searchValue: queryParams.get('field_value'),
+      fullUrl: `${endpoint}?${queryParams}`
+    });
+
     // Execute request
-    const response = await this.client.get<InsightlyLead[]>(`/Leads?${queryParams}`);
+    const response = await this.client.get<InsightlyLead[]>(`${endpoint}?${queryParams}`);
+    
+    let items = response.data;
+    
+    // Apply client-side sorting if requested
+    if (params.orderBy && items.length > 0) {
+      const [field, direction] = params.orderBy.split(' ');
+      const isDesc = direction?.toLowerCase() === 'desc';
+      
+      console.log(`[InsightlyApiTool] Sorting ${items.length} leads by ${field} ${direction}`);
+      
+      items = [...items].sort((a, b) => {
+        let aVal: any;
+        let bVal: any;
+        
+        switch (field.toUpperCase()) {
+          case 'DATE_CREATED_UTC':
+            aVal = a.DATE_CREATED_UTC ? new Date(a.DATE_CREATED_UTC.replace(' ', 'T') + 'Z').getTime() : 0;
+            bVal = b.DATE_CREATED_UTC ? new Date(b.DATE_CREATED_UTC.replace(' ', 'T') + 'Z').getTime() : 0;
+            break;
+          case 'DATE_UPDATED_UTC':
+            aVal = a.DATE_UPDATED_UTC ? new Date(a.DATE_UPDATED_UTC.replace(' ', 'T') + 'Z').getTime() : 0;
+            bVal = b.DATE_UPDATED_UTC ? new Date(b.DATE_UPDATED_UTC.replace(' ', 'T') + 'Z').getTime() : 0;
+            break;
+          case 'LEAD_RATING':
+            aVal = a.LEAD_RATING || 0;
+            bVal = b.LEAD_RATING || 0;
+            break;
+          case 'FIRST_NAME':
+            aVal = a.FIRST_NAME || '';
+            bVal = b.FIRST_NAME || '';
+            break;
+          case 'LAST_NAME':
+            aVal = a.LAST_NAME || '';
+            bVal = b.LAST_NAME || '';
+            break;
+          default:
+            aVal = (a as any)[field] || '';
+            bVal = (b as any)[field] || '';
+        }
+        
+        if (aVal < bVal) return isDesc ? 1 : -1;
+        if (aVal > bVal) return isDesc ? -1 : 1;
+        return 0;
+      });
+      
+      // Log the first few sorted results
+      console.log(`[InsightlyApiTool] Top 3 sorted leads:`);
+      items.slice(0, 3).forEach((item, idx) => {
+        console.log(`  ${idx + 1}. ${item.FIRST_NAME} ${item.LAST_NAME} - Created: ${item.DATE_CREATED_UTC}`);
+      });
+    }
     
     return {
-      items: response.data,
-      total: response.data.length,
-      hasMore: response.data.length === limit,
-      nextSkip: params.skip ? params.skip + response.data.length : response.data.length
+      items,
+      total: items.length,
+      hasMore: items.length === limit,
+      nextSkip: params.skip ? params.skip + items.length : items.length
     };
+  }
+
+  /**
+   * Get a single lead by ID
+   */
+  async getLead(id: number): Promise<InsightlyLead> {
+    const response = await this.client.get<InsightlyLead>(`/Leads/${id}`);
+    return response.data;
   }
 
   /**

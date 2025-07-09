@@ -105,6 +105,11 @@ export interface ContactSearchParams {
   limit?: number;
   skip?: number;
   orderBy?: string;
+  // Date filtering options
+  updatedAfter?: string; // ISO 8601 date format
+  createdAfter?: string; // ISO 8601 date format
+  updatedBefore?: string; // ISO 8601 date format
+  createdBefore?: string; // ISO 8601 date format
 }
 
 export interface OpportunitySearchParams {

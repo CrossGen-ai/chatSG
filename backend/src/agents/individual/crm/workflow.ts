@@ -124,24 +124,53 @@ export const CRM_LLM_PROMPTS = {
 User Query: "{query}"
 
 Analyze this query and return a JSON response with:
-1. userIntent: What the user wants to accomplish (e.g., "find contact details", "get full profile", "search by email")
+1. userIntent: What the user wants to accomplish. Common intents:
+   - "find_latest_contact" - wants the most recently added contact(s)
+   - "find_contacts_by_timeframe" - wants contacts from a specific time period
+   - "find_contact_by_email" - searching by email
+   - "find_contact_by_name" - searching by name
+   - "find_top_contacts" - wants best/highest scoring contacts
+   - "get_contact_details" - wants full profile information
+
 2. extractedInfo: Any specific information provided:
    - names: Array of person names mentioned
    - emails: Array of email addresses mentioned
    - companies: Array of company names mentioned
    - identifiers: Array of any other identifiers (IDs, phone numbers)
+   - entityType: "lead" if query mentions lead/prospect, "contact" if mentions contact/customer/client
+   - timeReferences: Object with time-based criteria:
+     * latest: true if wants most recent (latest, newest, most recent)
+     * timeframe: "today", "yesterday", "this_week", "last_month", "last_n_days", etc.
+     * dateRange: { start: "ISO date", end: "ISO date" }
+     * count: number if specified (e.g., "latest 5 contacts")
+
 3. searchStrategy: How to best find what they want:
-   - primaryApproach: The best search method to try first
-   - fallbackApproaches: Alternative search methods if primary fails
-   - needsDetailedView: true if they want comprehensive/full details
+   - primaryApproach: The best search method:
+     * "get_all_sort_by_date" - for latest/newest queries
+     * "filter_by_date_range" - for time-based queries
+     * "search_by_field" - for specific field searches
+   - sortingRequired: true if results need sorting
+   - sortBy: "created_desc", "created_asc", "updated_desc", etc.
+   - limit: number of results to return
+   - needsDetailedView: true if they want comprehensive details
+
 4. confidence: How confident you are (0-1)
 
-Be flexible with typos and variations. Focus on understanding intent rather than exact matching.
+IMPORTANT: For "latest", "newest", "most recent" queries:
+- Set timeReferences.latest = true
+- Set primaryApproach = "get_all_sort_by_date"
+- Set sortingRequired = true and sortBy = "created_desc"
+- NEVER search for "latest" as a name!
+
+For superlative queries ("best", "top", "highest"):
+- Set primaryApproach = "get_all_sort_by_score"
+- Note: Lead score is calculated client-side, so we need to get all contacts
+- Don't set needsDetailedView = true unless they explicitly ask for details
 
 Examples:
-- "give be the full details of peter kelly" → names: ["peter kelly"], needsDetailedView: true
-- "find contact peter.kelly@company.com" → emails: ["peter.kelly@company.com"]
-- "search for john at Microsoft" → names: ["john"], companies: ["Microsoft"]
+- "Who is the latest lead added?" → userIntent: "find_latest_contact", timeReferences: {latest: true}, sortBy: "created_desc"
+- "Show contacts from yesterday" → userIntent: "find_contacts_by_timeframe", timeReferences: {timeframe: "yesterday"}
+- "Find john.doe@example.com" → userIntent: "find_contact_by_email", emails: ["john.doe@example.com"]
 
 Return only valid JSON.`,
 
@@ -149,43 +178,87 @@ Return only valid JSON.`,
 
 Query Understanding: {queryUnderstanding}
 
-Available CRM Tools:
-1. searchContacts(field_name, field_value) - Search contacts by specific field
-   - field_name options: "FIRST_NAME", "LAST_NAME", "EMAIL_ADDRESS", "ORGANISATION_NAME"
-   - Best for finding contacts when you have specific info
-2. getContact(id) - Get full contact details by ID
-   - Use when you have contact ID from previous search
-3. getContactOpportunities(contact_id) - Get opportunities for a contact
-   - Use for detailed views or when user wants to see deals
+Available Tools:
 
-Create a tool execution plan with multiple strategies:
+1. ContactManagerTool - For established contacts/customers
+   - action: "search" with query and options (sortBy, dateFilter, limit)
+   - action: "getDetails" for full contact info
+   - action: "getOpportunities" for contact's deals
 
-For names like "peter kelly":
-- Try FIRST_NAME: "peter" (most likely to work)
-- Try LAST_NAME: "kelly" (fallback)
-- Try combined searches if needed
+2. LeadManagerTool - For leads/prospects (not yet converted)
+   - action: "search" with query and options (sortBy, dateFilter, limit)
+   - action: "getDetails" for full lead info
+   - action: "getScore" for lead scoring
 
-For detailed views:
-- First find the contact
-- Then get full details via getContact
-- Then get opportunities via getContactOpportunities
+IMPORTANT: Choose the right tool based on the query:
+- "lead", "prospect", "new lead" → Use LeadManagerTool with toolName: "searchLeads"
+- "contact", "customer", "client" → Use ContactManagerTool with toolName: "searchContacts"
+- If ambiguous, prefer LeadManagerTool for "newest/latest" queries since users often mean new prospects
 
-Return JSON with:
+IMPORTANT RULES FOR TIME-BASED QUERIES:
+- For "latest", "newest", "most recent": Use query: "*" with sortBy: "created_desc"
+- For date ranges: Use query: "*" with appropriate dateFilter
+- NEVER use "latest" or "recent" as the search query value!
+
+Create a tool execution plan based on the search strategy:
+
+For "get_all_sort_by_date" (latest/newest queries):
+- If query mentions "lead": use toolName: "searchLeads"
+- Otherwise: use toolName: "searchContacts"
+
+Example for latest lead:
 {
-  "toolSequence": [
-    {
-      "toolName": "searchContacts",
-      "parameters": {"field_name": "FIRST_NAME", "field_value": "peter"},
-      "reason": "Primary search by first name"
+  "toolSequence": [{
+    "toolName": "searchLeads",
+    "parameters": {
+      "query": "*",
+      "options": {
+        "sortBy": "created_desc",
+        "limit": 1
+      }
     },
-    {
-      "toolName": "getContact", 
-      "parameters": {"id": "{{contact_id_from_previous}}"},
-      "reason": "Get full contact details for detailed view"
-    }
-  ],
-  "expectedOutcome": "Find Peter Kelly and return comprehensive profile"
-}`,
+    "reason": "Get all leads sorted by creation date to find the latest"
+  }]
+}
+
+For "filter_by_date_range" (time-based queries), map timeframe to dateFilter:
+- "yesterday" → {"type": "yesterday"}
+- "today" → {"type": "today"}
+- "this_week" → {"type": "this_week"}
+- "last_month" → {"type": "last_month"}
+- "last_24_hours" → {"type": "last_n_days", "days": 1}
+- "last_7_days" → {"type": "last_n_days", "days": 7}
+
+Example:
+{
+  "toolSequence": [{
+    "toolName": "searchContacts", 
+    "parameters": {
+      "query": "*",
+      "options": {
+        "dateFilter": {
+          "type": "yesterday"
+        },
+        "sortBy": "created_desc"
+      }
+    },
+    "reason": "Get contacts from yesterday"
+  }]
+}
+
+For "search_by_field" (specific searches):
+{
+  "toolSequence": [{
+    "toolName": "searchContacts",
+    "parameters": {
+      "query": "john.doe@example.com",
+      "options": {}
+    },
+    "reason": "Search for contact by email"
+  }]
+}
+
+Return only valid JSON.`,
 
   RESULT_FORMATTING: `You are a CRM response formatter. Create a user-friendly response based on the results.
 
@@ -194,12 +267,24 @@ Query Understanding: {queryUnderstanding}
 Search Results: {searchResults}
 
 Format the response appropriately:
-- For detailed views: Show comprehensive contact info, opportunities, insights
-- For searches: Show list of matching contacts with key info
-- For no results: Provide helpful suggestions
 
-Be conversational and helpful. Use emojis and formatting to make it readable.
-If this was a detailed view request, ensure you show comprehensive information.`
+For successful results:
+- Latest/newest queries: "The most recently added contact is [name] (added on [date])"
+- Time-based queries: "Here are the contacts added [timeframe]: ..."
+- Superlative queries: "The top contact by [metric] is..."
+- Regular searches: Show list of matching contacts with key info
+
+For no results, be specific about what was searched:
+- Latest/newest with no results: "I searched for the most recently added contacts, but the database appears to be empty. No contacts have been added yet."
+- Time-based with no results: "No contacts were added [specific timeframe]. The most recent contact was added on [date] if available."
+- Search with no results: "No contacts found matching [search criteria]."
+
+NEVER say "we don't have any new leads" in a generic way. Always specify:
+1. What you searched for (all contacts sorted by creation date)
+2. What the actual result was (empty database or no matches)
+3. When the last contact was added if available
+
+Be conversational and helpful. Use emojis sparingly.`
 };
 
 /**

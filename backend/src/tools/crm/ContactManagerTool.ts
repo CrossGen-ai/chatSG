@@ -60,8 +60,13 @@ export class ContactManagerTool extends BaseTool {
    * Search contacts with intelligent query parsing
    */
   private async intelligentContactSearch(query: string, options?: any): Promise<EnrichedContact[]> {
+    // When sorting is requested, we need to fetch more records to sort properly
+    const needsSorting = options?.sortBy && options.sortBy !== 'none';
+    const requestedLimit = options?.limit || 20;
+    
     const searchParams: ContactSearchParams = {
-      limit: options?.limit || 20
+      // If sorting, fetch more records to ensure we get the right ones
+      limit: needsSorting ? Math.max(requestedLimit * 10, 100) : requestedLimit
     };
 
     // Parse query for email pattern
@@ -115,11 +120,60 @@ export class ContactManagerTool extends BaseTool {
       }
     }
     
+    // Add date filtering if specified
+    if (options?.dateFilter) {
+      const now = new Date();
+      const { type, days, startDate, endDate } = options.dateFilter;
+      
+      switch (type) {
+        case 'last_n_days':
+          if (days) {
+            const daysAgo = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
+            searchParams.createdAfter = daysAgo.toISOString();
+          }
+          break;
+        case 'today':
+          const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          searchParams.createdAfter = todayStart.toISOString();
+          break;
+        case 'yesterday':
+          const yesterday = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+          const yesterdayStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+          const yesterdayEnd = new Date(yesterdayStart.getTime() + (24 * 60 * 60 * 1000) - 1);
+          searchParams.createdAfter = yesterdayStart.toISOString();
+          searchParams.createdBefore = yesterdayEnd.toISOString();
+          break;
+        case 'this_week':
+          const weekStart = new Date(now);
+          weekStart.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
+          weekStart.setHours(0, 0, 0, 0);
+          searchParams.createdAfter = weekStart.toISOString();
+          break;
+        case 'last_month':
+          const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+          searchParams.createdAfter = lastMonth.toISOString();
+          searchParams.createdBefore = lastMonthEnd.toISOString();
+          break;
+        case 'date_range':
+          if (startDate) searchParams.createdAfter = startDate;
+          if (endDate) searchParams.createdBefore = endDate;
+          break;
+      }
+    }
+    
     // Execute search
     const result = await this.apiTool.searchContacts(searchParams);
     
     // Enrich contacts
-    return Promise.all(result.items.map(contact => this.enrichContact(contact)));
+    let enrichedContacts = await Promise.all(result.items.map(contact => this.enrichContact(contact)));
+    
+    // If we fetched extra records for sorting, apply the requested limit after sorting
+    if (needsSorting && enrichedContacts.length > requestedLimit) {
+      enrichedContacts = enrichedContacts.slice(0, requestedLimit);
+    }
+    
+    return enrichedContacts;
   }
 
   /**
