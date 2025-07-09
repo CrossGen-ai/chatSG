@@ -88,7 +88,7 @@ export interface StreamingCallback {
 }
 
 export interface BaseAgent {
-  processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback): Promise<AgentResponse>;
+  processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback, userId?: number): Promise<AgentResponse>;
   getCapabilities(): AgentCapabilities;
   validateConfig(): ValidationResult;
   getInfo(): {
@@ -207,6 +207,7 @@ export interface OrchestrationContext {
   availableAgents: string[];
   conversationHistory?: any[];
   userPreferences?: Record<string, any>;
+  userId?: number;
 }
 
 export interface AgentSelection {

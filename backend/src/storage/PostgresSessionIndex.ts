@@ -21,8 +21,7 @@ export interface SessionIndexEntry {
         updatedAt: string;
         messageCount: number;
         status: SessionStatus;
-        userId?: string;
-        userDatabaseId?: number;
+        userId?: number;
         lastAgent?: string;
         agentHistory?: string[];
         lastActivity?: string;
@@ -33,8 +32,7 @@ export interface SessionIndexEntry {
 }
 
 export interface ListSessionsOptions {
-    userId?: string;
-    userDatabaseId?: number;
+    userId?: number;
     status?: SessionStatus | SessionStatus[];
     limit?: number;
     offset?: number;
@@ -64,7 +62,7 @@ export class PostgresSessionIndex {
     /**
      * Create a new session entry
      */
-    async createSession(sessionId: string, title?: string, userId?: string): Promise<SessionIndexEntry> {
+    async createSession(sessionId: string, title?: string, userId?: number): Promise<SessionIndexEntry> {
         const query = `
             INSERT INTO chat_sessions (id, user_id, title)
             VALUES ($1, $2, $3)
@@ -77,7 +75,7 @@ export class PostgresSessionIndex {
         try {
             const result = await this.pool.query(query, [
                 sessionId,
-                userId ? parseInt(userId) : null,
+                userId || null,
                 title || `Chat ${new Date().toLocaleDateString()}`
             ]);
             
@@ -238,7 +236,7 @@ export class PostgresSessionIndex {
         
         if (options?.userId) {
             conditions.push(`user_id = $${paramIndex++}`);
-            values.push(parseInt(options.userId));
+            values.push(options.userId);
         }
         
         const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -397,8 +395,7 @@ export class PostgresSessionIndex {
                 updatedAt: row.updated_at?.toISOString() || new Date().toISOString(),
                 messageCount: row.message_count || 0,
                 status: row.status as SessionStatus,
-                userId: row.user_id?.toString(),
-                userDatabaseId: row.user_database_id,
+                userId: row.user_id,
                 lastAgent: row.last_agent,
                 agentHistory: row.agent_history || [],
                 lastActivity: row.updated_at?.toISOString() || new Date().toISOString(),

@@ -43,7 +43,7 @@ export class FinancialAgent extends AbstractBaseAgent {
         }
     }
 
-    async processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback): Promise<AgentResponse> {
+    async processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback, userId?: number): Promise<AgentResponse> {
         try {
             if (!this.initialized) {
                 await this.initialize();
@@ -65,7 +65,7 @@ export class FinancialAgent extends AbstractBaseAgent {
                 };
             }
             const systemPrompt = this.getSystemPrompt();
-            const messages = await this.buildContextMessages(sessionId, input, systemPrompt);
+            const messages = await this.buildContextMessages(sessionId, input, systemPrompt, userId);
             if (streamCallback) {
                 let fullResponse = '';
                 const streamingLLM = this.llmHelper.createChatLLM({

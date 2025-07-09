@@ -18,7 +18,7 @@ import * as crypto from 'crypto';
 export interface CreateSessionOptions {
     sessionId?: string;
     title?: string;
-    userId?: string;
+    userId?: number;
     metadata?: Record<string, any>;
 }
 
@@ -140,7 +140,10 @@ export class StorageManager {
         // Ensure session exists
         const sessionExists = await this.sessionIndex.sessionExists(sessionId);
         if (!sessionExists) {
-            await this.createSession({ sessionId });
+            await this.createSession({ 
+                sessionId,
+                userId: metadata.userId
+            });
         }
         
         // Create message
@@ -162,8 +165,10 @@ export class StorageManager {
         if (this.mem0Service) {
             try {
                 const session = await this.sessionIndex.getSession(sessionId);
-                const userId = metadata.userId || session?.metadata?.userId || 'default';
-                await this.mem0Service.addMessage(message, sessionId, userId);
+                const userId = metadata.userId || session?.metadata?.userId;
+                if (userId) {
+                    await this.mem0Service.addMessage(message, sessionId, userId);
+                }
             } catch (error) {
                 console.error('[StorageManager] Failed to add message to Mem0:', error);
                 // Continue without Mem0 - don't fail the entire operation
@@ -208,7 +213,12 @@ export class StorageManager {
         // Ensure session exists
         const sessionExists = await this.sessionIndex.sessionExists(sessionId);
         if (!sessionExists) {
-            await this.createSession({ sessionId });
+            // Extract user info from first message to create session properly
+            const firstMessage = messages[0];
+            await this.createSession({ 
+                sessionId,
+                userId: typeof firstMessage?.metadata?.userId === 'number' ? firstMessage.metadata.userId : undefined
+            });
         }
         
         // Append all messages
@@ -220,15 +230,12 @@ export class StorageManager {
         if (this.mem0Service && messages.length > 0) {
             try {
                 const session = await this.sessionIndex.getSession(sessionId);
-                const userId = messages[0].metadata?.userId || 
-                              session?.metadata?.userId || 
-                              'default';
+                const userId = (typeof messages[0].metadata?.userId === 'number' ? messages[0].metadata.userId : undefined) || 
+                              session?.metadata?.userId;
                 
-                // Extract user database ID if available
-                const userDatabaseId = messages[0].metadata?.userDatabaseId ||
-                                      session?.metadata?.userDatabaseId;
-                
-                await this.mem0Service.addMessages(messages, sessionId, userId, userDatabaseId);
+                if (typeof userId === 'number') {
+                    await this.mem0Service.addMessages(messages, sessionId, userId);
+                }
             } catch (error) {
                 console.error('[StorageManager] Failed to add messages to Mem0:', error);
                 // Continue without Mem0 - don't fail the entire operation
@@ -303,7 +310,7 @@ export class StorageManager {
         // Use Mem0 for context retrieval - it handles intelligent compression
         try {
             const session = await this.sessionIndex.getSession(sessionId);
-            const userId = session?.metadata?.userId || 'default';
+            const userId = session?.metadata?.userId;
             const memories = await this.mem0Service.getSessionMemories(
                 sessionId, 
                 userId,
@@ -419,9 +426,10 @@ export class StorageManager {
         if (this.mem0Service) {
             try {
                 const session = await this.sessionIndex.getSession(sessionId);
-                const userId = session?.metadata?.userId || 'default';
-                const userDatabaseId = session?.metadata?.userDatabaseId;
-                await this.mem0Service.deleteSessionMemories(sessionId, userId, userDatabaseId);
+                const userId = session?.metadata?.userId;
+                if (userId) {
+                    await this.mem0Service.deleteSessionMemories(sessionId, userId);
+                }
             } catch (error) {
                 console.error('[StorageManager] Failed to delete session from Mem0:', error);
             }
@@ -504,7 +512,7 @@ export class StorageManager {
      */
     async getCrossSessionContext(
         currentSessionId: string, 
-        userId: string | undefined,
+        userId: number | undefined,
         options?: {
             maxMessages?: number;
             maxSessions?: number;
@@ -626,7 +634,8 @@ export class StorageManager {
     async getContextForQuery(
         query: string,
         sessionId: string,
-        systemPrompt?: string
+        systemPrompt?: string,
+        userId?: number
     ): Promise<Array<{role: string, content: string}>> {
         if (!this.mem0Service) {
             // Fallback to traditional context building
@@ -650,23 +659,44 @@ export class StorageManager {
         
         try {
             const session = await this.sessionIndex.getSession(sessionId);
-            const userId = session?.metadata?.userId || 'default';
-            const userDatabaseId = session?.metadata?.userDatabaseId;
             
-            // Get context from Mem0 based on the query
-            const contextMessages = await this.mem0Service.getContextForQuery(
+            // Use provided userId or fall back to session metadata
+            const finalUserId = userId || session?.metadata?.userId;
+            
+            console.log(`[StorageManager] Context query - SessionId: ${sessionId}, UserId: ${finalUserId}`);
+            
+            // Get cross-session memories from Mem0
+            const mem0Memories = await this.mem0Service.getContextForQuery(
                 query,
                 sessionId,
-                userId,
-                userDatabaseId,
+                finalUserId,
                 STORAGE_CONFIG.maxContextMessages
             );
             
+            // Get current session conversation history
+            const sessionMessages = await this.getContextMessages(sessionId);
+            
+            // Build complete context: system prompt + mem0 memories + session conversation
+            const contextMessages: Array<{role: string, content: string}> = [];
+            
             // Add system prompt if provided
             if (systemPrompt) {
-                contextMessages.unshift({ role: 'system', content: systemPrompt });
+                contextMessages.push({ role: 'system', content: systemPrompt });
             }
             
+            // Add cross-session memories from Mem0
+            contextMessages.push(...mem0Memories);
+            
+            // Add current session conversation history
+            sessionMessages.forEach(msg => {
+                contextMessages.push({
+                    role: msg.type === 'user' ? 'user' : 
+                          msg.type === 'assistant' ? 'assistant' : 'system',
+                    content: msg.content
+                });
+            });
+            
+            console.log(`[StorageManager] Built complete context: ${mem0Memories.length} memories + ${sessionMessages.length} session messages`);
             return contextMessages;
         } catch (error) {
             console.error('[StorageManager] Failed to get context from Mem0:', error);

@@ -29,9 +29,10 @@ export interface BaseAgent {
      * @param input - The user's input message
      * @param sessionId - Session identifier for conversation context
      * @param streamCallback - Optional callback for streaming responses
+     * @param userId - Optional user ID for memory context
      * @returns Promise resolving to agent response
      */
-    processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback): Promise<AgentResponse>;
+    processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback, userId?: number): Promise<AgentResponse>;
 
     /**
      * Get agent capabilities and metadata
@@ -102,7 +103,7 @@ export abstract class AbstractBaseAgent implements BaseAgent {
         this.type = type;
     }
 
-    abstract processMessage(input: string, sessionId: string): Promise<AgentResponse>;
+    abstract processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback, userId?: number): Promise<AgentResponse>;
     abstract getCapabilities(): AgentCapabilities;
     abstract validateConfig(): ValidationResult;
 
@@ -144,7 +145,8 @@ export abstract class AbstractBaseAgent implements BaseAgent {
     protected async buildContextMessages(
         sessionId: string, 
         currentInput: string,
-        systemPrompt: string
+        systemPrompt: string,
+        userId?: number
     ): Promise<ContextMessage[]> {
         const storageManager = getStorageManager();
         const stateManager = getStateManager();
@@ -175,7 +177,8 @@ export abstract class AbstractBaseAgent implements BaseAgent {
                 const contextPromise = storageManager.getContextForQuery(
                     currentInput,
                     sessionId,
-                    enhancedSystemPrompt
+                    enhancedSystemPrompt,
+                    userId
                 );
                 
                 // Create a timeout promise that resolves with minimal context

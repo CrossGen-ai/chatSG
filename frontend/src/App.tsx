@@ -6,6 +6,8 @@ import { ChatSidebar } from './components/ChatSidebar';
 import { IconSidebar } from './components/IconSidebar';
 import { MemorySidebar, MemoryType } from './components/MemoryVisualization/MemorySidebar';
 import { MemoryVisualizationView } from './components/MemoryVisualization/MemoryVisualizationView';
+import { PerformanceSidebar } from './components/Performance/PerformanceSidebar';
+import { PerformancePanel } from './components/Performance/PerformancePanel';
 import { useUIPreferences } from './hooks/useUIPreferences';
 import { ChatManagerProvider, useChatManager } from './hooks/useChatManager';
 import { ChatSettingsProvider } from './hooks/useChatSettings';
@@ -65,6 +67,7 @@ function AppContent() {
           updatePreferences({
             sidebarOpen: true,
             memoryPanelOpen: false,
+            performancePanelOpen: false,
             currentView: 'chat'
           });
         }} 
@@ -72,7 +75,16 @@ function AppContent() {
           updatePreferences({
             memoryPanelOpen: true,
             sidebarOpen: false,
+            performancePanelOpen: false,
             currentView: 'memory'
+          });
+        }}
+        onOpenPerformancePanel={() => {
+          updatePreferences({
+            performancePanelOpen: true,
+            sidebarOpen: false,
+            memoryPanelOpen: false,
+            currentView: 'performance'
           });
         }}
         currentView={preferences.currentView}
@@ -82,7 +94,8 @@ function AppContent() {
       {/* Main content */}
       <div className={`relative z-10 h-screen flex flex-col ${
         (preferences.currentView === 'chat' && preferences.sidebarOpen && preferences.sidebarPinned) ||
-        (preferences.currentView === 'memory' && preferences.memoryPanelOpen && preferences.memoryPanelPinned)
+        (preferences.currentView === 'memory' && preferences.memoryPanelOpen && preferences.memoryPanelPinned) ||
+        (preferences.currentView === 'performance' && preferences.performancePanelOpen && preferences.performancePanelPinned)
           ? 'ml-[440px]' 
           : 'ml-[60px]'
       }`}>
@@ -134,11 +147,13 @@ function AppContent() {
                       </div>
                     </div>
                   )
-                ) : (
+                ) : preferences.currentView === 'memory' ? (
                   <MemoryVisualizationView 
                     activeMemoryType={activeMemoryType}
                     selectedUserId={selectedMemoryUserId || user?.id || ''}
                   />
+                ) : (
+                  <PerformancePanel />
                 )}
               </div>
             </div>
@@ -209,6 +224,18 @@ function AppContent() {
             onMemoryTypeChange={setActiveMemoryType}
             selectedUserId={selectedMemoryUserId || user?.id || ''}
             onUserSelect={setSelectedMemoryUserId}
+          />
+        </div>
+      )}
+      
+      {/* Performance Sidebar - only show when in performance view */}
+      {preferences.currentView === 'performance' && (
+        <div className={`${preferences.performancePanelPinned ? 'fixed left-[60px] top-0' : ''}`}>
+          <PerformanceSidebar 
+            isOpen={preferences.performancePanelOpen} 
+            onClose={() => updatePreference('performancePanelOpen', false)}
+            isPinned={preferences.performancePanelPinned}
+            onTogglePin={() => updatePreference('performancePanelPinned', !preferences.performancePanelPinned)}
           />
         </div>
       )}

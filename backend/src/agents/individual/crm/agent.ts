@@ -347,7 +347,7 @@ export class CRMAgent extends AbstractBaseAgent {
   /**
    * Process a message using the new LLM-driven workflow
    */
-  async processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback): Promise<AgentResponse> {
+  async processMessage(input: string, sessionId: string, streamCallback?: StreamingCallback, userId?: number): Promise<AgentResponse> {
     try {
       // Ensure initialized
       if (!this.isInitialized) {
@@ -359,7 +359,7 @@ export class CRMAgent extends AbstractBaseAgent {
         'analyze sales pipelines, and manage opportunities. Be concise and data-focused.';
       
       // Use buildContextMessages to load memories
-      const contextMessagesRaw = await this.buildContextMessages(sessionId, input, systemPrompt);
+      const contextMessagesRaw = await this.buildContextMessages(sessionId, input, systemPrompt, userId);
       
       // Convert to LangChain message format
       const contextMessages = contextMessagesRaw.map(msg => {

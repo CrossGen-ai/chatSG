@@ -156,7 +156,7 @@ export async function getPostgresSessionData(
  * Get Qdrant vector memories for visualization
  */
 export async function getQdrantMemories(
-  userId: string,
+  userId: number,
   sessionId?: string,
   limit: number = 1000
 ): Promise<QdrantVisualizationData[]> {
@@ -176,12 +176,12 @@ export async function getQdrantMemories(
     // Get all memories for the user
     let memories;
     if (sessionId) {
-      memories = await memoryService.getSessionMemories(sessionId, userId, undefined, limit);
+      memories = await memoryService.getSessionMemories(sessionId, userId, limit);
     } else {
       // Get all memories for the user across all sessions by passing empty sessionId
       const mem0 = memoryService as any;
       const options = {
-        userId: userId || 'default',
+        userId: userId?.toString() || 'default',
         limit: limit || 1000
       };
       const result = await mem0.memory.getAll(options);
@@ -228,7 +228,7 @@ export async function getQdrantMemories(
  * Get Neo4j graph memories for visualization
  */
 export async function getNeo4jGraphMemories(
-  userId: string,
+  userId: number,
   sessionId?: string,
   limit: number = 500
 ): Promise<Neo4jVisualizationData[]> {
@@ -239,12 +239,12 @@ export async function getNeo4jGraphMemories(
     // Get memories from mem0 service
     let memories;
     if (sessionId) {
-      memories = await memoryService.getSessionMemories(sessionId, userId, undefined, limit);
+      memories = await memoryService.getSessionMemories(sessionId, userId, limit);
     } else {
       // Get all memories for the user across all sessions by passing empty sessionId
       const mem0 = memoryService as any;
       const options = {
-        userId: userId || 'default',
+        userId: userId?.toString() || 'default',
         limit: limit || 500
       };
       const result = await mem0.memory.getAll(options);

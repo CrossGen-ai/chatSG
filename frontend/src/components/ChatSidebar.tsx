@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useChatManager } from '../hooks/useChatManager';
 import { ChatListSkeleton } from './SkeletonLoader';
+import { Modal } from './ui/Modal';
+import { Toast } from './ui/Toast';
 
 interface ChatSidebarProps {
   isOpen: boolean;
@@ -597,89 +599,64 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
 
 
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowDeleteConfirm(null)}
-          />
-          <div className="relative w-full max-w-md rounded-xl backdrop-blur-xl bg-white/90 dark:bg-black/90 border border-white/30 dark:border-white/10 shadow-2xl p-6 animate-in slide-in-from-bottom-2 duration-200">
-            <h3 className="text-lg font-semibold theme-text-primary mb-2">
-              Delete Chat
-            </h3>
-            <p className="theme-text-secondary mb-6">
-              Are you sure you want to delete this chat? This action cannot be undone.
-            </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setShowDeleteConfirm(null)}
-                className="flex-1 px-4 py-2 rounded-lg border border-white/30 dark:border-white/20 theme-text-primary hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDeleteConfirm(showDeleteConfirm)}
-                className="flex-1 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Batch Delete Confirmation Modal */}
-      {showBatchDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowBatchDeleteConfirm(false)}
-          />
-          <div className="relative w-full max-w-md rounded-xl backdrop-blur-xl bg-white/90 dark:bg-black/90 border border-white/30 dark:border-white/10 shadow-2xl p-6 animate-in slide-in-from-bottom-2 duration-200">
-            <h3 className="text-lg font-semibold theme-text-primary mb-2">
-              Delete Multiple Chats
-            </h3>
-            <p className="theme-text-secondary mb-6">
-              Are you sure you want to delete {selectedChatIds.size} chat{selectedChatIds.size > 1 ? 's' : ''}? This action cannot be undone.
-            </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setShowBatchDeleteConfirm(false)}
-                className="flex-1 px-4 py-2 rounded-lg border border-white/30 dark:border-white/20 theme-text-primary hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleBatchDelete}
-                className="flex-1 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors"
-              >
-                Delete {selectedChatIds.size}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Success Notification */}
-      {successMessage && (
-        <div className="fixed top-4 right-4 z-60 animate-in slide-in-from-top-2 duration-300">
-          <div className="flex items-center space-x-3 px-4 py-3 rounded-xl backdrop-blur-xl bg-green-500/90 border border-green-400/30 shadow-2xl text-white">
-            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span className="font-medium text-sm">{successMessage}</span>
+      <Modal isOpen={!!showDeleteConfirm} onClose={() => setShowDeleteConfirm(null)}>
+        <div className="w-full max-w-md rounded-xl backdrop-blur-xl bg-white/90 dark:bg-black/90 border border-white/30 dark:border-white/10 shadow-2xl p-6 animate-in slide-in-from-bottom-2 duration-200">
+          <h3 className="text-lg font-semibold theme-text-primary mb-2">
+            Delete Chat
+          </h3>
+          <p className="theme-text-secondary mb-6">
+            Are you sure you want to delete this chat? This action cannot be undone.
+          </p>
+          <div className="flex space-x-3">
             <button
-              onClick={() => setSuccessMessage(null)}
-              className="ml-2 p-1 rounded-full hover:bg-green-600/50 transition-colors"
-              aria-label="Dismiss notification"
+              onClick={() => setShowDeleteConfirm(null)}
+              className="flex-1 px-4 py-2 rounded-lg border border-white/30 dark:border-white/20 theme-text-primary hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              Cancel
+            </button>
+            <button
+              onClick={() => handleDeleteConfirm(showDeleteConfirm)}
+              className="flex-1 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors"
+            >
+              Delete
             </button>
           </div>
         </div>
-      )}
+      </Modal>
+
+      {/* Batch Delete Confirmation Modal */}
+      <Modal isOpen={showBatchDeleteConfirm} onClose={() => setShowBatchDeleteConfirm(false)}>
+        <div className="w-full max-w-md rounded-xl backdrop-blur-xl bg-white/90 dark:bg-black/90 border border-white/30 dark:border-white/10 shadow-2xl p-6 animate-in slide-in-from-bottom-2 duration-200">
+          <h3 className="text-lg font-semibold theme-text-primary mb-2">
+            Delete Multiple Chats
+          </h3>
+          <p className="theme-text-secondary mb-6">
+            Are you sure you want to delete {selectedChatIds.size} chat{selectedChatIds.size > 1 ? 's' : ''}? This action cannot be undone.
+          </p>
+          <div className="flex space-x-3">
+            <button
+              onClick={() => setShowBatchDeleteConfirm(false)}
+              className="flex-1 px-4 py-2 rounded-lg border border-white/30 dark:border-white/20 theme-text-primary hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleBatchDelete}
+              className="flex-1 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors"
+            >
+              Delete {selectedChatIds.size}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Success Notification */}
+      <Toast 
+        isVisible={!!successMessage}
+        onClose={() => setSuccessMessage(null)}
+        message={successMessage || ''}
+        type="success"
+      />
     </>
   );
 }; 

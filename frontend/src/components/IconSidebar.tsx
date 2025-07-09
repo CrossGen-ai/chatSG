@@ -1,16 +1,18 @@
 import React from 'react';
-import { Brain } from 'lucide-react';
+import { Brain, Activity } from 'lucide-react';
 
 interface IconSidebarProps {
   onOpenSidebar: () => void;
   onOpenMemoryPanel: () => void;
-  currentView: 'chat' | 'memory';
-  onViewChange: (view: 'chat' | 'memory') => void;
+  onOpenPerformancePanel: () => void;
+  currentView: 'chat' | 'memory' | 'performance';
+  onViewChange: (view: 'chat' | 'memory' | 'performance') => void;
 }
 
 export const IconSidebar: React.FC<IconSidebarProps> = ({ 
   onOpenSidebar, 
-  onOpenMemoryPanel, 
+  onOpenMemoryPanel,
+  onOpenPerformancePanel, 
   currentView,
   onViewChange 
 }) => {
@@ -54,6 +56,20 @@ export const IconSidebar: React.FC<IconSidebarProps> = ({
         title="Memory visualization"
       >
         <Brain className="w-6 h-6 theme-text-primary group-hover:scale-110 transition-transform" />
+      </button>
+      
+      {/* Performance icon button */}
+      <button
+        onClick={onOpenPerformancePanel}
+        className={`w-10 h-10 rounded-lg backdrop-blur-md border transition-all duration-200 flex items-center justify-center group mt-3 ${
+          currentView === 'performance' 
+            ? 'bg-accent-primary/30 border-accent-primary/50 hover:bg-accent-primary/40' 
+            : 'bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/10 hover:bg-white/30 dark:hover:bg-white/20'
+        }`}
+        aria-label="Open performance dashboard"
+        title="Performance dashboard"
+      >
+        <Activity className="w-6 h-6 theme-text-primary group-hover:scale-110 transition-transform" />
       </button>
       
       {/* Add more icon buttons here in the future */}

@@ -316,6 +316,9 @@ async function handleSSERequest(req, res) {
         console.log('[Server] Performance monitoring enabled for SSE request');
     }
     
+    // Define userId at the top level of the function
+    let userId = null;
+    
     try {
         // Extract data from already-parsed body
         const data = req.body;
@@ -324,6 +327,11 @@ async function handleSSERequest(req, res) {
         }
         const sessionId = data.sessionId || 'default';
         console.log(`[Server] Streaming request for session: ${sessionId}, message: "${data.message}"`);
+        
+        // Get userId early if authenticated
+        if (req.isAuthenticated && req.user) {
+            userId = req.user.id;
+        }
         
         // Set SSE headers
         res.writeHead(200, {
@@ -382,7 +390,12 @@ async function handleSSERequest(req, res) {
                         await sessionCheckFn();
                     console.log(`[Server] Session check took: ${(performance.now() - checkStart).toFixed(2)}ms`);
                         
-                    const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
+                    if (!req.isAuthenticated || !req.user) {
+                        sendEvent('error', { error: 'Authentication required' });
+                        res.end();
+                        return;
+                    }
+                    // userId is already defined at the top level
                     
                     if (!sessionExists) {
                         // Time session creation
@@ -518,7 +531,8 @@ async function handleSSERequest(req, res) {
                             sessionId: sessionId,
                             userInput: message,
                             availableAgents: orchestrationSetup.orchestrator.listAgents().map(a => a.name),
-                            userPreferences: {}
+                            userPreferences: {},
+                            userId: userId
                         };
                         
                         const selection = await orchestrationSetup.orchestrator.selectAgent(message, context);
@@ -535,7 +549,8 @@ async function handleSSERequest(req, res) {
                         sessionId: sessionId,
                         userInput: message,
                         availableAgents: orchestrationSetup.orchestrator.listAgents().map(a => a.name),
-                        userPreferences: {}
+                        userPreferences: {},
+                        userId: userId
                     };
                     
                     const selection = await orchestrationSetup.orchestrator.selectAgent(message, context);
@@ -993,25 +1008,31 @@ const server = http.createServer(async (req, res) => {
                         
                         if (!sessionExists) {
                             // Auto-create session on first message
-                            const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
-                            const userDatabaseId = req.isAuthenticated && req.user ? req.user.id : null;
+                            if (!req.isAuthenticated || !req.user) {
+                                sendEvent('error', { error: 'Authentication required for session creation' });
+                                res.end();
+                                return;
+                            }
+                            const userId = req.user.id;
                             await storageManager.createSession({
                                 sessionId: sessionId,
                                 title: data.message.substring(0, 50) + (data.message.length > 50 ? '...' : ''),
                                 userId: userId,
                                 metadata: {
-                                    userDatabaseId: userDatabaseId
                                 }
                             });
                             console.log(`[Server] Auto-created session: ${sessionId} for user: ${userId}`);
                         }
                         
                         // Save user message with slash command metadata
-                        const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
-                        const userDatabaseId = req.isAuthenticated && req.user ? req.user.id : null;
+                        if (!req.isAuthenticated || !req.user) {
+                            sendEvent('error', { error: 'Authentication required for message saving' });
+                            res.end();
+                            return;
+                        }
+                        const userId = req.user.id;
                         const userMessageMetadata = {
                             userId: userId,
-                            userDatabaseId: userDatabaseId
                         };
                         
                         // Add slash command metadata if present
@@ -1469,8 +1490,10 @@ const server = http.createServer(async (req, res) => {
                     
                     // Use storage manager to create session
                     if (storageManager) {
-                        const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
-                        const userDatabaseId = req.isAuthenticated && req.user ? req.user.id : null;
+                        if (!req.isAuthenticated || !req.user) {
+                            return res.status(401).json({ error: 'Authentication required' });
+                        }
+                        const userId = req.user.id;
                         
                         const sessionData = await storageManager.createSession({
                             title: data.title || 'New Chat',
@@ -1478,8 +1501,7 @@ const server = http.createServer(async (req, res) => {
                             metadata: {
                                 ...data.metadata,
                                 userId: userId,
-                                userDatabaseId: userDatabaseId
-                            }
+                                }
                         });
                         
                         // Return in the expected format
@@ -1509,8 +1531,7 @@ const server = http.createServer(async (req, res) => {
                         
                         // Use storage manager to create session
                         if (storageManager) {
-                            const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
-                            const userDatabaseId = req.isAuthenticated && req.user ? req.user.id : null;
+                            const userId = req.isAuthenticated && req.user ? req.user.id : null;
                             
                             const sessionData = await storageManager.createSession({
                                 title: data.title || 'New Chat',
@@ -1518,7 +1539,6 @@ const server = http.createServer(async (req, res) => {
                                 metadata: {
                                     ...data.metadata,
                                     userId: userId,
-                                    userDatabaseId: userDatabaseId
                                 }
                             });
                             
@@ -1565,10 +1585,10 @@ const server = http.createServer(async (req, res) => {
                 
                 // If user is authenticated, only show their sessions
                 if (req.isAuthenticated && req.user) {
-                    listOptions.userId = String(req.user.id);
+                    listOptions.userId = req.user.id;
                 } else {
                     // For unauthenticated users, show sessions with "default" userId
-                    listOptions.userId = 'default';
+                    listOptions.userId = null;
                 }
                 
                 console.log(`[Server] Listing chats for user: ${listOptions.userId}`);
@@ -2841,7 +2861,7 @@ const server = http.createServer(async (req, res) => {
             // Use new storage manager if available
             if (storageManager) {
                 // Use authenticated user's ID if available, otherwise 'default'
-                const userId = req.isAuthenticated && req.user ? String(req.user.id) : 'default';
+                const userId = req.isAuthenticated && req.user ? req.user.id : null;
                 
                 const sessionData = {
                     sessionId: sessionId,

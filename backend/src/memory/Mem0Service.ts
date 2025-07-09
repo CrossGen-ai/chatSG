@@ -24,7 +24,7 @@ export interface Mem0Config {
 
 export interface MemorySearchOptions {
     limit?: number;
-    userId?: string;
+    userId?: number;
     sessionId?: string;
 }
 
@@ -175,8 +175,7 @@ export class Mem0Service {
     async addMessages(
         messages: Message[], 
         sessionId: string,
-        userId?: string,
-        userDatabaseId?: number
+        userId?: number
     ): Promise<MemoryAddResult> {
         if (!this.initialized) {
             await this.initialize();
@@ -199,20 +198,15 @@ export class Mem0Service {
                 timestamp: new Date().toISOString()
             };
             
-            // If using pgvector, store user database ID for proper isolation
-            if (this.config.provider === 'pgvector' && userDatabaseId) {
-                metadata.userDatabaseId = userDatabaseId;
-            }
-            
             // Add to memory with metadata - mem0 expects metadata in a metadata field
             const result = await this.memory.add(mem0Messages, {
-                userId: userId || 'default',
+                userId: userId?.toString() || 'default',
                 metadata: metadata  // Pass metadata as a nested object
             });
             
             // If using pgvector, also update our custom tables
-            if (this.config.provider === 'pgvector' && userDatabaseId) {
-                await this.updatePostgresMetadata(userDatabaseId, sessionId, messages.length);
+            if (this.config.provider === 'pgvector' && userId) {
+                await this.updatePostgresMetadata(userId, sessionId, messages.length);
             }
             
             console.log(`[Mem0Service] Added ${messages.length} messages to memory for session ${sessionId}, user ${userId}`);
@@ -226,10 +220,10 @@ export class Mem0Service {
     /**
      * Update PostgreSQL metadata tables
      */
-    private async updatePostgresMetadata(userDatabaseId: number, sessionId: string, messageCount: number): Promise<void> {
+    private async updatePostgresMetadata(userId: number, sessionId: string, messageCount: number): Promise<void> {
         try {
             // Update is handled by database triggers, but we can add custom logic here if needed
-            console.log(`[Mem0Service] Updated metadata for user ${userDatabaseId}, session ${sessionId}`);
+            console.log(`[Mem0Service] Updated metadata for user ${userId}, session ${sessionId}`);
         } catch (error) {
             console.error('[Mem0Service] Failed to update PostgreSQL metadata:', error);
             // Don't throw - this is supplementary
@@ -242,10 +236,9 @@ export class Mem0Service {
     async addMessage(
         message: Message,
         sessionId: string,
-        userId?: string,
-        userDatabaseId?: number
+        userId?: number
     ): Promise<MemoryAddResult> {
-        return this.addMessages([message], sessionId, userId, userDatabaseId);
+        return this.addMessages([message], sessionId, userId);
     }
     
     /**
@@ -253,8 +246,7 @@ export class Mem0Service {
      */
     async search(
         query: string,
-        options: MemorySearchOptions = {},
-        userDatabaseId?: number
+        options: MemorySearchOptions = {}
     ): Promise<MemorySearchResult> {
         if (!this.initialized) {
             await this.initialize();
@@ -266,7 +258,7 @@ export class Mem0Service {
         
         try {
             const searchOptions: any = {
-                userId: options.userId || 'default',
+                userId: options.userId?.toString() || 'default',
                 limit: options.limit || 10
             };
             
@@ -274,14 +266,6 @@ export class Mem0Service {
             if (options.sessionId) {
                 searchOptions.filters = {
                     sessionId: options.sessionId
-                };
-            }
-            
-            // Add userDatabaseId filter for pgvector
-            if (this.config.provider === 'pgvector' && userDatabaseId) {
-                searchOptions.filters = {
-                    ...searchOptions.filters,
-                    userDatabaseId: userDatabaseId
                 };
             }
             
@@ -300,8 +284,7 @@ export class Mem0Service {
      */
     async getSessionMemories(
         sessionId: string,
-        userId?: string,
-        userDatabaseId?: number,
+        userId?: number,
         limit?: number
     ): Promise<any[]> {
         if (!this.initialized) {
@@ -314,17 +297,12 @@ export class Mem0Service {
         
         try {
             const options: any = {
-                userId: userId || 'default',
+                userId: userId?.toString() || 'default',
                 limit: limit || 100,
                 filters: {
                     sessionId: sessionId
                 }
             };
-            
-            // Add userDatabaseId filter for pgvector
-            if (this.config.provider === 'pgvector' && userDatabaseId) {
-                options.filters.userDatabaseId = userDatabaseId;
-            }
             
             const result = await this.memory.getAll(options);
             
@@ -345,8 +323,7 @@ export class Mem0Service {
     async getContextForQuery(
         query: string,
         sessionId: string,
-        userId?: string,
-        userDatabaseId?: number,
+        userId?: number,
         maxMessages: number = 50
     ): Promise<Array<{role: string, content: string}>> {
         if (!this.initialized) {
@@ -359,11 +336,13 @@ export class Mem0Service {
         
         try {
             // Search for relevant memories with user context
+            // Note: Removed sessionId filter to allow cross-session memory retrieval
+            // This allows personal information like "My name is Sean" to be remembered across sessions
             const searchResults = await this.search(query, {
-                sessionId,
+                // sessionId,  // Commented out to enable cross-session memory
                 userId,
                 limit: maxMessages
-            }, userDatabaseId);
+            });
             
             // Convert memories to conversation format
             const contextMessages: Array<{role: string, content: string}> = [];
@@ -391,8 +370,7 @@ export class Mem0Service {
      */
     async deleteSessionMemories(
         sessionId: string, 
-        userId?: string,
-        userDatabaseId?: number
+        userId?: number
     ): Promise<void> {
         if (!this.initialized) {
             await this.initialize();
@@ -404,7 +382,7 @@ export class Mem0Service {
         
         try {
             // Get all memories for the session with user context
-            const memories = await this.getSessionMemories(sessionId, userId, userDatabaseId);
+            const memories = await this.getSessionMemories(sessionId, userId);
             
             // Delete each memory
             for (const memory of memories) {
@@ -425,8 +403,7 @@ export class Mem0Service {
      */
     async getMemoryHistory(
         sessionId: string,
-        userId?: string,
-        userDatabaseId?: number
+        userId?: number
     ): Promise<any[]> {
         if (!this.initialized) {
             await this.initialize();
@@ -437,7 +414,7 @@ export class Mem0Service {
         }
         
         try {
-            const memories = await this.getSessionMemories(sessionId, userId, userDatabaseId);
+            const memories = await this.getSessionMemories(sessionId, userId);
             const history: any[] = [];
             
             // Get history for each memory
@@ -461,7 +438,7 @@ export class Mem0Service {
     /**
      * Get user statistics from PostgreSQL
      */
-    async getUserMemoryStats(userDatabaseId: number): Promise<any> {
+    async getUserMemoryStats(userId: number): Promise<any> {
         if (this.config.provider !== 'pgvector' || !this.dbPool) {
             return null;
         }
@@ -474,7 +451,7 @@ export class Mem0Service {
                     MAX(created_at) as last_memory_at
                 FROM mem0_memories
                 WHERE user_id = $1
-            `, [userDatabaseId]);
+            `, [userId]);
             
             return result.rows[0];
         } catch (error) {

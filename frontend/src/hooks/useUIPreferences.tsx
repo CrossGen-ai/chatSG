@@ -6,7 +6,9 @@ interface UIPreferences {
   sidebarPinned: boolean;
   memoryPanelOpen: boolean;
   memoryPanelPinned: boolean;
-  currentView: 'chat' | 'memory';
+  performancePanelOpen: boolean;
+  performancePanelPinned: boolean;
+  currentView: 'chat' | 'memory' | 'performance';
   // Future preferences can be added here:
   // fontSize?: 'small' | 'medium' | 'large';
   // compactMode?: boolean;
@@ -21,6 +23,8 @@ const defaultPreferences: UIPreferences = {
   sidebarPinned: false,
   memoryPanelOpen: false,
   memoryPanelPinned: false,
+  performancePanelOpen: false,
+  performancePanelPinned: false,
   currentView: 'chat',
 };
 

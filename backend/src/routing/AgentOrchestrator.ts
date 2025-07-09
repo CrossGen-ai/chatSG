@@ -288,7 +288,7 @@ export class AgentOrchestrator implements IAgentOrchestrator {
 
             // Execute task with timeout
             const result = await this.executeWithTimeout(
-                () => agent.processMessage(task.input, context.sessionId, task.streamCallback),
+                () => agent.processMessage(task.input, context.sessionId, task.streamCallback, context.userId),
                 this.delegationConfig.timeoutMs
             );
 
