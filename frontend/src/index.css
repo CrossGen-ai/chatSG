@@ -2,6 +2,23 @@
 
 @variant dark (&:is(.dark *));
 
+/* Modal and Toast root containers */
+#modal-root,
+#toast-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+#modal-root > *,
+#toast-root > * {
+  pointer-events: auto;
+}
+
 /* Theme CSS Custom Properties */
 :root {
   --bg-primary: #f8fafc;

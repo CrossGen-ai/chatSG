@@ -50,7 +50,16 @@ export const Toast: React.FC<ToastProps> = ({
   };
 
   return ReactDOM.createPortal(
-    <div className="fixed top-4 right-4 z-[9999999] animate-in slide-in-from-top-2 duration-300">
+    <div 
+      className="fixed top-4 right-4 animate-in slide-in-from-top-2 duration-300"
+      style={{ 
+        zIndex: 2147483646, // One less than modal to ensure modals are always on top
+        isolation: 'isolate', // Create new stacking context
+        position: 'fixed',
+        top: '1rem',
+        right: '1rem'
+      }}
+    >
       <div className={`flex items-center space-x-3 px-4 py-3 rounded-xl backdrop-blur-xl ${bgColors[type]} border shadow-2xl text-white`}>
         {icons[type]}
         <span className="font-medium text-sm">{message}</span>
