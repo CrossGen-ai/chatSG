@@ -54,6 +54,8 @@ logs/
 **/*.log
 backend/logs/chat.json
 backend/logs/*.json
+**/logs/*.json
+logs/*.json
 
 # Databases
 *.db
