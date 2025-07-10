@@ -1,0 +1,119 @@
+# ChatSG nginx Configuration Template
+# Replace YOUR_DOMAIN with your actual domain
+
+# HTTP to HTTPS redirect
+server {
+    listen 80;
+    listen [::]:80;
+    server_name YOUR_DOMAIN;
+    
+    # Allow Let's Encrypt validation
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+    
+    # Redirect all other traffic to HTTPS
+    location / {
+        return 301 https://$server_name$request_uri;
+    }
+}
+
+# HTTPS server
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name YOUR_DOMAIN;
+    
+    # SSL Certificate Configuration
+    ssl_certificate /etc/ssl/chatsg/cert.pem;
+    ssl_certificate_key /etc/ssl/chatsg/key.pem;
+    
+    # SSL Security Configuration
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+    
+    # Security Headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://login.microsoftonline.us https://graph.microsoft.us;" always;
+    
+    # Remove server header
+    server_tokens off;
+    
+    # Frontend static files
+    location / {
+        root /var/www/chatsg;
+        try_files $uri $uri/ /index.html;
+        
+        # Cache static assets
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+    }
+    
+    # Backend API proxy
+    location /api {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        
+        # Headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+        
+        # WebSocket support
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        
+        # SSE (Server-Sent Events) support
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 86400;
+        proxy_send_timeout 86400;
+        keepalive_timeout 86400;
+        
+        # Security
+        proxy_hide_header X-Powered-By;
+        
+        # Size limits
+        client_max_body_size 10M;
+    }
+    
+    # Health check endpoint
+    location /health {
+        access_log off;
+        return 200 "OK\n";
+        add_header Content-Type text/plain;
+    }
+    
+    # Deny access to sensitive files
+    location ~ /\. {
+        deny all;
+    }
+    
+    location ~ \.(env|git|gitignore)$ {
+        deny all;
+    }
+    
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+}
+
+# WebSocket connection upgrade map
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    '' close;
+}

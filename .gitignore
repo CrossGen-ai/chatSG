@@ -45,4 +45,27 @@ ENV/
 *.js.map
 
 # New additions
-.env.*.local 
+.env.*.local
+
+# Logs
+logs/
+*.log
+**/logs/
+**/*.log
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+memory.db
+
+# Session data
+data/sessions/
+
+# Test artifacts
+backend/tests/integration/logs/
+backend/tests/integration/*.db
+
+# Temporary files
+EXPERIMENTAL/
+C:/ 
