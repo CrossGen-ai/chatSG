@@ -51,7 +51,7 @@ export class SlashCommandService {
     private lastLoadTime: number = 0;
 
     constructor(configPath?: string) {
-        this.configPath = configPath || path.join(__dirname, '../../config/slash-commands.json');
+        this.configPath = configPath || path.join(__dirname, '../../../config/slash-commands.json');
         console.log(`[SlashCommandService] Initialized with config path: ${this.configPath}`);
     }
 

@@ -1,0 +1,2246 @@
+
+> backend@1.0.0 dev
+> nodemon server.js
+
+[33m[nodemon] 3.1.10[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): server.js src/**/* utils/**/*[39m
+[33m[nodemon] watching extensions: js,json[39m
+[32m[nodemon] starting `node server.js`[39m
+=== ENVIRONMENT DEBUG ===
+Current working directory: /Users/crossgenai/sg/chatSG/backend
+__dirname: /Users/crossgenai/sg/chatSG/backend
+process.env.CHATSG_ENVIRONMENT: dev
+process.env.BACKEND: Orch
+========================
+[Auth] Using mock authentication provider
+[Server] Performance monitoring loaded
+[Server] Connection diagnostics loaded
+[Server] Loaded slash commands router and processor
+[Server] Loaded new storage system
+[Server] Loaded memory visualization handlers
+[StorageManager] Initializing with PostgreSQL backend
+[PostgresSessionIndex] Initialized with PostgreSQL backend
+[MemoryPersistence] Initialized with cleanup interval: 300000ms
+[StateManager] Initialized with config: {
+  defaultTTL: 86400000,
+  maxSessions: 1000,
+  maxSharedStates: 10000,
+  enablePersistence: true,
+  enableEvents: true
+}
+[AgentOrchestrator] Initialized 3 orchestration strategies
+[AgentOrchestrator] Initialized with config: {
+  maxRetries: 2,
+  timeoutMs: 15000,
+  fallbackStrategy: 'sequential',
+  enableStateSharing: true
+}
+[OrchestrationMiddleware] Initialized with config: {
+  enableOrchestration: true,
+  preserveBackendRouting: true,
+  orchestrationMode: 'enhanced',
+  enableLogging: true,
+  enableMetrics: true
+}
+[LLMHelper] Initialized with provider: openai
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created AnalyticalAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created CreativeAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created TechnicalAgent successfully
+[IndividualAgentFactory] Created CRMAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created FinancialAgent successfully
+[IndividualAgentFactory] Successfully created 5 individual agents
+[AgentOrchestrator] Registered agent: AnalyticalAgent (analytical)
+[Orchestrator] Registered AnalyticalAgent (analytical) - Specialized agent for data analysis, statistical computations, and research tasks
+[AgentOrchestrator] Registered agent: CreativeAgent (creative)
+[Orchestrator] Registered CreativeAgent (creative) - Specialized agent for creative writing, brainstorming, and ideation tasks
+[AgentOrchestrator] Registered agent: TechnicalAgent (technical)
+[Orchestrator] Registered TechnicalAgent (technical) - Specialized agent for technical programming, debugging, and code-related tasks
+[AgentOrchestrator] Registered agent: CRMAgent (crm)
+[Orchestrator] Registered CRMAgent (crm) - Specialized agent for CRM operations, customer queries, and pipeline management
+[AgentOrchestrator] Registered agent: FinancialAgent (financial)
+[Orchestrator] Registered FinancialAgent (financial) - Specialized agent for financial analysis, investment research, and economic insights
+[Orchestrator] Successfully registered 5 specialized LLM agents
+[BackendIntegrationManager] Initializing backend integration...
+[BackendIntegrationManager] Initialized with 0 backends
+[Orchestrator] Setup created successfully
+=== BACKEND CONFIGURATION ===
+BACKEND mode: Orch
+Legacy ENVIRONMENT: dev
+Active backend: Enhanced Orchestrator (Multi-Agent)
+Orchestrator initialized: true
+=============================
+[Mem0Service] Using Qdrant vector store
+[Mem0Service] Graph store enabled with Neo4j
+[Mem0Service] Initialized successfully
+[Orchestrator] Initialized with 5 specialized agents
+[StorageManager] Mem0 service initialized
+[StorageManager] Initialized
+[Server] Storage manager initialized
+=== ChatSG Server Configuration ===
+- Server running at http://localhost:3000/
+- Backend Mode: Orch
+- Active Backend: Enhanced Orchestrator (Multi-Agent)
+- Legacy Environment: dev
+- Orchestrator: Ready
+- Registered Agents: 5
+- Available Strategies: simple,capability-based,keyword-based
+- Environment: development
+- Backend Integration: Active
+- Registered Backends: 
+- VNet IP: 192.168.15.229
+===================================
+[Database Pool] New client connected
+[Server] Applying security middleware for GET /api/slash-commands
+[Server] Security middleware passed for GET /api/slash-commands
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Token created: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  ip: '::1',
+  connectionRemoteAddress: '::1',
+  socketRemoteAddress: '::1',
+  headers: { 'x-forwarded-for': undefined, 'x-real-ip': undefined }
+}
+[CSRF-Header] Calling next() for GET /api/slash-commands
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/slash-commands
+[SlashCommandService] Initialized with config path: /Users/crossgenai/sg/chatSG/backend/config/slash-commands.json
+[SlashCommandService] Built maps: 6 commands, 24 aliases
+[SlashCommandService] Loaded 6 slash commands
+[SlashCommands] Served 6 commands to client
+[Server] Applying security middleware for GET /api/slash-commands
+[Server] Security middleware passed for GET /api/slash-commands
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3593s'
+}
+[CSRF-Header] Calling next() for GET /api/slash-commands
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/slash-commands
+[SlashCommandService] Built maps: 6 commands, 24 aliases
+[SlashCommandService] Loaded 6 slash commands
+[SlashCommands] Served 6 commands to client
+[Database Pool] New client connected
+[Database Pool] New client connected
+[Database Pool] New client connected
+[Server] Applying security middleware for GET /api/config/security
+[Server] Applying security middleware for GET /api/auth/user
+[Server] Applying security middleware for GET /api/auth/user
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Security middleware passed for GET /api/auth/user
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/user
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/user
+[Server] Security middleware passed for GET /api/auth/user
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/user
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/user
+[Server] Applying security middleware for GET /api/config/security
+[Server] Applying security middleware for GET /api/chats
+[Server] Applying security middleware for GET /api/chats
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Security middleware passed for GET /api/chats
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/chats
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats
+[Server] Listing chats for user: 2
+[Server] Security middleware passed for GET /api/chats
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/chats
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats
+[Server] Listing chats for user: 2
+[Database Pool] New client connected
+[Database Pool] New client connected
+[Server] Applying security middleware for GET /api/config/security
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Applying security middleware for GET /api/slash-commands
+[Server] Applying security middleware for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] Applying security middleware for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Security middleware passed for GET /api/slash-commands
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/slash-commands
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/slash-commands
+[SlashCommandService] Built maps: 6 commands, 24 aliases
+[SlashCommandService] Loaded 6 slash commands
+[SlashCommands] Served 6 commands to client
+[Server] Security middleware passed for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] Security middleware passed for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Messages endpoint hit: /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Loading messages for session: 1aedbe75eea4b4fc96caa19536647c69, offset: 0, limit: 50
+[Server] Applying security middleware for GET /api/slash-commands
+[Server] Applying security middleware for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[PostgresSessionStorage] Read 0 messages from session 1aedbe75eea4b4fc96caa19536647c69
+[Server] Security middleware passed for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] Security middleware passed for GET /api/slash-commands
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/slash-commands
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/slash-commands
+[SlashCommandService] Built maps: 6 commands, 24 aliases
+[SlashCommandService] Loaded 6 slash commands
+[SlashCommands] Served 6 commands to client
+[Database Pool] New client connected
+[Database Pool] New client connected
+[Server] Applying security middleware for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] Applying security middleware for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Security middleware passed for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] Security middleware passed for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Messages endpoint hit: /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Loading messages for session: 1aedbe75eea4b4fc96caa19536647c69, offset: 0, limit: 50
+[PostgresSessionStorage] Read 0 messages from session 1aedbe75eea4b4fc96caa19536647c69
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3473s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Applying security middleware for GET /api/auth/user
+[Server] Applying security middleware for GET /api/auth/user
+[Server] Security middleware passed for GET /api/auth/user
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/user
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/user
+[Server] Security middleware passed for GET /api/auth/user
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/user
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/user
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Applying security middleware for GET /api/chats
+[Server] Applying security middleware for GET /api/chats
+[Server] Applying security middleware for GET /api/config/security
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/chats
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/chats
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats
+[Server] Listing chats for user: 2
+[Server] Security middleware passed for GET /api/chats
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/chats
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats
+[Server] Listing chats for user: 2
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Applying security middleware for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] Applying security middleware for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] Applying security middleware for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Applying security middleware for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Security middleware passed for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] Security middleware passed for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] Applying security middleware for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] Security middleware passed for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Messages endpoint hit: /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Loading messages for session: 1aedbe75eea4b4fc96caa19536647c69, offset: 0, limit: 50
+[Server] Security middleware passed for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Messages endpoint hit: /api/chats/1aedbe75eea4b4fc96caa19536647c69/messages
+[Server] Loading messages for session: 1aedbe75eea4b4fc96caa19536647c69, offset: 0, limit: 50
+[PostgresSessionStorage] Read 0 messages from session 1aedbe75eea4b4fc96caa19536647c69
+[Server] Security middleware passed for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/chats/1aedbe75eea4b4fc96caa19536647c69/settings
+[PostgresSessionStorage] Read 0 messages from session 1aedbe75eea4b4fc96caa19536647c69
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3471s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3462s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[applyMiddleware] Checking body for POST - req.body: null
+[applyMiddleware] Body not parsed, calling parseBody...
+[parseBody] Body parsed successfully
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/creative hello',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'creative', agentType: 'CreativeAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Applying security middleware for POST /api/chat/stream
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/creative hello',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'creative', agentType: 'CreativeAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for POST /api/chat/stream
+[Server] About to apply CSRF header middleware...
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/creative hello',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'creative', agentType: 'CreativeAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[CSRF-Header] Bypassing CSRF validation in development mode
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for POST /api/chat/stream
+[Server] SSE streaming endpoint hit
+[Server] Processing SSE request
+[Server] req.body: {
+  message: '/creative hello',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'creative', agentType: 'CreativeAgent' }
+}
+[Server] Performance monitoring enabled for SSE request
+[Server] Streaming request for session: 1aedbe75eea4b4fc96caa19536647c69, message: "/creative hello"
+[Server] Sending SSE event: connected { sessionId: '1aedbe75eea4b4fc96caa19536647c69' }
+[Server] SSE: Frontend slash command metadata received: { command: 'creative', agentType: 'CreativeAgent' }
+[Server] SSE: Using frontend slash command: /creative → CreativeAgent
+[ORCHESTRATOR] Processing with streaming: "/creative hello"
+[ORCHESTRATOR] SSE: Forced routing to CreativeAgent via slash command /creative
+[ORCHESTRATOR] SSE: Found target agent: CreativeAgent for forced routing
+[Server] Sending SSE event: start {
+  agent: 'CreativeAgent',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69'
+}
+[CreativeAgent] Initializing creative agent...
+[CreativeAgent] Creative agent initialized successfully
+[CreativeAgent] Processing creative request: "/creative hello..."
+[CreativeAgent] Detected task type: general
+[CreativeAgent] Using Mem0 for context retrieval
+[CreativeAgent] Starting Mem0 context retrieval...
+[Server] Starting deferred session operations for: 1aedbe75eea4b4fc96caa19536647c69
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3462s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[StorageManager] Context query - SessionId: 1aedbe75eea4b4fc96caa19536647c69, UserId: 2
+[Server] Session check took: 1.70ms
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3462s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[PostgresSessionStorage] Appended message to session 1aedbe75eea4b4fc96caa19536647c69, id: 202
+[DEBUG] Entity type map: {"hello":"greeting"}
+[Mem0Service] Search for "/creative hello" returned 5 results
+[Mem0Service] Built context with 5 relevant memories
+[Mem0Service] Retrieved 5 memories for session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Built complete context: 5 memories + 1 session messages
+[CreativeAgent] Context retrieval completed in 3620ms
+[CreativeAgent] Memory status set: {
+  enabled: true,
+  memoryCount: 5,
+  status: 'loaded',
+  retrievalTime: 3620
+}
+[CreativeAgent] Mem0 returned 8 context messages
+[CreativeAgent] Calling LLM with 8 messages (including conversation history)
+[DEBUG] Entity type map: {"hello":"greeting"}
+[DEBUG] Extracted entities: [{"source":"hello","relationship":"is_a","destination":"greeting"}]
+[CreativeAgent] LLM response received (833 chars)
+[PERF:Agent] undefined execution: 8303.65ms
+[PERF:LLM] unknown - Total: 8304ms, TTFT: undefinedms, Stream: 8304ms, TPS: 0.0
+[Server] Sending SSE event: token { content: 'Hello' }
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3453s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3453s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Sending SSE event: token { content: ', Sea' }
+[Server] Sending SSE event: token { content: 'n! 🌟' }
+[Server] Sending SSE event: token { content: '\n\nIma' }
+[Server] Sending SSE event: token { content: 'gine ' }
+[Server] Sending SSE event: token { content: "you'r" }
+[Server] Sending SSE event: token { content: 'e sta' }
+[Server] Sending SSE event: token { content: 'nding' }
+[Server] Sending SSE event: token { content: ' at t' }
+[DEBUG] Deleted relationships: [{"source":"creative","relationship":"hello","destination":"2"}]
+[Server] Sending SSE event: token { content: 'he ed' }
+[Server] Sending SSE event: token { content: 'ge of' }
+[Server] Sending SSE event: token { content: ' a dr' }
+[Server] Sending SSE event: token { content: 'eam, ' }
+[Server] Sending SSE event: token { content: 'where' }
+[Server] Sending SSE event: token { content: ' the ' }
+[Server] Sending SSE event: token { content: 'golde' }
+[Server] Sending SSE event: token { content: 'n Cal' }
+[Server] Sending SSE event: token { content: 'iforn' }
+[Server] Sending SSE event: token { content: 'ian s' }
+[Server] Sending SSE event: token { content: 'un ki' }
+[Server] Sending SSE event: token { content: 'sses ' }
+[Server] Sending SSE event: token { content: 'the P' }
+[Server] Sending SSE event: token { content: 'acifi' }
+[Server] Sending SSE event: token { content: 'c Oce' }
+[Server] Sending SSE event: token { content: 'an. T' }
+[Server] Sending SSE event: token { content: 'he wa' }
+[Server] Sending SSE event: token { content: 'ves s' }
+[Server] Sending SSE event: token { content: 'ing t' }
+[Server] Sending SSE event: token { content: 'heir ' }
+[Server] Sending SSE event: token { content: 'timel' }
+[Server] Sending SSE event: token { content: 'ess l' }
+[Server] Sending SSE event: token { content: 'ullab' }
+[Server] Sending SSE event: token { content: 'y, an' }
+[Server] Sending SSE event: token { content: 'd the' }
+[CreativeAgent] Mem0 context retrieval timed out after 10000ms (10s limit), using minimal context
+[Server] Sending SSE event: token { content: ' bree' }
+[Server] Sending SSE event: token { content: 'ze wh' }
+[Server] Sending SSE event: token { content: 'isper' }
+[Server] Sending SSE event: token { content: 's sec' }
+[Server] Sending SSE event: token { content: 'rets ' }
+[Server] Sending SSE event: token { content: 'of cr' }
+[Server] Sending SSE event: token { content: 'eativ' }
+[Server] Sending SSE event: token { content: 'ity a' }
+[Server] Sending SSE event: token { content: 'nd in' }
+[Server] Sending SSE event: token { content: 'novat' }
+[Server] Sending SSE event: token { content: 'ion. ' }
+[Mem0Service] Added 1 messages to memory for session 1aedbe75eea4b4fc96caa19536647c69, user 2
+[PostgresSessionIndex] Message count auto-incremented by trigger for session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Saved user message to session 1aedbe75eea4b4fc96caa19536647c69
+[PERF:DB] Slow query 'save-user-message': 10598.68ms
+[Server] Message save took: 10598.72ms
+[Server] Total session operations took: 10600.45ms
+[Server] Sending SSE event: token { content: 'In th' }
+[Server] Sending SSE event: token { content: 'is vi' }
+[Server] Sending SSE event: token { content: 'brant' }
+[Server] Sending SSE event: token { content: ' sett' }
+[Server] Sending SSE event: token { content: 'ing, ' }
+[Server] Sending SSE event: token { content: 'ideas' }
+[Server] Sending SSE event: token { content: ' danc' }
+[Server] Sending SSE event: token { content: 'e lik' }
+[Server] Sending SSE event: token { content: 'e fir' }
+[Server] Sending SSE event: token { content: 'eflie' }
+[Server] Sending SSE event: token { content: 's in ' }
+[Server] Sending SSE event: token { content: 'the d' }
+[Server] Sending SSE event: token { content: 'usk, ' }
+[Server] Sending SSE event: token { content: 'waiti' }
+[Server] Sending SSE event: token { content: 'ng to' }
+[Server] Sending SSE event: token { content: ' be c' }
+[Server] Sending SSE event: token { content: 'aptur' }
+[Server] Sending SSE event: token { content: 'ed.\n\n' }
+[Server] Sending SSE event: token { content: 'As yo' }
+[Server] Sending SSE event: token { content: 'u wor' }
+[Server] Sending SSE event: token { content: 'k at ' }
+[Server] Sending SSE event: token { content: 'OpenA' }
+[Server] Sending SSE event: token { content: 'I, yo' }
+[Server] Sending SSE event: token { content: "u're " }
+[Server] Sending SSE event: token { content: 'at th' }
+[Server] Sending SSE event: token { content: 'e for' }
+[Server] Sending SSE event: token { content: 'efron' }
+[Server] Sending SSE event: token { content: 't of ' }
+[Server] Sending SSE event: token { content: 'a tec' }
+[Server] Sending SSE event: token { content: 'hnolo' }
+[Server] Sending SSE event: token { content: 'gical' }
+[Server] Sending SSE event: token { content: ' rena' }
+[Server] Sending SSE event: token { content: 'issan' }
+[Server] Sending SSE event: token { content: 'ce, w' }
+[Server] Sending SSE event: token { content: 'here ' }
+[Server] Sending SSE event: token { content: 'the b' }
+[Server] Sending SSE event: token { content: 'ounda' }
+[Server] Sending SSE event: token { content: 'ries ' }
+[Server] Sending SSE event: token { content: 'of po' }
+[Server] Sending SSE event: token { content: 'ssibi' }
+[Server] Sending SSE event: token { content: 'lity ' }
+[Server] Sending SSE event: token { content: 'are c' }
+[Server] Sending SSE event: token { content: 'onsta' }
+[Server] Sending SSE event: token { content: 'ntly ' }
+[Server] Sending SSE event: token { content: 'being' }
+[Server] Sending SSE event: token { content: ' rede' }
+[Server] Sending SSE event: token { content: 'fined' }
+[Server] Sending SSE event: token { content: '. Eve' }
+[Server] Sending SSE event: token { content: 'ry da' }
+[Server] Sending SSE event: token { content: 'y, yo' }
+[Server] Sending SSE event: token { content: 'u hav' }
+[Server] Sending SSE event: token { content: 'e the' }
+[Server] Sending SSE event: token { content: ' oppo' }
+[Server] Sending SSE event: token { content: 'rtuni' }
+[Server] Sending SSE event: token { content: 'ty to' }
+[Server] Sending SSE event: token { content: ' weav' }
+[Server] Sending SSE event: token { content: 'e the' }
+[Server] Sending SSE event: token { content: ' thre' }
+[Server] Sending SSE event: token { content: 'ads o' }
+[Server] Sending SSE event: token { content: 'f ima' }
+[Server] Sending SSE event: token { content: 'ginat' }
+[Server] Sending SSE event: token { content: 'ion a' }
+[Server] Sending SSE event: token { content: 'nd kn' }
+[Server] Sending SSE event: token { content: 'owled' }
+[Server] Sending SSE event: token { content: 'ge in' }
+[Server] Sending SSE event: token { content: 'to so' }
+[Server] Sending SSE event: token { content: 'methi' }
+[Server] Sending SSE event: token { content: 'ng ex' }
+[Server] Sending SSE event: token { content: 'traor' }
+[Server] Sending SSE event: token { content: 'dinar' }
+[Server] Sending SSE event: token { content: 'y.\n\nS' }
+[Server] Sending SSE event: token { content: 'o, ho' }
+[Server] Sending SSE event: token { content: 'w can' }
+[Server] Sending SSE event: token { content: ' I as' }
+[Server] Sending SSE event: token { content: 'sist ' }
+[Server] Sending SSE event: token { content: 'you t' }
+[Server] Sending SSE event: token { content: 'oday ' }
+[Server] Sending SSE event: token { content: 'in yo' }
+[Server] Sending SSE event: token { content: 'ur cr' }
+[Server] Sending SSE event: token { content: 'eativ' }
+[Server] Sending SSE event: token { content: 'e jou' }
+[Server] Sending SSE event: token { content: 'rney?' }
+[Server] Sending SSE event: token { content: ' Are ' }
+[Server] Sending SSE event: token { content: 'you l' }
+[Server] Sending SSE event: token { content: 'ookin' }
+[Server] Sending SSE event: token { content: 'g to ' }
+[Server] Sending SSE event: token { content: 'explo' }
+[Server] Sending SSE event: token { content: 're ne' }
+[Server] Sending SSE event: token { content: 'w ide' }
+[Server] Sending SSE event: token { content: 'as, g' }
+[Server] Sending SSE event: token { content: 'enera' }
+[Server] Sending SSE event: token { content: 'te fr' }
+[Server] Sending SSE event: token { content: 'esh c' }
+[Server] Sending SSE event: token { content: 'onten' }
+[Server] Sending SSE event: token { content: 't, or' }
+[Server] Sending SSE event: token { content: ' perh' }
+[Server] Sending SSE event: token { content: 'aps d' }
+[Server] Sending SSE event: token { content: 'ive i' }
+[Server] Sending SSE event: token { content: 'nto a' }
+[Server] Sending SSE event: token { content: ' brai' }
+[Server] Sending SSE event: token { content: 'nstor' }
+[Server] Sending SSE event: token { content: 'ming ' }
+[Server] Sending SSE event: token { content: 'sessi' }
+[Server] Sending SSE event: token { content: 'on? W' }
+[Server] Sending SSE event: token { content: 'hatev' }
+[Server] Sending SSE event: token { content: 'er it' }
+[Server] Sending SSE event: token { content: ' is, ' }
+[Server] Sending SSE event: token { content: "I'm h" }
+[Server] Sending SSE event: token { content: 'ere t' }
+[Server] Sending SSE event: token { content: 'o hel' }
+[Server] Sending SSE event: token { content: 'p ill' }
+[Server] Sending SSE event: token { content: 'umina' }
+[Server] Sending SSE event: token { content: 'te th' }
+[Server] Sending SSE event: token { content: 'e pat' }
+[Server] Sending SSE event: token { content: 'h wit' }
+[Server] Sending SSE event: token { content: 'h cre' }
+[Server] Sending SSE event: token { content: 'ativi' }
+[Server] Sending SSE event: token { content: 'ty an' }
+[Server] Sending SSE event: token { content: 'd ori' }
+[Server] Sending SSE event: token { content: 'ginal' }
+[Server] Sending SSE event: token { content: 'ity. ' }
+[Server] Sending SSE event: token { content: '🌈✨' }
+[DEBUG] Memory status type: object
+[DEBUG] Memory status: {
+  "enabled": true,
+  "memoryCount": 5,
+  "status": "loaded",
+  "retrievalTime": 3620
+}
+[Server] Performance data collected: {
+  database: {
+    totalTime: 10600.37,
+    operations: { 'check-session': [Object], 'save-user-message': [Object] }
+  },
+  agent: { totalTime: 8303.65, selection: 0, execution: 8303.65 },
+  llm: { totalTime: 8303.74, ttft: 0, tokens: 0 }
+}
+[Server] Sending SSE event: done {
+  agent: 'CreativeAgent',
+  agentType: 'creative',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  memoryStatus: {
+    enabled: true,
+    memoryCount: 5,
+    status: 'loaded',
+    retrievalTime: 3620
+  },
+  orchestration: {
+    confidence: 1,
+    streaming: true,
+    forcedBySlashCommand: true,
+    commandUsed: 'creative'
+  },
+  performance: {
+    database: { totalTime: 10600.37, operations: [Object] },
+    agent: { totalTime: 8303.65, selection: 0, execution: 8303.65 },
+    llm: { totalTime: 8303.74, ttft: 0, tokens: 0 }
+  }
+}
+[Server] Recorded 2 database operations, total: 10600.32ms
+[PostgresSessionStorage] Appended message to session 1aedbe75eea4b4fc96caa19536647c69, id: 203
+[applyMiddleware] Checking body for PATCH - req.body: null
+[applyMiddleware] Body not parsed, calling parseBody...
+[parseBody] Body parsed successfully
+[applyMiddleware] Checking body for PATCH - req.body: {}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Applying security middleware for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[applyMiddleware] Checking body for PATCH - req.body: {}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Security middleware passed for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[Server] PATCH /api/chats/:id/read endpoint hit
+[Server] req.body: {}
+[Server] Marking session as read: 1aedbe75eea4b4fc96caa19536647c69
+[PostgresSessionIndex] Marked session 1aedbe75eea4b4fc96caa19536647c69 as read
+[Server] Session marked as read successfully
+[DEBUG] Entity type map: {"sean":"person","california":"location","pacific_ocean":"location","openai":"organization","creativity":"concept","innovation":"concept","ideas":"concept","imagination":"concept","knowledge":"concept","content":"concept"}
+[DEBUG] Extracted entities: [{"source":"sean","relationship":"located_in","destination":"california"},{"source":"california","relationship":"borders","destination":"pacific_ocean"},{"source":"sean","relationship":"works_at","destination":"openai"},{"source":"openai","relationship":"promotes","destination":"creativity"},{"source":"openai","relationship":"promotes","destination":"innovation"},{"source":"creativity","relationship":"associated_with","destination":"ideas"},{"source":"innovation","relationship":"associated_with","destination":"ideas"},{"source":"ideas","relationship":"linked_to","destination":"imagination"},{"source":"knowledge","relationship":"influences","destination":"creativity"},{"source":"content","relationship":"generated_by","destination":"ideas"}]
+[DEBUG] Deleted relationships: [{"source":"sean","relationship":"is_addressed_by","destination":"2"},{"source":"sean","relationship":"greeting","destination":"2"}]
+[applyMiddleware] Checking body for POST - req.body: null
+[applyMiddleware] Body not parsed, calling parseBody...
+[parseBody] Body parsed successfully
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm tell be about peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Database Pool] New client connected
+[Server] Applying security middleware for POST /api/chat/stream
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm tell be about peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Security middleware passed for POST /api/chat/stream
+[Server] About to apply CSRF header middleware...
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm tell be about peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[CSRF-Header] Bypassing CSRF validation in development mode
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for POST /api/chat/stream
+[Server] SSE streaming endpoint hit
+[Server] Processing SSE request
+[Server] req.body: {
+  message: '/crm tell be about peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[Server] Performance monitoring enabled for SSE request
+[Server] Streaming request for session: 1aedbe75eea4b4fc96caa19536647c69, message: "/crm tell be about peter kelly"
+[Server] Sending SSE event: connected { sessionId: '1aedbe75eea4b4fc96caa19536647c69' }
+[Server] SSE: Frontend slash command metadata received: { command: 'crm', agentType: 'CRMAgent' }
+[Server] SSE: Using frontend slash command: /crm → CRMAgent
+[ORCHESTRATOR] Processing with streaming: "/crm tell be about peter kelly"
+[ORCHESTRATOR] SSE: Forced routing to CRMAgent via slash command /crm
+[ORCHESTRATOR] SSE: Found target agent: CRMAgent for forced routing
+[Server] Sending SSE event: start { agent: 'CRMAgent', sessionId: '1aedbe75eea4b4fc96caa19536647c69' }
+[CRMAgent] Initializing...
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[CRMAgent] LLM initialized for AI-powered query understanding
+[InsightlyApiTool] Initializing with config: {
+  apiUrl: 'https://api.na1.insightly.com/v3.1',
+  apiKey: '25af...dfc7',
+  rateLimit: { maxRequests: 10, windowMs: 1000 },
+  timeout: 10000,
+  retryAttempts: 3,
+  maxPageSize: 50
+}
+[API Compliance] Authentication - COMPLIANT ✓
+[InsightlyApiTool] Initialization complete
+[InsightlyApiTool] Initializing with config: {
+  apiUrl: 'https://api.na1.insightly.com/v3.1',
+  apiKey: '25af...dfc7',
+  rateLimit: { maxRequests: 10, windowMs: 1000 },
+  timeout: 10000,
+  retryAttempts: 3,
+  maxPageSize: 50
+}
+[API Compliance] Authentication - COMPLIANT ✓
+[InsightlyApiTool] Initialization complete
+[ContactManagerTool] Initialized successfully
+[InsightlyApiTool] Initializing with config: {
+  apiUrl: 'https://api.na1.insightly.com/v3.1',
+  apiKey: '25af...dfc7',
+  rateLimit: { maxRequests: 10, windowMs: 1000 },
+  timeout: 10000,
+  retryAttempts: 3,
+  maxPageSize: 50
+}
+[API Compliance] Authentication - COMPLIANT ✓
+[InsightlyApiTool] Initialization complete
+[OpportunityTool] Initialized successfully
+[InsightlyApiTool] Initializing with config: {
+  apiUrl: 'https://api.na1.insightly.com/v3.1',
+  apiKey: '25af...dfc7',
+  rateLimit: { maxRequests: 10, windowMs: 1000 },
+  timeout: 10000,
+  retryAttempts: 3,
+  maxPageSize: 50
+}
+[API Compliance] Authentication - COMPLIANT ✓
+[InsightlyApiTool] Initialization complete
+[LeadManagerTool] Initialized successfully
+[CRMAgent] Initialization complete
+[CRMAgent] Using Mem0 for context retrieval
+[CRMAgent] Starting Mem0 context retrieval...
+[Server] Starting deferred session operations for: 1aedbe75eea4b4fc96caa19536647c69
+[Database Pool] New client connected
+[Database Pool] New client connected
+[Database Pool] New client connected
+[Database Pool] New client connected
+[Server] Applying security middleware for GET /api/config/markdown
+[StorageManager] Context query - SessionId: 1aedbe75eea4b4fc96caa19536647c69, UserId: 2
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Session check took: 5.29ms
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3427s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3427s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[PostgresSessionStorage] Appended message to session 1aedbe75eea4b4fc96caa19536647c69, id: 204
+[DEBUG] Entity type map: {"peter_kelly":"person"}
+[DEBUG] Entity type map: {"peter_kelly":"person"}
+[INFO] Returned 5 search results
+[Mem0Service] Search for "/crm tell be about peter kelly" returned 5 results
+[Mem0Service] Built context with 5 relevant memories
+[Mem0Service] Retrieved 5 memories for session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Built complete context: 5 memories + 3 session messages
+[CRMAgent] Context retrieval completed in 2104ms
+[CRMAgent] Memory status set: {
+  enabled: true,
+  memoryCount: 5,
+  status: 'loaded',
+  retrievalTime: 2104
+}
+[CRMAgent] Mem0 returned 10 context messages
+[PERF:LLM] Slow TTFT for unknown: 2104.64ms
+[Server] Sending SSE event: token { content: '[CRM Agent] Analyzing query...\n' }
+[CRMAgent] Intake node processing...
+[CRMAgent] LLM Understanding node processing...
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3425s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3425s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[DEBUG] Extracted entities: [{"source":"peter_kelly","relationship":"is","destination":"entity"}]
+[DEBUG] Deleted relationships: []
+[CRMWorkflowHelper] LLM Query Analysis: {
+  userIntent: 'find_contact_by_name',
+  extractedInfo: {
+    names: [ 'Peter Kelly' ],
+    emails: [],
+    companies: [],
+    identifiers: [],
+    entityType: 'contact',
+    timeReferences: {}
+  },
+  searchStrategy: {
+    primaryApproach: 'search_by_field',
+    sortingRequired: false,
+    sortBy: '',
+    limit: null,
+    needsDetailedView: true
+  },
+  confidence: 0.95
+}
+[CRMAgent] LLM Understanding result: {
+  userIntent: 'find_contact_by_name',
+  extractedInfo: {
+    names: [ 'Peter Kelly' ],
+    emails: [],
+    companies: [],
+    identifiers: [],
+    entityType: 'contact',
+    timeReferences: {}
+  },
+  searchStrategy: {
+    primaryApproach: 'search_by_field',
+    sortingRequired: false,
+    sortBy: '',
+    limit: null,
+    needsDetailedView: true
+  },
+  confidence: 0.95
+}
+[CRMAgent] Tool Orchestration node processing...
+[Mem0Service] Added 1 messages to memory for session 1aedbe75eea4b4fc96caa19536647c69, user 2
+[PostgresSessionIndex] Message count auto-incremented by trigger for session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Saved user message to session 1aedbe75eea4b4fc96caa19536647c69
+[PERF:DB] Slow query 'save-user-message': 6191.74ms
+[Server] Message save took: 6191.77ms
+[Server] Total session operations took: 6197.08ms
+[CRMWorkflowHelper] Tool Orchestration Plan: {
+  toolSequence: [
+    {
+      toolName: 'searchContacts',
+      parameters: [Object],
+      reason: 'Search for contact by name'
+    },
+    {
+      toolName: 'getDetails',
+      parameters: [Object],
+      reason: 'Get detailed information for the contact'
+    }
+  ]
+}
+[CRMAgent] Tool orchestration plan: {
+  toolSequence: [
+    {
+      toolName: 'searchContacts',
+      parameters: [Object],
+      reason: 'Search for contact by name'
+    },
+    {
+      toolName: 'getDetails',
+      parameters: [Object],
+      reason: 'Get detailed information for the contact'
+    }
+  ],
+  expectedOutcome: 'Retrieve CRM information'
+}
+[CRMAgent] Executing searchContacts: { query: 'Peter Kelly', options: {} }
+[ContactManagerTool] Executing search with query: Peter Kelly
+[Server] Sending SSE event: tool_start {
+  toolId: 'tool-1752108804571-qv4jo4s72',
+  toolName: 'contact-manager',
+  parameters: { action: 'search', query: 'Peter Kelly', options: {} },
+  agentName: 'CRMAgent'
+}
+[Server] Sending SSE event: tool_progress {
+  toolId: 'tool-1752108804571-qv4jo4s72',
+  progress: 'Searching for "Peter Kelly"...',
+  metadata: {
+    toolId: 'tool-1752108804571-qv4jo4s72',
+    action: 'search',
+    query: 'Peter Kelly'
+  }
+}
+[API Compliance] searchContacts: /Contacts/Search - COMPLIANT ✓
+[InsightlyApiTool] Searching contacts with params: {
+  endpoint: '/Contacts/Search',
+  limit: 20,
+  searchField: 'FIRST_NAME',
+  searchValue: 'Peter Kelly',
+  fullUrl: '/Contacts/Search?field_name=FIRST_NAME&field_value=Peter+Kelly&top=20'
+}
+[Server] Sending SSE event: tool_result {
+  toolId: 'tool-1752108804571-qv4jo4s72',
+  result: { contacts: [], count: 0, hasMore: false }
+}
+[CRMAgent] Executing getDetails: { query: 'Peter Kelly' }
+[CRMAgent] Result Processing node processing...
+[Mem0Service] Added 1 messages to memory for session 1aedbe75eea4b4fc96caa19536647c69, user 2
+[PostgresSessionIndex] Message count auto-incremented by trigger for session 1aedbe75eea4b4fc96caa19536647c69
+[PostgresSessionIndex] Updated session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Saved assistant message to session 1aedbe75eea4b4fc96caa19536647c69
+[CRMAgent] Mem0 context retrieval timed out after 10001ms (10s limit), using minimal context
+[Server] Sending SSE event: token {
+  content: 'Hi there!\n' +
+    '\n' +
+    `I took a look through our database to find any contacts matching the name "Peter Kelly," but it seems there aren't any records that match your search criteria at the moment. \n` +
+    '\n' +
+    'If you have any more details or another name you’d like me to check, feel free to let me know! 😊\n' +
+    '\n' +
+    "In case you're wondering about the latest updates, I can help you with information on the most recent contacts added to our system. Just give me a shout if you need anything else!"
+}
+[PERF:Agent] undefined execution: 10102.37ms
+[PERF:LLM] unknown - Total: 10102ms, TTFT: 2105ms, Stream: 7998ms, TPS: 0.3
+[DEBUG] Memory status type: object
+[DEBUG] Memory status: {
+  "enabled": true,
+  "memoryCount": 5,
+  "status": "loaded",
+  "retrievalTime": 2104
+}
+[Server] Performance data collected: {
+  database: {
+    totalTime: 6197.05,
+    operations: { 'check-session': [Object], 'save-user-message': [Object] }
+  },
+  agent: { totalTime: 10102.37, selection: 0, execution: 10102.37 },
+  llm: { totalTime: 10102.41, ttft: 2104.64, tokens: 2 }
+}
+[Server] Sending SSE event: done {
+  agent: 'CRMAgent',
+  agentType: 'crm',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  memoryStatus: {
+    enabled: true,
+    memoryCount: 5,
+    status: 'loaded',
+    retrievalTime: 2104
+  },
+  orchestration: {
+    confidence: 1,
+    streaming: true,
+    forcedBySlashCommand: true,
+    commandUsed: 'crm'
+  },
+  performance: {
+    database: { totalTime: 6197.05, operations: [Object] },
+    agent: { totalTime: 10102.37, selection: 0, execution: 10102.37 },
+    llm: { totalTime: 10102.41, ttft: 2104.64, tokens: 2 }
+  }
+}
+[Server] Recorded 2 database operations, total: 6197.02ms
+[PostgresSessionStorage] Appended message to session 1aedbe75eea4b4fc96caa19536647c69, id: 205
+[applyMiddleware] Checking body for PATCH - req.body: null
+[applyMiddleware] Body not parsed, calling parseBody...
+[parseBody] Body parsed successfully
+[applyMiddleware] Checking body for PATCH - req.body: {}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Applying security middleware for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[applyMiddleware] Checking body for PATCH - req.body: {}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Security middleware passed for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[Server] PATCH /api/chats/:id/read endpoint hit
+[Server] req.body: {}
+[Server] Marking session as read: 1aedbe75eea4b4fc96caa19536647c69
+[PostgresSessionIndex] Marked session 1aedbe75eea4b4fc96caa19536647c69 as read
+[Server] Session marked as read successfully
+[DEBUG] Entity type map: {"peter_kelly":"person"}
+[DEBUG] Extracted entities: [{"source":"peter_kelly","relationship":"does_not_match","destination":"database_records"}]
+[DEBUG] Deleted relationships: [{"source":"peter_kelly","relationship":"is","destination":"entity"},{"source":"peter_kelly","relationship":"is","destination":"person"},{"source":"peter_kelly","relationship":"is_a","destination":"person"}]
+[Mem0Service] Added 1 messages to memory for session 1aedbe75eea4b4fc96caa19536647c69, user 2
+[PostgresSessionIndex] Message count auto-incremented by trigger for session 1aedbe75eea4b4fc96caa19536647c69
+[PostgresSessionIndex] Updated session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Saved assistant message to session 1aedbe75eea4b4fc96caa19536647c69
+[applyMiddleware] Checking body for POST - req.body: null
+[applyMiddleware] Body not parsed, calling parseBody...
+[parseBody] Body parsed successfully
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm what can you do?',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Database Pool] New client connected
+[Server] Applying security middleware for POST /api/chat/stream
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm what can you do?',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Security middleware passed for POST /api/chat/stream
+[Server] About to apply CSRF header middleware...
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm what can you do?',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[CSRF-Header] Bypassing CSRF validation in development mode
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for POST /api/chat/stream
+[Server] SSE streaming endpoint hit
+[Server] Processing SSE request
+[Server] req.body: {
+  message: '/crm what can you do?',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[Server] Performance monitoring enabled for SSE request
+[Server] Streaming request for session: 1aedbe75eea4b4fc96caa19536647c69, message: "/crm what can you do?"
+[Server] Sending SSE event: connected { sessionId: '1aedbe75eea4b4fc96caa19536647c69' }
+[Server] SSE: Frontend slash command metadata received: { command: 'crm', agentType: 'CRMAgent' }
+[Server] SSE: Using frontend slash command: /crm → CRMAgent
+[ORCHESTRATOR] Processing with streaming: "/crm what can you do?"
+[ORCHESTRATOR] SSE: Forced routing to CRMAgent via slash command /crm
+[ORCHESTRATOR] SSE: Found target agent: CRMAgent for forced routing
+[Server] Sending SSE event: start { agent: 'CRMAgent', sessionId: '1aedbe75eea4b4fc96caa19536647c69' }
+[CRMAgent] Using Mem0 for context retrieval
+[CRMAgent] Starting Mem0 context retrieval...
+[Server] Starting deferred session operations for: 1aedbe75eea4b4fc96caa19536647c69
+[Database Pool] New client connected
+[Server] Applying security middleware for GET /api/config/markdown
+[Database Pool] New client connected
+[Database Pool] New client connected
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3396s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Session check took: 6.59ms
+[StorageManager] Context query - SessionId: 1aedbe75eea4b4fc96caa19536647c69, UserId: 2
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3396s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[PostgresSessionStorage] Appended message to session 1aedbe75eea4b4fc96caa19536647c69, id: 206
+[DEBUG] Entity type map: {"crm":"system"}
+[INFO] Returned 5 search results
+[Mem0Service] Search for "/crm what can you do?" returned 5 results
+[Mem0Service] Built context with 5 relevant memories
+[Mem0Service] Retrieved 5 memories for session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Built complete context: 5 memories + 5 session messages
+[CRMAgent] Context retrieval completed in 2046ms
+[CRMAgent] Memory status set: {
+  enabled: true,
+  memoryCount: 5,
+  status: 'loaded',
+  retrievalTime: 2046
+}
+[CRMAgent] Mem0 returned 12 context messages
+[PERF:LLM] Slow TTFT for unknown: 2046.51ms
+[Server] Sending SSE event: token { content: '[CRM Agent] Analyzing query...\n' }
+[CRMAgent] Intake node processing...
+[CRMAgent] LLM Understanding node processing...
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3394s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3394s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[DEBUG] Entity type map: {"crm":"system"}
+[DEBUG] Extracted entities: [{"source":"crm","relationship":"can_do","destination":"unknown_activity"}]
+[CRMWorkflowHelper] LLM Query Analysis: {
+  userIntent: 'get_contact_details',
+  extractedInfo: {
+    names: [],
+    emails: [],
+    companies: [],
+    identifiers: [],
+    entityType: 'contact',
+    timeReferences: {}
+  },
+  searchStrategy: {
+    primaryApproach: 'get_all_sort_by_date',
+    sortingRequired: false,
+    sortBy: '',
+    limit: null,
+    needsDetailedView: true
+  },
+  confidence: 0.7
+}
+[CRMAgent] LLM Understanding result: {
+  userIntent: 'get_contact_details',
+  extractedInfo: {
+    names: [],
+    emails: [],
+    companies: [],
+    identifiers: [],
+    entityType: 'contact',
+    timeReferences: {}
+  },
+  searchStrategy: {
+    primaryApproach: 'get_all_sort_by_date',
+    sortingRequired: false,
+    sortBy: '',
+    limit: null,
+    needsDetailedView: true
+  },
+  confidence: 0.7
+}
+[CRMAgent] Tool Orchestration node processing...
+[CRMWorkflowHelper] Tool Orchestration Plan: {
+  toolSequence: [
+    {
+      toolName: 'searchContacts',
+      parameters: [Object],
+      reason: 'Get all contacts sorted by creation date to find the latest'
+    }
+  ]
+}
+[CRMAgent] Tool orchestration plan: {
+  toolSequence: [
+    {
+      toolName: 'searchContacts',
+      parameters: [Object],
+      reason: 'Get all contacts sorted by creation date to find the latest'
+    }
+  ],
+  expectedOutcome: 'Retrieve CRM information'
+}
+[CRMAgent] Executing searchContacts: { query: '*', options: { sortBy: 'created_desc' } }
+[ContactManagerTool] Executing search with query: *
+[Server] Sending SSE event: tool_start {
+  toolId: 'tool-1752108835052-7qa4a14np',
+  toolName: 'contact-manager',
+  parameters: { action: 'search', query: '*', options: { sortBy: 'created_desc' } },
+  agentName: 'CRMAgent'
+}
+[Server] Sending SSE event: tool_progress {
+  toolId: 'tool-1752108835052-7qa4a14np',
+  progress: 'Searching for "*"...',
+  metadata: {
+    toolId: 'tool-1752108835052-7qa4a14np',
+    action: 'search',
+    query: '*'
+  }
+}
+[API Compliance] searchContacts: /Contacts - COMPLIANT ✓
+[InsightlyApiTool] Searching contacts with params: {
+  endpoint: '/Contacts',
+  limit: 50,
+  searchField: null,
+  searchValue: null,
+  fullUrl: '/Contacts?top=50'
+}
+[InsightlyApiTool] Sorting 50 contacts by DATE_CREATED_UTC desc
+[InsightlyApiTool] Top 3 sorted results:
+  1. J Longhouser - Created: 2017-05-22 13:48:59
+  2. James Bell - Created: 2017-05-15 12:21:42
+  3. Justin Takasaki - Created: 2017-05-11 18:51:59
+[DEBUG] Deleted relationships: [{"source":"crm","relationship":"analyzes","destination":"query"},{"source":"crm","relationship":"is","destination":"customer_service_approach"},{"source":"crm","relationship":"has","destination":"communications"},{"source":"crm","relationship":"has","destination":"activities"},{"source":"crm","relationship":"has","destination":"filters"},{"source":"crm","relationship":"contains_data_on","destination":"opportunities"},{"source":"crm","relationship":"has_opportunities","destination":"opportunities"},{"source":"crm","relationship":"has_contact","destination":"contact"}]
+[CRMAgent] Mem0 context retrieval timed out after 10000ms (10s limit), using minimal context
+[Mem0Service] Added 1 messages to memory for session 1aedbe75eea4b4fc96caa19536647c69, user 2
+[PostgresSessionIndex] Message count auto-incremented by trigger for session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Saved user message to session 1aedbe75eea4b4fc96caa19536647c69
+[PERF:DB] Slow query 'save-user-message': 10509.87ms
+[Server] Message save took: 10509.90ms
+[Server] Total session operations took: 10516.52ms
+[Server] Sending SSE event: tool_result {
+  toolId: 'tool-1752108835052-7qa4a14np',
+  result: {
+    contacts: [
+      [Object], [Object], [Object],
+      [Object], [Object], [Object],
+      [Object], [Object], [Object],
+      [Object], [Object], [Object],
+      [Object], [Object], [Object],
+      [Object], [Object], [Object],
+      [Object], [Object]
+    ],
+    count: 20,
+    hasMore: true
+  }
+}
+[ContactManagerTool] Executing getDetails with query: 218836854
+[Server] Sending SSE event: tool_start {
+  toolId: 'tool-1752108840531-dlbudf5vb',
+  toolName: 'contact-manager',
+  parameters: { action: 'getDetails', query: '218836854' },
+  agentName: 'CRMAgent'
+}
+[InsightlyApiTool] Executing getContact with params: { id: 218836854 }
+[Server] Sending SSE event: tool_result {
+  toolId: 'tool-1752108840531-dlbudf5vb',
+  result: {
+    contact: {
+      CONTACT_ID: 218836854,
+      SALUTATION: null,
+      FIRST_NAME: 'J',
+      LAST_NAME: 'Longhouser',
+      IMAGE_URL: null,
+      BACKGROUND: null,
+      OWNER_USER_ID: 1223177,
+      DATE_CREATED_UTC: '2017-05-22 13:48:59',
+      DATE_UPDATED_UTC: '2020-08-19 03:05:10',
+      SOCIAL_LINKEDIN: '',
+      SOCIAL_FACEBOOK: '',
+      SOCIAL_TWITTER: '',
+      DATE_OF_BIRTH: null,
+      PHONE: null,
+      PHONE_HOME: null,
+      PHONE_MOBILE: null,
+      PHONE_OTHER: null,
+      PHONE_ASSISTANT: null,
+      PHONE_FAX: null,
+      EMAIL_ADDRESS: 'jlonghouser@lubawausa.com',
+      ASSISTANT_NAME: null,
+      ADDRESS_MAIL_STREET: null,
+      ADDRESS_MAIL_CITY: null,
+      ADDRESS_MAIL_STATE: null,
+      ADDRESS_MAIL_POSTCODE: null,
+      ADDRESS_MAIL_COUNTRY: null,
+      ADDRESS_OTHER_STREET: null,
+      ADDRESS_OTHER_CITY: null,
+      ADDRESS_OTHER_STATE: null,
+      ADDRESS_OTHER_POSTCODE: null,
+      ADDRESS_OTHER_COUNTRY: null,
+      LAST_ACTIVITY_DATE_UTC: '2017-05-22 13:48:58',
+      NEXT_ACTIVITY_DATE_UTC: null,
+      CREATED_USER_ID: 1223177,
+      ORGANISATION_ID: null,
+      TITLE: 'Employee',
+      EMAIL_OPTED_OUT: false,
+      CUSTOMFIELDS: [],
+      TAGS: [],
+      DATES: [],
+      LINKS: [Array],
+      opportunityCount: 50,
+      totalOpportunityValue: 5521492.46,
+      lastInteractionDate: '2024-11-01 03:07:05',
+      leadScore: 100
+    },
+    display: '**J Longhouser** Employee \n' +
+      '📧 jlonghouser@lubawausa.com \n' +
+      '🎯 Lead Score: 100/100 💼 Opportunities: 50 💰 Total Value: $5,521,492.46'
+  }
+}
+[ContactManagerTool] Executing getOpportunities with query: 218836854
+[Server] Sending SSE event: tool_start {
+  toolId: 'tool-1752108840813-4xkgg4tcp',
+  toolName: 'contact-manager',
+  parameters: { action: 'getOpportunities', query: '218836854' },
+  agentName: 'CRMAgent'
+}
+[InsightlyApiTool] Executing getContactOpportunities with params: { contactId: 218836854 }
+[InsightlyApiTool] Getting opportunities for contact: {
+  contactId: 218836854,
+  fullUrl: '/Opportunities/Search?field_name=CONTACT_ID&field_value=218836854&top=50'
+}
+[InsightlyApiTool] Execution error: Error: API error (400): Request failed with status code 400
+    at InsightlyApiTool.handleApiError (/Users/crossgenai/sg/chatSG/backend/dist/src/tools/crm/InsightlyApiTool.js:161:23)
+    at /Users/crossgenai/sg/chatSG/backend/dist/src/tools/crm/InsightlyApiTool.js:87:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Axios.request (/Users/crossgenai/sg/chatSG/backend/node_modules/axios/dist/node/axios.cjs:4271:14)
+    at async InsightlyApiTool.getContactOpportunities (/Users/crossgenai/sg/chatSG/backend/dist/src/tools/crm/InsightlyApiTool.js:442:26)
+    at async InsightlyApiTool.execute (/Users/crossgenai/sg/chatSG/backend/dist/src/tools/crm/InsightlyApiTool.js:565:30)
+    at async ContactManagerTool.execute (/Users/crossgenai/sg/chatSG/backend/dist/src/tools/crm/ContactManagerTool.js:432:43)
+    at async CRMAgent.toolOrchestrationNode (/Users/crossgenai/sg/chatSG/backend/dist/src/agents/individual/crm/agent.js:191:55)
+    at async Object.invoke (/Users/crossgenai/sg/chatSG/backend/dist/src/agents/individual/crm/agent.js:75:36)
+    at async CRMAgent.processMessage (/Users/crossgenai/sg/chatSG/backend/dist/src/agents/individual/crm/agent.js:343:28)
+    at Axios.request (/Users/crossgenai/sg/chatSG/backend/node_modules/axios/dist/node/axios.cjs:4276:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async InsightlyApiTool.getContactOpportunities (/Users/crossgenai/sg/chatSG/backend/dist/src/tools/crm/InsightlyApiTool.js:442:26)
+    at async InsightlyApiTool.execute (/Users/crossgenai/sg/chatSG/backend/dist/src/tools/crm/InsightlyApiTool.js:565:30)
+    at async ContactManagerTool.execute (/Users/crossgenai/sg/chatSG/backend/dist/src/tools/crm/ContactManagerTool.js:432:43)
+    at async CRMAgent.toolOrchestrationNode (/Users/crossgenai/sg/chatSG/backend/dist/src/agents/individual/crm/agent.js:191:55)
+    at async Object.invoke (/Users/crossgenai/sg/chatSG/backend/dist/src/agents/individual/crm/agent.js:75:36)
+    at async CRMAgent.processMessage (/Users/crossgenai/sg/chatSG/backend/dist/src/agents/individual/crm/agent.js:343:28)
+    at async handleSSERequest (/Users/crossgenai/sg/chatSG/backend/server.js:609:32)
+[Server] Sending SSE event: tool_result {
+  toolId: 'tool-1752108840813-4xkgg4tcp',
+  result: { opportunities: [], count: 0, totalValue: 0 }
+}
+[CRMAgent] Result Processing node processing...
+[Server] Sending SSE event: token {
+  content: 'Hello there! 😊\n' +
+    '\n' +
+    'It looks like you wanted to know what our CRM can do in terms of contact details. Based on your query, I found some information about a contact in our system:\n' +
+    '\n' +
+    '- **Name:** J Longhouser\n' +
+    '- **Email:** jlonghouser@lubawausa.com\n' +
+    '- **Title:** Employee\n' +
+    '- **Opportunities Count:** 50\n' +
+    '- **Total Opportunity Value:** $5,521,492.46\n' +
+    '- **Lead Score:** 100\n' +
+    '- **Last Interaction Date:** November 1, 2024\n' +
+    '\n' +
+    "If you were looking for something specific or need more details, feel free to let me know! I'm here to help. 😊"
+}
+[PERF:Agent] undefined execution: 15941.43ms
+[PERF:LLM] unknown - Total: 15942ms, TTFT: 2047ms, Stream: 13895ms, TPS: 0.1
+[DEBUG] Memory status type: object
+[DEBUG] Memory status: {
+  "enabled": true,
+  "memoryCount": 5,
+  "status": "loaded",
+  "retrievalTime": 2046
+}
+[Server] Performance data collected: {
+  database: {
+    totalTime: 10516.47,
+    operations: { 'check-session': [Object], 'save-user-message': [Object] }
+  },
+  agent: { totalTime: 15941.43, selection: 0, execution: 15941.43 },
+  llm: { totalTime: 15941.51, ttft: 2046.51, tokens: 2 }
+}
+[Server] Sending SSE event: done {
+  agent: 'CRMAgent',
+  agentType: 'crm',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  memoryStatus: {
+    enabled: true,
+    memoryCount: 5,
+    status: 'loaded',
+    retrievalTime: 2046
+  },
+  orchestration: {
+    confidence: 1,
+    streaming: true,
+    forcedBySlashCommand: true,
+    commandUsed: 'crm'
+  },
+  performance: {
+    database: { totalTime: 10516.47, operations: [Object] },
+    agent: { totalTime: 15941.43, selection: 0, execution: 15941.43 },
+    llm: { totalTime: 15941.51, ttft: 2046.51, tokens: 2 }
+  }
+}
+[Server] Recorded 2 database operations, total: 10516.45ms
+[applyMiddleware] Checking body for PATCH - req.body: null
+[applyMiddleware] Body not parsed, calling parseBody...
+[parseBody] Body parsed successfully
+[applyMiddleware] Checking body for PATCH - req.body: {}
+[applyMiddleware] Body already parsed, skipping parseBody
+[PostgresSessionStorage] Appended message to session 1aedbe75eea4b4fc96caa19536647c69, id: 207
+[Database Pool] New client connected
+[Server] Applying security middleware for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[applyMiddleware] Checking body for PATCH - req.body: {}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Security middleware passed for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[Server] PATCH /api/chats/:id/read endpoint hit
+[Server] req.body: {}
+[Server] Marking session as read: 1aedbe75eea4b4fc96caa19536647c69
+[PostgresSessionIndex] Marked session 1aedbe75eea4b4fc96caa19536647c69 as read
+[Server] Session marked as read successfully
+[DEBUG] Entity type map: {"50":"opportunities_count","100":"lead_score","j_longhouser":"person","jlonghouser@lubawausa.com":"email","employee":"title","$5,521,492.46":"total_opportunity_value","november_1,_2024":"date"}
+[DEBUG] Extracted entities: [{"source":"j_longhouser","relationship":"has_email","destination":"jlonghouser@lubawausa.com"},{"source":"j_longhouser","relationship":"holds_title","destination":"employee"},{"source":"j_longhouser","relationship":"has_opportunities_count","destination":"50"},{"source":"j_longhouser","relationship":"has_total_opportunity_value","destination":"$5,521,492.46"},{"source":"j_longhouser","relationship":"has_lead_score","destination":"100"},{"source":"j_longhouser","relationship":"had_last_interaction_on","destination":"november_1,_2024"}]
+[DEBUG] Deleted relationships: [{"source":"j_longhouser","relationship":"has_email","destination":"jlonghouser@lubawausa.com"},{"source":"j_longhouser","relationship":"email","destination":"jlonghouser@lubawausa.com"},{"source":"j_longhouser","relationship":"has_email","destination":"jlonghouser@lubawausa.com"},{"source":"j_longhouser","relationship":"email","destination":"jlonghouser@lubawausa.com"}]
+[applyMiddleware] Checking body for POST - req.body: null
+[applyMiddleware] Body not parsed, calling parseBody...
+[parseBody] Body parsed successfully
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm tell me about the contact peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Database Pool] New client connected
+[Server] Applying security middleware for POST /api/chat/stream
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm tell me about the contact peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Security middleware passed for POST /api/chat/stream
+[Server] About to apply CSRF header middleware...
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm tell me about the contact peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[CSRF-Header] Bypassing CSRF validation in development mode
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for POST /api/chat/stream
+[Server] SSE streaming endpoint hit
+[Server] Processing SSE request
+[Server] req.body: {
+  message: '/crm tell me about the contact peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[Server] Performance monitoring enabled for SSE request
+[Server] Streaming request for session: 1aedbe75eea4b4fc96caa19536647c69, message: "/crm tell me about the contact peter kelly"
+[Server] Sending SSE event: connected { sessionId: '1aedbe75eea4b4fc96caa19536647c69' }
+[Server] SSE: Frontend slash command metadata received: { command: 'crm', agentType: 'CRMAgent' }
+[Server] SSE: Using frontend slash command: /crm → CRMAgent
+[ORCHESTRATOR] Processing with streaming: "/crm tell me about the contact peter kelly"
+[ORCHESTRATOR] SSE: Forced routing to CRMAgent via slash command /crm
+[ORCHESTRATOR] SSE: Found target agent: CRMAgent for forced routing
+[Server] Sending SSE event: start { agent: 'CRMAgent', sessionId: '1aedbe75eea4b4fc96caa19536647c69' }
+[CRMAgent] Using Mem0 for context retrieval
+[CRMAgent] Starting Mem0 context retrieval...
+[Server] Starting deferred session operations for: 1aedbe75eea4b4fc96caa19536647c69
+[Database Pool] New client connected
+[Database Pool] New client connected
+[Server] Session check took: 5.11ms
+[StorageManager] Context query - SessionId: 1aedbe75eea4b4fc96caa19536647c69, UserId: 2
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3355s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[PostgresSessionStorage] Appended message to session 1aedbe75eea4b4fc96caa19536647c69, id: 208
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3355s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[DEBUG] Entity type map: {"peter_kelly":"person"}
+[DEBUG] Entity type map: {"peter_kelly":"person"}
+[DEBUG] Extracted entities: [{"source":"peter_kelly","relationship":"is_contact","destination":"2"}]
+[INFO] Returned 5 search results
+[Mem0Service] Search for "/crm tell me about the contact peter kelly" returned 12 results
+[Mem0Service] Built context with 12 relevant memories
+[Mem0Service] Retrieved 12 memories for session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Built complete context: 12 memories + 7 session messages
+[CRMAgent] Context retrieval completed in 2815ms
+[CRMAgent] Memory status set: {
+  enabled: true,
+  memoryCount: 12,
+  status: 'loaded',
+  retrievalTime: 2815
+}
+[CRMAgent] Mem0 returned 21 context messages
+[PERF:LLM] Slow TTFT for unknown: 2815.14ms
+[Server] Sending SSE event: token { content: '[CRM Agent] Analyzing query...\n' }
+[CRMAgent] Intake node processing...
+[CRMAgent] LLM Understanding node processing...
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3352s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3352s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Mem0Service] Added 1 messages to memory for session 1aedbe75eea4b4fc96caa19536647c69, user 2
+[PostgresSessionIndex] Message count auto-incremented by trigger for session 1aedbe75eea4b4fc96caa19536647c69
+[PostgresSessionIndex] Updated session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Saved assistant message to session 1aedbe75eea4b4fc96caa19536647c69
+[CRMWorkflowHelper] LLM Query Analysis: {
+  userIntent: 'get_contact_details',
+  extractedInfo: {
+    names: [ 'peter kelly' ],
+    emails: [],
+    companies: [],
+    identifiers: [],
+    entityType: 'contact',
+    timeReferences: { latest: false }
+  },
+  searchStrategy: {
+    primaryApproach: 'search_by_field',
+    sortingRequired: false,
+    sortBy: '',
+    limit: 1,
+    needsDetailedView: true
+  },
+  confidence: 0.95
+}
+[CRMAgent] LLM Understanding result: {
+  userIntent: 'get_contact_details',
+  extractedInfo: {
+    names: [ 'peter kelly' ],
+    emails: [],
+    companies: [],
+    identifiers: [],
+    entityType: 'contact',
+    timeReferences: { latest: false }
+  },
+  searchStrategy: {
+    primaryApproach: 'search_by_field',
+    sortingRequired: false,
+    sortBy: '',
+    limit: 1,
+    needsDetailedView: true
+  },
+  confidence: 0.95
+}
+[CRMAgent] Tool Orchestration node processing...
+[DEBUG] Deleted relationships: []
+[Mem0Service] Added 1 messages to memory for session 1aedbe75eea4b4fc96caa19536647c69, user 2
+[PostgresSessionIndex] Message count auto-incremented by trigger for session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Saved user message to session 1aedbe75eea4b4fc96caa19536647c69
+[PERF:DB] Slow query 'save-user-message': 6058.83ms
+[Server] Message save took: 6058.86ms
+[Server] Total session operations took: 6064.03ms
+[CRMWorkflowHelper] Tool Orchestration Plan: {
+  toolSequence: [
+    {
+      toolName: 'searchContacts',
+      parameters: [Object],
+      reason: 'Search for contact by name to get detailed information'
+    }
+  ]
+}
+[CRMAgent] Tool orchestration plan: {
+  toolSequence: [
+    {
+      toolName: 'searchContacts',
+      parameters: [Object],
+      reason: 'Search for contact by name to get detailed information'
+    }
+  ],
+  expectedOutcome: 'Retrieve CRM information'
+}
+[CRMAgent] Executing searchContacts: { query: 'peter kelly', options: { limit: 1 } }
+[ContactManagerTool] Executing search with query: peter kelly
+[Server] Sending SSE event: tool_start {
+  toolId: 'tool-1752108875139-v327j0yhe',
+  toolName: 'contact-manager',
+  parameters: { action: 'search', query: 'peter kelly', options: { limit: 1 } },
+  agentName: 'CRMAgent'
+}
+[Server] Sending SSE event: tool_progress {
+  toolId: 'tool-1752108875139-v327j0yhe',
+  progress: 'Searching for "peter kelly"...',
+  metadata: {
+    toolId: 'tool-1752108875139-v327j0yhe',
+    action: 'search',
+    query: 'peter kelly'
+  }
+}
+[API Compliance] searchContacts: /Contacts/Search - COMPLIANT ✓
+[InsightlyApiTool] Searching contacts with params: {
+  endpoint: '/Contacts/Search',
+  limit: 1,
+  searchField: 'FIRST_NAME',
+  searchValue: 'peter kelly',
+  fullUrl: '/Contacts/Search?field_name=FIRST_NAME&field_value=peter+kelly&top=1'
+}
+[Server] Sending SSE event: tool_result {
+  toolId: 'tool-1752108875139-v327j0yhe',
+  result: { contacts: [], count: 0, hasMore: false }
+}
+[CRMAgent] Result Processing node processing...
+[Server] Sending SSE event: token {
+  content: 'Hi there!\n' +
+    '\n' +
+    `I took a look through our database for contact details on "Peter Kelly," but it seems we don't have any matches for that name at the moment. 🕵️‍♂️\n` +
+    '\n' +
+    "Here's what I did:\n" +
+    '1. I searched specifically for contacts named "Peter Kelly."\n' +
+    '2. Unfortunately, there were no matches found in our records.\n' +
+    '\n' +
+    "If you have any other details, like an email or company name, feel free to share them, and I can try searching again. Or, if there's anything else you'd like to know, just let me know!\n" +
+    '\n' +
+    'Best,  \n' +
+    '[Your Name]'
+}
+[PERF:Agent] undefined execution: 9207.85ms
+[PERF:LLM] unknown - Total: 9208ms, TTFT: 2815ms, Stream: 6393ms, TPS: 0.3
+[DEBUG] Memory status type: object
+[DEBUG] Memory status: {
+  "enabled": true,
+  "memoryCount": 12,
+  "status": "loaded",
+  "retrievalTime": 2815
+}
+[Server] Performance data collected: {
+  database: {
+    totalTime: 6063.99,
+    operations: { 'check-session': [Object], 'save-user-message': [Object] }
+  },
+  agent: { totalTime: 9207.85, selection: 0, execution: 9207.85 },
+  llm: { totalTime: 9207.9, ttft: 2815.14, tokens: 2 }
+}
+[Server] Sending SSE event: done {
+  agent: 'CRMAgent',
+  agentType: 'crm',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  memoryStatus: {
+    enabled: true,
+    memoryCount: 12,
+    status: 'loaded',
+    retrievalTime: 2815
+  },
+  orchestration: {
+    confidence: 1,
+    streaming: true,
+    forcedBySlashCommand: true,
+    commandUsed: 'crm'
+  },
+  performance: {
+    database: { totalTime: 6063.99, operations: [Object] },
+    agent: { totalTime: 9207.85, selection: 0, execution: 9207.85 },
+    llm: { totalTime: 9207.9, ttft: 2815.14, tokens: 2 }
+  }
+}
+[Server] Recorded 2 database operations, total: 6063.93ms
+[PostgresSessionStorage] Appended message to session 1aedbe75eea4b4fc96caa19536647c69, id: 209
+[applyMiddleware] Checking body for PATCH - req.body: null
+[applyMiddleware] Body not parsed, calling parseBody...
+[parseBody] Body parsed successfully
+[applyMiddleware] Checking body for PATCH - req.body: {}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Applying security middleware for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[applyMiddleware] Checking body for PATCH - req.body: {}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Security middleware passed for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[Server] PATCH /api/chats/:id/read endpoint hit
+[Server] req.body: {}
+[Server] Marking session as read: 1aedbe75eea4b4fc96caa19536647c69
+[PostgresSessionIndex] Marked session 1aedbe75eea4b4fc96caa19536647c69 as read
+[Server] Session marked as read successfully
+[CRMAgent] Mem0 context retrieval timed out after 10001ms (10s limit), using minimal context
+[DEBUG] Entity type map: {"peter_kelly":"person","your_name":"person"}
+[DEBUG] Extracted entities: [{"source":"your_name","relationship":"sender","destination":"peter_kelly"},{"source":"your_name","relationship":"searched_for","destination":"peter_kelly"},{"source":"peter_kelly","relationship":"not_found_in","destination":"database"}]
+[DEBUG] Deleted relationships: [{"source":"peter_kelly","relationship":"does_not_match","destination":"database_records"},{"source":"peter_kelly","relationship":"is_contact","destination":"2"},{"source":"peter_kelly","relationship":"has_lead_score","destination":"100"}]
+[Mem0Service] Added 1 messages to memory for session 1aedbe75eea4b4fc96caa19536647c69, user 2
+[PostgresSessionIndex] Message count auto-incremented by trigger for session 1aedbe75eea4b4fc96caa19536647c69
+[Database Pool] New client connected
+[PostgresSessionIndex] Updated session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Saved assistant message to session 1aedbe75eea4b4fc96caa19536647c69
+[applyMiddleware] Checking body for POST - req.body: null
+[applyMiddleware] Body not parsed, calling parseBody...
+[parseBody] Body parsed successfully
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm look for the lead peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Database Pool] New client connected
+[Server] Applying security middleware for POST /api/chat/stream
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm look for the lead peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Security middleware passed for POST /api/chat/stream
+[Server] About to apply CSRF header middleware...
+[applyMiddleware] Checking body for POST - req.body: {
+  message: '/crm look for the lead peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[applyMiddleware] Body already parsed, skipping parseBody
+[CSRF-Header] Bypassing CSRF validation in development mode
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for POST /api/chat/stream
+[Server] SSE streaming endpoint hit
+[Server] Processing SSE request
+[Server] req.body: {
+  message: '/crm look for the lead peter kelly',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  activeSessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  slashCommand: { command: 'crm', agentType: 'CRMAgent' }
+}
+[Server] Performance monitoring enabled for SSE request
+[Server] Streaming request for session: 1aedbe75eea4b4fc96caa19536647c69, message: "/crm look for the lead peter kelly"
+[Server] Sending SSE event: connected { sessionId: '1aedbe75eea4b4fc96caa19536647c69' }
+[Server] SSE: Frontend slash command metadata received: { command: 'crm', agentType: 'CRMAgent' }
+[Server] SSE: Using frontend slash command: /crm → CRMAgent
+[ORCHESTRATOR] Processing with streaming: "/crm look for the lead peter kelly"
+[ORCHESTRATOR] SSE: Forced routing to CRMAgent via slash command /crm
+[ORCHESTRATOR] SSE: Found target agent: CRMAgent for forced routing
+[Server] Sending SSE event: start { agent: 'CRMAgent', sessionId: '1aedbe75eea4b4fc96caa19536647c69' }
+[CRMAgent] Using Mem0 for context retrieval
+[CRMAgent] Starting Mem0 context retrieval...
+[Server] Starting deferred session operations for: 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Context query - SessionId: 1aedbe75eea4b4fc96caa19536647c69, UserId: 2
+[Server] Applying security middleware for GET /api/config/markdown
+[Database Pool] New client connected
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3332s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Database Pool] New client connected
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Session check took: 7.10ms
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3332s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[PostgresSessionStorage] Appended message to session 1aedbe75eea4b4fc96caa19536647c69, id: 210
+[DEBUG] Entity type map: {"peter_kelly":"lead"}
+[INFO] Returned 5 search results
+[Mem0Service] Search for "/crm look for the lead peter kelly" returned 12 results
+[Mem0Service] Built context with 12 relevant memories
+[Mem0Service] Retrieved 12 memories for session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Built complete context: 12 memories + 9 session messages
+[CRMAgent] Context retrieval completed in 2040ms
+[CRMAgent] Memory status set: {
+  enabled: true,
+  memoryCount: 12,
+  status: 'loaded',
+  retrievalTime: 2040
+}
+[CRMAgent] Mem0 returned 23 context messages
+[PERF:LLM] Slow TTFT for unknown: 2041.17ms
+[Server] Sending SSE event: token { content: '[CRM Agent] Analyzing query...\n' }
+[CRMAgent] Intake node processing...
+[CRMAgent] LLM Understanding node processing...
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Applying security middleware for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3329s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[Server] Security middleware passed for GET /api/config/markdown
+[Server] About to apply CSRF header middleware...
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: 'c556fbb180804c47b378...',
+  expiresIn: '3329s'
+}
+[CSRF-Header] Calling next() for GET /api/config/markdown
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/markdown
+[CRMWorkflowHelper] LLM Query Analysis: {
+  userIntent: 'find_contact_by_name',
+  extractedInfo: {
+    names: [ 'peter kelly' ],
+    emails: [],
+    companies: [],
+    identifiers: [],
+    entityType: 'lead',
+    timeReferences: {}
+  },
+  searchStrategy: {
+    primaryApproach: 'search_by_field',
+    sortingRequired: false,
+    sortBy: '',
+    limit: null,
+    needsDetailedView: false
+  },
+  confidence: 0.95
+}
+[CRMAgent] LLM Understanding result: {
+  userIntent: 'find_contact_by_name',
+  extractedInfo: {
+    names: [ 'peter kelly' ],
+    emails: [],
+    companies: [],
+    identifiers: [],
+    entityType: 'lead',
+    timeReferences: {}
+  },
+  searchStrategy: {
+    primaryApproach: 'search_by_field',
+    sortingRequired: false,
+    sortBy: '',
+    limit: null,
+    needsDetailedView: false
+  },
+  confidence: 0.95
+}
+[CRMAgent] Tool Orchestration node processing...
+[CRMWorkflowHelper] Tool Orchestration Plan: {
+  toolSequence: [
+    {
+      toolName: 'searchLeads',
+      parameters: [Object],
+      reason: 'Search for lead by name'
+    }
+  ]
+}
+[CRMAgent] Tool orchestration plan: {
+  toolSequence: [
+    {
+      toolName: 'searchLeads',
+      parameters: [Object],
+      reason: 'Search for lead by name'
+    }
+  ],
+  expectedOutcome: 'Retrieve CRM information'
+}
+[CRMAgent] Executing searchLeads: { query: 'peter kelly', options: {} }
+[LeadManagerTool] Executing search with query: peter kelly
+[Server] Sending SSE event: tool_start {
+  toolId: 'tool-1752108897058-owwci155y',
+  toolName: 'lead-manager',
+  parameters: { action: 'search', query: 'peter kelly', options: {} },
+  agentName: 'CRMAgent'
+}
+[Server] Sending SSE event: tool_progress {
+  toolId: 'tool-1752108897058-owwci155y',
+  progress: 'Searching for leads: "peter kelly"...',
+  metadata: { toolId: 'tool-1752108897058-owwci155y' }
+}
+[InsightlyApiTool] Searching leads with params: {
+  endpoint: '/Leads/Search',
+  limit: 20,
+  searchField: 'FIRST_NAME',
+  searchValue: 'peter kelly',
+  fullUrl: '/Leads/Search?field_name=FIRST_NAME&field_value=peter+kelly&top=20'
+}
+[Server] Sending SSE event: tool_result {
+  toolId: 'tool-1752108897058-owwci155y',
+  result: { leads: [], count: 0, hasMore: false }
+}
+[CRMAgent] Result Processing node processing...
+[DEBUG] Entity type map: {"peter_kelly":"lead"}
+[DEBUG] Extracted entities: [{"source":"peter_kelly","relationship":"is_lead","destination":"crm"}]
+[DEBUG] Deleted relationships: [{"source":"peter_kelly","relationship":"not_found_in","destination":"database"},{"source":"your_name","relationship":"searched_for","destination":"peter_kelly"}]
+[Server] Sending SSE event: token {
+  content: 'Hi there!\n' +
+    '\n' +
+    'I took a look through our database to find the lead named "Peter Kelly," but it seems there are no contacts matching that name at the moment. 🕵️‍♂️\n' +
+    '\n' +
+    "Here's what I did:\n" +
+    '1. I searched specifically for leads with the name "Peter Kelly."\n' +
+    '2. Unfortunately, there were no matches in our records.\n' +
+    '\n' +
+    "If you think there might be a different spelling or if there's any other detail you can provide, feel free to let me know, and I'll be happy to search again. 😊\n" +
+    '\n' +
+    'If you have any other questions or need further assistance, just give me a shout!'
+}
+[PERF:Agent] undefined execution: 8939.59ms
+[PERF:LLM] unknown - Total: 8940ms, TTFT: 2041ms, Stream: 6898ms, TPS: 0.3
+[DEBUG] Memory status type: object
+[DEBUG] Memory status: {
+  "enabled": true,
+  "memoryCount": 12,
+  "status": "loaded",
+  "retrievalTime": 2040
+}
+[Server] Performance data collected: {
+  database: { totalTime: 7.1, operations: { 'check-session': [Object] } },
+  agent: { totalTime: 8939.59, selection: 0, execution: 8939.59 },
+  llm: { totalTime: 8939.64, ttft: 2041.17, tokens: 2 }
+}
+[Server] Sending SSE event: done {
+  agent: 'CRMAgent',
+  agentType: 'crm',
+  sessionId: '1aedbe75eea4b4fc96caa19536647c69',
+  memoryStatus: {
+    enabled: true,
+    memoryCount: 12,
+    status: 'loaded',
+    retrievalTime: 2040
+  },
+  orchestration: {
+    confidence: 1,
+    streaming: true,
+    forcedBySlashCommand: true,
+    commandUsed: 'crm'
+  },
+  performance: {
+    database: { totalTime: 7.1, operations: [Object] },
+    agent: { totalTime: 8939.59, selection: 0, execution: 8939.59 },
+    llm: { totalTime: 8939.64, ttft: 2041.17, tokens: 2 }
+  }
+}
+[Server] Recorded 1 database operations, total: 7.08ms
+[PostgresSessionStorage] Appended message to session 1aedbe75eea4b4fc96caa19536647c69, id: 211
+[applyMiddleware] Checking body for PATCH - req.body: null
+[applyMiddleware] Body not parsed, calling parseBody...
+[parseBody] Body parsed successfully
+[applyMiddleware] Checking body for PATCH - req.body: {}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Applying security middleware for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[applyMiddleware] Checking body for PATCH - req.body: {}
+[applyMiddleware] Body already parsed, skipping parseBody
+[Server] Security middleware passed for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for PATCH /api/chats/1aedbe75eea4b4fc96caa19536647c69/read
+[Server] PATCH /api/chats/:id/read endpoint hit
+[Server] req.body: {}
+[Server] Marking session as read: 1aedbe75eea4b4fc96caa19536647c69
+[PostgresSessionIndex] Marked session 1aedbe75eea4b4fc96caa19536647c69 as read
+[Server] Session marked as read successfully
+[Mem0Service] Added 1 messages to memory for session 1aedbe75eea4b4fc96caa19536647c69, user 2
+[PostgresSessionIndex] Message count auto-incremented by trigger for session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Saved user message to session 1aedbe75eea4b4fc96caa19536647c69
+[PERF:DB] Slow query 'save-user-message': 9708.82ms
+[Server] Message save took: 9708.86ms
+[Server] Total session operations took: 9715.99ms
+[CRMAgent] Mem0 context retrieval timed out after 10000ms (10s limit), using minimal context
+[DEBUG] Entity type map: {"peter_kelly":"person"}
+[DEBUG] Extracted entities: [{"source":"peter_kelly","relationship":"not_found_in","destination":"database"}]
+[DEBUG] Deleted relationships: []
+[Mem0Service] Added 1 messages to memory for session 1aedbe75eea4b4fc96caa19536647c69, user 2
+[PostgresSessionIndex] Message count auto-incremented by trigger for session 1aedbe75eea4b4fc96caa19536647c69
+[PostgresSessionIndex] Updated session 1aedbe75eea4b4fc96caa19536647c69
+[StorageManager] Saved assistant message to session 1aedbe75eea4b4fc96caa19536647c69
