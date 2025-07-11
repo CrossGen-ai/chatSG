@@ -40,6 +40,37 @@ module.exports = {
       timeout: 5000,
       max_consecutive_failures: 3
     }
+  }, {
+    name: 'chatsg-mem0-python',
+    script: 'uvicorn',
+    args: 'src.main:app --host 0.0.0.0 --port 8001',
+    cwd: './python-mem0',
+    interpreter: 'python3',
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G',
+    env: {
+      // Inherits from parent .env automatically
+    },
+    error_file: './logs/mem0-error.log',
+    out_file: './logs/mem0-out.log',
+    log_file: './logs/mem0-combined.log',
+    time: true,
+    merge_logs: true,
+    
+    // Graceful shutdown
+    kill_timeout: 5000,
+    listen_timeout: 5000,
+    
+    // Crash handling
+    min_uptime: '10s',
+    max_restarts: 10,
+    
+    // Environment specific settings
+    env_production: {
+      // NODE_ENV: 'production',
+    }
   }],
 
   // Deploy configuration

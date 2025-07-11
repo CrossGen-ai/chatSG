@@ -105,8 +105,35 @@ class Mem0Service:
             
             results = self.memory.search(**search_params)
             
-            logger.info(f"Search for '{query}' returned {len(results)} results")
-            return {"success": True, "results": results}
+            # Debug log
+            logger.info(f"Raw search results type: {type(results)}")
+            
+            # Handle different response formats from mem0
+            if isinstance(results, dict):
+                # If it's a dict with 'results' key, extract the results
+                actual_results = results.get('results', [])
+                logger.info(f"Got dict with 'results' key, extracting {len(actual_results)} results")
+            elif isinstance(results, list):
+                actual_results = results
+                logger.info(f"Got list directly with {len(actual_results)} results")
+            else:
+                logger.warning(f"Unexpected results format: {type(results)}")
+                actual_results = []
+            
+            # Normalize results to always be dicts
+            normalized_results = []
+            for idx, result in enumerate(actual_results):
+                if isinstance(result, dict):
+                    normalized_results.append(result)
+                elif isinstance(result, str):
+                    normalized_results.append({
+                        "id": str(idx),
+                        "memory": result,
+                        "score": 1.0
+                    })
+            
+            logger.info(f"Search for '{query}' returned {len(normalized_results)} results")
+            return {"success": True, "results": normalized_results}
             
         except Exception as e:
             logger.error(f"Search failed: {str(e)}")
@@ -128,11 +155,36 @@ class Mem0Service:
                 limit=limit
             )
             
-            # Filter by session_id
-            session_memories = [
-                mem for mem in all_memories 
-                if mem.get("metadata", {}).get("session_id") == session_id
-            ]
+            # Debug log to see what we're getting
+            logger.info(f"Raw all_memories type: {type(all_memories)}")
+            
+            # Handle different response formats
+            if isinstance(all_memories, dict):
+                # If it's a dict with 'results' or 'memories' key, extract them
+                actual_memories = all_memories.get('results', all_memories.get('memories', []))
+                logger.info(f"Got dict response, extracted {len(actual_memories)} memories")
+            elif isinstance(all_memories, list):
+                actual_memories = all_memories
+                logger.info(f"Got list response with {len(actual_memories)} memories")
+            else:
+                logger.warning(f"Unexpected all_memories format: {type(all_memories)}")
+                actual_memories = []
+            
+            # Filter by session_id - handle both dict and string responses
+            session_memories = []
+            for mem in actual_memories:
+                if isinstance(mem, dict):
+                    # Check if this memory belongs to the session
+                    mem_session_id = mem.get("metadata", {}).get("session_id")
+                    if mem_session_id == session_id:
+                        session_memories.append(mem)
+                elif isinstance(mem, str):
+                    # If it's a string, wrap it in a dict format
+                    session_memories.append({
+                        "id": str(len(session_memories)),
+                        "memory": mem,
+                        "metadata": {"session_id": session_id}
+                    })
             
             logger.info(f"Retrieved {len(session_memories)} memories for session {session_id}")
             return session_memories
