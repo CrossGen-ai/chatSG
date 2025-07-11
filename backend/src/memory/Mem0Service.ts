@@ -76,11 +76,11 @@ export class Mem0Service {
                 console.error('[Mem0Service] AZURE_OPENAI_ENDPOINT present:', !!process.env.AZURE_OPENAI_ENDPOINT);
                 throw new Error('[Mem0Service] MEM0_MODELS=azure but AZURE_OPENAI_API_KEY or AZURE_OPENAI_ENDPOINT is missing.');
             }
-            if (!process.env.MEM0_LLM_MODEL_AZURE || !process.env.AZURE_EMBEDDING_MODEL) {
-                console.error('[Mem0Service] Azure provider selected but missing model env vars');
-                console.error('[Mem0Service] MEM0_LLM_MODEL_AZURE present:', !!process.env.MEM0_LLM_MODEL_AZURE);
-                console.error('[Mem0Service] AZURE_EMBEDDING_MODEL present:', !!process.env.AZURE_EMBEDDING_MODEL);
-                throw new Error('[Mem0Service] MEM0_MODELS=azure but MEM0_LLM_MODEL_AZURE or AZURE_EMBEDDING_MODEL is missing.');
+            if (!process.env.AZURE_OPENAI_DEPLOYMENT || !process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT) {
+                console.error('[Mem0Service] Azure provider selected but missing deployment env vars');
+                console.error('[Mem0Service] AZURE_OPENAI_DEPLOYMENT present:', !!process.env.AZURE_OPENAI_DEPLOYMENT);
+                console.error('[Mem0Service] AZURE_OPENAI_EMBEDDING_DEPLOYMENT present:', !!process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT);
+                throw new Error('[Mem0Service] MEM0_MODELS=azure but AZURE_OPENAI_DEPLOYMENT or AZURE_OPENAI_EMBEDDING_DEPLOYMENT is missing.');
             }
             console.log('[Mem0Service] Azure provider validation passed');
             return 'azure';
@@ -113,14 +113,14 @@ export class Mem0Service {
 
     private detectEmbeddingModel(): string {
         const provider = this.detectProvider();
-        const model = provider === 'azure' ? process.env.AZURE_EMBEDDING_MODEL! : process.env.MEM0_EMBEDDING_MODEL!;
+        const model = provider === 'azure' ? process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT! : process.env.MEM0_EMBEDDING_MODEL!;
         console.log(`[Mem0Service] Using ${provider} embedding model: ${model}`);
         return model;
     }
 
     private detectLLMModel(): string {
         const provider = this.detectProvider();
-        const model = provider === 'azure' ? process.env.MEM0_LLM_MODEL_AZURE! : process.env.MEM0_LLM_MODEL!;
+        const model = provider === 'azure' ? process.env.AZURE_OPENAI_DEPLOYMENT! : process.env.MEM0_LLM_MODEL!;
         console.log(`[Mem0Service] Using ${provider} LLM model: ${model}`);
         return model;
     }
@@ -153,15 +153,10 @@ export class Mem0Service {
             const provider = this.detectProvider();
             const apiVersion = process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview';
             if (provider === 'azure') {
-                const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
-                const instanceName = process.env.AZURE_OPENAI_INSTANCE_NAME || this.getAzureInstanceName(endpoint || '');
-                const deploymentName = process.env.AZURE_OPENAI_DEPLOYMENT;
-                const embeddingDeployment = process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT;
                 console.log('[Mem0Service] Initializing with Azure OpenAI:');
-                console.log('  endpoint:', endpoint);
-                console.log('  instanceName:', instanceName);
-                console.log('  deploymentName:', deploymentName);
-                console.log('  embeddingDeployment:', embeddingDeployment);
+                console.log('  endpoint:', process.env.AZURE_OPENAI_ENDPOINT);
+                console.log('  llmDeployment:', process.env.AZURE_OPENAI_DEPLOYMENT);
+                console.log('  embeddingDeployment:', process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT);
                 console.log('  apiVersion:', apiVersion);
             } else {
                 console.log('[Mem0Service] Initializing with OpenAI:');
@@ -174,16 +169,13 @@ export class Mem0Service {
                 embedder: {
                     provider: provider,
                     config: provider === 'azure' ? {
-                        apiKey: this.config.apiKey || '',
                         model: process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT || this.config.embeddingModel,
-                        baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT || this.config.embeddingModel}`,
-                        defaultQuery: { 'api-version': apiVersion },
-                        defaultHeaders: {
-                            'api-key': this.config.apiKey || '',
-                        },
-                        instanceName: process.env.AZURE_OPENAI_INSTANCE_NAME || this.getAzureInstanceName(process.env.AZURE_OPENAI_ENDPOINT || ''),
-                        deploymentName: process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT || this.config.embeddingModel,
-                        apiVersion: apiVersion,
+                        azure_kwargs: {
+                            api_version: apiVersion,
+                            azure_endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+                            api_key: this.config.apiKey || '',
+                            azure_deployment: process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT || this.config.embeddingModel
+                        }
                     } : {
                         apiKey: this.config.apiKey || '',
                         model: this.config.embeddingModel,
@@ -192,16 +184,13 @@ export class Mem0Service {
                 llm: {
                     provider: provider,
                     config: provider === 'azure' ? {
-                        apiKey: this.config.apiKey || '',
                         model: process.env.AZURE_OPENAI_DEPLOYMENT || this.config.llmModel,
-                        baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT || this.config.llmModel}`,
-                        defaultQuery: { 'api-version': apiVersion },
-                        defaultHeaders: {
-                            'api-key': this.config.apiKey || '',
-                        },
-                        instanceName: process.env.AZURE_OPENAI_INSTANCE_NAME || this.getAzureInstanceName(process.env.AZURE_OPENAI_ENDPOINT || ''),
-                        deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT || this.config.llmModel,
-                        apiVersion: apiVersion,
+                        azure_kwargs: {
+                            api_version: apiVersion,
+                            azure_endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+                            api_key: this.config.apiKey || '',
+                            azure_deployment: process.env.AZURE_OPENAI_DEPLOYMENT || this.config.llmModel
+                        }
                     } : {
                         apiKey: this.config.apiKey || '',
                         model: this.config.llmModel,

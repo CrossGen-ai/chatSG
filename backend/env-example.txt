@@ -41,6 +41,35 @@ NODE_ENV=development
 # WEBHOOK_URL=http://localhost:5678/webhook/chat
 
 # ===========================================
+# MEMORY SYSTEM (MEM0) CONFIGURATION
+# ===========================================
+# Enable/disable memory system
+# MEM0_ENABLED=true
+
+# --- Provider Selection ---
+# MEM0_MODELS controls which LLM provider Mem0 uses (separate from CHAT_MODELS)
+# Options: openai, azure
+# MEM0_MODELS=openai
+
+# --- OpenAI Configuration (when MEM0_MODELS=openai) ---
+# MEM0_LLM_MODEL=gpt-4o-mini
+# MEM0_EMBEDDING_MODEL=text-embedding-3-small
+
+# --- Azure OpenAI Configuration (when MEM0_MODELS=azure) ---
+# Azure requires deployment names instead of model names
+# AZURE_OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-ada-002-deployment
+
+# --- Vector Store Configuration ---
+# MEM0_PROVIDER=qdrant
+# QDRANT_URL=http://localhost:6333
+
+# --- Graph Database Configuration (optional) ---
+# MEM0_GRAPH_ENABLED=true
+# NEO4J_URL=neo4j://localhost:7687
+# NEO4J_USERNAME=neo4j
+# NEO4J_PASSWORD=your_password
+
+# ===========================================
 # DEVELOPMENT NOTES
 # ===========================================
 # 
