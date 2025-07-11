@@ -205,11 +205,46 @@ class LLMHelper {
             });
         } else if (config.provider === 'openai') {
             // OpenAI commercial
-            return new ChatOpenAI({
-                openAIApiKey: process.env.OPENAI_API_KEY,
-                modelName: process.env.OPENAI_MODEL || 'gpt-4o',
-                ...overrides
-            });
+            // Temporarily save and clear Azure env vars to prevent langchain auto-detection
+            const azureBackup = {
+                key: process.env.AZURE_OPENAI_API_KEY,
+                deployment: process.env.AZURE_OPENAI_DEPLOYMENT,
+                endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+                instanceName: process.env.AZURE_OPENAI_INSTANCE_NAME,
+                version: process.env.AZURE_OPENAI_API_VERSION
+            };
+            
+            // Clear Azure env vars temporarily
+            delete process.env.AZURE_OPENAI_API_KEY;
+            delete process.env.AZURE_OPENAI_DEPLOYMENT;
+            delete process.env.AZURE_OPENAI_ENDPOINT;
+            delete process.env.AZURE_OPENAI_INSTANCE_NAME;
+            delete process.env.AZURE_OPENAI_API_VERSION;
+            
+            try {
+                const chatLLM = new ChatOpenAI({
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    modelName: process.env.OPENAI_MODEL || 'gpt-4o',
+                    ...overrides
+                });
+                
+                // Restore Azure env vars
+                process.env.AZURE_OPENAI_API_KEY = azureBackup.key;
+                process.env.AZURE_OPENAI_DEPLOYMENT = azureBackup.deployment;
+                process.env.AZURE_OPENAI_ENDPOINT = azureBackup.endpoint;
+                if (azureBackup.instanceName) process.env.AZURE_OPENAI_INSTANCE_NAME = azureBackup.instanceName;
+                if (azureBackup.version) process.env.AZURE_OPENAI_API_VERSION = azureBackup.version;
+                
+                return chatLLM;
+            } catch (error) {
+                // Restore Azure env vars even on error
+                process.env.AZURE_OPENAI_API_KEY = azureBackup.key;
+                process.env.AZURE_OPENAI_DEPLOYMENT = azureBackup.deployment;
+                process.env.AZURE_OPENAI_ENDPOINT = azureBackup.endpoint;
+                if (azureBackup.instanceName) process.env.AZURE_OPENAI_INSTANCE_NAME = azureBackup.instanceName;
+                if (azureBackup.version) process.env.AZURE_OPENAI_API_VERSION = azureBackup.version;
+                throw error;
+            }
         } else {
             throw new Error(`[LLMHelper] Unknown provider: ${config.provider}`);
         }
