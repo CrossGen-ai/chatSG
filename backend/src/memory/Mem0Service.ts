@@ -326,6 +326,30 @@ export class Mem0Service {
     }
     
     /**
+     * Get all memories for a user across all sessions
+     */
+    async getAllUserMemories(userId: number, limit: number = 1000): Promise<any[]> {
+        if (!this.initialized) {
+            await this.initialize();
+        }
+
+        try {
+            const response = await this.apiClient.post('/get-all-user-memories', {
+                user_id: userId,
+                limit: limit
+            });
+
+            const memories = response.data.memories || [];
+            console.log(`[Mem0Service] Retrieved ${memories.length} total memories for user ${userId}`);
+            return memories;
+
+        } catch (error: any) {
+            console.error('[Mem0Service] Failed to get all user memories:', error.message);
+            return [];
+        }
+    }
+
+    /**
      * Get user statistics (not implemented in Python service)
      */
     async getUserMemoryStats(userId: number): Promise<any> {

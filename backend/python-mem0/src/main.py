@@ -56,6 +56,11 @@ class GetSessionMemoriesRequest(BaseModel):
     limit: int = 100
 
 
+class GetAllUserMemoriesRequest(BaseModel):
+    user_id: int
+    limit: int = 1000
+
+
 class DeleteSessionMemoriesRequest(BaseModel):
     session_id: str
     user_id: Optional[int] = None
@@ -167,6 +172,30 @@ async def get_session_memories(request: GetSessionMemoriesRequest):
     except Exception as e:
         logger.error(f"Error getting session memories: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/get-all-user-memories")
+async def get_all_user_memories(request: GetAllUserMemoriesRequest):
+    """Get all memories for a user across all sessions."""
+    try:
+        if not mem0_service.initialized:
+            raise HTTPException(status_code=503, detail="Service not initialized")
+        
+        memories = await mem0_service.get_all_user_memories(
+            user_id=request.user_id,
+            limit=request.limit
+        )
+        
+        return {
+            "success": True,
+            "memories": memories,
+            "count": len(memories)
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting all user memories: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"500: {str(e)}")
 
 
 @app.post("/delete-session-memories")

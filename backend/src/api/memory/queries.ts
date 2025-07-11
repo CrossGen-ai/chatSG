@@ -178,14 +178,8 @@ export async function getQdrantMemories(
     if (sessionId) {
       memories = await memoryService.getSessionMemories(sessionId, userId, limit);
     } else {
-      // Get all memories for the user across all sessions by passing empty sessionId
-      const mem0 = memoryService as any;
-      const options = {
-        userId: userId?.toString() || 'default',
-        limit: limit || 1000
-      };
-      const result = await mem0.memory.getAll(options);
-      memories = result.results || [];
+      // Get all memories for the user across all sessions
+      memories = await memoryService.getAllUserMemories(userId, limit);
     }
     
     // Transform memories for visualization
@@ -241,14 +235,8 @@ export async function getNeo4jGraphMemories(
     if (sessionId) {
       memories = await memoryService.getSessionMemories(sessionId, userId, limit);
     } else {
-      // Get all memories for the user across all sessions by passing empty sessionId
-      const mem0 = memoryService as any;
-      const options = {
-        userId: userId?.toString() || 'default',
-        limit: limit || 500
-      };
-      const result = await mem0.memory.getAll(options);
-      memories = result.results || [];
+      // Get all memories for the user across all sessions
+      memories = await memoryService.getAllUserMemories(userId, limit);
     }
     
     // Transform memories into graph visualization format

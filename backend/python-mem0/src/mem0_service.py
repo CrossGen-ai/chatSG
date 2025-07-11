@@ -139,6 +139,54 @@ class Mem0Service:
             logger.error(f"Search failed: {str(e)}")
             return {"success": False, "error": str(e), "results": []}
     
+    async def get_all_user_memories(
+        self,
+        user_id: int,
+        limit: int = 1000
+    ) -> List[Dict[str, Any]]:
+        """Get all memories for a user across all sessions."""
+        if not self.initialized:
+            self.initialize()
+        
+        try:
+            all_memories = self.memory.get_all(
+                user_id=str(user_id) if user_id else "default",
+                limit=limit
+            )
+            
+            # Debug log
+            logger.info(f"Raw all_memories type: {type(all_memories)}")
+            
+            # Handle different response formats
+            if isinstance(all_memories, dict):
+                actual_memories = all_memories.get('results', all_memories.get('memories', []))
+                logger.info(f"Got dict response, extracted {len(actual_memories)} memories")
+            elif isinstance(all_memories, list):
+                actual_memories = all_memories
+                logger.info(f"Got list response with {len(actual_memories)} memories")
+            else:
+                logger.warning(f"Unexpected all_memories format: {type(all_memories)}")
+                actual_memories = []
+            
+            # Return all memories without filtering by session
+            formatted_memories = []
+            for mem in actual_memories:
+                if isinstance(mem, dict):
+                    formatted_memories.append(mem)
+                elif isinstance(mem, str):
+                    formatted_memories.append({
+                        "id": str(len(formatted_memories)),
+                        "memory": mem,
+                        "metadata": {}
+                    })
+            
+            logger.info(f"Retrieved {len(formatted_memories)} total memories for user {user_id}")
+            return formatted_memories
+            
+        except Exception as e:
+            logger.error(f"Failed to get all user memories: {str(e)}")
+            return []
+    
     async def get_session_memories(
         self, 
         session_id: str, 
