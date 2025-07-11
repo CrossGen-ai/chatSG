@@ -1,16 +1,13 @@
 /**
- * Mem0Service - Memory Management using mem0ai with PostgreSQL/pgvector
+ * Mem0Service - Memory Management using Python service
  * 
- * Provides intelligent memory layer for chat sessions using mem0's
- * implementation with PostgreSQL pgvector for scalable vector storage
- * and proper user isolation.
+ * This service communicates with a Python FastAPI service that handles
+ * Mem0 operations, providing proper Azure OpenAI support.
  */
 
-import { Memory } from 'mem0ai/oss';
+import axios, { AxiosInstance } from 'axios';
 import { Message } from '../storage/PostgresSessionStorage';
 import { STORAGE_CONFIG } from '../config/storage.config';
-import { getPool } from '../database/pool';
-import * as path from 'path';
 
 export interface Mem0Config {
     apiKey?: string;
@@ -46,12 +43,13 @@ export interface MemorySearchResult {
 }
 
 export class Mem0Service {
-    private memory: Memory | null = null;
+    private apiClient: AxiosInstance;
     private initialized = false;
     private config: Mem0Config;
-    private dbPool: any = null;
+    private pythonServiceUrl: string;
     
     constructor(config?: Mem0Config) {
+        this.pythonServiceUrl = process.env.MEM0_PYTHON_SERVICE_URL || 'http://localhost:8001';
         this.config = {
             apiKey: this.detectApiKey(),
             embeddingModel: this.detectEmbeddingModel(),
@@ -62,6 +60,15 @@ export class Mem0Service {
             provider: STORAGE_CONFIG.mem0.provider,
             ...config
         };
+        
+        // Initialize axios client
+        this.apiClient = axios.create({
+            baseURL: this.pythonServiceUrl,
+            timeout: 30000,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
     }
 
     private detectProvider(): 'azure' | 'openai' {
@@ -72,17 +79,12 @@ export class Mem0Service {
             console.log('[Mem0Service] Provider detected: azure');
             if (!process.env.AZURE_OPENAI_API_KEY || !process.env.AZURE_OPENAI_ENDPOINT) {
                 console.error('[Mem0Service] Azure provider selected but missing required env vars');
-                console.error('[Mem0Service] AZURE_OPENAI_API_KEY present:', !!process.env.AZURE_OPENAI_API_KEY);
-                console.error('[Mem0Service] AZURE_OPENAI_ENDPOINT present:', !!process.env.AZURE_OPENAI_ENDPOINT);
                 throw new Error('[Mem0Service] MEM0_MODELS=azure but AZURE_OPENAI_API_KEY or AZURE_OPENAI_ENDPOINT is missing.');
             }
             if (!process.env.AZURE_OPENAI_DEPLOYMENT || !process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT) {
                 console.error('[Mem0Service] Azure provider selected but missing deployment env vars');
-                console.error('[Mem0Service] AZURE_OPENAI_DEPLOYMENT present:', !!process.env.AZURE_OPENAI_DEPLOYMENT);
-                console.error('[Mem0Service] AZURE_OPENAI_EMBEDDING_DEPLOYMENT present:', !!process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT);
                 throw new Error('[Mem0Service] MEM0_MODELS=azure but AZURE_OPENAI_DEPLOYMENT or AZURE_OPENAI_EMBEDDING_DEPLOYMENT is missing.');
             }
-            console.log('[Mem0Service] Azure provider validation passed');
             return 'azure';
         }
         if (provider === 'openai') {
@@ -93,11 +95,8 @@ export class Mem0Service {
             }
             if (!process.env.MEM0_LLM_MODEL || !process.env.MEM0_EMBEDDING_MODEL) {
                 console.error('[Mem0Service] OpenAI provider selected but missing model env vars');
-                console.error('[Mem0Service] MEM0_LLM_MODEL present:', !!process.env.MEM0_LLM_MODEL);
-                console.error('[Mem0Service] MEM0_EMBEDDING_MODEL present:', !!process.env.MEM0_EMBEDDING_MODEL);
                 throw new Error('[Mem0Service] MEM0_MODELS=openai but MEM0_LLM_MODEL or MEM0_EMBEDDING_MODEL is missing.');
             }
-            console.log('[Mem0Service] OpenAI provider validation passed');
             return 'openai';
         }
         console.error('[Mem0Service] Invalid MEM0_MODELS value:', process.env.MEM0_MODELS);
@@ -129,17 +128,6 @@ export class Mem0Service {
         // Both text-embedding-ada-002 and text-embedding-3-small use 1536 dims
         return 1536;
     }
-    
-    // Add helper for Azure instance name extraction
-    private getAzureInstanceName(endpoint: string): string | undefined {
-        if (!endpoint) return undefined;
-        try {
-            const match = endpoint.match(/https?:\/\/(.*?)\./);
-            return match ? match[1] : undefined;
-        } catch {
-            return undefined;
-        }
-    }
 
     /**
      * Initialize the memory service
@@ -150,141 +138,25 @@ export class Mem0Service {
         }
         
         try {
-            const provider = this.detectProvider();
-            const apiVersion = process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview';
-            if (provider === 'azure') {
-                console.log('[Mem0Service] Initializing with Azure OpenAI:');
-                console.log('  endpoint:', process.env.AZURE_OPENAI_ENDPOINT);
-                console.log('  llmDeployment:', process.env.AZURE_OPENAI_DEPLOYMENT);
-                console.log('  embeddingDeployment:', process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT);
-                console.log('  apiVersion:', apiVersion);
-            } else {
-                console.log('[Mem0Service] Initializing with OpenAI:');
-                console.log('  model:', this.config.llmModel);
-                console.log('  embeddingModel:', this.config.embeddingModel);
-            }
-            // Build configuration object
-            const memoryConfig: any = {
-                version: 'v1.1',
-                embedder: {
-                    provider: provider,
-                    config: provider === 'azure' ? {
-                        model: process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT || this.config.embeddingModel,
-                        azure_kwargs: {
-                            api_version: apiVersion,
-                            azure_endpoint: process.env.AZURE_OPENAI_ENDPOINT,
-                            api_key: this.config.apiKey || '',
-                            azure_deployment: process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT || this.config.embeddingModel
-                        }
-                    } : {
-                        apiKey: this.config.apiKey || '',
-                        model: this.config.embeddingModel,
-                    },
-                },
-                llm: {
-                    provider: provider,
-                    config: provider === 'azure' ? {
-                        model: process.env.AZURE_OPENAI_DEPLOYMENT || this.config.llmModel,
-                        azure_kwargs: {
-                            api_version: apiVersion,
-                            azure_endpoint: process.env.AZURE_OPENAI_ENDPOINT,
-                            api_key: this.config.apiKey || '',
-                            azure_deployment: process.env.AZURE_OPENAI_DEPLOYMENT || this.config.llmModel
-                        }
-                    } : {
-                        apiKey: this.config.apiKey || '',
-                        model: this.config.llmModel,
-                    },
-                },
-            };
+            // Check if Python service is healthy
+            const health = await this.apiClient.get('/health');
+            console.log('[Mem0Service] Python service health:', health.data);
             
-            // Configure vector store based on provider
-            if (this.config.provider === 'qdrant') {
-                // Configure Qdrant as vector store
-                memoryConfig.vectorStore = {
-                    provider: 'qdrant',
-                    config: {
-                        url: STORAGE_CONFIG.mem0.qdrant.url,
-                        ...(STORAGE_CONFIG.mem0.qdrant.apiKey && { apiKey: STORAGE_CONFIG.mem0.qdrant.apiKey }),
-                        collectionName: this.config.collectionName,
-                        embeddingDimensions: this.config.dimension,
-                    },
-                };
+            if (health.data.status === 'healthy' || health.data.status === 'initializing') {
+                this.initialized = true;
+                console.log('[Mem0Service] Connected to Python service successfully');
                 
-                console.log('[Mem0Service] Using Qdrant vector store');
-                
-                // Get database connection pool for user metadata operations
-                this.dbPool = getPool();
+                // Get configuration info
+                const config = await this.apiClient.get('/config');
+                console.log('[Mem0Service] Python service config:', config.data);
             } else {
-                // Fallback to SQLite memory store
-                memoryConfig.vectorStore = {
-                    provider: 'memory',
-                    config: {
-                        collectionName: this.config.collectionName,
-                        dimension: this.config.dimension,
-                    },
-                };
-                memoryConfig.historyDbPath = this.config.historyDbPath;
-                console.log('[Mem0Service] Using SQLite memory store');
+                throw new Error('Python service is not healthy');
             }
-            
-            // Add graph store if enabled
-            if (STORAGE_CONFIG.mem0.graph.enabled) {
-                memoryConfig.enableGraph = true;
-                memoryConfig.graphStore = {
-                    provider: 'neo4j',
-                    config: {
-                        url: STORAGE_CONFIG.mem0.graph.url,
-                        username: STORAGE_CONFIG.mem0.graph.username,
-                        password: STORAGE_CONFIG.mem0.graph.password
-                    }
-                };
-                console.log('[Mem0Service] Graph store enabled with Neo4j');
+        } catch (error: any) {
+            console.error('[Mem0Service] Failed to connect to Python service:', error.message);
+            if (error.code === 'ECONNREFUSED') {
+                console.error('[Mem0Service] Python service is not running. Start it with: cd python-mem0 && ./scripts/start.sh');
             }
-            
-            // Initialize mem0 with configuration
-            this.memory = new Memory(memoryConfig);
-            this.initialized = true;
-            if (provider === 'azure') {
-                // Try a simple test call to confirm endpoint is working
-                try {
-                    const mem0Any = this.memory as any;
-                    if (typeof mem0Any.listCollections === 'function') {
-                        await mem0Any.listCollections();
-                        console.log('[Mem0Service] Azure endpoint test call succeeded. Mem0 is using the Azure endpoint successfully.');
-                    } else {
-                        // If no test method, just confirm instance creation
-                        console.log('[Mem0Service] Memory instance created for Azure. Config accepted.');
-                    }
-                } catch (err) {
-                    console.error('[Mem0Service] Azure endpoint test call failed:', err);
-                }
-            }
-            console.log('[Mem0Service] Initialized successfully');
-        } catch (error) {
-            console.error('[Mem0Service] Initialization failed:', error);
-            throw error;
-        }
-    }
-    
-    /**
-     * Ensure pgvector extension is installed
-     */
-    private async ensurePgVectorExtension(): Promise<void> {
-        try {
-            const result = await this.dbPool.query(`
-                SELECT EXISTS (
-                    SELECT 1 FROM pg_extension WHERE extname = 'vector'
-                );
-            `);
-            
-            if (!result.rows[0].exists) {
-                console.log('[Mem0Service] Installing pgvector extension...');
-                await this.dbPool.query('CREATE EXTENSION IF NOT EXISTS vector;');
-                console.log('[Mem0Service] pgvector extension installed');
-            }
-        } catch (error) {
-            console.error('[Mem0Service] Failed to ensure pgvector extension:', error);
             throw error;
         }
     }
@@ -301,52 +173,23 @@ export class Mem0Service {
             await this.initialize();
         }
         
-        if (!this.memory) {
-            throw new Error('Mem0 memory not initialized');
-        }
-        
         try {
-            // Convert our message format to mem0 format
-            const mem0Messages = messages.map(msg => ({
-                role: msg.type === 'user' ? 'user' : 'assistant',
-                content: msg.content
-            }));
-            
-            // Build metadata with user context
-            const metadata: any = {
-                sessionId,
-                timestamp: new Date().toISOString()
-            };
-            
-            // Add to memory with metadata - mem0 expects metadata in a metadata field
-            const result = await this.memory.add(mem0Messages, {
-                userId: userId?.toString() || 'default',
-                metadata: metadata  // Pass metadata as a nested object
+            const response = await this.apiClient.post('/add', {
+                messages: messages.map(msg => ({
+                    id: msg.id,
+                    type: msg.type,
+                    content: msg.content,
+                    timestamp: msg.timestamp
+                })),
+                session_id: sessionId,
+                user_id: userId
             });
             
-            // If using pgvector, also update our custom tables
-            if (this.config.provider === 'pgvector' && userId) {
-                await this.updatePostgresMetadata(userId, sessionId, messages.length);
-            }
-            
             console.log(`[Mem0Service] Added ${messages.length} messages to memory for session ${sessionId}, user ${userId}`);
-            return result;
-        } catch (error) {
-            console.error('[Mem0Service] Failed to add messages:', error);
+            return response.data.results || { results: [] };
+        } catch (error: any) {
+            console.error('[Mem0Service] Failed to add messages:', error.message);
             throw error;
-        }
-    }
-    
-    /**
-     * Update PostgreSQL metadata tables
-     */
-    private async updatePostgresMetadata(userId: number, sessionId: string, messageCount: number): Promise<void> {
-        try {
-            // Update is handled by database triggers, but we can add custom logic here if needed
-            console.log(`[Mem0Service] Updated metadata for user ${userId}, session ${sessionId}`);
-        } catch (error) {
-            console.error('[Mem0Service] Failed to update PostgreSQL metadata:', error);
-            // Don't throw - this is supplementary
         }
     }
     
@@ -372,29 +215,18 @@ export class Mem0Service {
             await this.initialize();
         }
         
-        if (!this.memory) {
-            throw new Error('Mem0 memory not initialized');
-        }
-        
         try {
-            const searchOptions: any = {
-                userId: options.userId?.toString() || 'default',
+            const response = await this.apiClient.post('/search', {
+                query: query,
+                session_id: options.sessionId,
+                user_id: options.userId,
                 limit: options.limit || 10
-            };
+            });
             
-            // Add filters for session if provided
-            if (options.sessionId) {
-                searchOptions.filters = {
-                    sessionId: options.sessionId
-                };
-            }
-            
-            const results = await this.memory.search(query, searchOptions);
-            
-            console.log(`[Mem0Service] Search for "${query}" returned ${results.results.length} results`);
-            return results;
-        } catch (error) {
-            console.error('[Mem0Service] Search failed:', error);
+            console.log(`[Mem0Service] Search for "${query}" returned ${response.data.results?.length || 0} results`);
+            return response.data;
+        } catch (error: any) {
+            console.error('[Mem0Service] Search failed:', error.message);
             throw error;
         }
     }
@@ -411,28 +243,18 @@ export class Mem0Service {
             await this.initialize();
         }
         
-        if (!this.memory) {
-            throw new Error('Mem0 memory not initialized');
-        }
-        
         try {
-            const options: any = {
-                userId: userId?.toString() || 'default',
-                limit: limit || 100,
-                filters: {
-                    sessionId: sessionId
-                }
-            };
+            const response = await this.apiClient.post('/get-session-memories', {
+                session_id: sessionId,
+                user_id: userId,
+                limit: limit || 100
+            });
             
-            const result = await this.memory.getAll(options);
-            
-            // No need to filter manually since we're using filters in the query
-            let memories = result.results;
-            
+            const memories = response.data.memories || [];
             console.log(`[Mem0Service] Retrieved ${memories.length} memories for session ${sessionId}`);
             return memories;
-        } catch (error) {
-            console.error('[Mem0Service] Failed to get session memories:', error);
+        } catch (error: any) {
+            console.error('[Mem0Service] Failed to get session memories:', error.message);
             throw error;
         }
     }
@@ -450,37 +272,19 @@ export class Mem0Service {
             await this.initialize();
         }
         
-        if (!this.memory) {
-            throw new Error('Mem0 memory not initialized');
-        }
-        
         try {
-            // Search for relevant memories with user context
-            // Note: Removed sessionId filter to allow cross-session memory retrieval
-            // This allows personal information like "My name is Sean" to be remembered across sessions
-            const searchResults = await this.search(query, {
-                // sessionId,  // Commented out to enable cross-session memory
-                userId,
-                limit: maxMessages
+            const response = await this.apiClient.post('/get-context', {
+                query: query,
+                session_id: sessionId,
+                user_id: userId,
+                max_messages: maxMessages
             });
             
-            // Convert memories to conversation format
-            const contextMessages: Array<{role: string, content: string}> = [];
-            
-            // Add the most relevant memories as context
-            for (const result of searchResults.results) {
-                // Parse the memory to extract conversation context
-                // mem0 stores memories as summaries, so we'll use them as system context
-                contextMessages.push({
-                    role: 'system',
-                    content: `[Relevant Context: ${result.memory}]`
-                });
-            }
-            
+            const contextMessages = response.data.context_messages || [];
             console.log(`[Mem0Service] Built context with ${contextMessages.length} relevant memories`);
             return contextMessages;
-        } catch (error) {
-            console.error('[Mem0Service] Failed to get context:', error);
+        } catch (error: any) {
+            console.error('[Mem0Service] Failed to get context:', error.message);
             throw error;
         }
     }
@@ -496,24 +300,15 @@ export class Mem0Service {
             await this.initialize();
         }
         
-        if (!this.memory) {
-            throw new Error('Mem0 memory not initialized');
-        }
-        
         try {
-            // Get all memories for the session with user context
-            const memories = await this.getSessionMemories(sessionId, userId);
+            const response = await this.apiClient.post('/delete-session-memories', {
+                session_id: sessionId,
+                user_id: userId
+            });
             
-            // Delete each memory
-            for (const memory of memories) {
-                if (memory.id) {
-                    await this.memory.delete(memory.id);
-                }
-            }
-            
-            console.log(`[Mem0Service] Deleted ${memories.length} memories for session ${sessionId}`);
-        } catch (error) {
-            console.error('[Mem0Service] Failed to delete session memories:', error);
+            console.log(`[Mem0Service] Deleted ${response.data.deleted_count || 0} memories for session ${sessionId}`);
+        } catch (error: any) {
+            console.error('[Mem0Service] Failed to delete session memories:', error.message);
             throw error;
         }
     }
@@ -525,59 +320,17 @@ export class Mem0Service {
         sessionId: string,
         userId?: number
     ): Promise<any[]> {
-        if (!this.initialized) {
-            await this.initialize();
-        }
-        
-        if (!this.memory) {
-            throw new Error('Mem0 memory not initialized');
-        }
-        
-        try {
-            const memories = await this.getSessionMemories(sessionId, userId);
-            const history: any[] = [];
-            
-            // Get history for each memory
-            for (const memory of memories) {
-                if (memory.id) {
-                    const memoryHistory = await this.memory.history(memory.id);
-                    history.push({
-                        memoryId: memory.id,
-                        history: memoryHistory
-                    });
-                }
-            }
-            
-            return history;
-        } catch (error) {
-            console.error('[Mem0Service] Failed to get memory history:', error);
-            throw error;
-        }
+        // This method is not implemented in the Python service yet
+        console.warn('[Mem0Service] getMemoryHistory is not implemented in Python service');
+        return [];
     }
     
     /**
-     * Get user statistics from PostgreSQL
+     * Get user statistics (not implemented in Python service)
      */
     async getUserMemoryStats(userId: number): Promise<any> {
-        if (this.config.provider !== 'pgvector' || !this.dbPool) {
-            return null;
-        }
-        
-        try {
-            const result = await this.dbPool.query(`
-                SELECT 
-                    COUNT(DISTINCT session_id) as total_sessions,
-                    COUNT(*) as total_memories,
-                    MAX(created_at) as last_memory_at
-                FROM mem0_memories
-                WHERE user_id = $1
-            `, [userId]);
-            
-            return result.rows[0];
-        } catch (error) {
-            console.error('[Mem0Service] Failed to get user memory stats:', error);
-            return null;
-        }
+        // This would need to be implemented in the Python service
+        return null;
     }
 }
 

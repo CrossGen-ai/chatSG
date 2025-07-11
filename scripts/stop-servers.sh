@@ -23,6 +23,13 @@ else
     echo -e "${YELLOW}Frontend server not running in tmux${NC}"
 fi
 
+if tmux has-session -t chatsg-mem0 2>/dev/null; then
+    tmux kill-session -t chatsg-mem0
+    echo -e "${GREEN}✓ Stopped Mem0 Python service${NC}"
+else
+    echo -e "${YELLOW}Mem0 Python service not running in tmux${NC}"
+fi
+
 # Also kill any processes on the ports (in case they're running outside tmux)
 if lsof -i :3000 >/dev/null 2>&1; then
     lsof -ti:3000 | xargs kill -9 2>/dev/null
@@ -32,6 +39,11 @@ fi
 if lsof -i :5173 >/dev/null 2>&1; then
     lsof -ti:5173 | xargs kill -9 2>/dev/null
     echo -e "${GREEN}✓ Killed process on port 5173${NC}"
+fi
+
+if lsof -i :8001 >/dev/null 2>&1; then
+    lsof -ti:8001 | xargs kill -9 2>/dev/null
+    echo -e "${GREEN}✓ Killed process on port 8001${NC}"
 fi
 
 echo -e "${GREEN}All servers stopped!${NC}"

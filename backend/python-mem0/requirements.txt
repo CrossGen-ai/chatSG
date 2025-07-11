@@ -1,0 +1,8 @@
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+mem0ai>=0.1.114
+openai>=1.0.0
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+httpx>=0.25.0
+azure-search-documents>=11.4.0

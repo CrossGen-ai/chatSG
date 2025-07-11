@@ -46,6 +46,9 @@ NODE_ENV=development
 # Enable/disable memory system
 # MEM0_ENABLED=true
 
+# Python service URL (if using Python-based Mem0 service)
+# MEM0_PYTHON_SERVICE_URL=http://localhost:8001
+
 # --- Provider Selection ---
 # MEM0_MODELS controls which LLM provider Mem0 uses (separate from CHAT_MODELS)
 # Options: openai, azure

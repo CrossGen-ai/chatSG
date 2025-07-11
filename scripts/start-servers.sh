@@ -27,6 +27,10 @@ if check_port 5173; then
     echo -e "${RED}Killing process on port 5173${NC}"
     lsof -ti:5173 | xargs kill -9 2>/dev/null
 fi
+if check_port 8001; then
+    echo -e "${RED}Killing process on port 8001${NC}"
+    lsof -ti:8001 | xargs kill -9 2>/dev/null
+fi
 
 # Get project root
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -42,6 +46,9 @@ if [ "$VISIBLE" = true ]; then
     
     tmux new-session -d -s chatsg-frontend -c "$PROJECT_ROOT/frontend" 'npm run dev 2>&1 | tee logs/frontend.log'
     echo -e "${GREEN}✓ Frontend tmux session created${NC}"
+    
+    tmux new-session -d -s chatsg-mem0 -c "$PROJECT_ROOT/backend/python-mem0" './scripts/start.sh 2>&1 | tee logs/mem0.log'
+    echo -e "${GREEN}✓ Mem0 Python service tmux session created${NC}"
     
     # Give tmux sessions a moment to initialize
     sleep 1
@@ -61,6 +68,13 @@ if [ "$VISIBLE" = true ]; then
         set custom title of front window to \"ChatSG Frontend (tmux)\"
     end tell"
     
+    osascript -e "
+    tell application \"Terminal\"
+        activate
+        do script \"tmux attach-session -t chatsg-mem0\"
+        set custom title of front window to \"ChatSG Mem0 Python (tmux)\"
+    end tell"
+    
     echo -e "${GREEN}✓ Terminal windows opened and attached to tmux sessions${NC}"
     echo -e "\n${YELLOW}Tip: Use Ctrl+B, D to detach from tmux without stopping the server${NC}"
 else
@@ -74,6 +88,10 @@ else
     # Frontend
     tmux new-session -d -s chatsg-frontend -c "$PROJECT_ROOT/frontend" 'npm run dev 2>&1 | tee logs/frontend.log'
     echo -e "${GREEN}✓ Frontend started in tmux session 'chatsg-frontend'${NC}"
+    
+    # Mem0 Python service
+    tmux new-session -d -s chatsg-mem0 -c "$PROJECT_ROOT/backend/python-mem0" './scripts/start.sh 2>&1 | tee logs/mem0.log'
+    echo -e "${GREEN}✓ Mem0 Python service started in tmux session 'chatsg-mem0'${NC}"
 fi
 
 # Wait for servers to be ready
@@ -93,10 +111,17 @@ else
     echo -e "${RED}✗ Frontend failed to start${NC}"
 fi
 
+if check_port 8001; then
+    echo -e "${GREEN}✓ Mem0 Python service is running on port 8001${NC}"
+else
+    echo -e "${YELLOW}⚠ Mem0 Python service may still be starting on port 8001${NC}"
+fi
+
 if [ "$VISIBLE" = false ]; then
     echo -e "\n${YELLOW}To view logs:${NC}"
     echo "  Backend:  tmux attach -t chatsg-backend"
     echo "  Frontend: tmux attach -t chatsg-frontend"
+    echo "  Mem0:     tmux attach -t chatsg-mem0"
 fi
 echo -e "\n${YELLOW}To stop servers:${NC}"
 echo "  npm run stop"
