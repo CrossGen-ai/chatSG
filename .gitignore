@@ -11,6 +11,7 @@ node_modules/
 /dist
 */dist/
 **/dist/
+deploy-package/
 
 # Misc
 .DS_Store

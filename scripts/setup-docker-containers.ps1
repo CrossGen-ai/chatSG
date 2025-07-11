@@ -16,16 +16,23 @@ Write-Host ""
 
 if ($StopContainers) {
     Write-Host "Stopping Docker containers..." -ForegroundColor Yellow
-    $stopCommand = @"
-echo "Stopping ChatSG Docker containers..."
-docker stop postgres-db qdrant neo4j-sg 2>/dev/null || true
-echo "Containers stopped."
-"@
-    & plink -i $KeyFile "$RemoteUser@$RemoteHost" $stopCommand
+    $stopCommand = "echo 'Stopping ChatSG Docker containers...' && docker stop postgres-db qdrant neo4j-sg 2>/dev/null || true && echo 'Containers stopped.'"
+    
+    $plinkArgs = @(
+        "-i", $KeyFile,
+        "$RemoteUser@$RemoteHost",
+        $stopCommand
+    )
+    
+    $plinkProcess = Start-Process -FilePath "plink" -ArgumentList $plinkArgs -Wait -PassThru -NoNewWindow
+    if ($plinkProcess.ExitCode -ne 0) {
+        Write-Host "Error: Failed to stop containers" -ForegroundColor Red
+        exit 1
+    }
     exit 0
 }
 
-# Docker compose configuration for all services
+# Docker compose configuration for all services - using Unix line endings
 $dockerComposeContent = @'
 version: '3.8'
 
@@ -73,24 +80,32 @@ volumes:
   neo4j_logs:
 '@
 
-# Commands to set up Docker containers
-$setupCommands = @"
+# Convert Windows line endings to Unix line endings
+$dockerComposeContent = $dockerComposeContent -replace "`r`n", "`n"
+
+Write-Host "Setting up Docker configuration on remote server..." -ForegroundColor Cyan
+
+# Create the setup script as a temporary file to avoid line ending issues
+$setupScriptContent = @"
+#!/bin/bash
+set -e
+
 # Create directory for Docker configs
 mkdir -p ~/chatsg-docker
 cd ~/chatsg-docker
 
 # Create docker-compose.yml
-cat > docker-compose.yml << 'EOF'
+cat > docker-compose.yml << DOCKEREOF
 $dockerComposeContent
-EOF
+DOCKEREOF
 
 # Create .env file for Docker if it doesn't exist
 if [ ! -f .env ]; then
-    cat > .env << 'EOF'
+    cat > .env << ENVEOF
 # Docker environment variables
 POSTGRES_PASSWORD=your_secure_password
 NEO4J_PASSWORD=your_secure_password
-EOF
+ENVEOF
     echo "Created .env file - PLEASE UPDATE PASSWORDS!"
 fi
 
@@ -104,56 +119,142 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
+# Check if Docker daemon is running
+if ! sudo systemctl is-active --quiet docker; then
+    echo "Starting Docker daemon..."
+    sudo systemctl start docker
+    sudo systemctl enable docker
+fi
+
+# Check if user is in docker group
+if ! groups \$USER | grep -q docker; then
+    echo "Adding user to docker group..."
+    sudo usermod -aG docker \$USER
+    echo "User added to docker group. You may need to log out and back in for this to take effect."
+    echo "For now, we'll use sudo for Docker commands."
+    USE_SUDO=true
+else
+    USE_SUDO=false
+fi
+
+# Test Docker access
+if ! docker ps &> /dev/null; then
+    echo "Docker permission issue detected. Will use sudo for Docker commands."
+    USE_SUDO=true
+fi
+
 # Check if containers are already running
 echo ""
 echo "Current Docker containers:"
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+if [ "\$USE_SUDO" = "true" ]; then
+    sudo docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "No containers running"
+else
+    docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "No containers running"
+fi
 
 echo ""
 echo "Docker setup complete. Configuration saved to ~/chatsg-docker/"
 echo ""
 echo "To start containers, run:"
 echo "  cd ~/chatsg-docker"
-echo "  docker-compose up -d"
+if [ "$USE_SUDO" = "true" ]; then
+    echo "  sudo docker-compose up -d"
+    echo "Creating sudo flag file for future use..."
+    touch ~/.docker-use-sudo
+else
+    echo "  docker-compose up -d"
+    rm -f ~/.docker-use-sudo 2>/dev/null || true
+fi
 echo ""
 echo "To check container status:"
-echo "  docker ps"
+if [ "$USE_SUDO" = "true" ]; then
+    echo "  sudo docker ps"
+else
+    echo "  docker ps"
+fi
 echo ""
 echo "To view logs:"
-echo "  docker logs postgres-db"
-echo "  docker logs qdrant"
-echo "  docker logs neo4j-sg"
+if [ "$USE_SUDO" = "true" ]; then
+    echo "  sudo docker logs postgres-db"
+    echo "  sudo docker logs qdrant"
+    echo "  sudo docker logs neo4j-sg"
+else
+    echo "  docker logs postgres-db"
+    echo "  docker logs qdrant"
+    echo "  docker logs neo4j-sg"
+fi
 "@
 
-Write-Host "Setting up Docker configuration on remote server..." -ForegroundColor Cyan
-& plink -i $KeyFile "$RemoteUser@$RemoteHost" $setupCommands
+# Convert to Unix line endings
+$setupScriptContent = $setupScriptContent -replace "`r`n", "`n"
+
+# Write the script to a temporary file
+$tempScriptPath = [System.IO.Path]::GetTempFileName() + ".sh"
+# Use UTF8 without BOM to avoid Linux compatibility issues
+$utf8WithoutBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($tempScriptPath, $setupScriptContent, $utf8WithoutBom)
+
+# Copy the script to remote server and execute it
+Write-Host "Copying and executing setup script..." -ForegroundColor Cyan
+
+# Use Start-Process to handle complex paths properly
+$destination = "$RemoteUser@$RemoteHost" + ":/tmp/chatsg-setup.sh"
+$pscpArgs = @(
+    "-i", $KeyFile,
+    $tempScriptPath,
+    $destination
+)
+
+$pscpProcess = Start-Process -FilePath "pscp" -ArgumentList $pscpArgs -Wait -PassThru -NoNewWindow
+if ($pscpProcess.ExitCode -ne 0) {
+    Write-Host "Error: Failed to copy script to remote server" -ForegroundColor Red
+    Remove-Item $tempScriptPath -Force
+    exit 1
+}
+
+$plinkArgs = @(
+    "-i", $KeyFile,
+    "$RemoteUser@$RemoteHost",
+    "chmod +x /tmp/chatsg-setup.sh && /tmp/chatsg-setup.sh && rm /tmp/chatsg-setup.sh"
+)
+
+$plinkProcess = Start-Process -FilePath "plink" -ArgumentList $plinkArgs -Wait -PassThru -NoNewWindow
+if ($plinkProcess.ExitCode -ne 0) {
+    Write-Host "Error: Failed to execute script on remote server" -ForegroundColor Red
+    Remove-Item $tempScriptPath -Force
+    exit 1
+}
+
+# Clean up temporary file
+Remove-Item $tempScriptPath -Force
 
 if ($StartContainers) {
     Write-Host ""
     Write-Host "Starting Docker containers..." -ForegroundColor Cyan
-    $startCommand = @"
-cd ~/chatsg-docker
-echo "Starting containers with docker-compose..."
-docker-compose up -d
-echo ""
-echo "Waiting for containers to be ready..."
-sleep 10
-echo ""
-echo "Container status:"
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-"@
-    & plink -i $KeyFile "$RemoteUser@$RemoteHost" $startCommand
+    $startCommand = "cd ~/chatsg-docker && echo 'Starting containers with docker-compose...' && if [ -f ~/.docker-use-sudo ] || ! docker ps &>/dev/null; then sudo docker-compose up -d; else docker-compose up -d; fi && echo '' && echo 'Waiting for containers to be ready...' && sleep 10 && echo '' && echo 'Container status:' && if [ -f ~/.docker-use-sudo ] || ! docker ps &>/dev/null; then sudo docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'; else docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'; fi"
+    
+    $plinkArgs = @(
+        "-i", $KeyFile,
+        "$RemoteUser@$RemoteHost",
+        $startCommand
+    )
+    
+    $plinkProcess = Start-Process -FilePath "plink" -ArgumentList $plinkArgs -Wait -PassThru -NoNewWindow
+    if ($plinkProcess.ExitCode -ne 0) {
+        Write-Host "Error: Failed to start containers" -ForegroundColor Red
+        exit 1
+    }
 }
 
 Write-Host ""
 Write-Host "=== Setup Complete ===" -ForegroundColor Green
 Write-Host ""
 Write-Host "Connection strings for ChatSG .env file:" -ForegroundColor Yellow
-Write-Host "DATABASE_URL=postgresql://postgres:your_password@localhost:5433/chatsg" -ForegroundColor White
-Write-Host "QDRANT_URL=http://localhost:6333" -ForegroundColor White
-Write-Host "NEO4J_URL=neo4j://localhost:7687" -ForegroundColor White
+Write-Host "DATABASE_URL=postgresql://postgres:your_password@$RemoteHost:5433/chatsg" -ForegroundColor White
+Write-Host "QDRANT_URL=http://$RemoteHost:6333" -ForegroundColor White
+Write-Host "NEO4J_URL=neo4j://$RemoteHost:7687" -ForegroundColor White
 Write-Host ""
 Write-Host "Remember to:" -ForegroundColor Yellow
-Write-Host "1. Update passwords in ~/chatsg-docker/.env" -ForegroundColor White
+Write-Host "1. Update passwords in ~/chatsg-docker/.env on remote server" -ForegroundColor White
 Write-Host "2. Update ChatSG .env with correct connection strings" -ForegroundColor White
-Write-Host "3. Ensure firewall allows Docker ports if needed" -ForegroundColor White
+Write-Host "3. Ensure firewall allows Docker ports (5433, 6333, 7474, 7687)" -ForegroundColor White

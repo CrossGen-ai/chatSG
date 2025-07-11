@@ -300,3 +300,10 @@ See `CLAUDE.md` for AI assistant guidelines and `docs/` for detailed documentati
 ## License
 
 [License information here]
+
+## Deployment Note: LLM Helper
+
+- The file `backend/utils/llm-helper.js` is CRITICAL for both OpenAI commercial and Azure OpenAI (including GCC High) deployments.
+- Do NOT change provider detection or Azure/OpenAI configuration logic unless you fully understand the requirements for both environments.
+- Any changes to this file must be tested in both commercial and GCC High environments.
+- Notify the deployment team and update this README if you change the logic in `llm-helper.js`.

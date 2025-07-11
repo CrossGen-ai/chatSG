@@ -53,15 +53,81 @@ export class Mem0Service {
     
     constructor(config?: Mem0Config) {
         this.config = {
-            apiKey: process.env.OPENAI_API_KEY,
-            embeddingModel: STORAGE_CONFIG.mem0.embeddingModel,
-            llmModel: STORAGE_CONFIG.mem0.llmModel,
+            apiKey: this.detectApiKey(),
+            embeddingModel: this.detectEmbeddingModel(),
+            llmModel: this.detectLLMModel(),
             historyDbPath: STORAGE_CONFIG.mem0.historyDbPath,
             collectionName: STORAGE_CONFIG.mem0.collectionName,
-            dimension: STORAGE_CONFIG.mem0.dimension,
+            dimension: this.detectDimension(),
             provider: STORAGE_CONFIG.mem0.provider,
             ...config
         };
+    }
+
+    private detectProvider(): 'azure' | 'openai' {
+        const provider = (process.env.MEM0_MODELS || '').toLowerCase();
+        console.log(`[Mem0Service] Detecting provider from MEM0_MODELS=${process.env.MEM0_MODELS}`);
+        
+        if (provider === 'azure') {
+            console.log('[Mem0Service] Provider detected: azure');
+            if (!process.env.AZURE_OPENAI_API_KEY || !process.env.AZURE_OPENAI_ENDPOINT) {
+                console.error('[Mem0Service] Azure provider selected but missing required env vars');
+                console.error('[Mem0Service] AZURE_OPENAI_API_KEY present:', !!process.env.AZURE_OPENAI_API_KEY);
+                console.error('[Mem0Service] AZURE_OPENAI_ENDPOINT present:', !!process.env.AZURE_OPENAI_ENDPOINT);
+                throw new Error('[Mem0Service] MEM0_MODELS=azure but AZURE_OPENAI_API_KEY or AZURE_OPENAI_ENDPOINT is missing.');
+            }
+            if (!process.env.MEM0_LLM_MODEL_AZURE || !process.env.AZURE_EMBEDDING_MODEL) {
+                console.error('[Mem0Service] Azure provider selected but missing model env vars');
+                console.error('[Mem0Service] MEM0_LLM_MODEL_AZURE present:', !!process.env.MEM0_LLM_MODEL_AZURE);
+                console.error('[Mem0Service] AZURE_EMBEDDING_MODEL present:', !!process.env.AZURE_EMBEDDING_MODEL);
+                throw new Error('[Mem0Service] MEM0_MODELS=azure but MEM0_LLM_MODEL_AZURE or AZURE_EMBEDDING_MODEL is missing.');
+            }
+            console.log('[Mem0Service] Azure provider validation passed');
+            return 'azure';
+        }
+        if (provider === 'openai') {
+            console.log('[Mem0Service] Provider detected: openai');
+            if (!process.env.OPENAI_API_KEY) {
+                console.error('[Mem0Service] OpenAI provider selected but OPENAI_API_KEY is missing');
+                throw new Error('[Mem0Service] MEM0_MODELS=openai but OPENAI_API_KEY is missing.');
+            }
+            if (!process.env.MEM0_LLM_MODEL || !process.env.MEM0_EMBEDDING_MODEL) {
+                console.error('[Mem0Service] OpenAI provider selected but missing model env vars');
+                console.error('[Mem0Service] MEM0_LLM_MODEL present:', !!process.env.MEM0_LLM_MODEL);
+                console.error('[Mem0Service] MEM0_EMBEDDING_MODEL present:', !!process.env.MEM0_EMBEDDING_MODEL);
+                throw new Error('[Mem0Service] MEM0_MODELS=openai but MEM0_LLM_MODEL or MEM0_EMBEDDING_MODEL is missing.');
+            }
+            console.log('[Mem0Service] OpenAI provider validation passed');
+            return 'openai';
+        }
+        console.error('[Mem0Service] Invalid MEM0_MODELS value:', process.env.MEM0_MODELS);
+        throw new Error('[Mem0Service] MEM0_MODELS must be set to "openai" or "azure".');
+    }
+
+    private detectApiKey(): string {
+        const provider = this.detectProvider();
+        const apiKey = provider === 'azure' ? process.env.AZURE_OPENAI_API_KEY! : process.env.OPENAI_API_KEY!;
+        console.log(`[Mem0Service] Using ${provider} API key (length: ${apiKey?.length || 0})`);
+        return apiKey;
+    }
+
+    private detectEmbeddingModel(): string {
+        const provider = this.detectProvider();
+        const model = provider === 'azure' ? process.env.AZURE_EMBEDDING_MODEL! : process.env.MEM0_EMBEDDING_MODEL!;
+        console.log(`[Mem0Service] Using ${provider} embedding model: ${model}`);
+        return model;
+    }
+
+    private detectLLMModel(): string {
+        const provider = this.detectProvider();
+        const model = provider === 'azure' ? process.env.MEM0_LLM_MODEL_AZURE! : process.env.MEM0_LLM_MODEL!;
+        console.log(`[Mem0Service] Using ${provider} LLM model: ${model}`);
+        return model;
+    }
+
+    private detectDimension(): number {
+        // Both text-embedding-ada-002 and text-embedding-3-small use 1536 dims
+        return 1536;
     }
     
     /**
@@ -73,19 +139,37 @@ export class Mem0Service {
         }
         
         try {
+            const provider = this.detectProvider();
+            const apiVersion = process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview';
             // Build configuration object
             const memoryConfig: any = {
                 version: 'v1.1',
                 embedder: {
-                    provider: 'openai',
-                    config: {
+                    provider: provider,
+                    config: provider === 'azure' ? {
+                        apiKey: this.config.apiKey || '',
+                        model: this.config.embeddingModel,
+                        baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${this.config.embeddingModel}`,
+                        defaultQuery: { 'api-version': apiVersion },
+                        defaultHeaders: {
+                            'api-key': this.config.apiKey || '',
+                        },
+                    } : {
                         apiKey: this.config.apiKey || '',
                         model: this.config.embeddingModel,
                     },
                 },
                 llm: {
-                    provider: 'openai',
-                    config: {
+                    provider: provider,
+                    config: provider === 'azure' ? {
+                        apiKey: this.config.apiKey || '',
+                        model: this.config.llmModel,
+                        baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${this.config.llmModel}`,
+                        defaultQuery: { 'api-version': apiVersion },
+                        defaultHeaders: {
+                            'api-key': this.config.apiKey || '',
+                        },
+                    } : {
                         apiKey: this.config.apiKey || '',
                         model: this.config.llmModel,
                     },

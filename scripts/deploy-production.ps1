@@ -64,6 +64,7 @@ Copy-Item "backend/dist" "$deployDir/" -Recurse
 Copy-Item "backend/utils" "$deployDir/" -Recurse
 Copy-Item "backend/middleware" "$deployDir/" -Recurse
 Copy-Item "backend/config" "$deployDir/" -Recurse
+Copy-Item "backend/tests" "$deployDir/" -Recurse  # <--- Add this line to include tests
 
 # Copy environment template (not actual .env)
 if (Test-Path "backend/env.production.sample") {
@@ -111,6 +112,7 @@ Write-Host "Uploading source directories..." -ForegroundColor Yellow
 & pscp -i $KeyFile -r "$deployDir/utils" "${RemoteUser}@${RemoteHost}:$RemotePath/"
 & pscp -i $KeyFile -r "$deployDir/middleware" "${RemoteUser}@${RemoteHost}:$RemotePath/"
 & pscp -i $KeyFile -r "$deployDir/config" "${RemoteUser}@${RemoteHost}:$RemotePath/"
+& pscp -i $KeyFile -r "$deployDir/tests" "${RemoteUser}@${RemoteHost}:$RemotePath/"  # <--- Add this line to upload tests
 & pscp -i $KeyFile -r "$deployDir/scripts" "${RemoteUser}@${RemoteHost}:$RemotePath/"
 
 # Upload environment template
@@ -143,6 +145,12 @@ Write-Host "Step 5: Installing dependencies on remote server..." -ForegroundColo
 $remoteCommands = @"
 cd $RemotePath
 echo "Installing Node.js dependencies..."
+# Check and install Node.js if missing
+if ! command -v node &> /dev/null; then
+  echo "Node.js not found. Installing Node.js..."
+  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+  sudo apt-get install -y nodejs
+fi
 npm install --production
 echo "Dependencies installed successfully"
 
@@ -180,6 +188,8 @@ echo "3. Configure nginx reverse proxy"
 echo "4. Set up SSL certificates"
 echo "5. Start with PM2: pm2 start ecosystem.config.js --env production"
 "@
+# Convert to Unix line endings
+$remoteCommands = $remoteCommands -replace "`r`n", "`n"
 
 Write-Host "Running remote installation commands..." -ForegroundColor Yellow
 & plink -i $KeyFile "$RemoteUser@$RemoteHost" $remoteCommands

@@ -1,6 +1,30 @@
+// =============================================================
+//  LLM Helper - CRITICAL FILE FOR OPENAI/AZURE DEPLOYMENTS
+//
+//  DO NOT MODIFY PROVIDER/AZURE/OPENAI LOGIC UNLESS YOU FULLY
+//  UNDERSTAND THE DEPLOYMENT REQUIREMENTS FOR BOTH:
+//    - Commercial OpenAI
+//    - Azure OpenAI (Commercial & GCC High)
+//
+//  Any changes to provider detection or option-passing must be
+//  tested in both environments. Update deployment notes in the
+//  main README if you change this logic.
+// =============================================================
 const { ChatOpenAI } = require('@langchain/openai');
 const fs = require('fs');
 const path = require('path');
+
+function getAzureInstanceName(endpoint) {
+    // Extracts the resource name from the endpoint URL
+    // e.g., https://az-openai-prod-001.openai.azure.us => az-openai-prod-001
+    if (!endpoint) return undefined;
+    try {
+        const match = endpoint.match(/https?:\/\/(.*?)\./);
+        return match ? match[1] : undefined;
+    } catch {
+        return undefined;
+    }
+}
 
 /**
  * LLM Helper Utility
@@ -22,19 +46,20 @@ class LLMHelper {
      * Detect which LLM provider to use based on environment variables
      */
     detectProvider() {
-        // Check for Azure OpenAI configuration
-        if (process.env.AZURE_OPENAI_API_KEY && process.env.AZURE_OPENAI_ENDPOINT) {
+        const provider = (process.env.CHAT_MODELS || '').toLowerCase();
+        if (provider === 'azure') {
+            if (!process.env.AZURE_OPENAI_API_KEY || !process.env.AZURE_OPENAI_ENDPOINT) {
+                throw new Error('[LLMHelper] CHAT_MODELS=azure but AZURE_OPENAI_API_KEY or AZURE_OPENAI_ENDPOINT is missing.');
+            }
             return 'azure';
         }
-        
-        // Check for regular OpenAI configuration
-        if (process.env.OPENAI_API_KEY) {
+        if (provider === 'openai') {
+            if (!process.env.OPENAI_API_KEY) {
+                throw new Error('[LLMHelper] CHAT_MODELS=openai but OPENAI_API_KEY is missing.');
+            }
             return 'openai';
         }
-        
-        // Default to OpenAI if no specific configuration found
-        console.warn('[LLMHelper] No specific LLM configuration found, defaulting to OpenAI');
-        return 'openai';
+        throw new Error('[LLMHelper] CHAT_MODELS must be set to "openai" or "azure".');
     }
 
     /**
@@ -165,16 +190,29 @@ class LLMHelper {
         const config = { ...this.config, ...overrides };
         
         console.log(`[LLMHelper] Creating ChatLLM with provider: ${config.provider}, model: ${config.modelName}, streaming: ${overrides.streaming || false}`);
-        
-        return new ChatOpenAI({
-            modelName: config.modelName,
-            openAIApiKey: config.openAIApiKey,
-            configuration: config.configuration,
-            temperature: config.temperature,
-            maxTokens: config.maxTokens,
-            streaming: overrides.streaming || false,
-            ...overrides
-        });
+
+        if (config.provider === 'azure') {
+            // Azure OpenAI (commercial or GCC High)
+            const instanceName = process.env.AZURE_OPENAI_INSTANCE_NAME || getAzureInstanceName(process.env.AZURE_OPENAI_ENDPOINT);
+            return new ChatOpenAI({
+                azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
+                azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_DEPLOYMENT,
+                azureOpenAIApiInstanceName: instanceName,
+                azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION,
+                azureOpenAIApiBasePath: process.env.AZURE_OPENAI_ENDPOINT,
+                modelName: process.env.AZURE_OPENAI_DEPLOYMENT,
+                ...overrides
+            });
+        } else if (config.provider === 'openai') {
+            // OpenAI commercial
+            return new ChatOpenAI({
+                openAIApiKey: process.env.OPENAI_API_KEY,
+                modelName: process.env.OPENAI_MODEL || 'gpt-4o',
+                ...overrides
+            });
+        } else {
+            throw new Error(`[LLMHelper] Unknown provider: ${config.provider}`);
+        }
     }
 
     /**

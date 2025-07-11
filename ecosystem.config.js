@@ -1,18 +1,18 @@
 module.exports = {
   apps: [{
     name: 'chatsg-backend',
-    script: './backend/server.js',
+    script: './server.js',
     instances: 1,
     autorestart: true,
     watch: false,
     max_memory_restart: '1G',
     env: {
-      NODE_ENV: 'production',
+      // NODE_ENV: 'production',
       PORT: 3000
     },
-    error_file: '/var/log/chatsg/pm2-error.log',
-    out_file: '/var/log/chatsg/pm2-out.log',
-    log_file: '/var/log/chatsg/pm2-combined.log',
+    error_file: './logs/pm2-error.log',
+    out_file: './logs/pm2-out.log',
+    log_file: './logs/pm2-combined.log',
     time: true,
     merge_logs: true,
     
@@ -29,7 +29,7 @@ module.exports = {
     
     // Environment specific settings
     env_production: {
-      NODE_ENV: 'production',
+      // NODE_ENV: 'production',
       exec_mode: 'cluster',
       instances: 'max'
     },
