@@ -130,6 +130,17 @@ export class Mem0Service {
         return 1536;
     }
     
+    // Add helper for Azure instance name extraction
+    private getAzureInstanceName(endpoint: string): string | undefined {
+        if (!endpoint) return undefined;
+        try {
+            const match = endpoint.match(/https?:\/\/(.*?)\./);
+            return match ? match[1] : undefined;
+        } catch {
+            return undefined;
+        }
+    }
+
     /**
      * Initialize the memory service
      */
@@ -141,6 +152,22 @@ export class Mem0Service {
         try {
             const provider = this.detectProvider();
             const apiVersion = process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview';
+            if (provider === 'azure') {
+                const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+                const instanceName = process.env.AZURE_OPENAI_INSTANCE_NAME || this.getAzureInstanceName(endpoint || '');
+                const deploymentName = process.env.AZURE_OPENAI_DEPLOYMENT;
+                const embeddingDeployment = process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT;
+                console.log('[Mem0Service] Initializing with Azure OpenAI:');
+                console.log('  endpoint:', endpoint);
+                console.log('  instanceName:', instanceName);
+                console.log('  deploymentName:', deploymentName);
+                console.log('  embeddingDeployment:', embeddingDeployment);
+                console.log('  apiVersion:', apiVersion);
+            } else {
+                console.log('[Mem0Service] Initializing with OpenAI:');
+                console.log('  model:', this.config.llmModel);
+                console.log('  embeddingModel:', this.config.embeddingModel);
+            }
             // Build configuration object
             const memoryConfig: any = {
                 version: 'v1.1',
@@ -148,12 +175,15 @@ export class Mem0Service {
                     provider: provider,
                     config: provider === 'azure' ? {
                         apiKey: this.config.apiKey || '',
-                        model: this.config.embeddingModel,
-                        baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${this.config.embeddingModel}`,
+                        model: process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT || this.config.embeddingModel,
+                        baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT || this.config.embeddingModel}`,
                         defaultQuery: { 'api-version': apiVersion },
                         defaultHeaders: {
                             'api-key': this.config.apiKey || '',
                         },
+                        instanceName: process.env.AZURE_OPENAI_INSTANCE_NAME || this.getAzureInstanceName(process.env.AZURE_OPENAI_ENDPOINT || ''),
+                        deploymentName: process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT || this.config.embeddingModel,
+                        apiVersion: apiVersion,
                     } : {
                         apiKey: this.config.apiKey || '',
                         model: this.config.embeddingModel,
@@ -163,12 +193,15 @@ export class Mem0Service {
                     provider: provider,
                     config: provider === 'azure' ? {
                         apiKey: this.config.apiKey || '',
-                        model: this.config.llmModel,
-                        baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${this.config.llmModel}`,
+                        model: process.env.AZURE_OPENAI_DEPLOYMENT || this.config.llmModel,
+                        baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT || this.config.llmModel}`,
                         defaultQuery: { 'api-version': apiVersion },
                         defaultHeaders: {
                             'api-key': this.config.apiKey || '',
                         },
+                        instanceName: process.env.AZURE_OPENAI_INSTANCE_NAME || this.getAzureInstanceName(process.env.AZURE_OPENAI_ENDPOINT || ''),
+                        deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT || this.config.llmModel,
+                        apiVersion: apiVersion,
                     } : {
                         apiKey: this.config.apiKey || '',
                         model: this.config.llmModel,
@@ -222,8 +255,22 @@ export class Mem0Service {
             
             // Initialize mem0 with configuration
             this.memory = new Memory(memoryConfig);
-            
             this.initialized = true;
+            if (provider === 'azure') {
+                // Try a simple test call to confirm endpoint is working
+                try {
+                    const mem0Any = this.memory as any;
+                    if (typeof mem0Any.listCollections === 'function') {
+                        await mem0Any.listCollections();
+                        console.log('[Mem0Service] Azure endpoint test call succeeded. Mem0 is using the Azure endpoint successfully.');
+                    } else {
+                        // If no test method, just confirm instance creation
+                        console.log('[Mem0Service] Memory instance created for Azure. Config accepted.');
+                    }
+                } catch (err) {
+                    console.error('[Mem0Service] Azure endpoint test call failed:', err);
+                }
+            }
             console.log('[Mem0Service] Initialized successfully');
         } catch (error) {
             console.error('[Mem0Service] Initialization failed:', error);
