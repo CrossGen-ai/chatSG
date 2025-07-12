@@ -126,6 +126,9 @@ const requireRole = (role) => {
 // Auth route handlers
 const login = async (req, res) => {
   try {
+    console.log('[Auth] Login initiated');
+    console.log('[Auth] Session exists:', !!req.session);
+    
     // Development mode bypass
     if (process.env.CHATSG_ENVIRONMENT === 'dev' && process.env.USE_MOCK_AUTH === 'true') {
       // Just get the existing dev user from database
@@ -166,19 +169,7 @@ const login = async (req, res) => {
     
     if (req.session) {
       req.session.authState = { state, nonce };
-      
-      // Save session before redirect
-      await new Promise((resolve, reject) => {
-        req.session.save((err) => {
-          if (err) {
-            console.error('[Auth] Session save error:', err);
-            reject(err);
-          } else {
-            console.log('[Auth] Session saved with state:', state);
-            resolve();
-          }
-        });
-      });
+      console.log('[Auth] Session authState set:', { state, nonce });
     }
     
     const authUrl = await authProvider.getAuthCodeUrl(state, nonce);
