@@ -1,0 +1,390 @@
+// Comprehensive system debugging endpoints
+
+const { getPool } = require('../database/pool');
+const { getStorageManager } = require('../storage');
+
+// Test database connections and pool status
+const testDatabase = async (req, res) => {
+    const results = {
+        timestamp: new Date().toISOString(),
+        pool: {},
+        queries: {},
+        tables: {}
+    };
+
+    try {
+        const pool = getPool();
+        
+        // Pool stats
+        results.pool = {
+            totalCount: pool.totalCount,
+            idleCount: pool.idleCount,
+            waitingCount: pool.waitingCount
+        };
+
+        // Test basic query
+        const timeResult = await pool.query('SELECT NOW() as current_time');
+        results.queries.currentTime = timeResult.rows[0].current_time;
+
+        // Check all tables
+        const tablesQuery = `
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public' 
+            ORDER BY table_name
+        `;
+        const tablesResult = await pool.query(tablesQuery);
+        results.tables.list = tablesResult.rows.map(r => r.table_name);
+
+        // Count records in key tables
+        for (const table of ['session', 'chat_sessions', 'chat_messages', 'users']) {
+            if (results.tables.list.includes(table)) {
+                const countResult = await pool.query(`SELECT COUNT(*) FROM ${table}`);
+                results.tables[`${table}_count`] = parseInt(countResult.rows[0].count);
+            }
+        }
+
+        // Check session table structure
+        if (results.tables.list.includes('session')) {
+            const schemaResult = await pool.query(`
+                SELECT column_name, data_type 
+                FROM information_schema.columns 
+                WHERE table_name = 'session'
+                ORDER BY ordinal_position
+            `);
+            results.tables.session_schema = schemaResult.rows;
+        }
+
+    } catch (error) {
+        results.error = {
+            message: error.message,
+            code: error.code,
+            detail: error.detail
+        };
+    }
+
+    res.json(results);
+};
+
+// Test storage system
+const testStorage = async (req, res) => {
+    const results = {
+        timestamp: new Date().toISOString(),
+        storageManager: {},
+        sessionOperations: {},
+        messageOperations: {}
+    };
+
+    try {
+        const storage = getStorageManager();
+        
+        // Storage manager status
+        results.storageManager = {
+            initialized: !!storage,
+            type: storage?.constructor?.name
+        };
+
+        if (storage) {
+            // List recent sessions
+            const sessions = await storage.listSessions({ limit: 5 });
+            results.sessionOperations.recentSessions = sessions.map(s => ({
+                id: s.sessionId,
+                title: s.title,
+                messageCount: s.metadata?.messageCount,
+                lastActivity: s.metadata?.lastActivity
+            }));
+
+            // Test session creation
+            const testSessionId = `test-${Date.now()}`;
+            const created = await storage.createSession(testSessionId, 'Test Session');
+            results.sessionOperations.testCreate = {
+                success: true,
+                sessionId: created.sessionId
+            };
+
+            // Test message storage
+            const testMessage = {
+                role: 'user',
+                content: 'Test message',
+                timestamp: new Date().toISOString()
+            };
+            await storage.appendMessage(testSessionId, testMessage);
+            results.messageOperations.testAppend = {
+                success: true
+            };
+
+            // Read back
+            const messages = await storage.getMessages(testSessionId);
+            results.messageOperations.readBack = {
+                success: true,
+                messageCount: messages.length
+            };
+
+            // Cleanup
+            await storage.deleteSession(testSessionId);
+            results.sessionOperations.cleanup = {
+                success: true
+            };
+        }
+
+    } catch (error) {
+        results.error = {
+            message: error.message,
+            stack: error.stack
+        };
+    }
+
+    res.json(results);
+};
+
+// Test memory systems (Mem0, Qdrant, Neo4j)
+const testMemory = async (req, res) => {
+    const results = {
+        timestamp: new Date().toISOString(),
+        mem0: {},
+        qdrant: {},
+        neo4j: {},
+        integration: {}
+    };
+
+    try {
+        const { Mem0Service } = require('../memory/Mem0Service');
+        const mem0 = new Mem0Service();
+
+        // Mem0 status
+        results.mem0 = {
+            enabled: process.env.MEM0_ENABLED === 'true',
+            provider: process.env.MEM0_PROVIDER,
+            models: process.env.MEM0_MODELS,
+            pythonServiceUrl: 'http://localhost:8001'
+        };
+
+        // Test Mem0 connection
+        if (results.mem0.enabled) {
+            try {
+                const axios = require('axios');
+                const healthCheck = await axios.get('http://localhost:8001/health', { timeout: 2000 });
+                results.mem0.pythonService = healthCheck.data;
+            } catch (error) {
+                results.mem0.pythonService = {
+                    status: 'offline',
+                    error: error.message
+                };
+            }
+        }
+
+        // Qdrant status
+        results.qdrant = {
+            url: process.env.QDRANT_URL || 'http://localhost:6333',
+            connected: false
+        };
+
+        try {
+            const axios = require('axios');
+            const qdrantHealth = await axios.get(`${results.qdrant.url}/`, { timeout: 2000 });
+            results.qdrant.connected = true;
+            results.qdrant.version = qdrantHealth.data.version;
+        } catch (error) {
+            results.qdrant.error = error.message;
+        }
+
+        // Neo4j status
+        results.neo4j = {
+            enabled: process.env.MEM0_GRAPH_ENABLED === 'true',
+            url: process.env.NEO4J_URL,
+            connected: false
+        };
+
+        if (results.neo4j.enabled && results.neo4j.url) {
+            // Basic Neo4j check would go here
+            results.neo4j.status = 'Check not implemented';
+        }
+
+        // Test integrated memory operation
+        if (results.mem0.enabled && req.query.testMemory === 'true') {
+            try {
+                const testMemory = await mem0.addMemory(
+                    'System test memory',
+                    { user_id: 'test-user', session_id: 'test-session' }
+                );
+                results.integration.testMemory = {
+                    success: true,
+                    memoryId: testMemory.id
+                };
+            } catch (error) {
+                results.integration.testMemory = {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+    } catch (error) {
+        results.error = {
+            message: error.message,
+            stack: error.stack
+        };
+    }
+
+    res.json(results);
+};
+
+// Test chat functionality
+const testChat = async (req, res) => {
+    const results = {
+        timestamp: new Date().toISOString(),
+        orchestrator: {},
+        agents: {},
+        llm: {}
+    };
+
+    try {
+        // Check orchestrator status
+        results.orchestrator = {
+            mode: process.env.BACKEND,
+            enabled: process.env.BACKEND === 'Orch'
+        };
+
+        // Check LLM configuration
+        results.llm = {
+            provider: process.env.CHAT_MODELS || process.env.MEM0_MODELS,
+            openai: {
+                configured: !!process.env.OPENAI_API_KEY,
+                model: process.env.OPENAI_MODEL
+            },
+            azure: {
+                configured: !!process.env.AZURE_OPENAI_API_KEY,
+                endpoint: process.env.AZURE_OPENAI_ENDPOINT,
+                deployment: process.env.AZURE_OPENAI_DEPLOYMENT
+            }
+        };
+
+        // Test actual chat if requested
+        if (req.query.testMessage) {
+            const { AgentOrchestrator } = require('../../dist/src/routing');
+            // This would require the orchestrator instance
+            results.testChat = {
+                status: 'Not implemented - would need orchestrator instance'
+            };
+        }
+
+    } catch (error) {
+        results.error = {
+            message: error.message,
+            stack: error.stack
+        };
+    }
+
+    res.json(results);
+};
+
+// Get current user info
+const getCurrentUser = async (req, res) => {
+    const results = {
+        timestamp: new Date().toISOString(),
+        authenticated: req.isAuthenticated || !!req.user,
+        session: {
+            id: req.sessionID,
+            exists: !!req.session,
+            data: req.session
+        },
+        user: req.user || req.session?.user || null
+    };
+
+    // Get user from database if authenticated
+    if (results.user?.id) {
+        try {
+            const pool = getPool();
+            const userResult = await pool.query(
+                'SELECT id, email, name, created_at, updated_at FROM users WHERE id = $1',
+                [results.user.id]
+            );
+            if (userResult.rows.length > 0) {
+                results.userFromDb = userResult.rows[0];
+            }
+        } catch (error) {
+            results.dbError = error.message;
+        }
+    }
+
+    res.json(results);
+};
+
+// System health check
+const systemHealth = async (req, res) => {
+    const results = {
+        timestamp: new Date().toISOString(),
+        status: 'checking',
+        services: {}
+    };
+
+    // Quick health checks for each service
+    const checks = [
+        {
+            name: 'database',
+            check: async () => {
+                const pool = getPool();
+                await pool.query('SELECT 1');
+                return { status: 'healthy' };
+            }
+        },
+        {
+            name: 'storage',
+            check: async () => {
+                const storage = getStorageManager();
+                return { status: storage ? 'healthy' : 'not initialized' };
+            }
+        },
+        {
+            name: 'mem0_python',
+            check: async () => {
+                if (process.env.MEM0_ENABLED !== 'true') return { status: 'disabled' };
+                const axios = require('axios');
+                const response = await axios.get('http://localhost:8001/health', { timeout: 1000 });
+                return { status: 'healthy', data: response.data };
+            }
+        },
+        {
+            name: 'qdrant',
+            check: async () => {
+                const axios = require('axios');
+                const url = process.env.QDRANT_URL || 'http://localhost:6333';
+                await axios.get(`${url}/`, { timeout: 1000 });
+                return { status: 'healthy' };
+            }
+        }
+    ];
+
+    // Run all checks in parallel
+    const checkPromises = checks.map(async ({ name, check }) => {
+        try {
+            results.services[name] = await check();
+        } catch (error) {
+            results.services[name] = {
+                status: 'unhealthy',
+                error: error.message
+            };
+        }
+    });
+
+    await Promise.all(checkPromises);
+
+    // Overall status
+    const unhealthyServices = Object.entries(results.services)
+        .filter(([_, service]) => service.status === 'unhealthy')
+        .map(([name]) => name);
+
+    results.status = unhealthyServices.length === 0 ? 'healthy' : 'degraded';
+    results.unhealthyServices = unhealthyServices;
+
+    res.json(results);
+};
+
+module.exports = {
+    testDatabase,
+    testStorage,
+    testMemory,
+    testChat,
+    getCurrentUser,
+    systemHealth
+};

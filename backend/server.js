@@ -1052,6 +1052,7 @@ const server = http.createServer(async (req, res) => {
         
         // Import debug endpoints
         const authDebug = require('./src/api/auth-debug');
+        const systemDebug = require('./src/api/system-debug');
         
         // Test full auth flow
         if (req.url === '/api/auth/test-flow' && req.method === 'GET') {
@@ -1080,6 +1081,37 @@ const server = http.createServer(async (req, res) => {
         // Test cookies
         if (req.url === '/api/auth/test-cookies' && req.method === 'GET') {
             authDebug.testCookies(req, res);
+            return;
+        }
+        
+        // System debug endpoints
+        if (req.url === '/api/system/test-database' && req.method === 'GET') {
+            systemDebug.testDatabase(req, res);
+            return;
+        }
+        
+        if (req.url === '/api/system/test-storage' && req.method === 'GET') {
+            systemDebug.testStorage(req, res);
+            return;
+        }
+        
+        if (req.url.startsWith('/api/system/test-memory') && req.method === 'GET') {
+            systemDebug.testMemory(req, res);
+            return;
+        }
+        
+        if (req.url.startsWith('/api/system/test-chat') && req.method === 'GET') {
+            systemDebug.testChat(req, res);
+            return;
+        }
+        
+        if (req.url === '/api/system/current-user' && req.method === 'GET') {
+            systemDebug.getCurrentUser(req, res);
+            return;
+        }
+        
+        if (req.url === '/api/system/health' && req.method === 'GET') {
+            systemDebug.systemHealth(req, res);
             return;
         }
     }
