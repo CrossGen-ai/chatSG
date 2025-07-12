@@ -386,11 +386,80 @@ const systemHealth = async (req, res) => {
     res.json(results);
 };
 
+// Debug pool connections and environment
+const debugPool = async (req, res) => {
+    const { getPool } = require('../database/pool');
+    const pool = getPool();
+    
+    const results = {
+        timestamp: new Date().toISOString(),
+        environment: {
+            PGSSL: process.env.PGSSL,
+            DATABASE_SSL: process.env.DATABASE_SSL,
+            NODE_ENV: process.env.NODE_ENV,
+            DATABASE_URL: process.env.DATABASE_URL ? 'configured' : 'not set'
+        },
+        poolStats: {
+            totalCount: pool.totalCount,
+            idleCount: pool.idleCount,
+            waitingCount: pool.waitingCount,
+            ending: pool.ending || false,
+            ended: pool.ended || false
+        },
+        queries: {}
+    };
+
+    // Test queries with detailed error info
+    const testQueries = [
+        { name: 'simple', sql: 'SELECT 1 as test' },
+        { name: 'session_index', sql: 'SELECT COUNT(*) as count FROM session_index' },
+        { name: 'messages', sql: 'SELECT COUNT(*) as count FROM messages LIMIT 1' },
+        { name: 'session_table', sql: 'SELECT COUNT(*) as count FROM session' }
+    ];
+
+    for (const test of testQueries) {
+        try {
+            const result = await pool.query(test.sql);
+            results.queries[test.name] = {
+                success: true,
+                result: result.rows[0]
+            };
+        } catch (err) {
+            results.queries[test.name] = {
+                success: false,
+                error: err.message,
+                code: err.code,
+                detail: err.detail
+            };
+        }
+    }
+
+    // Check if pool is actually connected
+    try {
+        const client = await pool.connect();
+        results.poolConnection = {
+            connected: true,
+            ssl: client.ssl ? 'enabled' : 'disabled',
+            host: client.host,
+            port: client.port
+        };
+        client.release();
+    } catch (err) {
+        results.poolConnection = {
+            connected: false,
+            error: err.message
+        };
+    }
+
+    res.json(results);
+};
+
 module.exports = {
     testDatabase,
     testStorage,
     testMemory,
     testChat,
     getCurrentUser,
-    systemHealth
+    systemHealth,
+    debugPool
 };

@@ -73,14 +73,18 @@ function getPool() {
 }
 
 // Force pool recreation - useful when environment changes
-function recreatePool() {
+async function recreatePool() {
   if (pool) {
     console.log('[Database Pool] Closing existing pool for recreation');
-    pool.end().catch(err => {
+    try {
+      await pool.end();
+      console.log('[Database Pool] Pool closed successfully');
+    } catch (err) {
       console.error('[Database Pool] Error closing pool:', err);
-    });
+    }
     pool = null;
   }
+  console.log('[Database Pool] Creating new pool after recreation');
   return createPool();
 }
 
