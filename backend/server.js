@@ -843,6 +843,10 @@ const server = http.createServer(async (req, res) => {
     
     // Apply session middleware to all requests
     try {
+        // Enhance request/response for ALL endpoints (proxy detection, etc.)
+        enhanceRequest(req);
+        enhanceResponse(res);
+        
         await applyMiddleware(sessionMiddleware, req, res);
         await applyMiddleware(auth.authenticate, req, res);
     } catch (error) {
@@ -950,9 +954,6 @@ const server = http.createServer(async (req, res) => {
     
     // Auth routes (already have session middleware from above)
     if (req.url.startsWith('/api/auth/')) {
-        // Enhance request/response objects for Express compatibility
-        enhanceRequest(req);
-        enhanceResponse(res);
         
         if (req.url === '/api/auth/login' && req.method === 'GET') {
             auth.login(req, res);
