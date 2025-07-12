@@ -1,7 +1,7 @@
 // Enhanced auth middleware with Azure AD integration
 const crypto = require('crypto');
 const { createAuthProvider } = require('../../src/auth/mockAuth');
-const { getUserByAzureId, updateLastLogin } = require('../../src/database/userRepository');
+const { getUserByAzureId, createUser, updateUser, updateLastLogin } = require('../../src/database/userRepository');
 
 // Initialize auth provider based on environment
 const authConfig = {

@@ -298,7 +298,7 @@ Orchestrator initialized: true
 [Server] Skipping CSRF for auth/read/config endpoint
 [CSRF-Header] Token created: {
   sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
+  token: '5f07c7a1997c5b715085...',
   ip: '::1',
   connectionRemoteAddress: '::1',
   socketRemoteAddress: '::1',
@@ -313,7 +313,7 @@ Orchestrator initialized: true
 [Server] Skipping CSRF for auth/read/config endpoint
 [CSRF-Header] Using existing token: {
   sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
+  token: '5f07c7a1997c5b715085...',
   expiresIn: '3599s'
 }
 [CSRF-Header] Calling next() for GET /api/auth/user
@@ -325,7 +325,7 @@ Orchestrator initialized: true
 [Server] Skipping CSRF for auth/read/config endpoint
 [CSRF-Header] Using existing token: {
   sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
+  token: '5f07c7a1997c5b715085...',
   expiresIn: '3599s'
 }
 [CSRF-Header] Calling next() for GET /api/auth/user
@@ -337,8 +337,94 @@ Orchestrator initialized: true
 [Server] Skipping CSRF for auth/read/config endpoint
 [CSRF-Header] Using existing token: {
   sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
+  token: '5f07c7a1997c5b715085...',
   expiresIn: '3599s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3599s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Applying security middleware for GET /api/chats
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3599s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Applying security middleware for GET /api/chats
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3598s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Applying security middleware for GET /api/auth/user
+[Server] Security middleware passed for GET /api/auth/user
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3598s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/user
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/user
+[Server] Applying security middleware for GET /api/auth/user
+[Server] Security middleware passed for GET /api/auth/user
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3598s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/user
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/user
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3598s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3598s'
 }
 [CSRF-Header] Calling next() for GET /api/config/security
 [Server] CSRF header middleware completed
@@ -351,133 +437,200 @@ Orchestrator initialized: true
 [Server] Skipping CSRF for auth/read/config endpoint
 [CSRF-Header] Using existing token: {
   sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
-  expiresIn: '3599s'
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3598s'
 }
 [CSRF-Header] Calling next() for GET /api/config/security
 [Server] CSRF header middleware completed
 [Server] Passed all middleware, continuing to routing for GET /api/config/security
-[Server] Applying security middleware for GET /api/config/security
-[Server] Security middleware passed for GET /api/config/security
-[Server] About to apply CSRF header middleware...
-[Server] Skipping CSRF for auth/read/config endpoint
-[CSRF-Header] Using existing token: {
-  sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
-  expiresIn: '3599s'
-}
-[CSRF-Header] Calling next() for GET /api/config/security
-[Server] CSRF header middleware completed
-[Server] Passed all middleware, continuing to routing for GET /api/config/security
-[Server] Applying security middleware for GET /api/auth/user
-[Server] Security middleware passed for GET /api/auth/user
-[Server] About to apply CSRF header middleware...
-[Server] Skipping CSRF for auth/read/config endpoint
-[CSRF-Header] Using existing token: {
-  sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
-  expiresIn: '3504s'
-}
-[CSRF-Header] Calling next() for GET /api/auth/user
-[Server] CSRF header middleware completed
-[Server] Passed all middleware, continuing to routing for GET /api/auth/user
 [Server] Applying security middleware for GET /api/auth/login
 [Server] Security middleware passed for GET /api/auth/login
 [Server] About to apply CSRF header middleware...
 [Server] Skipping CSRF for auth/read/config endpoint
 [CSRF-Header] Using existing token: {
   sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
-  expiresIn: '3504s'
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3597s'
 }
 [CSRF-Header] Calling next() for GET /api/auth/login
 [Server] CSRF header middleware completed
 [Server] Passed all middleware, continuing to routing for GET /api/auth/login
-[MSAL 2] [Sat, 12 Jul 2025 06:12:09 GMT] : [] : @azure/msal-node@2.16.2 : Info - getAuthCodeUrl called
-[MSAL 2] [Sat, 12 Jul 2025 06:12:09 GMT] : [24b4c09b-18e9-4823-a554-5260a47fd72d] : @azure/msal-node@2.16.2 : Info - Building oauth client configuration with the following authority: https://login.microsoftonline.us/your-tenant-id/oauth2/v2.0/token.
-[AzureAuth] Generated auth URL for state: 836393ef5fbee27c624242bbd99cfa71c1b9228b8ae60da88e1c2346b9cd8892
+[MSAL 2] [Sat, 12 Jul 2025 06:34:19 GMT] : [] : @azure/msal-node@2.16.2 : Info - getAuthCodeUrl called
+[MSAL 2] [Sat, 12 Jul 2025 06:34:19 GMT] : [5e1e6024-313e-457f-bbef-b6de301084d9] : @azure/msal-node@2.16.2 : Info - Building oauth client configuration with the following authority: https://login.microsoftonline.us/your-tenant-id/oauth2/v2.0/token.
+[AzureAuth] Generated auth URL for state: f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd
 [Database Pool] New client connected
-[applyMiddleware] Checking body for POST - req.body: null
-[applyMiddleware] Body not parsed, calling parseBody...
-[parseBody] Body parsed successfully
-[applyMiddleware] Checking body for POST - req.body: {}
-[applyMiddleware] Body already parsed, skipping parseBody
-[Server] Applying security middleware for POST /api/auth/logout
-[applyMiddleware] Checking body for POST - req.body: {}
-[applyMiddleware] Body already parsed, skipping parseBody
-[Server] Security middleware passed for POST /api/auth/logout
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
 [Server] About to apply CSRF header middleware...
 [Server] Skipping CSRF for auth/read/config endpoint
-[Server] CSRF header middleware completed
-[Server] Passed all middleware, continuing to routing for POST /api/auth/logout
-[applyMiddleware] Checking body for POST - req.body: {}
-[applyMiddleware] Body already parsed, skipping parseBody
-[applyMiddleware] Checking body for POST - req.body: null
-[applyMiddleware] Body not parsed, calling parseBody...
-[parseBody] Body parsed successfully
-[Database Pool] New client connected
-[applyMiddleware] Checking body for POST - req.body: {}
-[applyMiddleware] Body already parsed, skipping parseBody
-[Server] Applying security middleware for POST /api/auth/logout
-[applyMiddleware] Checking body for POST - req.body: {}
-[applyMiddleware] Body already parsed, skipping parseBody
-[Server] Security middleware passed for POST /api/auth/logout
-[Server] About to apply CSRF header middleware...
-[Server] Skipping CSRF for auth/read/config endpoint
-[Server] CSRF header middleware completed
-[Server] Passed all middleware, continuing to routing for POST /api/auth/logout
-[applyMiddleware] Checking body for POST - req.body: {}
-[applyMiddleware] Body already parsed, skipping parseBody
-[Server] Applying security middleware for GET /api/memory/qdrant/2
-[Server] Security middleware passed for GET /api/memory/qdrant/2
-[Server] About to apply CSRF header middleware...
 [CSRF-Header] Using existing token: {
   sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
-  expiresIn: '3504s'
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3597s'
 }
-[CSRF-Header] Calling next() for GET /api/memory/qdrant/2
+[CSRF-Header] Calling next() for GET /api/config/security
 [Server] CSRF header middleware completed
-[Server] Passed all middleware, continuing to routing for GET /api/memory/qdrant/2
-[applyMiddleware] Checking body for POST - req.body: null
-[applyMiddleware] Body not parsed, calling parseBody...
-[parseBody] Body parsed successfully
-[applyMiddleware] Checking body for POST - req.body: { test: true }
-[applyMiddleware] Body already parsed, skipping parseBody
-[Server] Applying security middleware for POST /api/chat/stream
-[applyMiddleware] Checking body for POST - req.body: { test: true }
-[applyMiddleware] Body already parsed, skipping parseBody
-[Server] Security middleware passed for POST /api/chat/stream
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Applying security middleware for GET /api/auth/user
+[Server] Security middleware passed for GET /api/auth/user
 [Server] About to apply CSRF header middleware...
-[applyMiddleware] Checking body for POST - req.body: { test: true }
-[applyMiddleware] Body already parsed, skipping parseBody
-[CSRF-Header] Bypassing CSRF validation in development mode
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3597s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/user
 [Server] CSRF header middleware completed
-[Server] Passed all middleware, continuing to routing for POST /api/chat/stream
-[Server] SSE streaming endpoint hit
-[Server] Processing SSE request
-[Server] req.body: { test: true }
-[Server] Performance monitoring enabled for SSE request
-[Server] Streaming request for session: default, message: "undefined"
-[Server] Sending SSE event: connected { sessionId: 'default' }
-[ORCHESTRATOR] Processing with streaming: ""
-[AgentOrchestrator] Selecting agent for session: default
-[AgentOrchestrator] User preferences: {}
-[MemoryPersistence] Stored key: session:default, TTL: none
-[AgentOrchestrator] Updated agent history for session default: AnalyticalAgent
-[MemoryPersistence] Stored key: session:default, TTL: none
-[AgentOrchestrator] Updated user preferences for session default: { lastAgentUsed: 'AnalyticalAgent' }
-[AgentOrchestrator] Selected agent: AnalyticalAgent (confidence: 0.1)
-[ORCHESTRATOR] Selected AnalyticalAgent for streaming
-[Server] Sending SSE event: start { agent: 'AnalyticalAgent', sessionId: 'default' }
-[AnalyticalAgent] Initializing analytical agent...
-[AnalyticalAgent] Analytical agent initialized successfully
-[AnalyticalAgent] Processing analytical request: "..."
-[AnalyticalAgent] Detected task type: general
-[AnalyticalAgent] Using Mem0 for context retrieval
-[AnalyticalAgent] Starting Mem0 context retrieval...
+[Server] Passed all middleware, continuing to routing for GET /api/auth/user
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3597s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
 [Database Pool] New client connected
-[StorageManager] Context query - SessionId: default, UserId: null
+[Server] Applying security middleware for GET /api/auth/user
+[Server] Security middleware passed for GET /api/auth/user
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3597s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/user
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/user
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3597s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Server] Applying security middleware for GET /api/chats
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '5f07c7a1997c5b715085...',
+  expiresIn: '3597s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Database Pool] New client connected
+[Server] Applying security middleware for GET /api/chats
+[Server] Passed all middleware, continuing to routing for GET /health
+[Database Pool] New client connected
+[Database Pool] New client connected
+[Database Pool] New client connected
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+=== ENVIRONMENT DEBUG ===
+Current working directory: /Users/crossgenai/sg/chatSG/backend
+__dirname: /Users/crossgenai/sg/chatSG/backend
+process.env.CHATSG_ENVIRONMENT: dev
+process.env.BACKEND: Orch
+========================
+[Auth] Using Azure AD authentication provider
+[Server] Performance monitoring loaded
+[Server] Connection diagnostics loaded
+[Server] Loaded slash commands router and processor
+[Server] Loaded new storage system
+[Server] Loaded memory visualization handlers
+[StorageManager] Initializing with PostgreSQL backend
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai API key (length: 164)
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai embedding model: text-embedding-3-small
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai LLM model: gpt-4o-mini
+[PostgresSessionIndex] Initialized with PostgreSQL backend
+[MemoryPersistence] Initialized with cleanup interval: 300000ms
+[StateManager] Initialized with config: {
+  defaultTTL: 86400000,
+  maxSessions: 1000,
+  maxSharedStates: 10000,
+  enablePersistence: true,
+  enableEvents: true
+}
+[AgentOrchestrator] Initialized 3 orchestration strategies
+[AgentOrchestrator] Initialized with config: {
+  maxRetries: 2,
+  timeoutMs: 15000,
+  fallbackStrategy: 'sequential',
+  enableStateSharing: true
+}
+[OrchestrationMiddleware] Initialized with config: {
+  enableOrchestration: true,
+  preserveBackendRouting: true,
+  orchestrationMode: 'enhanced',
+  enableLogging: true,
+  enableMetrics: true
+}
+[LLMHelper] Initialized with provider: openai
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created AnalyticalAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created CreativeAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created TechnicalAgent successfully
+[IndividualAgentFactory] Created CRMAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created FinancialAgent successfully
+[IndividualAgentFactory] Successfully created 5 individual agents
+[AgentOrchestrator] Registered agent: AnalyticalAgent (analytical)
+[Orchestrator] Registered AnalyticalAgent (analytical) - Specialized agent for data analysis, statistical computations, and research tasks
+[AgentOrchestrator] Registered agent: CreativeAgent (creative)
+[Orchestrator] Registered CreativeAgent (creative) - Specialized agent for creative writing, brainstorming, and ideation tasks
+[AgentOrchestrator] Registered agent: TechnicalAgent (technical)
+[Orchestrator] Registered TechnicalAgent (technical) - Specialized agent for technical programming, debugging, and code-related tasks
+[AgentOrchestrator] Registered agent: CRMAgent (crm)
+[Orchestrator] Registered CRMAgent (crm) - Specialized agent for CRM operations, customer queries, and pipeline management
+[AgentOrchestrator] Registered agent: FinancialAgent (financial)
+[Orchestrator] Registered FinancialAgent (financial) - Specialized agent for financial analysis, investment research, and economic insights
+[Orchestrator] Successfully registered 5 specialized LLM agents
+[BackendIntegrationManager] Initializing backend integration...
+[BackendIntegrationManager] Initialized with 0 backends
+[Orchestrator] Setup created successfully
+=== BACKEND CONFIGURATION ===
+BACKEND mode: Orch
+Legacy ENVIRONMENT: dev
+Active backend: Enhanced Orchestrator (Multi-Agent)
+Orchestrator initialized: true
+=============================
+[Orchestrator] Initialized with 5 specialized agents
+=== ChatSG Server Configuration ===
+- Server running at http://localhost:3000/
+- Backend Mode: Orch
+- Active Backend: Enhanced Orchestrator (Multi-Agent)
+- Legacy Environment: dev
+- Orchestrator: Ready
+- Registered Agents: 5
+- Available Strategies: simple,capability-based,keyword-based
+- Environment: development
+- Backend Integration: Active
+- Registered Backends: 
+- VNet IP: 192.168.0.83
+===================================
 [Mem0Service] Python service health: { status: 'healthy', provider: 'openai', initialized: true }
 [Mem0Service] Connected to Python service successfully
 [Mem0Service] Python service config: {
@@ -489,440 +642,131 @@ Orchestrator initialized: true
   azure_endpoint: null,
   azure_api_version: null
 }
-[Mem0Service] Built context with 0 relevant memories
-[Mem0Service] Retrieved 0 memories for session default
-[StorageManager] Built complete context: 0 memories + 4 session messages
-[AnalyticalAgent] Context retrieval completed in 730ms
-[AnalyticalAgent] Memory status set: { enabled: true, memoryCount: 0, status: 'empty', retrievalTime: 730 }
-[AnalyticalAgent] Mem0 returned 6 context messages
-[AnalyticalAgent] Calling LLM with 6 messages (including conversation history)
-[AnalyticalAgent] streamCallback type: function, value: (token) => {
-                    if (timers.llm && !firstTokenReceived && typeof token === 'string') {
-                        timers.llm.markFirstTokenReceived();
-                        firstTokenReceived = true;
-                    }
-                    if (typeof token === 'string') {
-                        tokenCount++;
-                    }
-                    streamCallback(token);
-                }
-[AnalyticalAgent] Streaming mode enabled
-[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: true
-[AnalyticalAgent] Token received: ""
-[PERF:LLM] Slow TTFT for unknown: 1325.25ms
-[Server] Sending SSE event: token { content: '' }
-[AnalyticalAgent] Token received: "It"
-[Server] Sending SSE event: token { content: 'It' }
-[AnalyticalAgent] Token received: " seems"
-[Server] Sending SSE event: token { content: ' seems' }
-[AnalyticalAgent] Token received: " there"
-[Server] Sending SSE event: token { content: ' there' }
-[AnalyticalAgent] Token received: " might"
-[Server] Sending SSE event: token { content: ' might' }
-[AnalyticalAgent] Token received: " be"
-[Server] Sending SSE event: token { content: ' be' }
-[AnalyticalAgent] Token received: " a"
-[Server] Sending SSE event: token { content: ' a' }
-[AnalyticalAgent] Token received: " technical"
-[Server] Sending SSE event: token { content: ' technical' }
-[AnalyticalAgent] Token received: " issue"
-[Server] Sending SSE event: token { content: ' issue' }
-[AnalyticalAgent] Token received: ","
-[Server] Sending SSE event: token { content: ',' }
-[AnalyticalAgent] Token received: " as"
-[Server] Sending SSE event: token { content: ' as' }
-[AnalyticalAgent] Token received: " no"
-[Server] Sending SSE event: token { content: ' no' }
-[AnalyticalAgent] Token received: " specific"
-[Server] Sending SSE event: token { content: ' specific' }
-[AnalyticalAgent] Token received: " details"
-[Server] Sending SSE event: token { content: ' details' }
-[AnalyticalAgent] Token received: " or"
-[Server] Sending SSE event: token { content: ' or' }
-[AnalyticalAgent] Token received: " questions"
-[Server] Sending SSE event: token { content: ' questions' }
-[AnalyticalAgent] Token received: " have"
-[Server] Sending SSE event: token { content: ' have' }
-[AnalyticalAgent] Token received: " been"
-[Server] Sending SSE event: token { content: ' been' }
-[AnalyticalAgent] Token received: " provided"
-[Server] Sending SSE event: token { content: ' provided' }
-[AnalyticalAgent] Token received: "."
-[Server] Sending SSE event: token { content: '.' }
-[AnalyticalAgent] Token received: " If"
-[Server] Sending SSE event: token { content: ' If' }
-[AnalyticalAgent] Token received: " you"
-[Server] Sending SSE event: token { content: ' you' }
-[AnalyticalAgent] Token received: " have"
-[Server] Sending SSE event: token { content: ' have' }
-[AnalyticalAgent] Token received: " a"
-[Server] Sending SSE event: token { content: ' a' }
-[AnalyticalAgent] Token received: " particular"
-[Server] Sending SSE event: token { content: ' particular' }
-[AnalyticalAgent] Token received: " data"
-[Server] Sending SSE event: token { content: ' data' }
-[AnalyticalAgent] Token received: " set"
-[Server] Sending SSE event: token { content: ' set' }
-[AnalyticalAgent] Token received: ","
-[Server] Sending SSE event: token { content: ',' }
-[AnalyticalAgent] Token received: " problem"
-[Server] Sending SSE event: token { content: ' problem' }
-[AnalyticalAgent] Token received: ","
-[Server] Sending SSE event: token { content: ',' }
-[AnalyticalAgent] Token received: " or"
-[Server] Sending SSE event: token { content: ' or' }
-[AnalyticalAgent] Token received: " topic"
-[Server] Sending SSE event: token { content: ' topic' }
-[AnalyticalAgent] Token received: " you"
-[Server] Sending SSE event: token { content: ' you' }
-[AnalyticalAgent] Token received: " need"
-[Server] Sending SSE event: token { content: ' need' }
-[AnalyticalAgent] Token received: " help"
-[Server] Sending SSE event: token { content: ' help' }
-[AnalyticalAgent] Token received: " analyzing"
-[Server] Sending SSE event: token { content: ' analyzing' }
-[AnalyticalAgent] Token received: ","
-[Server] Sending SSE event: token { content: ',' }
-[AnalyticalAgent] Token received: " please"
-[Server] Sending SSE event: token { content: ' please' }
-[AnalyticalAgent] Token received: " share"
-[Server] Sending SSE event: token { content: ' share' }
-[AnalyticalAgent] Token received: " some"
-[Server] Sending SSE event: token { content: ' some' }
-[AnalyticalAgent] Token received: " more"
-[Server] Sending SSE event: token { content: ' more' }
-[AnalyticalAgent] Token received: " information"
-[Server] Sending SSE event: token { content: ' information' }
-[AnalyticalAgent] Token received: " or"
-[Server] Sending SSE event: token { content: ' or' }
-[AnalyticalAgent] Token received: " provide"
-[Server] Sending SSE event: token { content: ' provide' }
-[AnalyticalAgent] Token received: " the"
-[Server] Sending SSE event: token { content: ' the' }
-[AnalyticalAgent] Token received: " context"
-[Server] Sending SSE event: token { content: ' context' }
-[AnalyticalAgent] Token received: "."
-[Server] Sending SSE event: token { content: '.' }
-[AnalyticalAgent] Token received: " Once"
-[Server] Sending SSE event: token { content: ' Once' }
-[AnalyticalAgent] Token received: " I"
-[Server] Sending SSE event: token { content: ' I' }
-[AnalyticalAgent] Token received: " have"
-[Server] Sending SSE event: token { content: ' have' }
-[AnalyticalAgent] Token received: " that"
-[Server] Sending SSE event: token { content: ' that' }
-[AnalyticalAgent] Token received: ","
-[Server] Sending SSE event: token { content: ',' }
-[AnalyticalAgent] Token received: " I"
-[Server] Sending SSE event: token { content: ' I' }
-[AnalyticalAgent] Token received: " can"
-[Server] Sending SSE event: token { content: ' can' }
-[AnalyticalAgent] Token received: " offer"
-[Server] Sending SSE event: token { content: ' offer' }
-[AnalyticalAgent] Token received: " you"
-[Server] Sending SSE event: token { content: ' you' }
-[AnalyticalAgent] Token received: " a"
-[Server] Sending SSE event: token { content: ' a' }
-[AnalyticalAgent] Token received: " detailed"
-[Server] Sending SSE event: token { content: ' detailed' }
-[AnalyticalAgent] Token received: " analysis"
-[Server] Sending SSE event: token { content: ' analysis' }
-[AnalyticalAgent] Token received: " and"
-[Server] Sending SSE event: token { content: ' and' }
-[AnalyticalAgent] Token received: " insights"
-[Server] Sending SSE event: token { content: ' insights' }
-[AnalyticalAgent] Token received: " based"
-[Server] Sending SSE event: token { content: ' based' }
-[AnalyticalAgent] Token received: " on"
-[Server] Sending SSE event: token { content: ' on' }
-[AnalyticalAgent] Token received: " your"
-[Server] Sending SSE event: token { content: ' your' }
-[AnalyticalAgent] Token received: " requirements"
-[Server] Sending SSE event: token { content: ' requirements' }
-[AnalyticalAgent] Token received: "."
-[Server] Sending SSE event: token { content: '.' }
-[AnalyticalAgent] Token received: ""
-[Server] Sending SSE event: token { content: '' }
-[AnalyticalAgent] Streaming completed (330 chars)
-[AnalyticalAgent] Final response length: 330 chars
-[PERF:Agent] AnalyticalAgent execution: 2936.99ms
-[PERF:LLM] unknown - Total: 2937ms, TTFT: 1325ms, Stream: 1612ms, TPS: 41.6
-[DEBUG] Memory status type: object
-[DEBUG] Memory status: {
-  "enabled": true,
-  "memoryCount": 0,
-  "status": "empty",
-  "retrievalTime": 730
+[StorageManager] Mem0 service initialized
+[StorageManager] Initialized
+[Server] Storage manager initialized
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+=== ENVIRONMENT DEBUG ===
+Current working directory: /Users/crossgenai/sg/chatSG/backend
+__dirname: /Users/crossgenai/sg/chatSG/backend
+process.env.CHATSG_ENVIRONMENT: dev
+process.env.BACKEND: Orch
+========================
+[Auth] Using Azure AD authentication provider
+[Server] Performance monitoring loaded
+[Server] Connection diagnostics loaded
+[Server] Loaded slash commands router and processor
+[Server] Loaded new storage system
+[Server] Loaded memory visualization handlers
+[StorageManager] Initializing with PostgreSQL backend
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai API key (length: 164)
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai embedding model: text-embedding-3-small
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai LLM model: gpt-4o-mini
+[PostgresSessionIndex] Initialized with PostgreSQL backend
+[MemoryPersistence] Initialized with cleanup interval: 300000ms
+[StateManager] Initialized with config: {
+  defaultTTL: 86400000,
+  maxSessions: 1000,
+  maxSharedStates: 10000,
+  enablePersistence: true,
+  enableEvents: true
 }
-[Server] Performance data collected: {
-  database: { totalTime: 0, operations: {} },
-  agent: { totalTime: 2937.74, selection: 0.67, execution: 2936.99 },
-  llm: { totalTime: 2937.03, ttft: 1325.25, tokens: 67 }
+[AgentOrchestrator] Initialized 3 orchestration strategies
+[AgentOrchestrator] Initialized with config: {
+  maxRetries: 2,
+  timeoutMs: 15000,
+  fallbackStrategy: 'sequential',
+  enableStateSharing: true
 }
-[Server] Sending SSE event: done {
-  agent: 'AnalyticalAgent',
-  agentType: 'analytical',
-  sessionId: 'default',
-  memoryStatus: {
-    enabled: true,
-    memoryCount: 0,
-    status: 'empty',
-    retrievalTime: 730
-  },
-  orchestration: {
-    confidence: 1,
-    streaming: true,
-    forcedBySlashCommand: false,
-    commandUsed: undefined
-  },
-  performance: {
-    database: { totalTime: 0, operations: {} },
-    agent: { totalTime: 2937.74, selection: 0.67, execution: 2936.99 },
-    llm: { totalTime: 2937.03, ttft: 1325.25, tokens: 67 }
-  }
+[OrchestrationMiddleware] Initialized with config: {
+  enableOrchestration: true,
+  preserveBackendRouting: true,
+  orchestrationMode: 'enhanced',
+  enableLogging: true,
+  enableMetrics: true
 }
-[Server] Recorded 0 database operations, total: 0.00ms
-[Server] Applying security middleware for GET /api/chats
-[Server] Applying security middleware for GET /api/sessions
-[Server] Applying security middleware for GET /api/config/security
-[Server] Security middleware passed for GET /api/config/security
+[LLMHelper] Initialized with provider: openai
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created AnalyticalAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created CreativeAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created TechnicalAgent successfully
+[IndividualAgentFactory] Created CRMAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created FinancialAgent successfully
+[IndividualAgentFactory] Successfully created 5 individual agents
+[AgentOrchestrator] Registered agent: AnalyticalAgent (analytical)
+[Orchestrator] Registered AnalyticalAgent (analytical) - Specialized agent for data analysis, statistical computations, and research tasks
+[AgentOrchestrator] Registered agent: CreativeAgent (creative)
+[Orchestrator] Registered CreativeAgent (creative) - Specialized agent for creative writing, brainstorming, and ideation tasks
+[AgentOrchestrator] Registered agent: TechnicalAgent (technical)
+[Orchestrator] Registered TechnicalAgent (technical) - Specialized agent for technical programming, debugging, and code-related tasks
+[AgentOrchestrator] Registered agent: CRMAgent (crm)
+[Orchestrator] Registered CRMAgent (crm) - Specialized agent for CRM operations, customer queries, and pipeline management
+[AgentOrchestrator] Registered agent: FinancialAgent (financial)
+[Orchestrator] Registered FinancialAgent (financial) - Specialized agent for financial analysis, investment research, and economic insights
+[Orchestrator] Successfully registered 5 specialized LLM agents
+[BackendIntegrationManager] Initializing backend integration...
+[BackendIntegrationManager] Initialized with 0 backends
+[Orchestrator] Setup created successfully
+=== BACKEND CONFIGURATION ===
+BACKEND mode: Orch
+Legacy ENVIRONMENT: dev
+Active backend: Enhanced Orchestrator (Multi-Agent)
+Orchestrator initialized: true
+=============================
+[Orchestrator] Initialized with 5 specialized agents
+=== ChatSG Server Configuration ===
+- Server running at http://localhost:3000/
+- Backend Mode: Orch
+- Active Backend: Enhanced Orchestrator (Multi-Agent)
+- Legacy Environment: dev
+- Orchestrator: Ready
+- Registered Agents: 5
+- Available Strategies: simple,capability-based,keyword-based
+- Environment: development
+- Backend Integration: Active
+- Registered Backends: 
+- VNet IP: 192.168.0.83
+===================================
+[Mem0Service] Python service health: { status: 'healthy', provider: 'openai', initialized: true }
+[Mem0Service] Connected to Python service successfully
+[Mem0Service] Python service config: {
+  provider: 'openai',
+  embedding_model: 'text-embedding-3-small',
+  llm_model: 'gpt-4o-mini',
+  vector_store_provider: 'qdrant',
+  graph_enabled: false,
+  azure_endpoint: null,
+  azure_api_version: null
+}
+[StorageManager] Mem0 service initialized
+[StorageManager] Initialized
+[Server] Storage manager initialized
+[Server] Applying security middleware for GET /api/auth/callback?code=test&state=test
+[Server] Security middleware passed for GET /api/auth/callback?code=test&state=test
 [Server] About to apply CSRF header middleware...
 [Server] Skipping CSRF for auth/read/config endpoint
-[CSRF-Header] Using existing token: {
+[CSRF-Header] Token created: {
   sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
-  expiresIn: '3501s'
+  token: 'd0687206216ed127b79c...',
+  ip: '::1',
+  connectionRemoteAddress: '::1',
+  socketRemoteAddress: '::1',
+  headers: { 'x-forwarded-for': undefined, 'x-real-ip': undefined }
 }
-[CSRF-Header] Calling next() for GET /api/config/security
+[CSRF-Header] Calling next() for GET /api/auth/callback?code=test&state=test
 [Server] CSRF header middleware completed
-[Server] Passed all middleware, continuing to routing for GET /api/config/security
-[applyMiddleware] Checking body for POST - req.body: null
-[applyMiddleware] Body not parsed, calling parseBody...
-[parseBody] Body parsed successfully
-[applyMiddleware] Checking body for POST - req.body: { test: true }
-[applyMiddleware] Body already parsed, skipping parseBody
-[Server] Applying security middleware for POST /api/chat/stream
-[applyMiddleware] Checking body for POST - req.body: { test: true }
-[applyMiddleware] Body already parsed, skipping parseBody
-[Server] Security middleware passed for POST /api/chat/stream
-[Server] About to apply CSRF header middleware...
-[applyMiddleware] Checking body for POST - req.body: { test: true }
-[applyMiddleware] Body already parsed, skipping parseBody
-[CSRF-Header] Bypassing CSRF validation in development mode
-[Server] CSRF header middleware completed
-[Server] Passed all middleware, continuing to routing for POST /api/chat/stream
-[Server] SSE streaming endpoint hit
-[Server] Processing SSE request
-[Server] req.body: { test: true }
-[Server] Performance monitoring enabled for SSE request
-[Server] Streaming request for session: default, message: "undefined"
-[Server] Sending SSE event: connected { sessionId: 'default' }
-[ORCHESTRATOR] Processing with streaming: ""
-[AgentOrchestrator] Selecting agent for session: default
-[AgentOrchestrator] User preferences: {}
-[MemoryPersistence] Stored key: session:default, TTL: none
-[AgentOrchestrator] Updated agent history for session default: AnalyticalAgent
-[MemoryPersistence] Stored key: session:default, TTL: none
-[AgentOrchestrator] Updated user preferences for session default: { lastAgentUsed: 'AnalyticalAgent' }
-[AgentOrchestrator] Selected agent: AnalyticalAgent (confidence: 0.1)
-[ORCHESTRATOR] Selected AnalyticalAgent for streaming
-[Server] Sending SSE event: start { agent: 'AnalyticalAgent', sessionId: 'default' }
-[AnalyticalAgent] Processing analytical request: "..."
-[AnalyticalAgent] Detected task type: general
-[AnalyticalAgent] Using Mem0 for context retrieval
-[AnalyticalAgent] Starting Mem0 context retrieval...
-[PostgresSessionStorage] Appended message to session default, id: 265
-[PostgresSessionIndex] Message count auto-incremented by trigger for session default
-[PostgresSessionIndex] Updated session default
-[StorageManager] Saved assistant message to session default
-[Database Pool] New client connected
-[StorageManager] Context query - SessionId: default, UserId: null
-[Mem0Service] Built context with 0 relevant memories
-[Mem0Service] Retrieved 0 memories for session default
-[StorageManager] Built complete context: 0 memories + 5 session messages
-[AnalyticalAgent] Context retrieval completed in 460ms
-[AnalyticalAgent] Memory status set: { enabled: true, memoryCount: 0, status: 'empty', retrievalTime: 460 }
-[AnalyticalAgent] Mem0 returned 7 context messages
-[AnalyticalAgent] Calling LLM with 7 messages (including conversation history)
-[AnalyticalAgent] streamCallback type: function, value: (token) => {
-                    if (timers.llm && !firstTokenReceived && typeof token === 'string') {
-                        timers.llm.markFirstTokenReceived();
-                        firstTokenReceived = true;
-                    }
-                    if (typeof token === 'string') {
-                        tokenCount++;
-                    }
-                    streamCallback(token);
-                }
-[AnalyticalAgent] Streaming mode enabled
-[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: true
-[AnalyticalAgent] Token received: ""
-[Server] Sending SSE event: token { content: '' }
-[AnalyticalAgent] Token received: "It"
-[Server] Sending SSE event: token { content: 'It' }
-[AnalyticalAgent] Token received: " seems"
-[Server] Sending SSE event: token { content: ' seems' }
-[AnalyticalAgent] Token received: " there"
-[Server] Sending SSE event: token { content: ' there' }
-[AnalyticalAgent] Token received: " might"
-[Server] Sending SSE event: token { content: ' might' }
-[AnalyticalAgent] Token received: " not"
-[Server] Sending SSE event: token { content: ' not' }
-[AnalyticalAgent] Token received: " have"
-[Server] Sending SSE event: token { content: ' have' }
-[AnalyticalAgent] Token received: " been"
-[Server] Sending SSE event: token { content: ' been' }
-[AnalyticalAgent] Token received: " any"
-[Server] Sending SSE event: token { content: ' any' }
-[AnalyticalAgent] Token received: " details"
-[Server] Sending SSE event: token { content: ' details' }
-[AnalyticalAgent] Token received: " included"
-[Server] Sending SSE event: token { content: ' included' }
-[AnalyticalAgent] Token received: " in"
-[Server] Sending SSE event: token { content: ' in' }
-[AnalyticalAgent] Token received: " your"
-[Server] Sending SSE event: token { content: ' your' }
-[AnalyticalAgent] Token received: " message"
-[Server] Sending SSE event: token { content: ' message' }
-[AnalyticalAgent] Token received: "."
-[Server] Sending SSE event: token { content: '.' }
-[AnalyticalAgent] Token received: " Could"
-[Server] Sending SSE event: token { content: ' Could' }
-[AnalyticalAgent] Token received: " you"
-[Server] Sending SSE event: token { content: ' you' }
-[AnalyticalAgent] Token received: " please"
-[Server] Sending SSE event: token { content: ' please' }
-[AnalyticalAgent] Token received: " provide"
-[Server] Sending SSE event: token { content: ' provide' }
-[AnalyticalAgent] Token received: " more"
-[Server] Sending SSE event: token { content: ' more' }
-[AnalyticalAgent] Token received: " information"
-[Server] Sending SSE event: token { content: ' information' }
-[AnalyticalAgent] Token received: " or"
-[Server] Sending SSE event: token { content: ' or' }
-[AnalyticalAgent] Token received: " specify"
-[Server] Sending SSE event: token { content: ' specify' }
-[AnalyticalAgent] Token received: " the"
-[Server] Sending SSE event: token { content: ' the' }
-[AnalyticalAgent] Token received: " problem"
-[Server] Sending SSE event: token { content: ' problem' }
-[AnalyticalAgent] Token received: " or"
-[Server] Sending SSE event: token { content: ' or' }
-[AnalyticalAgent] Token received: " question"
-[Server] Sending SSE event: token { content: ' question' }
-[AnalyticalAgent] Token received: " you"
-[Server] Sending SSE event: token { content: ' you' }
-[AnalyticalAgent] Token received: " need"
-[Server] Sending SSE event: token { content: ' need' }
-[AnalyticalAgent] Token received: " help"
-[Server] Sending SSE event: token { content: ' help' }
-[AnalyticalAgent] Token received: " with"
-[Server] Sending SSE event: token { content: ' with' }
-[AnalyticalAgent] Token received: "?"
-[Server] Sending SSE event: token { content: '?' }
-[AnalyticalAgent] Token received: " Once"
-[Server] Sending SSE event: token { content: ' Once' }
-[AnalyticalAgent] Token received: " you"
-[Server] Sending SSE event: token { content: ' you' }
-[AnalyticalAgent] Token received: " share"
-[Server] Sending SSE event: token { content: ' share' }
-[AnalyticalAgent] Token received: " the"
-[Server] Sending SSE event: token { content: ' the' }
-[AnalyticalAgent] Token received: " necessary"
-[Server] Sending SSE event: token { content: ' necessary' }
-[AnalyticalAgent] Token received: " details"
-[Server] Sending SSE event: token { content: ' details' }
-[AnalyticalAgent] Token received: ","
-[Server] Sending SSE event: token { content: ',' }
-[AnalyticalAgent] Token received: " I"
-[Server] Sending SSE event: token { content: ' I' }
-[AnalyticalAgent] Token received: " can"
-[Server] Sending SSE event: token { content: ' can' }
-[AnalyticalAgent] Token received: " assist"
-[Server] Sending SSE event: token { content: ' assist' }
-[AnalyticalAgent] Token received: " you"
-[Server] Sending SSE event: token { content: ' you' }
-[AnalyticalAgent] Token received: " with"
-[Server] Sending SSE event: token { content: ' with' }
-[AnalyticalAgent] Token received: " a"
-[Server] Sending SSE event: token { content: ' a' }
-[AnalyticalAgent] Token received: " comprehensive"
-[Server] Sending SSE event: token { content: ' comprehensive' }
-[AnalyticalAgent] Token received: " analysis"
-[Server] Sending SSE event: token { content: ' analysis' }
-[AnalyticalAgent] Token received: "."
-[Server] Sending SSE event: token { content: '.' }
-[AnalyticalAgent] Token received: ""
-[Server] Sending SSE event: token { content: '' }
-[AnalyticalAgent] Streaming completed (255 chars)
-[AnalyticalAgent] Final response length: 255 chars
-[PERF:Agent] AnalyticalAgent execution: 1696.97ms
-[PERF:LLM] unknown - Total: 1697ms, TTFT: 998ms, Stream: 699ms, TPS: 70.1
-[DEBUG] Memory status type: object
-[DEBUG] Memory status: {
-  "enabled": true,
-  "memoryCount": 0,
-  "status": "empty",
-  "retrievalTime": 460
-}
-[Server] Performance data collected: {
-  database: { totalTime: 0, operations: {} },
-  agent: { totalTime: 1698.47, selection: 1.46, execution: 1696.97 },
-  llm: { totalTime: 1697, ttft: 998.28, tokens: 49 }
-}
-[Server] Sending SSE event: done {
-  agent: 'AnalyticalAgent',
-  agentType: 'analytical',
-  sessionId: 'default',
-  memoryStatus: {
-    enabled: true,
-    memoryCount: 0,
-    status: 'empty',
-    retrievalTime: 460
-  },
-  orchestration: {
-    confidence: 1,
-    streaming: true,
-    forcedBySlashCommand: false,
-    commandUsed: undefined
-  },
-  performance: {
-    database: { totalTime: 0, operations: {} },
-    agent: { totalTime: 1698.47, selection: 1.46, execution: 1696.97 },
-    llm: { totalTime: 1697, ttft: 998.28, tokens: 49 }
-  }
-}
-[Server] Recorded 0 database operations, total: 0.00ms
-[Server] Applying security middleware for GET /api/auth/user
-[Server] Security middleware passed for GET /api/auth/user
-[Server] About to apply CSRF header middleware...
-[Server] Skipping CSRF for auth/read/config endpoint
-[CSRF-Header] Using existing token: {
-  sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
-  expiresIn: '3499s'
-}
-[CSRF-Header] Calling next() for GET /api/auth/user
-[Server] CSRF header middleware completed
-[Server] Passed all middleware, continuing to routing for GET /api/auth/user
-[Server] Applying security middleware for GET /api/auth/login
-[Server] Security middleware passed for GET /api/auth/login
-[Server] About to apply CSRF header middleware...
-[Server] Skipping CSRF for auth/read/config endpoint
-[CSRF-Header] Using existing token: {
-  sessionId: '::1',
-  token: '4d1b83130ae5d53a27f5...',
-  expiresIn: '3499s'
-}
-[CSRF-Header] Calling next() for GET /api/auth/login
-[Server] CSRF header middleware completed
-[Server] Passed all middleware, continuing to routing for GET /api/auth/login
-[MSAL 2] [Sat, 12 Jul 2025 06:12:14 GMT] : [] : @azure/msal-node@2.16.2 : Info - getAuthCodeUrl called
-[MSAL 2] [Sat, 12 Jul 2025 06:12:14 GMT] : [ced93402-f140-4eab-8dc2-3b1a36bdc8d6] : @azure/msal-node@2.16.2 : Info - Building oauth client configuration with the following authority: https://login.microsoftonline.us/your-tenant-id/oauth2/v2.0/token.
-[AzureAuth] Generated auth URL for state: 0c11802e2e35ac3e2cb90945fb2964d83531dea3cb55a98b59c07083069bf917
-[PostgresSessionStorage] Appended message to session default, id: 266
-[PostgresSessionIndex] Message count auto-incremented by trigger for session default
-[PostgresSessionIndex] Updated session default
-[StorageManager] Saved assistant message to session default
-[AnalyticalAgent] Mem0 context retrieval timed out after 10000ms (10s limit), using minimal context
-[AnalyticalAgent] Mem0 context retrieval timed out after 10000ms (10s limit), using minimal context
+[Server] Passed all middleware, continuing to routing for GET /api/auth/callback?code=test&state=test
+[Auth] Callback error: Error: Invalid state parameter
+    at Object.callback (/Users/crossgenai/sg/chatSG/backend/middleware/security/auth.js:193:13)
+    at Server.<anonymous> (/Users/crossgenai/sg/chatSG/backend/server.js:925:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

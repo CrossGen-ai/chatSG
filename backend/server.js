@@ -909,6 +909,10 @@ const server = http.createServer(async (req, res) => {
     
     // Auth routes (need session middleware)
     if (req.url.startsWith('/api/auth/')) {
+        // Enhance request/response objects for Express compatibility
+        enhanceRequest(req);
+        enhanceResponse(res);
+        
         // Apply session middleware for auth routes
         await applyMiddleware(sessionMiddleware, req, res);
         
@@ -917,7 +921,7 @@ const server = http.createServer(async (req, res) => {
             return;
         }
         
-        if (req.url === '/api/auth/callback' && req.method === 'GET') {
+        if (req.url.startsWith('/api/auth/callback') && req.method === 'GET') {
             auth.callback(req, res);
             return;
         }
