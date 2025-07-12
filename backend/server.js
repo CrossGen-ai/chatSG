@@ -1052,7 +1052,6 @@ const server = http.createServer(async (req, res) => {
         
         // Import debug endpoints
         const authDebug = require('./src/api/auth-debug');
-        const systemDebug = require('./src/api/system-debug');
         
         // Test full auth flow
         if (req.url === '/api/auth/test-flow' && req.method === 'GET') {
@@ -1083,8 +1082,13 @@ const server = http.createServer(async (req, res) => {
             authDebug.testCookies(req, res);
             return;
         }
+    }
+    
+    // System debug endpoints (require authentication)
+    if (req.url.startsWith('/api/system/')) {
+        // Import system debug module
+        const systemDebug = require('./src/api/system-debug');
         
-        // System debug endpoints
         if (req.url === '/api/system/test-database' && req.method === 'GET') {
             systemDebug.testDatabase(req, res);
             return;
