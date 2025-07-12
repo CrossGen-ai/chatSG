@@ -167,12 +167,20 @@ const login = async (req, res) => {
     const state = crypto.randomBytes(32).toString('hex');
     const nonce = crypto.randomBytes(32).toString('hex');
     
+    console.log('[Auth] Generated state:', state);
+    console.log('[Auth] Session ID:', req.sessionID);
+    console.log('[Auth] Session cookie name:', process.env.SESSION_NAME || 'chatsg_session');
+    
     if (req.session) {
       req.session.authState = { state, nonce };
       console.log('[Auth] Session authState set:', { state, nonce });
+      console.log('[Auth] Full session data:', JSON.stringify(req.session, null, 2));
+    } else {
+      console.error('[Auth] WARNING: No session object available!');
     }
     
     const authUrl = await authProvider.getAuthCodeUrl(state, nonce);
+    console.log('[Auth] Auth provider:', authProvider.constructor.name);
     console.log('[Auth] Redirecting to:', authUrl);
     
     // Manual redirect response
@@ -191,36 +199,56 @@ const callback = async (req, res) => {
   try {
     const { code, state, error_description } = req.query;
     
-    console.log('[Auth] Callback received - state:', state);
+    console.log('[Auth] Callback received');
+    console.log('[Auth] Query params:', req.query);
+    console.log('[Auth] State from query:', state);
+    console.log('[Auth] Code present:', !!code);
+    console.log('[Auth] Session ID:', req.sessionID);
     console.log('[Auth] Session exists:', !!req.session);
     console.log('[Auth] Session authState:', req.session?.authState);
+    console.log('[Auth] Full session data:', req.session ? JSON.stringify(req.session, null, 2) : 'No session');
     
     if (error_description) {
+      console.error('[Auth] OAuth error:', error_description);
       throw new Error(error_description);
     }
     
     if (!req.session || !req.session.authState || req.session.authState.state !== state) {
-      console.error('[Auth] State mismatch:', {
+      console.error('[Auth] State validation failed:', {
         hasSession: !!req.session,
         hasAuthState: !!req.session?.authState,
         expectedState: req.session?.authState?.state,
-        receivedState: state
+        receivedState: state,
+        sessionID: req.sessionID
       });
       throw new Error('Invalid state parameter');
     }
     
+    console.log('[Auth] State validation passed');
+    
+    console.log('[Auth] Acquiring token with code...');
     const user = await authProvider.acquireTokenByCode(
       code, 
       state, 
       req.session.authState.nonce
     );
+    console.log('[Auth] Token acquired, user info:', {
+      azureId: user.azureId,
+      email: user.email,
+      name: user.name
+    });
     
     // Store or update user in database
+    console.log('[Auth] Looking up user in database...');
     let dbUser = await getUserByAzureId(user.azureId);
     if (!dbUser) {
+      console.log('[Auth] User not found, creating new user...');
       dbUser = await createUser(user);
+      console.log('[Auth] New user created with ID:', dbUser.id);
     } else {
+      console.log('[Auth] Existing user found, updating...');
       dbUser = await updateUser(user.azureId, user);
+      console.log('[Auth] User updated');
     }
     
     // Store in session

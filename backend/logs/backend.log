@@ -1194,3 +1194,459 @@ Orchestrator initialized: true
 [StorageManager] Mem0 service initialized
 [StorageManager] Initialized
 [Server] Storage manager initialized
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+=== ENVIRONMENT DEBUG ===
+Current working directory: /Users/crossgenai/sg/chatSG/backend
+__dirname: /Users/crossgenai/sg/chatSG/backend
+process.env.CHATSG_ENVIRONMENT: dev
+process.env.BACKEND: Orch
+========================
+[Auth] Using Azure AD authentication provider
+[AzureAuth] Initializing with config: {
+  clientId: 'present',
+  clientSecret: 'present',
+  tenantId: 'present',
+  authority: 'https://login.microsoftonline.us/your-tenant-id',
+  redirectUri: 'http://localhost:3000/api/auth/callback'
+}
+[AzureAuth] Initialized successfully with scopes: [ 'openid', 'profile', 'email', 'User.Read' ]
+[Server] Performance monitoring loaded
+[Server] Connection diagnostics loaded
+[Server] Loaded slash commands router and processor
+[Server] Loaded new storage system
+[Server] Loaded memory visualization handlers
+[StorageManager] Initializing with PostgreSQL backend
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai API key (length: 164)
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai embedding model: text-embedding-3-small
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai LLM model: gpt-4o-mini
+[PostgresSessionIndex] Initialized with PostgreSQL backend
+[MemoryPersistence] Initialized with cleanup interval: 300000ms
+[StateManager] Initialized with config: {
+  defaultTTL: 86400000,
+  maxSessions: 1000,
+  maxSharedStates: 10000,
+  enablePersistence: true,
+  enableEvents: true
+}
+[AgentOrchestrator] Initialized 3 orchestration strategies
+[AgentOrchestrator] Initialized with config: {
+  maxRetries: 2,
+  timeoutMs: 15000,
+  fallbackStrategy: 'sequential',
+  enableStateSharing: true
+}
+[OrchestrationMiddleware] Initialized with config: {
+  enableOrchestration: true,
+  preserveBackendRouting: true,
+  orchestrationMode: 'enhanced',
+  enableLogging: true,
+  enableMetrics: true
+}
+[LLMHelper] Initialized with provider: openai
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created AnalyticalAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created CreativeAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created TechnicalAgent successfully
+[IndividualAgentFactory] Created CRMAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created FinancialAgent successfully
+[IndividualAgentFactory] Successfully created 5 individual agents
+[AgentOrchestrator] Registered agent: AnalyticalAgent (analytical)
+[Orchestrator] Registered AnalyticalAgent (analytical) - Specialized agent for data analysis, statistical computations, and research tasks
+[AgentOrchestrator] Registered agent: CreativeAgent (creative)
+[Orchestrator] Registered CreativeAgent (creative) - Specialized agent for creative writing, brainstorming, and ideation tasks
+[AgentOrchestrator] Registered agent: TechnicalAgent (technical)
+[Orchestrator] Registered TechnicalAgent (technical) - Specialized agent for technical programming, debugging, and code-related tasks
+[AgentOrchestrator] Registered agent: CRMAgent (crm)
+[Orchestrator] Registered CRMAgent (crm) - Specialized agent for CRM operations, customer queries, and pipeline management
+[AgentOrchestrator] Registered agent: FinancialAgent (financial)
+[Orchestrator] Registered FinancialAgent (financial) - Specialized agent for financial analysis, investment research, and economic insights
+[Orchestrator] Successfully registered 5 specialized LLM agents
+[BackendIntegrationManager] Initializing backend integration...
+[BackendIntegrationManager] Initialized with 0 backends
+[Orchestrator] Setup created successfully
+=== BACKEND CONFIGURATION ===
+BACKEND mode: Orch
+Legacy ENVIRONMENT: dev
+Active backend: Enhanced Orchestrator (Multi-Agent)
+Orchestrator initialized: true
+=============================
+[Orchestrator] Initialized with 5 specialized agents
+=== ChatSG Server Configuration ===
+- Server running at http://localhost:3000/
+- Backend Mode: Orch
+- Active Backend: Enhanced Orchestrator (Multi-Agent)
+- Legacy Environment: dev
+- Orchestrator: Ready
+- Registered Agents: 5
+- Available Strategies: simple,capability-based,keyword-based
+- Environment: development
+- Backend Integration: Active
+- Registered Backends: 
+- VNet IP: 192.168.0.83
+===================================
+[Mem0Service] Python service health: { status: 'healthy', provider: 'openai', initialized: true }
+[Mem0Service] Connected to Python service successfully
+[Mem0Service] Python service config: {
+  provider: 'openai',
+  embedding_model: 'text-embedding-3-small',
+  llm_model: 'gpt-4o-mini',
+  vector_store_provider: 'qdrant',
+  graph_enabled: false,
+  azure_endpoint: null,
+  azure_api_version: null
+}
+[StorageManager] Mem0 service initialized
+[StorageManager] Initialized
+[Server] Storage manager initialized
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+=== ENVIRONMENT DEBUG ===
+Current working directory: /Users/crossgenai/sg/chatSG/backend
+__dirname: /Users/crossgenai/sg/chatSG/backend
+process.env.CHATSG_ENVIRONMENT: dev
+process.env.BACKEND: Orch
+========================
+[Auth] Using Azure AD authentication provider
+[AzureAuth] Initializing with config: {
+  clientId: 'present',
+  clientSecret: 'present',
+  tenantId: 'present',
+  authority: 'https://login.microsoftonline.us/your-tenant-id',
+  redirectUri: 'http://localhost:3000/api/auth/callback'
+}
+[AzureAuth] Initialized successfully with scopes: [ 'openid', 'profile', 'email', 'User.Read' ]
+[Server] Performance monitoring loaded
+[Server] Connection diagnostics loaded
+[Server] Loaded slash commands router and processor
+[Server] Loaded new storage system
+[Server] Loaded memory visualization handlers
+[StorageManager] Initializing with PostgreSQL backend
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai API key (length: 164)
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai embedding model: text-embedding-3-small
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai LLM model: gpt-4o-mini
+[PostgresSessionIndex] Initialized with PostgreSQL backend
+[MemoryPersistence] Initialized with cleanup interval: 300000ms
+[StateManager] Initialized with config: {
+  defaultTTL: 86400000,
+  maxSessions: 1000,
+  maxSharedStates: 10000,
+  enablePersistence: true,
+  enableEvents: true
+}
+[AgentOrchestrator] Initialized 3 orchestration strategies
+[AgentOrchestrator] Initialized with config: {
+  maxRetries: 2,
+  timeoutMs: 15000,
+  fallbackStrategy: 'sequential',
+  enableStateSharing: true
+}
+[OrchestrationMiddleware] Initialized with config: {
+  enableOrchestration: true,
+  preserveBackendRouting: true,
+  orchestrationMode: 'enhanced',
+  enableLogging: true,
+  enableMetrics: true
+}
+[LLMHelper] Initialized with provider: openai
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created AnalyticalAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created CreativeAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created TechnicalAgent successfully
+[IndividualAgentFactory] Created CRMAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created FinancialAgent successfully
+[IndividualAgentFactory] Successfully created 5 individual agents
+[AgentOrchestrator] Registered agent: AnalyticalAgent (analytical)
+[Orchestrator] Registered AnalyticalAgent (analytical) - Specialized agent for data analysis, statistical computations, and research tasks
+[AgentOrchestrator] Registered agent: CreativeAgent (creative)
+[Orchestrator] Registered CreativeAgent (creative) - Specialized agent for creative writing, brainstorming, and ideation tasks
+[AgentOrchestrator] Registered agent: TechnicalAgent (technical)
+[Orchestrator] Registered TechnicalAgent (technical) - Specialized agent for technical programming, debugging, and code-related tasks
+[AgentOrchestrator] Registered agent: CRMAgent (crm)
+[Orchestrator] Registered CRMAgent (crm) - Specialized agent for CRM operations, customer queries, and pipeline management
+[AgentOrchestrator] Registered agent: FinancialAgent (financial)
+[Orchestrator] Registered FinancialAgent (financial) - Specialized agent for financial analysis, investment research, and economic insights
+[Orchestrator] Successfully registered 5 specialized LLM agents
+[BackendIntegrationManager] Initializing backend integration...
+[BackendIntegrationManager] Initialized with 0 backends
+[Orchestrator] Setup created successfully
+=== BACKEND CONFIGURATION ===
+BACKEND mode: Orch
+Legacy ENVIRONMENT: dev
+Active backend: Enhanced Orchestrator (Multi-Agent)
+Orchestrator initialized: true
+=============================
+[Orchestrator] Initialized with 5 specialized agents
+=== ChatSG Server Configuration ===
+- Server running at http://localhost:3000/
+- Backend Mode: Orch
+- Active Backend: Enhanced Orchestrator (Multi-Agent)
+- Legacy Environment: dev
+- Orchestrator: Ready
+- Registered Agents: 5
+- Available Strategies: simple,capability-based,keyword-based
+- Environment: development
+- Backend Integration: Active
+- Registered Backends: 
+- VNet IP: 192.168.0.83
+===================================
+[Mem0Service] Python service health: { status: 'healthy', provider: 'openai', initialized: true }
+[Mem0Service] Connected to Python service successfully
+[Mem0Service] Python service config: {
+  provider: 'openai',
+  embedding_model: 'text-embedding-3-small',
+  llm_model: 'gpt-4o-mini',
+  vector_store_provider: 'qdrant',
+  graph_enabled: false,
+  azure_endpoint: null,
+  azure_api_version: null
+}
+[StorageManager] Mem0 service initialized
+[StorageManager] Initialized
+[Server] Storage manager initialized
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+=== ENVIRONMENT DEBUG ===
+Current working directory: /Users/crossgenai/sg/chatSG/backend
+__dirname: /Users/crossgenai/sg/chatSG/backend
+process.env.CHATSG_ENVIRONMENT: dev
+process.env.BACKEND: Orch
+========================
+[Auth] Using Azure AD authentication provider
+[AzureAuth] Initializing with config: {
+  clientId: 'present',
+  clientSecret: 'present',
+  tenantId: 'present',
+  authority: 'https://login.microsoftonline.us/your-tenant-id',
+  redirectUri: 'http://localhost:3000/api/auth/callback'
+}
+[AzureAuth] Initialized successfully with scopes: [ 'openid', 'profile', 'email', 'User.Read' ]
+[Server] Performance monitoring loaded
+[Server] Connection diagnostics loaded
+[Server] Loaded slash commands router and processor
+[Server] Loaded new storage system
+[Server] Loaded memory visualization handlers
+[StorageManager] Initializing with PostgreSQL backend
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai API key (length: 164)
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai embedding model: text-embedding-3-small
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai LLM model: gpt-4o-mini
+[PostgresSessionIndex] Initialized with PostgreSQL backend
+[MemoryPersistence] Initialized with cleanup interval: 300000ms
+[StateManager] Initialized with config: {
+  defaultTTL: 86400000,
+  maxSessions: 1000,
+  maxSharedStates: 10000,
+  enablePersistence: true,
+  enableEvents: true
+}
+[AgentOrchestrator] Initialized 3 orchestration strategies
+[AgentOrchestrator] Initialized with config: {
+  maxRetries: 2,
+  timeoutMs: 15000,
+  fallbackStrategy: 'sequential',
+  enableStateSharing: true
+}
+[OrchestrationMiddleware] Initialized with config: {
+  enableOrchestration: true,
+  preserveBackendRouting: true,
+  orchestrationMode: 'enhanced',
+  enableLogging: true,
+  enableMetrics: true
+}
+[LLMHelper] Initialized with provider: openai
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created AnalyticalAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created CreativeAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created TechnicalAgent successfully
+[IndividualAgentFactory] Created CRMAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created FinancialAgent successfully
+[IndividualAgentFactory] Successfully created 5 individual agents
+[AgentOrchestrator] Registered agent: AnalyticalAgent (analytical)
+[Orchestrator] Registered AnalyticalAgent (analytical) - Specialized agent for data analysis, statistical computations, and research tasks
+[AgentOrchestrator] Registered agent: CreativeAgent (creative)
+[Orchestrator] Registered CreativeAgent (creative) - Specialized agent for creative writing, brainstorming, and ideation tasks
+[AgentOrchestrator] Registered agent: TechnicalAgent (technical)
+[Orchestrator] Registered TechnicalAgent (technical) - Specialized agent for technical programming, debugging, and code-related tasks
+[AgentOrchestrator] Registered agent: CRMAgent (crm)
+[Orchestrator] Registered CRMAgent (crm) - Specialized agent for CRM operations, customer queries, and pipeline management
+[AgentOrchestrator] Registered agent: FinancialAgent (financial)
+[Orchestrator] Registered FinancialAgent (financial) - Specialized agent for financial analysis, investment research, and economic insights
+[Orchestrator] Successfully registered 5 specialized LLM agents
+[BackendIntegrationManager] Initializing backend integration...
+[BackendIntegrationManager] Initialized with 0 backends
+[Orchestrator] Setup created successfully
+=== BACKEND CONFIGURATION ===
+BACKEND mode: Orch
+Legacy ENVIRONMENT: dev
+Active backend: Enhanced Orchestrator (Multi-Agent)
+Orchestrator initialized: true
+=============================
+[Orchestrator] Initialized with 5 specialized agents
+=== ChatSG Server Configuration ===
+- Server running at http://localhost:3000/
+- Backend Mode: Orch
+- Active Backend: Enhanced Orchestrator (Multi-Agent)
+- Legacy Environment: dev
+- Orchestrator: Ready
+- Registered Agents: 5
+- Available Strategies: simple,capability-based,keyword-based
+- Environment: development
+- Backend Integration: Active
+- Registered Backends: 
+- VNet IP: 192.168.0.83
+===================================
+[Mem0Service] Python service health: { status: 'healthy', provider: 'openai', initialized: true }
+[Mem0Service] Connected to Python service successfully
+[Mem0Service] Python service config: {
+  provider: 'openai',
+  embedding_model: 'text-embedding-3-small',
+  llm_model: 'gpt-4o-mini',
+  vector_store_provider: 'qdrant',
+  graph_enabled: false,
+  azure_endpoint: null,
+  azure_api_version: null
+}
+[StorageManager] Mem0 service initialized
+[StorageManager] Initialized
+[Server] Storage manager initialized
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+=== ENVIRONMENT DEBUG ===
+Current working directory: /Users/crossgenai/sg/chatSG/backend
+__dirname: /Users/crossgenai/sg/chatSG/backend
+process.env.CHATSG_ENVIRONMENT: dev
+process.env.BACKEND: Orch
+========================
+[Auth] Using Azure AD authentication provider
+[AzureAuth] Initializing with config: {
+  clientId: 'present',
+  clientSecret: 'present',
+  tenantId: 'present',
+  authority: 'https://login.microsoftonline.us/your-tenant-id',
+  redirectUri: 'http://localhost:3000/api/auth/callback'
+}
+[AzureAuth] Initialized successfully with scopes: [ 'openid', 'profile', 'email', 'User.Read' ]
+[Server] Performance monitoring loaded
+[Server] Connection diagnostics loaded
+[Server] Loaded slash commands router and processor
+[Server] Loaded new storage system
+[Server] Loaded memory visualization handlers
+[StorageManager] Initializing with PostgreSQL backend
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai API key (length: 164)
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai embedding model: text-embedding-3-small
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai LLM model: gpt-4o-mini
+[PostgresSessionIndex] Initialized with PostgreSQL backend
+[MemoryPersistence] Initialized with cleanup interval: 300000ms
+[StateManager] Initialized with config: {
+  defaultTTL: 86400000,
+  maxSessions: 1000,
+  maxSharedStates: 10000,
+  enablePersistence: true,
+  enableEvents: true
+}
+[AgentOrchestrator] Initialized 3 orchestration strategies
+[AgentOrchestrator] Initialized with config: {
+  maxRetries: 2,
+  timeoutMs: 15000,
+  fallbackStrategy: 'sequential',
+  enableStateSharing: true
+}
+[OrchestrationMiddleware] Initialized with config: {
+  enableOrchestration: true,
+  preserveBackendRouting: true,
+  orchestrationMode: 'enhanced',
+  enableLogging: true,
+  enableMetrics: true
+}
+[LLMHelper] Initialized with provider: openai
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created AnalyticalAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created CreativeAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created TechnicalAgent successfully
+[IndividualAgentFactory] Created CRMAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created FinancialAgent successfully
+[IndividualAgentFactory] Successfully created 5 individual agents
+[AgentOrchestrator] Registered agent: AnalyticalAgent (analytical)
+[Orchestrator] Registered AnalyticalAgent (analytical) - Specialized agent for data analysis, statistical computations, and research tasks
+[AgentOrchestrator] Registered agent: CreativeAgent (creative)
+[Orchestrator] Registered CreativeAgent (creative) - Specialized agent for creative writing, brainstorming, and ideation tasks
+[AgentOrchestrator] Registered agent: TechnicalAgent (technical)
+[Orchestrator] Registered TechnicalAgent (technical) - Specialized agent for technical programming, debugging, and code-related tasks
+[AgentOrchestrator] Registered agent: CRMAgent (crm)
+[Orchestrator] Registered CRMAgent (crm) - Specialized agent for CRM operations, customer queries, and pipeline management
+[AgentOrchestrator] Registered agent: FinancialAgent (financial)
+[Orchestrator] Registered FinancialAgent (financial) - Specialized agent for financial analysis, investment research, and economic insights
+[Orchestrator] Successfully registered 5 specialized LLM agents
+[BackendIntegrationManager] Initializing backend integration...
+[BackendIntegrationManager] Initialized with 0 backends
+[Orchestrator] Setup created successfully
+=== BACKEND CONFIGURATION ===
+BACKEND mode: Orch
+Legacy ENVIRONMENT: dev
+Active backend: Enhanced Orchestrator (Multi-Agent)
+Orchestrator initialized: true
+=============================
+[Orchestrator] Initialized with 5 specialized agents
+=== ChatSG Server Configuration ===
+- Server running at http://localhost:3000/
+- Backend Mode: Orch
+- Active Backend: Enhanced Orchestrator (Multi-Agent)
+- Legacy Environment: dev
+- Orchestrator: Ready
+- Registered Agents: 5
+- Available Strategies: simple,capability-based,keyword-based
+- Environment: development
+- Backend Integration: Active
+- Registered Backends: 
+- VNet IP: 192.168.0.83
+===================================
+[Mem0Service] Python service health: { status: 'healthy', provider: 'openai', initialized: true }
+[Mem0Service] Connected to Python service successfully
+[Mem0Service] Python service config: {
+  provider: 'openai',
+  embedding_model: 'text-embedding-3-small',
+  llm_model: 'gpt-4o-mini',
+  vector_store_provider: 'qdrant',
+  graph_enabled: false,
+  azure_endpoint: null,
+  azure_api_version: null
+}
+[StorageManager] Mem0 service initialized
+[StorageManager] Initialized
+[Server] Storage manager initialized

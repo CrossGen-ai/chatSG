@@ -791,8 +791,25 @@ const sessionConfig = {
     name: process.env.SESSION_NAME || 'chatsg_session'
 };
 
-// Create session middleware
-const sessionMiddleware = session(sessionConfig);
+// Create session middleware with logging wrapper
+const baseSessionMiddleware = session(sessionConfig);
+const sessionMiddleware = (req, res, next) => {
+    console.log('[Session] Processing request:', req.method, req.url);
+    console.log('[Session] Cookie header:', req.headers.cookie);
+    
+    baseSessionMiddleware(req, res, (err) => {
+        if (err) {
+            console.error('[Session] Middleware error:', err);
+            return next(err);
+        }
+        
+        console.log('[Session] Session ID:', req.sessionID);
+        console.log('[Session] Session data:', req.session ? JSON.stringify(req.session, null, 2) : 'No session');
+        console.log('[Session] Session new?', req.session?.isNew);
+        console.log('[Session] Session cookie:', req.session?.cookie);
+        next();
+    });
+};
 
 const server = http.createServer(async (req, res) => {
     // Apply performance monitoring if enabled

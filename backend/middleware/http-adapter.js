@@ -16,6 +16,9 @@ function enhanceRequest(req) {
   // Parse cookies if cookie header exists
   if (req.headers.cookie) {
     req.cookies = parseCookies(req.headers.cookie);
+    console.log('[HTTP-Adapter] Parsed cookies:', req.cookies);
+  } else {
+    console.log('[HTTP-Adapter] No cookie header found');
   }
   
   // Add Express-like methods

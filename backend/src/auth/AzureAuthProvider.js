@@ -3,6 +3,14 @@ const crypto = require('crypto');
 
 class AzureAuthProvider {
   constructor(config) {
+    console.log('[AzureAuth] Initializing with config:', {
+      clientId: config.clientId ? 'present' : 'missing',
+      clientSecret: config.clientSecret ? 'present' : 'missing',
+      tenantId: config.tenantId ? 'present' : 'missing',
+      authority: config.authority,
+      redirectUri: config.redirectUri
+    });
+
     this.msalConfig = {
       auth: {
         clientId: config.clientId,
@@ -28,6 +36,8 @@ class AzureAuthProvider {
     
     // Store PKCE verifiers temporarily (in production, use Redis or session)
     this.pkceCache = new Map();
+    
+    console.log('[AzureAuth] Initialized successfully with scopes:', this.scopes);
   }
 
   generatePkceCodes() {
@@ -42,17 +52,37 @@ class AzureAuthProvider {
 
   async getAuthCodeUrl(state, nonce) {
     try {
-      const pkceCodes = this.generatePkceCodes();
+      console.log('[AzureAuth] getAuthCodeUrl called with:', { 
+        state: state,
+        nonce: nonce,
+        redirectUri: this.redirectUri 
+      });
       
-      // Store PKCE verifier for later use
-      this.pkceCache.set(state, pkceCodes.verifier);
+      const pkceCodes = this.generatePkceCodes();
+      console.log('[AzureAuth] Generated PKCE codes:', {
+        verifierLength: pkceCodes.verifier.length,
+        challengeLength: pkceCodes.challenge.length
+      });
+      
+      // Store PKCE verifier for later use with timestamp
+      this.pkceCache.set(state, {
+        verifier: pkceCodes.verifier,
+        timestamp: Date.now()
+      });
+      console.log('[AzureAuth] PKCE verifier stored for state:', state);
+      console.log('[AzureAuth] Current PKCE cache size:', this.pkceCache.size);
       
       // Clean up old entries (older than 10 minutes)
       const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
+      let cleanedCount = 0;
       for (const [key, value] of this.pkceCache.entries()) {
         if (value.timestamp && value.timestamp < tenMinutesAgo) {
           this.pkceCache.delete(key);
+          cleanedCount++;
         }
+      }
+      if (cleanedCount > 0) {
+        console.log('[AzureAuth] Cleaned up', cleanedCount, 'old PKCE entries');
       }
       
       const authCodeUrlParameters = {
@@ -65,25 +95,50 @@ class AzureAuthProvider {
         responseMode: 'query'
       };
       
+      console.log('[AzureAuth] Auth code URL parameters:', authCodeUrlParameters);
+      
       const url = await this.confidentialClient.getAuthCodeUrl(authCodeUrlParameters);
-      console.log('[AzureAuth] Generated auth URL for state:', state);
+      console.log('[AzureAuth] Generated auth URL successfully');
+      console.log('[AzureAuth] Auth URL (first 100 chars):', url.substring(0, 100) + '...');
       return url;
     } catch (error) {
       console.error('[AzureAuth] Error generating auth URL:', error);
+      console.error('[AzureAuth] Error details:', error.message);
+      console.error('[AzureAuth] Error stack:', error.stack);
       throw error;
     }
   }
 
   async acquireTokenByCode(code, state, nonce) {
     try {
+      console.log('[AzureAuth] acquireTokenByCode called with:', {
+        codeLength: code ? code.length : 0,
+        state: state,
+        nonce: nonce
+      });
+      
       // Retrieve PKCE verifier
-      const codeVerifier = this.pkceCache.get(state);
-      if (!codeVerifier) {
+      console.log('[AzureAuth] Looking for PKCE verifier for state:', state);
+      console.log('[AzureAuth] Current PKCE cache keys:', Array.from(this.pkceCache.keys()));
+      
+      const verifierData = this.pkceCache.get(state);
+      if (!verifierData) {
+        console.error('[AzureAuth] PKCE verifier not found! Cache contents:', 
+          Array.from(this.pkceCache.entries()).map(([k, v]) => ({
+            key: k,
+            hasVerifier: !!v.verifier,
+            timestamp: v.timestamp
+          }))
+        );
         throw new Error('PKCE verifier not found for state');
       }
       
+      const codeVerifier = verifierData.verifier || verifierData; // Handle both old and new format
+      console.log('[AzureAuth] PKCE verifier found, length:', codeVerifier.length);
+      
       // Clean up used verifier
       this.pkceCache.delete(state);
+      console.log('[AzureAuth] PKCE verifier removed from cache');
       
       const tokenRequest = {
         code: code,
@@ -94,11 +149,29 @@ class AzureAuthProvider {
         nonce: nonce
       };
       
+      console.log('[AzureAuth] Token request prepared:', {
+        ...tokenRequest,
+        code: tokenRequest.code.substring(0, 20) + '...',
+        codeVerifier: tokenRequest.codeVerifier.substring(0, 20) + '...'
+      });
+      
+      console.log('[AzureAuth] Calling MSAL acquireTokenByCode...');
       const response = await this.confidentialClient.acquireTokenByCode(tokenRequest);
       console.log('[AzureAuth] Token acquired successfully');
+      console.log('[AzureAuth] Token response has properties:', Object.keys(response));
+      
       return this.extractUserFromToken(response);
     } catch (error) {
       console.error('[AzureAuth] Error acquiring token:', error);
+      console.error('[AzureAuth] Error type:', error.constructor.name);
+      console.error('[AzureAuth] Error message:', error.message);
+      if (error.errorCode) {
+        console.error('[AzureAuth] Error code:', error.errorCode);
+      }
+      if (error.errorMessage) {
+        console.error('[AzureAuth] Error message from MSAL:', error.errorMessage);
+      }
+      console.error('[AzureAuth] Full error details:', JSON.stringify(error, null, 2));
       throw error;
     }
   }
