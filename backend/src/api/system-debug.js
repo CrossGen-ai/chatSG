@@ -454,6 +454,54 @@ const debugPool = async (req, res) => {
     res.json(results);
 };
 
+// Check compiled code
+const checkCompiledCode = async (req, res) => {
+    const fs = require('fs').promises;
+    const path = require('path');
+    
+    const results = {
+        timestamp: new Date().toISOString(),
+        files: {}
+    };
+
+    try {
+        // Check if PostgresSessionIndex is using getPool()
+        const indexPath = path.join(__dirname, '../storage/PostgresSessionIndex.js');
+        const indexContent = await fs.readFile(indexPath, 'utf8');
+        results.files.PostgresSessionIndex = {
+            exists: true,
+            hasThisPool: indexContent.includes('this.pool'),
+            hasGetPool: indexContent.includes('getPool()'),
+            line199: indexContent.split('\n')[198] || 'Line not found'
+        };
+
+        // Check pool.js
+        const poolPath = path.join(__dirname, '../database/pool.js');
+        const poolContent = await fs.readFile(poolPath, 'utf8');
+        results.files.pool = {
+            exists: true,
+            hasPGSSLCheck: poolContent.includes("process.env.PGSSL === 'false'"),
+            hasDATABASE_SSLCheck: poolContent.includes("process.env.DATABASE_SSL === 'false'")
+        };
+
+        // Environment at this moment
+        results.currentEnv = {
+            PGSSL: process.env.PGSSL,
+            DATABASE_SSL: process.env.DATABASE_SSL,
+            NODE_ENV: process.env.NODE_ENV,
+            DATABASE_URL: process.env.DATABASE_URL ? 'set' : 'not set'
+        };
+
+    } catch (error) {
+        results.error = {
+            message: error.message,
+            stack: error.stack
+        };
+    }
+
+    res.json(results);
+};
+
 module.exports = {
     testDatabase,
     testStorage,
@@ -461,5 +509,6 @@ module.exports = {
     testChat,
     getCurrentUser,
     systemHealth,
-    debugPool
+    debugPool,
+    checkCompiledCode
 };

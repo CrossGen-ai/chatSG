@@ -67,6 +67,12 @@ function createPool() {
 
 function getPool() {
   if (!pool) {
+    console.log('[Database Pool] getPool called but no pool exists, creating new pool');
+    console.log('[Database Pool] Current env at getPool:', {
+      PGSSL: process.env.PGSSL,
+      DATABASE_SSL: process.env.DATABASE_SSL,
+      NODE_ENV: process.env.NODE_ENV
+    });
     pool = createPool();
   }
   return pool;

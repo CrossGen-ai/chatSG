@@ -1121,6 +1121,11 @@ const server = http.createServer(async (req, res) => {
             return;
         }
         
+        if (req.url === '/api/system/check-code' && req.method === 'GET') {
+            systemDebug.checkCompiledCode(req, res);
+            return;
+        }
+        
         // Pool-specific debug endpoint
         if (req.url.startsWith('/api/system/test-pool') && req.method === 'GET') {
             const poolDebug = require('./src/api/pool-debug');
