@@ -2986,3 +2986,164 @@ Orchestrator initialized: true
 [StorageManager] Mem0 service initialized
 [StorageManager] Initialized
 [Server] Storage manager initialized
+[HTTP-Adapter] No cookie header found
+[Session] Processing request: GET /api/auth/test-config
+[Session] Cookie header: undefined
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[Session] Session ID: eZ7cHeWhSeFhjhgn07tgaolrZdZPPPHv
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T19:09:18.900Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T19:09:18.900Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax',
+  domain: undefined
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/auth/test-config
+[Server] Security middleware passed for GET /api/auth/test-config
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Token created: {
+  sessionId: '::1',
+  token: '29eedd6756bd05d351af...',
+  ip: '::1',
+  connectionRemoteAddress: '::1',
+  socketRemoteAddress: '::1',
+  headers: { 'x-forwarded-for': undefined, 'x-real-ip': undefined }
+}
+[CSRF-Header] Calling next() for GET /api/auth/test-config
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/test-config
+[HTTP-Adapter] No cookie header found
+[Database Pool] New client connected
+[HTTP-Adapter] No cookie header found
+[Session] Processing request: GET /api/auth/session-debug
+[Session] Cookie header: 
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[Session] Session ID: MCzVheEg6FyFbcf_02yrhY51Tpc5JLII
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T19:09:18.920Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T19:09:18.920Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax',
+  domain: undefined
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/auth/session-debug
+[Server] Security middleware passed for GET /api/auth/session-debug
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '29eedd6756bd05d351af...',
+  expiresIn: '3599s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/session-debug
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/session-debug
+[HTTP-Adapter] No cookie header found
+[HTTP-Adapter] No cookie header found
+[Session] Processing request: GET /api/auth/test-config
+[Session] Cookie header: undefined
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[Session] Session ID: xXadVfWIG_A9Hde2G1sgA9phyy1In-1w
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T19:11:34.943Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T19:11:34.943Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax',
+  domain: undefined
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/auth/test-config
+[Server] Security middleware passed for GET /api/auth/test-config
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '29eedd6756bd05d351af...',
+  expiresIn: '3463s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/test-config
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/test-config
+[HTTP-Adapter] No cookie header found
+[Database Pool] New client connected
+[HTTP-Adapter] No cookie header found
+[Session] Processing request: GET /api/auth/session-debug
+[Session] Cookie header: 
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[Session] Session ID: t5oFsklFt86euoo8k8nLYY8jMAdVvqr4
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T19:11:34.956Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T19:11:34.956Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax',
+  domain: undefined
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/auth/session-debug
+[Server] Security middleware passed for GET /api/auth/session-debug
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '29eedd6756bd05d351af...',
+  expiresIn: '3463s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/session-debug
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/session-debug
+[HTTP-Adapter] No cookie header found
