@@ -1,4 +1,9 @@
-"""Tests for Mem0Service."""
+"""Tests for Mem0Service.
+
+Note: This test file uses the src. prefix for imports which works with pytest
+when run from the project root. The conftest.py file adds the src directory
+to the Python path to enable these imports.
+"""
 
 import pytest
 from unittest.mock import Mock, patch, AsyncMock, MagicMock
