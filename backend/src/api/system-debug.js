@@ -1,7 +1,7 @@
 // Comprehensive system debugging endpoints
 
 const { getPool } = require('../database/pool');
-const { getStorageManager } = require('../storage');
+const { getStorageManager } = require('../../dist/src/storage');
 
 // Test database connections and pool status
 const testDatabase = async (req, res) => {
@@ -148,7 +148,7 @@ const testMemory = async (req, res) => {
     };
 
     try {
-        const { Mem0Service } = require('../memory/Mem0Service');
+        const { Mem0Service } = require('../../dist/src/memory/Mem0Service');
         const mem0 = new Mem0Service();
 
         // Mem0 status
