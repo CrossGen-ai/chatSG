@@ -26,11 +26,39 @@ function enhanceRequest(req) {
     return req.headers[header.toLowerCase()];
   };
   
-  // Add IP address
-  req.ip = req.connection.remoteAddress || req.socket.remoteAddress;
+  // Add IP address - check for forwarded IP first
+  req.ip = req.headers['x-forwarded-for'] || 
+           req.connection.remoteAddress || 
+           req.socket.remoteAddress;
   
-  // Protocol
-  req.protocol = req.connection.encrypted ? 'https' : 'http';
+  // Protocol - check proxy headers first
+  const xForwardedProto = req.headers['x-forwarded-proto'];
+  const xForwardedProtocol = req.headers['x-forwarded-protocol'];
+  const xUrlScheme = req.headers['x-url-scheme'];
+  const xForwarded = req.headers.forwarded;
+  
+  if (xForwardedProto) {
+    req.protocol = xForwardedProto.split(',')[0].trim();
+  } else if (xForwardedProtocol) {
+    req.protocol = xForwardedProtocol.split(',')[0].trim();
+  } else if (xUrlScheme) {
+    req.protocol = xUrlScheme;
+  } else if (xForwarded) {
+    const protoMatch = xForwarded.match(/proto=(https?)/);
+    req.protocol = protoMatch ? protoMatch[1] : 'http';
+  } else {
+    req.protocol = req.connection.encrypted ? 'https' : 'http';
+  }
+  
+  // Log proxy detection for debugging
+  if (req.headers['x-forwarded-proto'] || req.headers['x-forwarded-for']) {
+    console.log('[HTTP-Adapter] Proxy detected:', {
+      protocol: req.protocol,
+      ip: req.ip,
+      'x-forwarded-proto': req.headers['x-forwarded-proto'],
+      'x-forwarded-for': req.headers['x-forwarded-for']
+    });
+  }
   
   // Session ID placeholder
   req.sessionID = req.cookies['session-id'] || req.ip;

@@ -796,7 +796,9 @@ const sessionConfig = {
         domain: process.env.COOKIE_DOMAIN || undefined,
         path: '/'
     },
-    name: process.env.SESSION_NAME || 'chatsg_session'
+    name: process.env.SESSION_NAME || 'chatsg_session',
+    // Trust proxy headers for Azure Gateway SSL termination
+    proxy: process.env.TRUST_PROXY === 'true' || process.env.NODE_ENV === 'production'
 };
 
 // Create session middleware with logging wrapper
@@ -804,12 +806,19 @@ const baseSessionMiddleware = session(sessionConfig);
 const sessionMiddleware = (req, res, next) => {
     console.log('[Session] Processing request:', req.method, req.url);
     console.log('[Session] Cookie header:', req.headers.cookie);
+    console.log('[Session] Request protocol:', req.protocol);
+    console.log('[Session] X-Forwarded-Proto:', req.headers['x-forwarded-proto']);
     console.log('[Session] Cookie config:', {
         secure: sessionConfig.cookie.secure,
         sameSite: sessionConfig.cookie.sameSite,
         domain: sessionConfig.cookie.domain,
         path: sessionConfig.cookie.path
     });
+    
+    // If behind proxy and protocol is https, mark connection as secure
+    if (sessionConfig.proxy && req.protocol === 'https') {
+        req.connection.encrypted = true;
+    }
     
     baseSessionMiddleware(req, res, (err) => {
         if (err) {
@@ -1006,6 +1015,13 @@ const server = http.createServer(async (req, res) => {
                     sessionExists: !!req.session,
                     isNew: req.session?.isNew,
                     hasAuthState: !!req.session?.authState
+                },
+                proxy: {
+                    trustProxy: sessionConfig.proxy,
+                    detectedProtocol: req.protocol,
+                    xForwardedProto: req.headers['x-forwarded-proto'],
+                    xForwardedFor: req.headers['x-forwarded-for'],
+                    connectionEncrypted: req.connection.encrypted
                 },
                 urls: {
                     FRONTEND_URL: process.env.FRONTEND_URL,
