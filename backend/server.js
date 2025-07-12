@@ -770,16 +770,12 @@ async function handleSSERequest(req, res) {
 }
 
 // Initialize session store with SSL handling
+// Use our pool which already has the correct SSL settings
 const sessionStore = new pgSession({
     pool: getPool(),
     tableName: 'session',
-    createTableIfMissing: true,
-    // Fix SSL issues
-    conObject: {
-        ssl: process.env.PGSSL === 'false' ? false : 
-             process.env.DATABASE_SSL === 'false' ? false :
-             process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-    }
+    createTableIfMissing: true
+    // Don't specify conObject - it conflicts with the pool settings
 });
 
 // Session configuration
