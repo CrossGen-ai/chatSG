@@ -7,6 +7,12 @@ const { getStorageManager } = require('../../dist/src/storage');
 const testDatabase = async (req, res) => {
     const results = {
         timestamp: new Date().toISOString(),
+        environment: {
+            PGSSL: process.env.PGSSL,
+            DATABASE_SSL: process.env.DATABASE_SSL,
+            NODE_ENV: process.env.NODE_ENV,
+            DATABASE_URL: process.env.DATABASE_URL ? 'set' : 'not set'
+        },
         pool: {},
         queries: {},
         tables: {}

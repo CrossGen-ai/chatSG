@@ -1118,6 +1118,13 @@ const server = http.createServer(async (req, res) => {
             systemDebug.systemHealth(req, res);
             return;
         }
+        
+        // Pool-specific debug endpoint
+        if (req.url.startsWith('/api/system/test-pool') && req.method === 'GET') {
+            const poolDebug = require('./src/api/pool-debug');
+            poolDebug.testPoolConfig(req, res);
+            return;
+        }
     }
     
     if (req.url === '/') {

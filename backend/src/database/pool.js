@@ -9,10 +9,12 @@ function createPool() {
   }
 
   // Log SSL configuration for debugging
-  console.log('[Database Pool] Creating pool with SSL config:', {
+  console.log('[Database Pool] Creating NEW pool with SSL config:', {
     PGSSL: process.env.PGSSL,
     DATABASE_SSL: process.env.DATABASE_SSL,
-    NODE_ENV: process.env.NODE_ENV
+    NODE_ENV: process.env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+    stack: new Error().stack.split('\n').slice(2, 5).join('\n')
   });
 
   const config = {
