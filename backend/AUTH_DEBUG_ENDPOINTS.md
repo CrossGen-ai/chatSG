@@ -1,6 +1,11 @@
 # Auth Debug Endpoints
 
-These endpoints help troubleshoot authentication and session issues.
+These endpoints help troubleshoot authentication and session issues. All endpoints are currently deployed and available on the production server at https://51.54.96.228
+
+## Production Status
+✅ **All debug endpoints are live and accessible in production**
+- Base URL: https://51.54.96.228
+- These endpoints were instrumental in diagnosing and fixing the OAuth authentication issue
 
 ## Available Endpoints
 
@@ -59,9 +64,36 @@ USE_LOCAL=true node test-auth-comprehensive.js
 3. **OAuth State**: State must persist between set and get
 4. **Cookies**: Must see Set-Cookie headers
 
+## Real-World Example
+
+These endpoints helped diagnose and fix the production OAuth issue:
+
+1. **Problem**: "Invalid state parameter" error after Microsoft redirect
+2. **Discovery via endpoints**:
+   - `/api/auth/test-store` showed sessions weren't in database
+   - `/api/auth/test-oauth-state` revealed session IDs changing between requests
+   - Session ID format was `12.203.70.196:46546` (IP-based) instead of proper session ID
+3. **Root cause**: `http-adapter.js` was overriding session IDs with IP addresses
+4. **Solution**: Removed the session ID override, allowing express-session to work properly
+
 ## Troubleshooting
 
 If OAuth state doesn't persist:
 1. Check session saves successfully
 2. Verify cookies are sent back
 3. Ensure session IDs match between requests
+
+## Production URLs
+
+Test these directly on the deployed server:
+```bash
+# Check environment
+curl -k https://51.54.96.228/api/auth/check-env | jq
+
+# Test session persistence
+curl -k https://51.54.96.228/api/auth/test-flow | jq
+
+# Test OAuth state
+curl -k -c cookies.txt "https://51.54.96.228/api/auth/test-oauth-state?action=set" | jq
+curl -k -b cookies.txt "https://51.54.96.228/api/auth/test-oauth-state?action=get" | jq
+```
