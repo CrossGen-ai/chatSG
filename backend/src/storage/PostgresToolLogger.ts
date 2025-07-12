@@ -42,11 +42,11 @@ export interface PostgresToolLoggerConfig {
 }
 
 export class PostgresToolLogger {
-    private pool: Pool;
+    // Don't cache the pool - get it fresh for each operation
     private config: PostgresToolLoggerConfig;
     
     constructor(config: PostgresToolLoggerConfig = {}) {
-        this.pool = getPool();
+        // Pool will be obtained via getPool() when needed
         this.config = {
             retentionDays: 30,
             ...config
@@ -79,7 +79,7 @@ export class PostgresToolLogger {
         `;
         
         try {
-            const result = await this.pool.query(query, [
+            const result = await getPool().query(query, [
                 sessionId,
                 messageId || null,
                 execution.toolName,
@@ -146,7 +146,7 @@ export class PostgresToolLogger {
         `;
         
         try {
-            await this.pool.query(query, values);
+            await getPool().query(query, values);
         } catch (error) {
             console.error(`[PostgresToolLogger] Failed to update tool execution ${executionId}:`, error);
             throw error;
@@ -200,7 +200,7 @@ export class PostgresToolLogger {
         `;
         
         try {
-            const result = await this.pool.query(query, values);
+            const result = await getPool().query(query, values);
             
             return result.rows.map(row => ({
                 sessionId: sessionId,
@@ -263,7 +263,7 @@ export class PostgresToolLogger {
         `;
         
         try {
-            const result = await this.pool.query(query, values);
+            const result = await getPool().query(query, values);
             
             return result.rows.map(row => ({
                 toolName: row.tool_name,
@@ -291,7 +291,7 @@ export class PostgresToolLogger {
         `;
         
         try {
-            const result = await this.pool.query(query);
+            const result = await getPool().query(query);
             const deletedCount = result.rowCount || 0;
             
             if (deletedCount > 0) {
@@ -378,7 +378,7 @@ export class PostgresToolLogger {
         `;
         
         try {
-            const result = await this.pool.query(query, [limit]);
+            const result = await getPool().query(query, [limit]);
             
             return result.rows.map(row => ({
                 sessionId: row.session_id,

@@ -46,10 +46,10 @@ export interface PostgresSessionIndexConfig {
 }
 
 export class PostgresSessionIndex {
-    private pool: Pool;
+    // Don't cache the pool - get it fresh for each operation
     
     constructor(config: PostgresSessionIndexConfig = {}) {
-        this.pool = getPool();
+        // Pool will be obtained via getPool() when needed
     }
     
     /**
@@ -73,7 +73,7 @@ export class PostgresSessionIndex {
         `;
         
         try {
-            const result = await this.pool.query(query, [
+            const result = await getPool().query(query, [
                 sessionId,
                 userId || null,
                 title || `Chat ${new Date().toLocaleDateString()}`
@@ -133,7 +133,7 @@ export class PostgresSessionIndex {
         `;
         
         try {
-            await this.pool.query(query, values);
+            await getPool().query(query, values);
             console.log(`[PostgresSessionIndex] Updated session ${sessionId}`);
         } catch (error) {
             console.error(`[PostgresSessionIndex] Failed to update session ${sessionId}:`, error);
@@ -168,7 +168,7 @@ export class PostgresSessionIndex {
         `;
         
         try {
-            await this.pool.query(query, [count, sessionId]);
+            await getPool().query(query, [count, sessionId]);
         } catch (error) {
             console.error(`[PostgresSessionIndex] Failed to increment unread count for session ${sessionId}:`, error);
             throw error;
@@ -182,7 +182,7 @@ export class PostgresSessionIndex {
         const query = 'SELECT mark_session_read($1)';
         
         try {
-            await this.pool.query(query, [sessionId]);
+            await getPool().query(query, [sessionId]);
             console.log(`[PostgresSessionIndex] Marked session ${sessionId} as read`);
         } catch (error) {
             console.error(`[PostgresSessionIndex] Failed to mark session ${sessionId} as read:`, error);
@@ -197,7 +197,7 @@ export class PostgresSessionIndex {
         const query = 'SELECT * FROM chat_sessions WHERE id = $1';
         
         try {
-            const result = await this.pool.query(query, [sessionId]);
+            const result = await getPool().query(query, [sessionId]);
             if (result.rowCount === 0) {
                 return undefined;
             }
@@ -261,7 +261,7 @@ export class PostgresSessionIndex {
         values.push(limit, offset);
         
         try {
-            const result = await this.pool.query(query, values);
+            const result = await getPool().query(query, values);
             
             return result.rows.map(row => ({
                 ...this.rowToSessionEntry(row.id, row),
@@ -280,7 +280,7 @@ export class PostgresSessionIndex {
         const query = "SELECT COUNT(*) FROM chat_sessions WHERE status = 'active'";
         
         try {
-            const result = await this.pool.query(query);
+            const result = await getPool().query(query);
             return parseInt(result.rows[0].count);
         } catch (error) {
             console.error('[PostgresSessionIndex] Failed to get active session count:', error);
@@ -295,7 +295,7 @@ export class PostgresSessionIndex {
         const query = 'SELECT 1 FROM chat_sessions WHERE id = $1 LIMIT 1';
         
         try {
-            const result = await this.pool.query(query, [sessionId]);
+            const result = await getPool().query(query, [sessionId]);
             return (result.rowCount || 0) > 0;
         } catch (error) {
             console.error(`[PostgresSessionIndex] Failed to check session existence for ${sessionId}:`, error);
@@ -319,7 +319,7 @@ export class PostgresSessionIndex {
         const query = 'DELETE FROM chat_sessions WHERE id = $1';
         
         try {
-            const result = await this.pool.query(query, [sessionId]);
+            const result = await getPool().query(query, [sessionId]);
             if ((result.rowCount || 0) > 0) {
                 console.log(`[PostgresSessionIndex] Deleted session ${sessionId}`);
             }
@@ -364,7 +364,7 @@ export class PostgresSessionIndex {
         `;
         
         try {
-            const result = await this.pool.query(query);
+            const result = await getPool().query(query);
             const row = result.rows[0];
             
             return {

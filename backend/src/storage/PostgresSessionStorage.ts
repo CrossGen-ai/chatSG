@@ -32,11 +32,11 @@ export interface PostgresSessionStorageConfig {
 }
 
 export class PostgresSessionStorage {
-    private pool: Pool;
+    // Don't cache the pool - get it fresh for each operation
     private config: PostgresSessionStorageConfig;
     
     constructor(config: PostgresSessionStorageConfig = {}) {
-        this.pool = getPool();
+        // Pool will be obtained via getPool() when needed
         this.config = {
             maxMessagesPerRead: 1000,
             ...config
@@ -55,7 +55,7 @@ export class PostgresSessionStorage {
         `;
         
         try {
-            const result = await this.pool.query(query, [
+            const result = await getPool().query(query, [
                 sessionId,
                 message.type,
                 message.content,
@@ -76,7 +76,7 @@ export class PostgresSessionStorage {
     async appendMessages(sessionId: string, messages: Message[]): Promise<void> {
         if (messages.length === 0) return;
         
-        const client = await this.pool.connect();
+        const client = await getPool().connect();
         try {
             await client.query('BEGIN');
             
@@ -151,7 +151,7 @@ export class PostgresSessionStorage {
         `;
         
         try {
-            const result = await this.pool.query(query, [sessionId, limit, offset]);
+            const result = await getPool().query(query, [sessionId, limit, offset]);
             
             const messages: Message[] = result.rows.map(row => ({
                 type: row.type,
@@ -203,7 +203,7 @@ export class PostgresSessionStorage {
         `;
         
         try {
-            const result = await this.pool.query(query, [sessionId, count]);
+            const result = await getPool().query(query, [sessionId, count]);
             
             const messages: Message[] = result.rows.map(row => ({
                 type: row.type,
@@ -227,7 +227,7 @@ export class PostgresSessionStorage {
         const query = 'SELECT 1 FROM chat_sessions WHERE id = $1 LIMIT 1';
         
         try {
-            const result = await this.pool.query(query, [sessionId]);
+            const result = await getPool().query(query, [sessionId]);
             return (result.rowCount || 0) > 0;
         } catch (error) {
             console.error(`[PostgresSessionStorage] Failed to check session existence for ${sessionId}:`, error);
@@ -243,7 +243,7 @@ export class PostgresSessionStorage {
         const query = 'DELETE FROM chat_messages WHERE session_id = $1';
         
         try {
-            const result = await this.pool.query(query, [sessionId]);
+            const result = await getPool().query(query, [sessionId]);
             console.log(`[PostgresSessionStorage] Deleted ${result.rowCount} messages for session ${sessionId}`);
         } catch (error) {
             console.error(`[PostgresSessionStorage] Failed to delete messages for session ${sessionId}:`, error);
@@ -258,7 +258,7 @@ export class PostgresSessionStorage {
         const query = 'SELECT message_count FROM chat_sessions WHERE id = $1';
         
         try {
-            const result = await this.pool.query(query, [sessionId]);
+            const result = await getPool().query(query, [sessionId]);
             if (result.rowCount === 0) {
                 return 0;
             }
@@ -294,7 +294,7 @@ export class PostgresSessionStorage {
         `;
         
         try {
-            const result = await this.pool.query(query, [
+            const result = await getPool().query(query, [
                 userId,
                 `%${searchTerm}%`,
                 limit
@@ -331,7 +331,7 @@ export class PostgresSessionStorage {
         
         // Get total count
         const countQuery = 'SELECT message_count FROM chat_sessions WHERE id = $1';
-        const countResult = await this.pool.query(countQuery, [sessionId]);
+        const countResult = await getPool().query(countQuery, [sessionId]);
         const totalCount = countResult.rows[0]?.message_count || 0;
         
         // Get messages
