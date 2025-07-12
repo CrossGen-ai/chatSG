@@ -60,8 +60,8 @@ function enhanceRequest(req) {
     });
   }
   
-  // Session ID placeholder
-  req.sessionID = req.cookies['session-id'] || req.ip;
+  // Session ID placeholder - let session middleware handle this
+  // req.sessionID = req.cookies['session-id'] || req.ip;
 }
 
 function enhanceResponse(res) {
