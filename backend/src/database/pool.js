@@ -21,11 +21,26 @@ function createPool() {
 
   // Use DATABASE_URL if provided (common in production)
   if (process.env.DATABASE_URL) {
+    // Parse SSL settings
+    let sslConfig = false;
+    if (process.env.PGSSL !== 'false' && process.env.DATABASE_SSL !== 'false') {
+      if (process.env.NODE_ENV === 'production') {
+        sslConfig = { rejectUnauthorized: false };
+      }
+    }
+    
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl: sslConfig
     });
   } else {
+    // Handle SSL for individual config too
+    if (process.env.PGSSL === 'false' || process.env.DATABASE_SSL === 'false') {
+      config.ssl = false;
+    } else if (process.env.NODE_ENV === 'production') {
+      config.ssl = { rejectUnauthorized: false };
+    }
+    
     pool = new Pool(config);
   }
 

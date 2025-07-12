@@ -769,11 +769,17 @@ async function handleSSERequest(req, res) {
     }
 }
 
-// Initialize session store
+// Initialize session store with SSL handling
 const sessionStore = new pgSession({
     pool: getPool(),
     tableName: 'session',
-    createTableIfMissing: true
+    createTableIfMissing: true,
+    // Fix SSL issues
+    conObject: {
+        ssl: process.env.PGSSL === 'false' ? false : 
+             process.env.DATABASE_SSL === 'false' ? false :
+             process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    }
 });
 
 // Session configuration
@@ -972,6 +978,59 @@ const server = http.createServer(async (req, res) => {
                 cookieConfig: sessionConfig.cookie,
                 timestamp: new Date().toISOString()
             }, null, 2));
+            return;
+        }
+        
+        // Comprehensive auth test endpoint
+        if (req.url === '/api/auth/test-config' && req.method === 'GET') {
+            const testResults = {
+                environment: {
+                    NODE_ENV: process.env.NODE_ENV,
+                    CHATSG_ENVIRONMENT: process.env.CHATSG_ENVIRONMENT,
+                    USE_MOCK_AUTH: process.env.USE_MOCK_AUTH
+                },
+                database: {
+                    PGSSL: process.env.PGSSL,
+                    DATABASE_SSL: process.env.DATABASE_SSL,
+                    DATABASE_URL: process.env.DATABASE_URL ? 'configured' : 'not configured',
+                    poolStatus: 'unknown'
+                },
+                cookies: {
+                    SESSION_SECURE: process.env.SESSION_SECURE,
+                    COOKIE_DOMAIN: process.env.COOKIE_DOMAIN,
+                    actualConfig: sessionConfig.cookie,
+                    headersSent: req.headers.cookie || 'no cookies sent'
+                },
+                session: {
+                    sessionId: req.sessionID,
+                    sessionExists: !!req.session,
+                    isNew: req.session?.isNew,
+                    hasAuthState: !!req.session?.authState
+                },
+                urls: {
+                    FRONTEND_URL: process.env.FRONTEND_URL,
+                    AZURE_REDIRECT_URI: process.env.AZURE_REDIRECT_URI,
+                    requestOrigin: req.headers.origin,
+                    requestHost: req.headers.host
+                },
+                azure: {
+                    clientId: process.env.AZURE_CLIENT_ID ? 'configured' : 'missing',
+                    tenantId: process.env.AZURE_TENANT_ID ? 'configured' : 'missing',
+                    clientSecret: process.env.AZURE_CLIENT_SECRET ? 'configured' : 'missing'
+                }
+            };
+            
+            // Test database connection
+            try {
+                const pool = getPool();
+                await pool.query('SELECT 1');
+                testResults.database.poolStatus = 'connected';
+            } catch (error) {
+                testResults.database.poolStatus = `error: ${error.message}`;
+            }
+            
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(testResults, null, 2));
             return;
         }
     }
