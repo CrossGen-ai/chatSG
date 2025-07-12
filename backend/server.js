@@ -783,10 +783,12 @@ const sessionConfig = {
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.SESSION_SECURE === 'true' || process.env.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: parseInt(process.env.SESSION_MAX_AGE) || 24 * 60 * 60 * 1000, // 24 hours
-        sameSite: 'lax'
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        domain: process.env.COOKIE_DOMAIN || undefined,
+        path: '/'
     },
     name: process.env.SESSION_NAME || 'chatsg_session'
 };
@@ -796,6 +798,12 @@ const baseSessionMiddleware = session(sessionConfig);
 const sessionMiddleware = (req, res, next) => {
     console.log('[Session] Processing request:', req.method, req.url);
     console.log('[Session] Cookie header:', req.headers.cookie);
+    console.log('[Session] Cookie config:', {
+        secure: sessionConfig.cookie.secure,
+        sameSite: sessionConfig.cookie.sameSite,
+        domain: sessionConfig.cookie.domain,
+        path: sessionConfig.cookie.path
+    });
     
     baseSessionMiddleware(req, res, (err) => {
         if (err) {
@@ -807,6 +815,7 @@ const sessionMiddleware = (req, res, next) => {
         console.log('[Session] Session data:', req.session ? JSON.stringify(req.session, null, 2) : 'No session');
         console.log('[Session] Session new?', req.session?.isNew);
         console.log('[Session] Session cookie:', req.session?.cookie);
+        console.log('[Session] Set-Cookie header:', res.getHeader('Set-Cookie'));
         next();
     });
 };
@@ -947,6 +956,22 @@ const server = http.createServer(async (req, res) => {
         
         if (req.url === '/api/auth/user' && req.method === 'GET') {
             auth.getCurrentUser(req, res);
+            return;
+        }
+        
+        // Debug endpoint to check session status
+        if (req.url === '/api/auth/session-debug' && req.method === 'GET') {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                sessionId: req.sessionID,
+                sessionExists: !!req.session,
+                sessionData: req.session || {},
+                cookieHeader: req.headers.cookie,
+                isAuthenticated: req.isAuthenticated,
+                user: req.user,
+                cookieConfig: sessionConfig.cookie,
+                timestamp: new Date().toISOString()
+            }, null, 2));
             return;
         }
     }

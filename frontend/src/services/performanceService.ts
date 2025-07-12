@@ -39,7 +39,7 @@ interface PerformanceData {
 }
 
 class PerformanceService {
-  private baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  private baseUrl = import.meta.env.VITE_API_URL || '';
 
   async getPerformanceData(): Promise<PerformanceData> {
     try {

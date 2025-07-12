@@ -40,8 +40,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = () => {
-    window.location.href = '/api/auth/login';
+  const login = async () => {
+    try {
+      // First, ensure we have a session by making a request
+      await axios.get('/api/config/security', {
+        withCredentials: true
+      });
+      
+      // Then navigate to login
+      window.location.href = '/api/auth/login';
+    } catch (error) {
+      console.error('Login initialization error:', error);
+      // Still try to navigate even if the initial request fails
+      window.location.href = '/api/auth/login';
+    }
   };
 
   const logout = async () => {

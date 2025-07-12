@@ -1650,3 +1650,997 @@ Orchestrator initialized: true
 [StorageManager] Mem0 service initialized
 [StorageManager] Initialized
 [Server] Storage manager initialized
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+=== ENVIRONMENT DEBUG ===
+Current working directory: /Users/crossgenai/sg/chatSG/backend
+__dirname: /Users/crossgenai/sg/chatSG/backend
+process.env.CHATSG_ENVIRONMENT: dev
+process.env.BACKEND: Orch
+========================
+[Auth] Using Azure AD authentication provider
+[AzureAuth] Initializing with config: {
+  clientId: 'present',
+  clientSecret: 'present',
+  tenantId: 'present',
+  authority: 'https://login.microsoftonline.us/your-tenant-id',
+  redirectUri: 'http://localhost:3000/api/auth/callback'
+}
+[AzureAuth] Initialized successfully with scopes: [ 'openid', 'profile', 'email', 'User.Read' ]
+[Server] Performance monitoring loaded
+[Server] Connection diagnostics loaded
+[Server] Loaded slash commands router and processor
+[Server] Loaded new storage system
+[Server] Loaded memory visualization handlers
+[StorageManager] Initializing with PostgreSQL backend
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai API key (length: 164)
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai embedding model: text-embedding-3-small
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai LLM model: gpt-4o-mini
+[PostgresSessionIndex] Initialized with PostgreSQL backend
+[MemoryPersistence] Initialized with cleanup interval: 300000ms
+[StateManager] Initialized with config: {
+  defaultTTL: 86400000,
+  maxSessions: 1000,
+  maxSharedStates: 10000,
+  enablePersistence: true,
+  enableEvents: true
+}
+[AgentOrchestrator] Initialized 3 orchestration strategies
+[AgentOrchestrator] Initialized with config: {
+  maxRetries: 2,
+  timeoutMs: 15000,
+  fallbackStrategy: 'sequential',
+  enableStateSharing: true
+}
+[OrchestrationMiddleware] Initialized with config: {
+  enableOrchestration: true,
+  preserveBackendRouting: true,
+  orchestrationMode: 'enhanced',
+  enableLogging: true,
+  enableMetrics: true
+}
+[LLMHelper] Initialized with provider: openai
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created AnalyticalAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created CreativeAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created TechnicalAgent successfully
+[IndividualAgentFactory] Created CRMAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created FinancialAgent successfully
+[IndividualAgentFactory] Successfully created 5 individual agents
+[AgentOrchestrator] Registered agent: AnalyticalAgent (analytical)
+[Orchestrator] Registered AnalyticalAgent (analytical) - Specialized agent for data analysis, statistical computations, and research tasks
+[AgentOrchestrator] Registered agent: CreativeAgent (creative)
+[Orchestrator] Registered CreativeAgent (creative) - Specialized agent for creative writing, brainstorming, and ideation tasks
+[AgentOrchestrator] Registered agent: TechnicalAgent (technical)
+[Orchestrator] Registered TechnicalAgent (technical) - Specialized agent for technical programming, debugging, and code-related tasks
+[AgentOrchestrator] Registered agent: CRMAgent (crm)
+[Orchestrator] Registered CRMAgent (crm) - Specialized agent for CRM operations, customer queries, and pipeline management
+[AgentOrchestrator] Registered agent: FinancialAgent (financial)
+[Orchestrator] Registered FinancialAgent (financial) - Specialized agent for financial analysis, investment research, and economic insights
+[Orchestrator] Successfully registered 5 specialized LLM agents
+[BackendIntegrationManager] Initializing backend integration...
+[BackendIntegrationManager] Initialized with 0 backends
+[Orchestrator] Setup created successfully
+=== BACKEND CONFIGURATION ===
+BACKEND mode: Orch
+Legacy ENVIRONMENT: dev
+Active backend: Enhanced Orchestrator (Multi-Agent)
+Orchestrator initialized: true
+=============================
+[Orchestrator] Initialized with 5 specialized agents
+=== ChatSG Server Configuration ===
+- Server running at http://localhost:3000/
+- Backend Mode: Orch
+- Active Backend: Enhanced Orchestrator (Multi-Agent)
+- Legacy Environment: dev
+- Orchestrator: Ready
+- Registered Agents: 5
+- Available Strategies: simple,capability-based,keyword-based
+- Environment: development
+- Backend Integration: Active
+- Registered Backends: 
+- VNet IP: 192.168.0.83
+===================================
+[Mem0Service] Python service health: { status: 'healthy', provider: 'openai', initialized: true }
+[Mem0Service] Connected to Python service successfully
+[Mem0Service] Python service config: {
+  provider: 'openai',
+  embedding_model: 'text-embedding-3-small',
+  llm_model: 'gpt-4o-mini',
+  vector_store_provider: 'qdrant',
+  graph_enabled: false,
+  azure_endpoint: null,
+  azure_api_version: null
+}
+[StorageManager] Mem0 service initialized
+[StorageManager] Initialized
+[Server] Storage manager initialized
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+=== ENVIRONMENT DEBUG ===
+Current working directory: /Users/crossgenai/sg/chatSG/backend
+__dirname: /Users/crossgenai/sg/chatSG/backend
+process.env.CHATSG_ENVIRONMENT: dev
+process.env.BACKEND: Orch
+========================
+[Auth] Using Azure AD authentication provider
+[AzureAuth] Initializing with config: {
+  clientId: 'present',
+  clientSecret: 'present',
+  tenantId: 'present',
+  authority: 'https://login.microsoftonline.us/your-tenant-id',
+  redirectUri: 'http://localhost:3000/api/auth/callback'
+}
+[AzureAuth] Initialized successfully with scopes: [ 'openid', 'profile', 'email', 'User.Read' ]
+[Server] Performance monitoring loaded
+[Server] Connection diagnostics loaded
+[Server] Loaded slash commands router and processor
+[Server] Loaded new storage system
+[Server] Loaded memory visualization handlers
+[StorageManager] Initializing with PostgreSQL backend
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai API key (length: 164)
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai embedding model: text-embedding-3-small
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai LLM model: gpt-4o-mini
+[PostgresSessionIndex] Initialized with PostgreSQL backend
+[MemoryPersistence] Initialized with cleanup interval: 300000ms
+[StateManager] Initialized with config: {
+  defaultTTL: 86400000,
+  maxSessions: 1000,
+  maxSharedStates: 10000,
+  enablePersistence: true,
+  enableEvents: true
+}
+[AgentOrchestrator] Initialized 3 orchestration strategies
+[AgentOrchestrator] Initialized with config: {
+  maxRetries: 2,
+  timeoutMs: 15000,
+  fallbackStrategy: 'sequential',
+  enableStateSharing: true
+}
+[OrchestrationMiddleware] Initialized with config: {
+  enableOrchestration: true,
+  preserveBackendRouting: true,
+  orchestrationMode: 'enhanced',
+  enableLogging: true,
+  enableMetrics: true
+}
+[LLMHelper] Initialized with provider: openai
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created AnalyticalAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created CreativeAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created TechnicalAgent successfully
+[IndividualAgentFactory] Created CRMAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created FinancialAgent successfully
+[IndividualAgentFactory] Successfully created 5 individual agents
+[AgentOrchestrator] Registered agent: AnalyticalAgent (analytical)
+[Orchestrator] Registered AnalyticalAgent (analytical) - Specialized agent for data analysis, statistical computations, and research tasks
+[AgentOrchestrator] Registered agent: CreativeAgent (creative)
+[Orchestrator] Registered CreativeAgent (creative) - Specialized agent for creative writing, brainstorming, and ideation tasks
+[AgentOrchestrator] Registered agent: TechnicalAgent (technical)
+[Orchestrator] Registered TechnicalAgent (technical) - Specialized agent for technical programming, debugging, and code-related tasks
+[AgentOrchestrator] Registered agent: CRMAgent (crm)
+[Orchestrator] Registered CRMAgent (crm) - Specialized agent for CRM operations, customer queries, and pipeline management
+[AgentOrchestrator] Registered agent: FinancialAgent (financial)
+[Orchestrator] Registered FinancialAgent (financial) - Specialized agent for financial analysis, investment research, and economic insights
+[Orchestrator] Successfully registered 5 specialized LLM agents
+[BackendIntegrationManager] Initializing backend integration...
+[BackendIntegrationManager] Initialized with 0 backends
+[Orchestrator] Setup created successfully
+=== BACKEND CONFIGURATION ===
+BACKEND mode: Orch
+Legacy ENVIRONMENT: dev
+Active backend: Enhanced Orchestrator (Multi-Agent)
+Orchestrator initialized: true
+=============================
+[Orchestrator] Initialized with 5 specialized agents
+=== ChatSG Server Configuration ===
+- Server running at http://localhost:3000/
+- Backend Mode: Orch
+- Active Backend: Enhanced Orchestrator (Multi-Agent)
+- Legacy Environment: dev
+- Orchestrator: Ready
+- Registered Agents: 5
+- Available Strategies: simple,capability-based,keyword-based
+- Environment: development
+- Backend Integration: Active
+- Registered Backends: 
+- VNet IP: 192.168.0.83
+===================================
+[Mem0Service] Python service health: { status: 'healthy', provider: 'openai', initialized: true }
+[Mem0Service] Connected to Python service successfully
+[Mem0Service] Python service config: {
+  provider: 'openai',
+  embedding_model: 'text-embedding-3-small',
+  llm_model: 'gpt-4o-mini',
+  vector_store_provider: 'qdrant',
+  graph_enabled: false,
+  azure_endpoint: null,
+  azure_api_version: null
+}
+[StorageManager] Mem0 service initialized
+[StorageManager] Initialized
+[Server] Storage manager initialized
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/config/security
+[Session] Cookie header: csrf-token=2328ad0d1b856d4abe28a6c7a5d66f5250792ea04d445200b8afdcff9f717cb6; csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/auth/user
+[Session] Cookie header: csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/auth/user
+[Session] Cookie header: csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[Database Pool] New client connected
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Token created: {
+  sessionId: '::1',
+  token: '3dd276dac14b58d0274f...',
+  ip: '::1',
+  connectionRemoteAddress: '::1',
+  socketRemoteAddress: '::1',
+  headers: { 'x-forwarded-for': undefined, 'x-real-ip': undefined }
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Database Pool] New client connected
+[Database Pool] New client connected
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/auth/user
+[Server] Security middleware passed for GET /api/auth/user
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '3dd276dac14b58d0274f...',
+  expiresIn: '3599s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/user
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/user
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/auth/user
+[Server] Security middleware passed for GET /api/auth/user
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '3dd276dac14b58d0274f...',
+  expiresIn: '3599s'
+}
+[CSRF-Header] Calling next() for GET /api/auth/user
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/auth/user
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/config/security
+[Session] Cookie header: csrf-token=2328ad0d1b856d4abe28a6c7a5d66f5250792ea04d445200b8afdcff9f717cb6; csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/chats
+[Session] Cookie header: csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/chats
+[Session] Cookie header: csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/chats
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '3dd276dac14b58d0274f...',
+  expiresIn: '3599s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/chats
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/config/security
+[Session] Cookie header: csrf-token=2328ad0d1b856d4abe28a6c7a5d66f5250792ea04d445200b8afdcff9f717cb6; csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/config/security
+[Session] Cookie header: csrf-token=2328ad0d1b856d4abe28a6c7a5d66f5250792ea04d445200b8afdcff9f717cb6; csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '3dd276dac14b58d0274f...',
+  expiresIn: '3599s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '3dd276dac14b58d0274f...',
+  expiresIn: '3599s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/config/security
+[Session] Cookie header: csrf-token=2328ad0d1b856d4abe28a6c7a5d66f5250792ea04d445200b8afdcff9f717cb6; csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/chats
+[Session] Cookie header: csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/chats
+[Session] Cookie header: csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '3dd276dac14b58d0274f...',
+  expiresIn: '3590s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/chats
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/chats
+[HTTP-Adapter] Parsed cookies: {
+  'csrf-token': '35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75',
+  __clerk_db_jwt: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __clerk_db_jwt_V2yMOE4L: 'dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4',
+  __refresh_V2yMOE4L: '0FJugPnAVOoi9OcIw0OI',
+  __stripe_mid: 'daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a',
+  __client_uat_V2yMOE4L: '1748540712',
+  __client_uat: '1748540712',
+  ajs_anonymous_id: '16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109',
+  'sb-mndbkvmozigubebfjazg-auth-token': 'base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0',
+  __next_hmr_refresh_hash__: '4',
+  clerk_active_context: 'sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:',
+  _streamlit_xsrf: '2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860',
+  chatsg_session: 's%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k'
+}
+[Session] Processing request: GET /api/config/security
+[Session] Cookie header: csrf-token=2328ad0d1b856d4abe28a6c7a5d66f5250792ea04d445200b8afdcff9f717cb6; csrf-token=35df05ba8b635642ef729f6b3daf000e8da648997eb31560f109eb03703a3e75; __clerk_db_jwt=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __clerk_db_jwt_V2yMOE4L=dvb_2xmQKiP9oYwSBQDLMbuk5qM6gg4; __refresh_V2yMOE4L=0FJugPnAVOoi9OcIw0OI; __stripe_mid=daa7a403-a976-41a6-bd5e-a74a3c2e7350d26f1a; __client_uat_V2yMOE4L=1748540712; __client_uat=1748540712; ajs_anonymous_id=16c3dabe-0d11-4c8c-9a7e-bb6eb5c04109; sb-mndbkvmozigubebfjazg-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWxsVFlYRkpjVEpLV2sxb1lucGtTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDIxdVpHSnJkbTF2ZW1sbmRXSmxZbVpxWVhwbkxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmlPR1UwTUdGaFlTMDFORGhqTFRReU1XVXRPVEJoWkMwMVlUSTNPVFZoTmpRd05qTWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpRNU56a3dOak15TENKcFlYUWlPakUzTkRrM09EY3dNeklzSW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSndhRzl1WlNJNklpSXNJbUZ3Y0Y5dFpYUmhaR0YwWVNJNmV5SndjbTkyYVdSbGNpSTZJbVZ0WVdsc0lpd2ljSEp2ZG1sa1pYSnpJanBiSW1WdFlXbHNJbDE5TENKMWMyVnlYMjFsZEdGa1lYUmhJanA3SW1WdFlXbHNJam9pYzJWaGJrQmpjbTl6YzJkbGJpMWhhUzVqYjIwaUxDSmxiV0ZwYkY5MlpYSnBabWxsWkNJNmRISjFaU3dpY0dodmJtVmZkbVZ5YVdacFpXUWlPbVpoYkhObExDSnpkV0lpT2lKaU9HVTBNR0ZoWVMwMU5EaGpMVFF5TVdVdE9UQmhaQzAxWVRJM09UVmhOalF3TmpNaWZTd2ljbTlzWlNJNkltRjFkR2hsYm5ScFkyRjBaV1FpTENKaFlXd2lPaUpoWVd3eElpd2lZVzF5SWpwYmV5SnRaWFJvYjJRaU9pSnRZV2RwWTJ4cGJtc2lMQ0owYVcxbGMzUmhiWEFpT2pFM05EazNNRFU1TkROOVhTd2ljMlZ6YzJsdmJsOXBaQ0k2SW1VNU9ERXpZemM1TFRoa05tSXRORGRqWkMxaE1UQXhMVEJqWW1JMk5UUTVNREZsTUNJc0ltbHpYMkZ1YjI1NWJXOTFjeUk2Wm1Gc2MyVjkuUzE3dVZUYlAyeVBDOFl2STdoODNjMWpwaU9RcTRLUnpkU3lsNF9UTGVLcyIsInRva2VuX3R5cGUiOiJiZWFyZXIiLCJleHBpcmVzX2luIjozNjAwLCJleHBpcmVzX2F0IjoxNzQ5NzkwNjMyLCJyZWZyZXNoX3Rva2VuIjoiZTZ2Y2M0M2g1YmN1IiwidXNlciI6eyJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF9jb25maXJtZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjU3LjIzMzk2OVoiLCJwaG9uZSI6IiIsImNvbmZpcm1hdGlvbl9zZW50X2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MTA2MzhaIiwiY29uZmlybWVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTo1Ny4yMzM5NjlaIiwicmVjb3Zlcnlfc2VudF9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6MjkuNDk5MDAzWiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MjU6NDMuNDE4NDI3WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwiaWRlbnRpdGllcyI6W3siaWRlbnRpdHlfaWQiOiIyOGFhNTRiNy0zMzg1LTRmMmQtODk0NS1hNTgzOWI0M2EwMzciLCJpZCI6ImI4ZTQwYWFhLTU0OGMtNDIxZS05MGFkLTVhMjc5NWE2NDA2MyIsInVzZXJfaWQiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMiLCJpZGVudGl0eV9kYXRhIjp7ImVtYWlsIjoic2VhbkBjcm9zc2dlbi1haS5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJiOGU0MGFhYS01NDhjLTQyMWUtOTBhZC01YTI3OTVhNjQwNjMifSwicHJvdmlkZXIiOiJlbWFpbCIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNzAzOTIxWiIsImNyZWF0ZWRfYXQiOiIyMDI1LTA2LTEyVDA1OjE5OjMzLjcwMzk3NloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNi0xMlQwNToxOTozMy43MDM5NzZaIiwiZW1haWwiOiJzZWFuQGNyb3NzZ2VuLWFpLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMDYtMTJUMDU6MTk6MzMuNjk0NDg4WiIsInVwZGF0ZWRfYXQiOiIyMDI1LTA2LTEzVDAzOjU3OjEyLjQ3MTM4MVoiLCJpc19hbm9ueW1vdXMiOmZhbHNlfX0; __next_hmr_refresh_hash__=4; clerk_active_context=sess_2xmQLQ1hrLhu3kWzzSCqkLJ55He:; _streamlit_xsrf=2|76550659|b063f4ad24cd7e161e301a5cd5841df5|1749348860; chatsg_session=s%3A7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_.DnBWA4sgm5nmwRaDicXqdT7gMDZTjeMdB0CNpdRMv8k
+[Session] Cookie config: { secure: false, sameSite: 'lax', domain: undefined, path: '/' }
+[Session] Session ID: 7cbTN_m3fhrCnCrdWossTlzAkqiJWmr_
+[Session] Session data: {
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2025-07-13T06:34:19.199Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/",
+    "sameSite": "lax"
+  },
+  "authState": {
+    "state": "f434fdf60ab092a39844f4fbf84998811842b9615bf0daee9c38618def81c5cd",
+    "nonce": "0321f59e3eae98ee3095fb1c4ab399caab624eceaaab1979ad2d3671d7f6d879"
+  }
+}
+[Session] Session new? undefined
+[Session] Session cookie: {
+  path: '/',
+  _expires: 2025-07-13T06:34:19.199Z,
+  originalMaxAge: 86400000,
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax'
+}
+[Session] Set-Cookie header: undefined
+[Server] Applying security middleware for GET /api/config/security
+[Server] Security middleware passed for GET /api/config/security
+[Server] About to apply CSRF header middleware...
+[Server] Skipping CSRF for auth/read/config endpoint
+[CSRF-Header] Using existing token: {
+  sessionId: '::1',
+  token: '3dd276dac14b58d0274f...',
+  expiresIn: '3590s'
+}
+[CSRF-Header] Calling next() for GET /api/config/security
+[Server] CSRF header middleware completed
+[Server] Passed all middleware, continuing to routing for GET /api/config/security
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+=== ENVIRONMENT DEBUG ===
+Current working directory: /Users/crossgenai/sg/chatSG/backend
+__dirname: /Users/crossgenai/sg/chatSG/backend
+process.env.CHATSG_ENVIRONMENT: dev
+process.env.BACKEND: Orch
+========================
+[Auth] Using Azure AD authentication provider
+[AzureAuth] Initializing with config: {
+  clientId: 'present',
+  clientSecret: 'present',
+  tenantId: 'present',
+  authority: 'https://login.microsoftonline.us/your-tenant-id',
+  redirectUri: 'http://localhost:3000/api/auth/callback'
+}
+[AzureAuth] Initialized successfully with scopes: [ 'openid', 'profile', 'email', 'User.Read' ]
+[Server] Performance monitoring loaded
+[Server] Connection diagnostics loaded
+[Server] Loaded slash commands router and processor
+[Server] Loaded new storage system
+[Server] Loaded memory visualization handlers
+[StorageManager] Initializing with PostgreSQL backend
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai API key (length: 164)
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai embedding model: text-embedding-3-small
+[Mem0Service] Detecting provider from MEM0_MODELS=openai
+[Mem0Service] Provider detected: openai
+[Mem0Service] Using openai LLM model: gpt-4o-mini
+[PostgresSessionIndex] Initialized with PostgreSQL backend
+[MemoryPersistence] Initialized with cleanup interval: 300000ms
+[StateManager] Initialized with config: {
+  defaultTTL: 86400000,
+  maxSessions: 1000,
+  maxSharedStates: 10000,
+  enablePersistence: true,
+  enableEvents: true
+}
+[AgentOrchestrator] Initialized 3 orchestration strategies
+[AgentOrchestrator] Initialized with config: {
+  maxRetries: 2,
+  timeoutMs: 15000,
+  fallbackStrategy: 'sequential',
+  enableStateSharing: true
+}
+[OrchestrationMiddleware] Initialized with config: {
+  enableOrchestration: true,
+  preserveBackendRouting: true,
+  orchestrationMode: 'enhanced',
+  enableLogging: true,
+  enableMetrics: true
+}
+[LLMHelper] Initialized with provider: openai
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created AnalyticalAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created CreativeAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created TechnicalAgent successfully
+[IndividualAgentFactory] Created CRMAgent successfully
+[LLMHelper] Creating ChatLLM with provider: openai, model: gpt-4o, streaming: false
+[IndividualAgentFactory] Created FinancialAgent successfully
+[IndividualAgentFactory] Successfully created 5 individual agents
+[AgentOrchestrator] Registered agent: AnalyticalAgent (analytical)
+[Orchestrator] Registered AnalyticalAgent (analytical) - Specialized agent for data analysis, statistical computations, and research tasks
+[AgentOrchestrator] Registered agent: CreativeAgent (creative)
+[Orchestrator] Registered CreativeAgent (creative) - Specialized agent for creative writing, brainstorming, and ideation tasks
+[AgentOrchestrator] Registered agent: TechnicalAgent (technical)
+[Orchestrator] Registered TechnicalAgent (technical) - Specialized agent for technical programming, debugging, and code-related tasks
+[AgentOrchestrator] Registered agent: CRMAgent (crm)
+[Orchestrator] Registered CRMAgent (crm) - Specialized agent for CRM operations, customer queries, and pipeline management
+[AgentOrchestrator] Registered agent: FinancialAgent (financial)
+[Orchestrator] Registered FinancialAgent (financial) - Specialized agent for financial analysis, investment research, and economic insights
+[Orchestrator] Successfully registered 5 specialized LLM agents
+[BackendIntegrationManager] Initializing backend integration...
+[BackendIntegrationManager] Initialized with 0 backends
+[Orchestrator] Setup created successfully
+=== BACKEND CONFIGURATION ===
+BACKEND mode: Orch
+Legacy ENVIRONMENT: dev
+Active backend: Enhanced Orchestrator (Multi-Agent)
+Orchestrator initialized: true
+=============================
+[Orchestrator] Initialized with 5 specialized agents
+=== ChatSG Server Configuration ===
+- Server running at http://localhost:3000/
+- Backend Mode: Orch
+- Active Backend: Enhanced Orchestrator (Multi-Agent)
+- Legacy Environment: dev
+- Orchestrator: Ready
+- Registered Agents: 5
+- Available Strategies: simple,capability-based,keyword-based
+- Environment: development
+- Backend Integration: Active
+- Registered Backends: 
+- VNet IP: 192.168.0.83
+===================================
+[Mem0Service] Python service health: { status: 'healthy', provider: 'openai', initialized: true }
+[Mem0Service] Connected to Python service successfully
+[Mem0Service] Python service config: {
+  provider: 'openai',
+  embedding_model: 'text-embedding-3-small',
+  llm_model: 'gpt-4o-mini',
+  vector_store_provider: 'qdrant',
+  graph_enabled: false,
+  azure_endpoint: null,
+  azure_api_version: null
+}
+[StorageManager] Mem0 service initialized
+[StorageManager] Initialized
+[Server] Storage manager initialized

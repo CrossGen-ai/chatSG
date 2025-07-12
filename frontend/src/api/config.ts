@@ -22,7 +22,7 @@ export async function fetchMarkdownConfig(): Promise<any> {
       headers: {
         'Content-Type': 'application/json'
       },
-      credentials: 'same-origin'
+      credentials: 'include'
     });
     
     if (!response.ok) {
@@ -77,7 +77,7 @@ export async function fetchSecurityConfig(): Promise<any> {
     const response = await fetch('/api/config/security', {
       method: 'GET',
       headers,
-      credentials: 'same-origin'
+      credentials: 'include'
     });
     
     if (!response.ok) {
