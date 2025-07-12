@@ -8,6 +8,13 @@ function createPool() {
     return pool;
   }
 
+  // Log SSL configuration for debugging
+  console.log('[Database Pool] Creating pool with SSL config:', {
+    PGSSL: process.env.PGSSL,
+    DATABASE_SSL: process.env.DATABASE_SSL,
+    NODE_ENV: process.env.NODE_ENV
+  });
+
   const config = {
     host: process.env.POSTGRES_HOST || 'localhost',
     port: process.env.POSTGRES_PORT || 5432,
@@ -63,6 +70,18 @@ function getPool() {
   return pool;
 }
 
+// Force pool recreation - useful when environment changes
+function recreatePool() {
+  if (pool) {
+    console.log('[Database Pool] Closing existing pool for recreation');
+    pool.end().catch(err => {
+      console.error('[Database Pool] Error closing pool:', err);
+    });
+    pool = null;
+  }
+  return createPool();
+}
+
 async function closePool() {
   if (pool) {
     await pool.end();
@@ -74,5 +93,6 @@ async function closePool() {
 module.exports = {
   getPool,
   closePool,
-  createPool
+  createPool,
+  recreatePool
 };
