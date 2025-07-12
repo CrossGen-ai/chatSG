@@ -166,9 +166,23 @@ const login = async (req, res) => {
     
     if (req.session) {
       req.session.authState = { state, nonce };
+      
+      // Save session before redirect
+      await new Promise((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) {
+            console.error('[Auth] Session save error:', err);
+            reject(err);
+          } else {
+            console.log('[Auth] Session saved with state:', state);
+            resolve();
+          }
+        });
+      });
     }
     
     const authUrl = await authProvider.getAuthCodeUrl(state, nonce);
+    console.log('[Auth] Redirecting to:', authUrl);
     
     // Manual redirect response
     res.writeHead(302, {
@@ -186,11 +200,21 @@ const callback = async (req, res) => {
   try {
     const { code, state, error_description } = req.query;
     
+    console.log('[Auth] Callback received - state:', state);
+    console.log('[Auth] Session exists:', !!req.session);
+    console.log('[Auth] Session authState:', req.session?.authState);
+    
     if (error_description) {
       throw new Error(error_description);
     }
     
     if (!req.session || !req.session.authState || req.session.authState.state !== state) {
+      console.error('[Auth] State mismatch:', {
+        hasSession: !!req.session,
+        hasAuthState: !!req.session?.authState,
+        expectedState: req.session?.authState?.state,
+        receivedState: state
+      });
       throw new Error('Invalid state parameter');
     }
     

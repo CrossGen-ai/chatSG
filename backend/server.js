@@ -786,7 +786,8 @@ const sessionConfig = {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: parseInt(process.env.SESSION_MAX_AGE) || 24 * 60 * 60 * 1000, // 24 hours
-        sameSite: 'lax'
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        domain: process.env.SESSION_COOKIE_DOMAIN // Optional: set if frontend/backend on different subdomains
     },
     name: process.env.SESSION_NAME || 'chatsg_session'
 };
