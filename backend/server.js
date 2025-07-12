@@ -786,7 +786,7 @@ const sessionConfig = {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: parseInt(process.env.SESSION_MAX_AGE) || 24 * 60 * 60 * 1000, // 24 hours
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: 'lax',
         domain: process.env.SESSION_COOKIE_DOMAIN // Optional: set if frontend/backend on different subdomains
     },
     name: process.env.SESSION_NAME || 'chatsg_session'
@@ -908,14 +908,11 @@ const server = http.createServer(async (req, res) => {
         return;
     }
     
-    // Auth routes (need session middleware)
+    // Auth routes (already have session middleware from above)
     if (req.url.startsWith('/api/auth/')) {
         // Enhance request/response objects for Express compatibility
         enhanceRequest(req);
         enhanceResponse(res);
-        
-        // Apply session middleware for auth routes
-        await applyMiddleware(sessionMiddleware, req, res);
         
         if (req.url === '/api/auth/login' && req.method === 'GET') {
             auth.login(req, res);
