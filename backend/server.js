@@ -1049,6 +1049,39 @@ const server = http.createServer(async (req, res) => {
             res.end(JSON.stringify(testResults, null, 2));
             return;
         }
+        
+        // Import debug endpoints
+        const authDebug = require('./src/api/auth-debug');
+        
+        // Test full auth flow
+        if (req.url === '/api/auth/test-flow' && req.method === 'GET') {
+            authDebug.testAuthFlow(req, res);
+            return;
+        }
+        
+        // Test session store
+        if (req.url === '/api/auth/test-store' && req.method === 'GET') {
+            authDebug.testSessionStore(req, res);
+            return;
+        }
+        
+        // Test OAuth state persistence
+        if (req.url.startsWith('/api/auth/test-oauth-state') && req.method === 'GET') {
+            authDebug.testOAuthState(req, res);
+            return;
+        }
+        
+        // Check environment configuration
+        if (req.url === '/api/auth/check-env' && req.method === 'GET') {
+            authDebug.checkEnvironment(req, res);
+            return;
+        }
+        
+        // Test cookies
+        if (req.url === '/api/auth/test-cookies' && req.method === 'GET') {
+            authDebug.testCookies(req, res);
+            return;
+        }
     }
     
     if (req.url === '/') {

@@ -175,6 +175,19 @@ const login = async (req, res) => {
       req.session.authState = { state, nonce };
       console.log('[Auth] Session authState set:', { state, nonce });
       console.log('[Auth] Full session data:', JSON.stringify(req.session, null, 2));
+      
+      // Force session save before redirect
+      await new Promise((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) {
+            console.error('[Auth] Failed to save session:', err);
+            reject(err);
+          } else {
+            console.log('[Auth] Session saved successfully');
+            resolve();
+          }
+        });
+      });
     } else {
       console.error('[Auth] WARNING: No session object available!');
     }
@@ -207,6 +220,7 @@ const callback = async (req, res) => {
     console.log('[Auth] Session exists:', !!req.session);
     console.log('[Auth] Session authState:', req.session?.authState);
     console.log('[Auth] Full session data:', req.session ? JSON.stringify(req.session, null, 2) : 'No session');
+    console.log('[Auth] Cookie received:', req.headers.cookie);
     
     if (error_description) {
       console.error('[Auth] OAuth error:', error_description);
