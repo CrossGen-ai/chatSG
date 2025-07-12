@@ -153,8 +153,9 @@ const login = async (req, res) => {
       }
       
       // Manual redirect response
+      const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
       res.writeHead(302, {
-        'Location': process.env.FRONTEND_URL || 'http://localhost:5173'
+        'Location': frontendUrl
       });
       res.end();
       return;
@@ -222,16 +223,18 @@ const callback = async (req, res) => {
     }
     
     // Redirect to frontend
+    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
     res.writeHead(302, {
-      'Location': process.env.FRONTEND_URL || 'http://localhost:5173'
+      'Location': frontendUrl
     });
     res.end();
     
   } catch (error) {
     console.error('[Auth] Callback error:', error);
     const errorMessage = encodeURIComponent(error.message);
+    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
     res.writeHead(302, {
-      'Location': `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/error?message=${errorMessage}`
+      'Location': `${frontendUrl}/auth/error?message=${errorMessage}`
     });
     res.end();
   }
