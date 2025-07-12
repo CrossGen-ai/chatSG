@@ -33,7 +33,22 @@ module.exports = function securityMiddleware(options = {}) {
   // Layer 6: Authentication (when enabled)
   if (config.auth.enabled) {
     middlewares.push(auth.authenticate);
-    middlewares.push(auth.authorize);
+    
+    // Create a wrapper for authorize that skips auth endpoints
+    const conditionalAuthorize = (req, res, next) => {
+      // Skip authorization for auth endpoints (they must be public!)
+      if (req.url.startsWith('/api/auth/') || 
+          req.url === '/api/config/security' ||
+          req.url === '/api/chat/stream' ||
+          req.url.match(/^\/api\/memory\/qdrant\/\w+$/)) {
+        return next();
+      }
+      
+      // For all other endpoints, require authentication
+      return auth.authorize(req, res, next);
+    };
+    
+    middlewares.push(conditionalAuthorize);
   }
   
   // Return middleware chain
