@@ -355,14 +355,15 @@ export async function getMemoryStats(userId: string): Promise<any> {
  * Check if user has access to specific user's memories (for admin functionality)
  */
 export async function canAccessUserMemories(
-  requestingUserId: string,
-  targetUserId: string
+  requestingUserId: string | number,
+  targetUserId: string | number
 ): Promise<boolean> {
   const pool = getPool();
   
   try {
     // Same user can always access their own memories
-    if (requestingUserId === targetUserId) {
+    // Convert to strings to handle both string and number comparisons
+    if (String(requestingUserId) === String(targetUserId)) {
       return true;
     }
     
