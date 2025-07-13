@@ -200,7 +200,7 @@ function AppContent() {
       
       {/* Chat Sidebar - only show when in chat view */}
       {preferences.currentView === 'chat' && (
-        <div className={`${preferences.sidebarPinned ? 'fixed left-[60px] top-0' : ''}`}>
+        <div className={`${preferences.sidebarPinned ? 'fixed left-[60px] top-0 h-full' : ''}`}>
           <ChatSidebar 
             isOpen={preferences.sidebarOpen} 
             onClose={() => updatePreference('sidebarOpen', false)}

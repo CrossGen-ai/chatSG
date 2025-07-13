@@ -26,8 +26,8 @@ interface NvlGraphViewProps {
 
 export const NvlGraphView: React.FC<NvlGraphViewProps> = ({ data }) => {
   const nvlRef = useRef<any>(null);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [selectedRelationship, setSelectedRelationship] = useState<Relationship | null>(null);
+  const [selectedNode, setSelectedNode] = useState<any>(null);
+  const [selectedRelationship, setSelectedRelationship] = useState<any>(null);
   const [nodeFilter, setNodeFilter] = useState<string>('');
   const [relationshipTypeFilter, setRelationshipTypeFilter] = useState<string>('all');
 
@@ -51,8 +51,8 @@ export const NvlGraphView: React.FC<NvlGraphViewProps> = ({ data }) => {
   const { nodes, relationships, relationshipTypes } = React.useMemo(() => {
     if (!data || data.length === 0) return { nodes: [], relationships: [], relationshipTypes: new Set<string>() };
 
-    const nvlNodes: Node[] = [];
-    const nvlRelationships: Relationship[] = [];
+    const nvlNodes: any[] = [];
+    const nvlRelationships: any[] = [];
     const relTypes = new Set<string>();
     const processedRelationships = new Set<string>();
 
@@ -73,10 +73,9 @@ export const NvlGraphView: React.FC<NvlGraphViewProps> = ({ data }) => {
           content: node.content,
           ...node.metadata
         },
-        // Style properties
+        // Style properties - simplified without icon
         color: '#4287f5',
-        size: 40,
-        icon: 'brain',
+        size: 30,
         caption: node.label
       });
     });
@@ -111,18 +110,15 @@ export const NvlGraphView: React.FC<NvlGraphViewProps> = ({ data }) => {
     return { nodes: nvlNodes, relationships: nvlRelationships, relationshipTypes: relTypes };
   }, [data, nodeFilter, relationshipTypeFilter]);
 
-  // NVL configuration options
+  // Simplified NVL configuration options
   const nvlOptions: NvlOptions = {
-    initialZoom: 0.8,
+    initialZoom: 1,
     layout: 'force-directed',
-    renderer: 'canvas', // Use canvas to display captions
-    disableWebGL: false,
+    renderer: 'canvas',
+    disableWebGL: true, // Disable WebGL to avoid compatibility issues
     relationshipThreshold: 0.55,
-    nonLayoutAnimationDuration: 500,
-    layoutAnimationDuration: 1000,
-    nodeSize: 40,
-    iconFontFamily: 'Font Awesome 5 Free',
-    useWebGL: true,
+    nodeSize: 30,
+    // Remove icon configuration
     backgroundColor: 'transparent'
   };
 
@@ -133,53 +129,22 @@ export const NvlGraphView: React.FC<NvlGraphViewProps> = ({ data }) => {
     },
     onZoomChanged: (zoomLevel: number) => {
       console.log('[NVL] Zoom level:', zoomLevel);
-    },
-    onNodeClick: (node: Node) => {
+    }
+  };
+
+  // Mouse event callbacks - simplified
+  const mouseEventCallbacks = {
+    onNodeClick: (node: any) => {
       setSelectedNode(node);
       setSelectedRelationship(null);
     },
-    onRelationshipClick: (relationship: Relationship) => {
+    onRelationshipClick: (relationship: any) => {
       setSelectedRelationship(relationship);
       setSelectedNode(null);
     },
     onCanvasClick: () => {
       setSelectedNode(null);
       setSelectedRelationship(null);
-    }
-  };
-
-  // Mouse event callbacks
-  const mouseEventCallbacks = {
-    onNodeHover: (node: Node | null) => {
-      if (node && nvlRef.current) {
-        // Highlight connected nodes
-        const connectedNodeIds = new Set<string>();
-        relationships.forEach(rel => {
-          if (rel.from === node.id) connectedNodeIds.add(rel.to);
-          if (rel.to === node.id) connectedNodeIds.add(rel.from);
-        });
-        
-        // Update node styles
-        const updatedNodes = nodes.map(n => ({
-          id: n.id,
-          size: n.id === node.id ? 50 : (connectedNodeIds.has(n.id) ? 45 : 40),
-          color: n.id === node.id ? '#ff6b6b' : (connectedNodeIds.has(n.id) ? '#4dabf7' : '#4287f5')
-        }));
-        
-        nvlRef.current.updateElements(updatedNodes, []);
-      }
-    },
-    onRelationshipHover: (relationship: Relationship | null) => {
-      if (relationship && nvlRef.current) {
-        // Highlight the relationship
-        const updatedRelationships = relationships.map(r => ({
-          id: r.id,
-          width: r.id === relationship.id ? 4 : 2,
-          color: r.id === relationship.id ? '#ff6b6b' : getRelationshipColor(r.type)
-        }));
-        
-        nvlRef.current.updateElements([], updatedRelationships);
-      }
     },
     onPan: true,
     onZoom: true,
@@ -189,15 +154,23 @@ export const NvlGraphView: React.FC<NvlGraphViewProps> = ({ data }) => {
   // Reset layout
   const resetLayout = () => {
     if (nvlRef.current) {
-      nvlRef.current.fit();
-      nvlRef.current.resetLayout();
+      try {
+        nvlRef.current.fit();
+        nvlRef.current.resetLayout();
+      } catch (error) {
+        console.error('Error resetting layout:', error);
+      }
     }
   };
 
   // Fit to screen
   const fitToScreen = () => {
     if (nvlRef.current) {
-      nvlRef.current.fit();
+      try {
+        nvlRef.current.fit();
+      } catch (error) {
+        console.error('Error fitting to screen:', error);
+      }
     }
   };
 
@@ -330,7 +303,7 @@ export const NvlGraphView: React.FC<NvlGraphViewProps> = ({ data }) => {
                 <div>
                   <span className="text-gray-400">Connections:</span>
                   <div className="text-white mt-1">
-                    {relationships.filter(r => r.from === selectedNode.id || r.to === selectedNode.id).length} relationship(s)
+                    {relationships.filter((r: any) => r.from === selectedNode.id || r.to === selectedNode.id).length} relationship(s)
                   </div>
                 </div>
               </>
@@ -346,16 +319,16 @@ export const NvlGraphView: React.FC<NvlGraphViewProps> = ({ data }) => {
                 <div>
                   <span className="text-gray-400">From → To:</span>
                   <div className="text-white mt-1">
-                    {nodes.find(n => n.id === selectedRelationship.from)?.properties?.name || selectedRelationship.from}
+                    {nodes.find((n: any) => n.id === selectedRelationship.from)?.properties?.name || selectedRelationship.from}
                     {' → '}
-                    {nodes.find(n => n.id === selectedRelationship.to)?.properties?.name || selectedRelationship.to}
+                    {nodes.find((n: any) => n.id === selectedRelationship.to)?.properties?.name || selectedRelationship.to}
                   </div>
                 </div>
                 
                 {Object.keys(selectedRelationship.properties || {}).length > 0 && (
                   <div>
                     <span className="text-gray-400">Properties:</span>
-                    <div className="text-white mt-1">
+                    <div className="text-white mt-1 text-xs">
                       {JSON.stringify(selectedRelationship.properties, null, 2)}
                     </div>
                   </div>
@@ -379,11 +352,7 @@ export const NvlGraphView: React.FC<NvlGraphViewProps> = ({ data }) => {
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span>Selected/Hover</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
-            <span>Connected</span>
+            <span>Selected</span>
           </div>
           <div className="text-xs mt-2">
             <span className="text-gray-400">Types:</span> {relationshipTypes.size}

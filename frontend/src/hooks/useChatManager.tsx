@@ -413,6 +413,10 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
         metadata: {}
       });
       
+      console.log('[ChatManager] Create chat response:', response);
+      console.log('[ChatManager] Session data:', response.session);
+      console.log('[ChatManager] CreatedAt value:', response.session.createdAt);
+      
       const newChat: Chat = {
         id: response.sessionId,
         title: response.session.title,
@@ -429,8 +433,8 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
         agentHistory: [],
       };
       
-      // Add chat to state
-      setChats(prevChats => [...prevChats, newChat]);
+      // Add chat to state (at the top of the list)
+      setChats(prevChats => [newChat, ...prevChats]);
       setActiveChatId(response.sessionId);
       
       console.log(`[ChatManager] Created chat on backend: ${response.sessionId}`);
@@ -498,8 +502,9 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
     
     try {
       // Call backend API to persist the change
-      await renameChatAPI(id, title);
-      console.log(`[ChatManager] Successfully renamed chat ${id} to: ${title}`);
+      console.log(`[ChatManager] Calling renameChatAPI with id: ${id}, title: ${title}`);
+      const result = await renameChatAPI(id, title);
+      console.log(`[ChatManager] Successfully renamed chat ${id} to: ${title}`, result);
     } catch (error) {
       console.error(`[ChatManager] Failed to rename chat ${id}:`, error);
       

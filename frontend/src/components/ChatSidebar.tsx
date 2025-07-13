@@ -53,12 +53,12 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
     }
   }, [successMessage]);
 
-  // Set initial focus to active chat when sidebar opens
+  // Set focus to active chat when sidebar opens or active chat changes
   useEffect(() => {
-    if (isOpen && activeChatId && !focusedChatId) {
+    if (isOpen && activeChatId) {
       setFocusedChatId(activeChatId);
     }
-  }, [isOpen, activeChatId, focusedChatId]);
+  }, [isOpen, activeChatId]);
 
   // Close context menu when clicking outside
   useEffect(() => {
@@ -208,10 +208,12 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
       }
       
       try {
+        console.log('[ChatSidebar] Attempting to rename chat:', editingChatId, 'to:', trimmedTitle);
         await renameChat(editingChatId, trimmedTitle);
+        console.log('[ChatSidebar] Rename successful');
         showSuccessMessage(`Chat renamed to "${trimmedTitle}"`);
       } catch (error) {
-        console.error('Failed to rename chat:', error);
+        console.error('[ChatSidebar] Failed to rename chat:', error);
         showSuccessMessage('Failed to rename chat. Please try again.');
       }
     }
@@ -262,9 +264,9 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
       <div 
         className={`${
           isPinned 
-            ? 'relative' 
-            : 'fixed left-0 top-0'
-        } h-full w-80 z-30 transition-transform duration-300 ease-in-out ${
+            ? 'relative h-full' 
+            : 'fixed left-0 top-0 h-screen'
+        } w-80 z-30 transition-transform duration-300 ease-in-out ${
           isPinned 
             ? '' 
             : isOpen 
@@ -394,7 +396,13 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
           </div>
 
           {/* Chat List */}
-          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+          <div 
+            className="flex-1 overflow-y-auto overflow-x-hidden" 
+            style={{ 
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(156, 163, 175, 0.5) transparent'
+            }}
+          >
             {isLoadingChats ? (
               <div className="p-2">
                 <ChatListSkeleton count={5} />
