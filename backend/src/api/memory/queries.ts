@@ -267,7 +267,7 @@ export async function getNeo4jGraphMemories(
       }
       
       visualizationData.push({
-        id: memory.id,
+        id: memory.id || `memory_${i}`,
         label: memory.memory?.substring(0, 50) || `Memory ${i + 1}`,
         content: memory.memory || memory.content || '',
         metadata: {
@@ -276,7 +276,7 @@ export async function getNeo4jGraphMemories(
           timestamp: memory.created_at || new Date().toISOString(),
           ...memory.metadata
         },
-        relationships,
+        relationships: relationships || [],
         position: {
           x: Math.random() * 800 + 100,
           y: Math.random() * 600 + 100
@@ -284,7 +284,12 @@ export async function getNeo4jGraphMemories(
       });
     }
     
-    return visualizationData;
+    // Ensure all nodes have required properties
+    return visualizationData.map(node => ({
+      ...node,
+      id: node.id || 'unknown',
+      relationships: node.relationships || []
+    }));
   } catch (error) {
     console.error('[Memory Queries] Failed to get Neo4j graph memories:', error);
     throw error;
