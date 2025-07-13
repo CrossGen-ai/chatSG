@@ -416,8 +416,8 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
       const newChat: Chat = {
         id: response.sessionId,
         title: response.session.title,
-        createdAt: new Date(response.session.createdAt),
-        lastMessageAt: new Date(response.session.createdAt),
+        createdAt: response.session.createdAt ? new Date(response.session.createdAt) : new Date(),
+        lastMessageAt: response.session.createdAt ? new Date(response.session.createdAt) : new Date(),
         messageCount: response.session.messageCount,
         isLoading: false,
         hasNewMessages: false,
