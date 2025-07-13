@@ -3,7 +3,7 @@ import { Brain, Pin, ChevronLeft } from 'lucide-react';
 import { MemoryTypeSelector } from './MemoryTypeSelector';
 import { AdminUserSelector } from './AdminUserSelector';
 
-export type MemoryType = 'short-term' | 'semantic' | 'long-term';
+export type MemoryType = 'short-term' | 'semantic' | 'long-term' | 'neo4j-graph';
 
 interface MemorySidebarProps {
   isOpen: boolean;

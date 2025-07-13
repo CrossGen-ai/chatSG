@@ -37,6 +37,9 @@ export const useMemoryVisualization = (): MemoryVisualizationHook => {
         case 'long-term':
           endpoint = `/api/memory/qdrant/${userId}`;
           break;
+        case 'neo4j-graph':
+          endpoint = `/api/memory/nvl/${userId}`;
+          break;
         default:
           throw new Error(`Unknown memory type: ${memoryType}`);
       }

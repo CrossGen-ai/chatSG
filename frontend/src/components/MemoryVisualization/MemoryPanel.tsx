@@ -12,7 +12,7 @@ interface MemoryPanelProps {
   currentUserId: string;
 }
 
-export type MemoryType = 'short-term' | 'semantic' | 'long-term';
+export type MemoryType = 'short-term' | 'semantic' | 'long-term' | 'neo4j-graph';
 
 export const MemoryPanel: React.FC<MemoryPanelProps> = ({
   isOpen,

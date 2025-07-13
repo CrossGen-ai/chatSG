@@ -89,16 +89,17 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
       // Only handle other shortcuts when sidebar is focused and a chat is focused
       if (!focusedChatId || editingChatId || isSelectionMode) return;
       
-      if (e.key === 'Delete') {
-        e.preventDefault();
-        setShowDeleteConfirm(focusedChatId);
-      } else if (e.key === 'F2') {
-        e.preventDefault();
-        const chat = chats.find(c => c.id === focusedChatId);
-        if (chat) {
-          handleRenameStart(focusedChatId, chat.title);
-        }
-      }
+      // Commented out key bindings for Delete and F2
+      // if (e.key === 'Delete') {
+      //   e.preventDefault();
+      //   setShowDeleteConfirm(focusedChatId);
+      // } else if (e.key === 'F2') {
+      //   e.preventDefault();
+      //   const chat = chats.find(c => c.id === focusedChatId);
+      //   if (chat) {
+      //     handleRenameStart(focusedChatId, chat.title);
+      //   }
+      // }
     };
     
     document.addEventListener('keydown', handleKeyDown);
@@ -463,7 +464,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
                           onFocus={() => !isSelectionMode && setFocusedChatId(chat.id)}
                           onBlur={() => !isSelectionMode && setFocusedChatId(null)}
                           className="flex-1 p-3 text-left focus:outline-none rounded-lg"
-                          aria-label={isSelectionMode ? `${selectedChatIds.has(chat.id) ? 'Deselect' : 'Select'} ${chat.title}` : `Switch to ${chat.title}. Press F2 to rename, Delete to delete.`}
+                          aria-label={isSelectionMode ? `${selectedChatIds.has(chat.id) ? 'Deselect' : 'Select'} ${chat.title}` : `Switch to ${chat.title}`}
                         >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
@@ -503,7 +504,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
                             </div>
                             <div className="flex items-center space-x-2 mt-1">
                               <span className="text-xs theme-text-secondary">
-                                {formatTimestamp(new Date(chat.lastMessageAt))}
+                                {formatTimestamp(chat.lastMessageAt instanceof Date ? chat.lastMessageAt : new Date(chat.lastMessageAt))}
                               </span>
                               {chat.messageCount > 0 && (
                                 <span className="text-xs theme-text-secondary inline-flex items-center">
@@ -582,7 +583,8 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
           {/* Keyboard Shortcuts Help */}
           {focusedChatId && (
             <div className="p-3 border-t border-white/20 dark:border-white/10 backdrop-blur-md bg-white/10 dark:bg-black/10">
-              <div className="text-xs theme-text-secondary text-center">
+              {/* Commented out key binding hints */}
+              {/* <div className="text-xs theme-text-secondary text-center">
                 <span className="inline-flex items-center space-x-1">
                   <kbd className="px-1.5 py-0.5 text-xs font-semibold bg-white/20 dark:bg-black/20 border border-white/30 dark:border-white/20 rounded">F2</kbd>
                   <span>rename</span>
@@ -590,7 +592,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({ isOpen, onClose, isPin
                   <kbd className="px-1.5 py-0.5 text-xs font-semibold bg-white/20 dark:bg-black/20 border border-white/30 dark:border-white/20 rounded">Del</kbd>
                   <span>delete</span>
                 </span>
-              </div>
+              </div> */}
             </div>
           )}
         </div>

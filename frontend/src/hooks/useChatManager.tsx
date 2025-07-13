@@ -7,7 +7,8 @@ import {
   deleteChat as deleteChatAPI,
   ChatMetadata,
   markChatAsRead,
-  createChat as createChatAPI
+  createChat as createChatAPI,
+  renameChat as renameChatAPI
 } from '../api/chat';
 import { useAuth } from '../hooks/useAuth';
 
@@ -486,14 +487,30 @@ export const ChatManagerProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   // Rename a chat
   const renameChat = useCallback(async (id: string, title: string): Promise<void> => {
+    // Store the old title for potential rollback
+    const oldChat = chats.find(c => c.id === id);
+    const oldTitle = oldChat?.title || '';
+    
     // Update locally first (optimistic update)
     setChats(prevChats =>
       prevChats.map(chat => (chat.id === id ? { ...chat, title } : chat))
     );
     
-    // TODO: Implement rename endpoint on backend
-    console.log(`[ChatManager] Renamed chat ${id} to: ${title}`);
-  }, []);
+    try {
+      // Call backend API to persist the change
+      await renameChatAPI(id, title);
+      console.log(`[ChatManager] Successfully renamed chat ${id} to: ${title}`);
+    } catch (error) {
+      console.error(`[ChatManager] Failed to rename chat ${id}:`, error);
+      
+      // Rollback on error
+      setChats(prevChats =>
+        prevChats.map(chat => (chat.id === id ? { ...chat, title: oldTitle } : chat))
+      );
+      
+      throw error;
+    }
+  }, [chats]);
 
   // Switch active chat
   const switchChat = useCallback((id: string): void => {

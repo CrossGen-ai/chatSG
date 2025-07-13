@@ -343,6 +343,58 @@ async function getUsersForAdmin(req: any, res: any) {
 }
 
 /**
+ * Get NVL graph memories for visualization
+ * This is similar to getNeo4jVisualization but can be customized for NVL-specific features
+ */
+async function getNvlVisualization(req: any, res: any) {
+  try {
+    const { userId } = req.params;
+    const { sessionId, limit = 500 } = req.query;
+    
+    // Validate user access
+    const canAccess = await canAccessUserMemories(req.user.id, userId);
+    if (!canAccess) {
+      res.writeHead(403, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        error: 'Access denied',
+        message: 'You do not have permission to view this user\'s memories'
+      }));
+      return;
+    }
+    
+    // Get graph memories - using same function as Neo4j for now
+    // In future, this could query actual Neo4j database with real relationship types
+    const memories = await getNeo4jGraphMemories(userId, sessionId, parseInt(limit));
+    
+    // Get user stats for metadata
+    const stats = await getMemoryStats(userId);
+    
+    const response: MemoryVisualizationResponse<Neo4jVisualizationData> = {
+      success: true,
+      data: memories,
+      metadata: {
+        totalSessions: stats.totalSessions,
+        totalMemories: stats.totalMessages,
+        dateRange: {
+          earliest: stats.earliestSession,
+          latest: stats.latestSession
+        }
+      }
+    };
+    
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(response));
+  } catch (error) {
+    console.error('[Memory API] NVL visualization error:', error);
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      error: 'Internal server error',
+      message: 'Failed to fetch graph memories for NVL visualization'
+    }));
+  }
+}
+
+/**
  * Get memory statistics for a user
  */
 async function getMemoryStatsForUser(req: any, res: any) {
@@ -384,6 +436,7 @@ async function getMemoryStatsForUser(req: any, res: any) {
 module.exports = {
   getQdrantVisualization,
   getNeo4jVisualization,
+  getNvlVisualization,
   getPostgresVisualization,
   getPostgresSessionVisualization,
   getUsersForAdmin,

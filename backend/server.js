@@ -2684,6 +2684,25 @@ const server = http.createServer(async (req, res) => {
             res.end(JSON.stringify({ error: 'Memory visualization not available' }));
         }
         
+    } else if (req.url.match(/^\/api\/memory\/nvl\/([^/]+)$/) && req.method === 'GET') {
+        if (!req.isAuthenticated) {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Authentication required' }));
+            return;
+        }
+        
+        if (memoryVisualizationHandlers) {
+            const match = req.url.match(/^\/api\/memory\/nvl\/([^/]+)$/);
+            req.params = { userId: match[1] };
+            // For now, use the same handler as neo4j, but we'll create a dedicated one
+            memoryVisualizationHandlers.getNvlVisualization ? 
+                memoryVisualizationHandlers.getNvlVisualization(req, res) :
+                memoryVisualizationHandlers.getNeo4jVisualization(req, res);
+        } else {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Memory visualization not available' }));
+        }
+        
     } else if (req.url.match(/^\/api\/memory\/postgres\/([^/]+)$/) && req.method === 'GET') {
         if (!req.isAuthenticated) {
             res.writeHead(401, { 'Content-Type': 'application/json' });
@@ -2885,6 +2904,46 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ 
                 error: 'Failed to delete chat',
+                details: error.message
+            }));
+        }
+    } else if (req.url.match(/^\/api\/chats\/([^/]+)$/) && req.method === 'PATCH') {
+        // Update chat (rename)
+        try {
+            const chatId = req.url.match(/^\/api\/chats\/([^/]+)$/)[1];
+            const data = req.body; // Body already parsed by middleware
+            
+            console.log('[Server] PATCH /api/chats/:id - updating chat:', chatId, data);
+            
+            // Use new storage manager if available
+            if (storageManager) {
+                // Update the session title
+                await storageManager.sessionIndex.updateSession(chatId, {
+                    title: data.title
+                });
+                
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    success: true,
+                    chatId: chatId,
+                    title: data.title,
+                    _backend: BACKEND,
+                    _storage: 'new'
+                }));
+                return;
+            }
+            
+            // Fallback for non-storage manager
+            res.writeHead(501, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                error: 'Chat rename not supported without storage manager',
+                _backend: BACKEND
+            }));
+        } catch (error) {
+            console.error('Update chat error:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+                error: 'Failed to update chat',
                 details: error.message
             }));
         }

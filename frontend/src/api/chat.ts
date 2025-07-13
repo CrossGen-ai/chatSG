@@ -435,6 +435,24 @@ export async function createChat(data: {
   }
 }
 
+export async function renameChat(chatId: string, title: string): Promise<{
+  success: boolean;
+  chatId: string;
+  title: string;
+}> {
+  try {
+    const response = await axios.patch(`/api/chats/${chatId}`, 
+      { title }, 
+      {
+        headers: await csrfManager.addHeaders()
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    throw new Error(`Failed to rename chat: ${error.response?.data?.error || error.message}`);
+  }
+}
+
 // Streaming chat interface
 export interface StreamingChatCallbacks {
   onStart?: (data: { agent?: string; sessionId: string }) => void;

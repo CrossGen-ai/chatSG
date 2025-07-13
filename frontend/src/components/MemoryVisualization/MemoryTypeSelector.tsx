@@ -1,7 +1,7 @@
 import React from 'react';
-import { Database, Network, Table } from 'lucide-react';
+import { Database, Network, Table, GitBranch } from 'lucide-react';
 
-export type MemoryType = 'short-term' | 'semantic' | 'long-term';
+export type MemoryType = 'short-term' | 'semantic' | 'long-term' | 'neo4j-graph';
 
 interface MemoryTypeSelectorProps {
   activeType: MemoryType;
@@ -35,6 +35,13 @@ const memoryTypes: Array<{
     icon: Database,
     description: 'Vector embeddings and semantic memories',
     color: 'text-emerald-500'
+  },
+  {
+    id: 'neo4j-graph',
+    label: 'Neo4j Graph',
+    icon: GitBranch,
+    description: 'Real Neo4j relationships with NVL',
+    color: 'text-orange-500'
   }
 ];
 
@@ -100,6 +107,7 @@ export const MemoryTypeSelector: React.FC<MemoryTypeSelectorProps> = ({
             ${activeType === 'short-term' ? 'bg-blue-500/20 text-blue-400' : ''}
             ${activeType === 'semantic' ? 'bg-purple-500/20 text-purple-400' : ''}
             ${activeType === 'long-term' ? 'bg-emerald-500/20 text-emerald-400' : ''}
+            ${activeType === 'neo4j-graph' ? 'bg-orange-500/20 text-orange-400' : ''}
           `}>
             {memoryTypes.find(t => t.id === activeType)?.label}
           </div>
@@ -109,6 +117,7 @@ export const MemoryTypeSelector: React.FC<MemoryTypeSelectorProps> = ({
           {activeType === 'short-term' && 'PostgreSQL sessions and messages with advanced filtering'}
           {activeType === 'semantic' && 'Neo4j graph relationships with interactive node exploration'}
           {activeType === 'long-term' && 'Qdrant vector embeddings with similarity visualization'}
+          {activeType === 'neo4j-graph' && 'Native Neo4j visualization with real relationship types'}
         </div>
       </div>
     </div>

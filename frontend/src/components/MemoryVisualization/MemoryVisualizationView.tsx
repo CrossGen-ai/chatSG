@@ -3,6 +3,7 @@ import { MemoryType } from './MemoryPanel';
 import { PostgresMemoryTable } from './PostgresMemoryTable';
 import { Neo4jGraphView } from './Neo4jGraphView';
 import { QdrantScatterPlot } from './QdrantScatterPlot';
+import { NvlGraphView } from './NvlGraphView';
 import { useMemoryVisualization } from '../../hooks/useMemoryVisualization';
 
 // Error boundary component for catching render errors
@@ -153,6 +154,12 @@ export const MemoryVisualizationView: React.FC<MemoryVisualizationViewProps> = (
       return (
         <ErrorBoundary>
           <QdrantScatterPlot data={memoryData} />
+        </ErrorBoundary>
+      );
+    case 'neo4j-graph':
+      return (
+        <ErrorBoundary>
+          <NvlGraphView data={memoryData} />
         </ErrorBoundary>
       );
     default:
