@@ -255,9 +255,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
   
-  // For now, allow access even if not authenticated (for development)
-  // To require auth, change this to: return isAuthenticated ? children : <Navigate to="/login" />;
-  return <>{children}</>;
+  // Redirect to login if not authenticated
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 }
 
 function App() {

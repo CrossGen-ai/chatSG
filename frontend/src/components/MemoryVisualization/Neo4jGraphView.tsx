@@ -25,10 +25,33 @@ interface Neo4jGraphViewProps {
 
 export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
   const cyRef = useRef<any>(null);
+  const mountedRef = useRef<boolean>(true);
   const [selectedNode, setSelectedNode] = useState<Neo4jNode | null>(null);
   const [layout, setLayout] = useState<string>('cose');
   const [showRelationships, setShowRelationships] = useState<boolean>(true);
   const [nodeFilter, setNodeFilter] = useState<string>('');
+
+  // Cleanup Cytoscape instance on unmount
+  useEffect(() => {
+    mountedRef.current = true;
+    
+    return () => {
+      mountedRef.current = false;
+      if (cyRef.current) {
+        try {
+          // Stop all animations before destroying
+          cyRef.current.stop();
+          // Remove all event listeners
+          cyRef.current.removeAllListeners();
+          // Destroy the instance
+          cyRef.current.destroy();
+          cyRef.current = null;
+        } catch (error) {
+          console.error('Error cleaning up Cytoscape:', error);
+        }
+      }
+    };
+  }, []);
 
   // Transform data for Cytoscape
   const elements = React.useMemo(() => {
@@ -95,7 +118,6 @@ export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
       selector: 'node',
       style: {
         'background-color': '#3b82f6',
-        'label': 'data(label)',
         'width': 30,
         'height': 30,
         'font-size': '10px',
@@ -108,6 +130,12 @@ export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
         'border-color': '#1e40af',
         'overlay-padding': '6px',
         'z-index': 10
+      }
+    },
+    {
+      selector: 'node[label]',
+      style: {
+        'label': 'data(label)'
       }
     },
     {
@@ -127,13 +155,18 @@ export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
         'target-arrow-shape': 'triangle',
         'arrow-scale': 1,
         'curve-style': 'bezier',
-        'label': 'data(label)',
         'font-size': '8px',
         'text-rotation': 'autorotate',
         'text-margin-y': -10,
         'color': '#ffffff',
         'text-outline-width': 1,
         'text-outline-color': '#000000'
+      }
+    },
+    {
+      selector: 'edge[label]',
+      style: {
+        'label': 'data(label)'
       }
     },
     {
@@ -228,6 +261,8 @@ export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
   };
 
   const handleNodeClick = (node: any) => {
+    if (!mountedRef.current) return;
+    
     const nodeData = data.find(n => n.id === node.id());
     if (nodeData) {
       setSelectedNode(nodeData);
@@ -236,14 +271,22 @@ export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
 
   const resetLayout = () => {
     if (cyRef.current) {
-      cyRef.current.fit();
-      cyRef.current.center();
+      try {
+        cyRef.current.fit();
+        cyRef.current.center();
+      } catch (error) {
+        console.error('Error resetting layout:', error);
+      }
     }
   };
 
   const fitToScreen = () => {
     if (cyRef.current) {
-      cyRef.current.fit();
+      try {
+        cyRef.current.fit();
+      } catch (error) {
+        console.error('Error fitting to screen:', error);
+      }
     }
   };
 
@@ -336,37 +379,58 @@ export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
           
           // Add event listeners
           cy.on('tap', 'node', (event) => {
+            if (!mountedRef.current) return;
             handleNodeClick(event.target);
           });
           
           cy.on('mouseover', 'node', (event) => {
-            const node = event.target;
-            node.style('width', '35px');
-            node.style('height', '35px');
+            if (!mountedRef.current) return;
+            try {
+              const node = event.target;
+              node.style('width', '35px');
+              node.style('height', '35px');
+            } catch (error) {
+              console.error('Error in node mouseover:', error);
+            }
           });
           
           cy.on('mouseout', 'node', (event) => {
-            const node = event.target;
-            if (!node.selected()) {
-              node.style('width', '30px');
-              node.style('height', '30px');
+            if (!mountedRef.current) return;
+            try {
+              const node = event.target;
+              if (!node.selected()) {
+                node.style('width', '30px');
+                node.style('height', '30px');
+              }
+            } catch (error) {
+              console.error('Error in node mouseout:', error);
             }
           });
           
           // Edge hover effects
           cy.on('mouseover', 'edge', (event) => {
-            const edge = event.target;
-            edge.style('line-color', '#a855f7');
-            edge.style('target-arrow-color', '#a855f7');
-            edge.style('width', 3);
+            if (!mountedRef.current) return;
+            try {
+              const edge = event.target;
+              edge.style('line-color', '#a855f7');
+              edge.style('target-arrow-color', '#a855f7');
+              edge.style('width', 3);
+            } catch (error) {
+              console.error('Error in edge mouseover:', error);
+            }
           });
           
           cy.on('mouseout', 'edge', (event) => {
-            const edge = event.target;
-            if (!edge.selected()) {
-              edge.style('line-color', '#8b5cf6');
-              edge.style('target-arrow-color', '#8b5cf6');
-              edge.style('width', 2);
+            if (!mountedRef.current) return;
+            try {
+              const edge = event.target;
+              if (!edge.selected()) {
+                edge.style('line-color', '#8b5cf6');
+                edge.style('target-arrow-color', '#8b5cf6');
+                edge.style('width', 2);
+              }
+            } catch (error) {
+              console.error('Error in edge mouseout:', error);
             }
           });
         }}
