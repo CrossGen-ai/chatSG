@@ -110,17 +110,18 @@ const testStorage = async (req, res) => {
 
             // Test message storage
             const testMessage = {
-                role: 'user',
+                sessionId: testSessionId,
+                type: 'user',
                 content: 'Test message',
-                timestamp: new Date().toISOString()
+                metadata: {}
             };
-            await storage.appendMessage(testSessionId, testMessage);
-            results.messageOperations.testAppend = {
+            await storage.saveMessage(testMessage);
+            results.messageOperations.testSave = {
                 success: true
             };
 
             // Read back
-            const messages = await storage.getMessages(testSessionId);
+            const messages = await storage.getSessionHistory(testSessionId);
             results.messageOperations.readBack = {
                 success: true,
                 messageCount: messages.length
