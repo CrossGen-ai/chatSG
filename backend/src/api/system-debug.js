@@ -465,24 +465,75 @@ const checkCompiledCode = async (req, res) => {
     };
 
     try {
-        // Check if PostgresSessionIndex is using getPool()
-        const indexPath = path.join(__dirname, '../storage/PostgresSessionIndex.js');
-        const indexContent = await fs.readFile(indexPath, 'utf8');
-        results.files.PostgresSessionIndex = {
-            exists: true,
-            hasThisPool: indexContent.includes('this.pool'),
-            hasGetPool: indexContent.includes('getPool()'),
-            line199: indexContent.split('\n')[198] || 'Line not found'
-        };
+        // Find the base directory (could be dist/src or src)
+        const possiblePaths = [
+            path.join(__dirname, '../storage/PostgresSessionIndex.js'), // If in src/api
+            path.join(__dirname, '../../dist/src/storage/PostgresSessionIndex.js'), // If compiled
+            path.join(process.cwd(), 'dist/src/storage/PostgresSessionIndex.js'), // From root
+            path.join(process.cwd(), 'src/storage/PostgresSessionIndex.js') // Uncompiled
+        ];
+        
+        let indexPath = null;
+        for (const p of possiblePaths) {
+            try {
+                await fs.access(p);
+                indexPath = p;
+                break;
+            } catch (e) {
+                // Continue searching
+            }
+        }
+        
+        if (indexPath) {
+            const indexContent = await fs.readFile(indexPath, 'utf8');
+            results.files.PostgresSessionIndex = {
+                path: indexPath,
+                exists: true,
+                hasThisPool: indexContent.includes('this.pool'),
+                hasGetPool: indexContent.includes('getPool()'),
+                line199: indexContent.split('\n')[198] || 'Line not found',
+                lineCount: indexContent.split('\n').length
+            };
+        } else {
+            results.files.PostgresSessionIndex = {
+                exists: false,
+                searchedPaths: possiblePaths
+            };
+        }
 
         // Check pool.js
-        const poolPath = path.join(__dirname, '../database/pool.js');
-        const poolContent = await fs.readFile(poolPath, 'utf8');
-        results.files.pool = {
-            exists: true,
-            hasPGSSLCheck: poolContent.includes("process.env.PGSSL === 'false'"),
-            hasDATABASE_SSLCheck: poolContent.includes("process.env.DATABASE_SSL === 'false'")
-        };
+        const poolPaths = [
+            path.join(__dirname, '../database/pool.js'),
+            path.join(__dirname, '../../dist/src/database/pool.js'),
+            path.join(process.cwd(), 'dist/src/database/pool.js'),
+            path.join(process.cwd(), 'src/database/pool.js')
+        ];
+        
+        let poolPath = null;
+        for (const p of poolPaths) {
+            try {
+                await fs.access(p);
+                poolPath = p;
+                break;
+            } catch (e) {
+                // Continue searching
+            }
+        }
+        
+        if (poolPath) {
+            const poolContent = await fs.readFile(poolPath, 'utf8');
+            results.files.pool = {
+                path: poolPath,
+                exists: true,
+                hasPGSSLCheck: poolContent.includes("process.env.PGSSL === 'false'"),
+                hasDATABASE_SSLCheck: poolContent.includes("process.env.DATABASE_SSL === 'false'")
+            };
+        } else {
+            results.files.pool = {
+                exists: false,
+                searchedPaths: poolPaths
+            };
+        }
 
         // Environment at this moment
         results.currentEnv = {
@@ -490,6 +541,13 @@ const checkCompiledCode = async (req, res) => {
             DATABASE_SSL: process.env.DATABASE_SSL,
             NODE_ENV: process.env.NODE_ENV,
             DATABASE_URL: process.env.DATABASE_URL ? 'set' : 'not set'
+        };
+        
+        // Debug info
+        results.debug = {
+            __dirname: __dirname,
+            cwd: process.cwd(),
+            scriptPath: __filename
         };
 
     } catch (error) {
