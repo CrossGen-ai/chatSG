@@ -38,7 +38,10 @@
     "**/*.test.ts",
     "**/*.spec.js",
     "**/*.spec.ts",
-    "**/*.d.ts"
+    "**/*.d.ts",
+    "src/**/*.js",
+    "**/*.config.js",
+    "**/*.setup.js"
   ],
   "ts-node": {
     "esm": false,
