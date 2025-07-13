@@ -65,7 +65,8 @@ export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
     // Add edges (relationships)
     if (showRelationships) {
       filteredData.forEach(node => {
-        node.relationships.forEach(rel => {
+        if (node.relationships && Array.isArray(node.relationships)) {
+          node.relationships.forEach(rel => {
           const edgeId = `${node.id}-${rel.target}`;
           if (!processedEdges.has(edgeId) && processedNodes.has(rel.target)) {
             elements.push({
@@ -80,7 +81,8 @@ export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
             });
             processedEdges.add(edgeId);
           }
-        });
+          });
+        }
       });
     }
 
@@ -117,22 +119,13 @@ export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
       }
     },
     {
-      selector: 'node:hover',
-      style: {
-        'background-color': '#6366f1',
-        'border-color': '#4f46e5',
-        'width': 35,
-        'height': 35
-      }
-    },
-    {
       selector: 'edge',
       style: {
         'width': 2,
         'line-color': '#8b5cf6',
         'target-arrow-color': '#8b5cf6',
         'target-arrow-shape': 'triangle',
-        'target-arrow-size': 8,
+        'arrow-scale': 1,
         'curve-style': 'bezier',
         'label': 'data(label)',
         'font-size': '8px',
@@ -148,14 +141,6 @@ export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
       style: {
         'line-color': '#ef4444',
         'target-arrow-color': '#ef4444',
-        'width': 3
-      }
-    },
-    {
-      selector: 'edge:hover',
-      style: {
-        'line-color': '#a855f7',
-        'target-arrow-color': '#a855f7',
         'width': 3
       }
     }
@@ -365,6 +350,23 @@ export const Neo4jGraphView: React.FC<Neo4jGraphViewProps> = ({ data }) => {
             if (!node.selected()) {
               node.style('width', '30px');
               node.style('height', '30px');
+            }
+          });
+          
+          // Edge hover effects
+          cy.on('mouseover', 'edge', (event) => {
+            const edge = event.target;
+            edge.style('line-color', '#a855f7');
+            edge.style('target-arrow-color', '#a855f7');
+            edge.style('width', 3);
+          });
+          
+          cy.on('mouseout', 'edge', (event) => {
+            const edge = event.target;
+            if (!edge.selected()) {
+              edge.style('line-color', '#8b5cf6');
+              edge.style('target-arrow-color', '#8b5cf6');
+              edge.style('width', 2);
             }
           });
         }}
